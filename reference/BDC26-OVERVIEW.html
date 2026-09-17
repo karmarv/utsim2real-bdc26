@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>html,body{margin:0}*{box-sizing:border-box}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sim2Real LiDAR Playbook</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Chivo:wght@700;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  :root{
+    --bg:#EEF2F3; --surface:#FFFFFF; --surface-2:#F5F9FA; --surface-3:#EAF1F2;
+    --ink:#0F1B1E; --ink-soft:#45575C; --ink-faint:#6C7D82;
+    --line:#D2DEE1; --line-soft:#E2EAEC;
+    --accent:#0C8B93; --accent-strong:#0A6E75; --accent-soft:#D6EDEE; --on-accent:#FFFFFF;
+    --amber:#9C6B15; --amber-soft:#F1E4C6;
+    --violet:#5A48C7; --violet-soft:#E2DDF7;
+    --good:#2F7A57; --warn:#9C6B15; --crit:#B0451F;
+    --shadow:0 1px 2px rgba(15,27,30,.05),0 8px 24px rgba(15,27,30,.06);
+    --radius:14px; --radius-sm:9px;
+    --font-display:'Chivo',system-ui,sans-serif;
+    --font-body:'IBM Plex Sans',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1214; --surface:#0F1C1F; --surface-2:#122428; --surface-3:#162C31;
+      --ink:#E4EEF0; --ink-soft:#A2B6BB; --ink-faint:#7A9096;
+      --line:#22383D; --line-soft:#1A2E32;
+      --accent:#2AD1D1; --accent-strong:#63E4E4; --accent-soft:#10353A; --on-accent:#04191B;
+      --amber:#E3B25A; --amber-soft:#33290F;
+      --violet:#9E8CFF; --violet-soft:#221C42;
+      --good:#4FBF8B; --warn:#E3B25A; --crit:#E8794E;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1214; --surface:#0F1C1F; --surface-2:#122428; --surface-3:#162C31;
+    --ink:#E4EEF0; --ink-soft:#A2B6BB; --ink-faint:#7A9096;
+    --line:#22383D; --line-soft:#1A2E32;
+    --accent:#2AD1D1; --accent-strong:#63E4E4; --accent-soft:#10353A; --on-accent:#04191B;
+    --amber:#E3B25A; --amber-soft:#33290F;
+    --violet:#9E8CFF; --violet-soft:#221C42;
+    --good:#4FBF8B; --warn:#E3B25A; --crit:#E8794E;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.6;
+       font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:var(--accent);color:var(--on-accent)}
+  a{color:var(--accent-strong);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3,h4{font-family:var(--font-display);font-weight:900;line-height:1.1;
+       text-wrap:balance;letter-spacing:-.01em;margin:0}
+  p{margin:0}
+  .mono{font-family:var(--font-mono)}
+
+  /* layout */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  section{padding:52px 0;border-top:1px solid var(--line-soft)}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:.14em;
+       text-transform:uppercase;color:var(--accent-strong);margin-bottom:12px;display:block}
+  .sec-title{font-size:clamp(24px,3.4vw,34px);margin-bottom:10px}
+  .sec-lead{color:var(--ink-soft);max-width:66ch;font-size:16px}
+
+  /* top nav */
+  .nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);
+       backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:-.01em;
+       display:flex;align-items:center;gap:9px;white-space:nowrap}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);
+       box-shadow:0 0 0 3px var(--accent-soft)}
+  .nav-links{display:flex;gap:16px;margin-left:auto;flex-wrap:wrap}
+  .nav-links a{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);font-weight:500}
+  .nav-links a:hover{color:var(--accent-strong);text-decoration:none}
+  .toggle{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--ink-soft);
+       background:var(--surface-2);border:1px solid var(--line);border-radius:20px;
+       padding:5px 12px;cursor:pointer}
+  .toggle:hover{border-color:var(--accent);color:var(--accent-strong)}
+  @media(max-width:760px){.nav-links{display:none}}
+
+  /* hero */
+  .hero{position:relative;overflow:hidden;padding:66px 0 58px}
+  .hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5;z-index:0}
+  .hero .wrap{position:relative;z-index:1}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12px;
+       font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-strong);
+       background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
+       padding:6px 13px;border-radius:30px;margin-bottom:20px}
+  .hero h1{font-size:clamp(31px,5.6vw,58px);max-width:16ch}
+  .hero .thesis{margin-top:18px;font-size:clamp(16px,2.1vw,20px);color:var(--ink-soft);max-width:60ch}
+  .hero .thesis b{color:var(--ink);font-weight:600}
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+       padding:16px 16px 15px;box-shadow:var(--shadow)}
+  .stat .n{font-family:var(--font-display);font-weight:900;font-size:26px;color:var(--accent-strong);
+       line-height:1;font-variant-numeric:tabular-nums}
+  .stat .l{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.03em;color:var(--ink-faint);
+       text-transform:uppercase;margin-top:8px}
+  @media(max-width:720px){.stat-row{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:34px}}
+
+  /* generic cards + grids */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+       padding:22px;box-shadow:var(--shadow)}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:820px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+  /* workflow strip */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:26px}
+  .step{position:relative;background:var(--surface);border:1px solid var(--line);padding:20px 18px;
+       border-right:none}
+  .step:first-child{border-radius:var(--radius) 0 0 var(--radius)}
+  .step:last-child{border-right:1px solid var(--line);border-radius:0 var(--radius) var(--radius) 0}
+  .step .idx{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--on-accent);
+       background:var(--accent);width:24px;height:24px;border-radius:50%;display:flex;
+       align-items:center;justify-content:center;margin-bottom:12px}
+  .step h4{font-size:16px;margin-bottom:6px}
+  .step p{font-size:13.5px;color:var(--ink-soft)}
+  .step .arrow{position:absolute;right:-10px;top:50%;transform:translateY(-50%);z-index:2;
+       width:20px;height:20px;color:var(--accent);background:var(--bg);border-radius:50%;
+       display:flex;align-items:center;justify-content:center;font-size:13px}
+  .step:last-child .arrow{display:none}
+  @media(max-width:820px){.flow{grid-template-columns:1fr}
+    .step{border-right:1px solid var(--line);border-bottom:none;border-radius:0}
+    .step:first-child{border-radius:var(--radius) var(--radius) 0 0}
+    .step:last-child{border-bottom:1px solid var(--line);border-radius:0 0 var(--radius) var(--radius)}
+    .step .arrow{right:50%;top:auto;bottom:-10px;transform:translateX(50%) rotate(90deg)}}
+
+  /* scoring split */
+  .score-bar{display:flex;height:64px;border-radius:var(--radius);overflow:hidden;
+       border:1px solid var(--line);margin:24px 0 8px;font-family:var(--font-mono);font-weight:600}
+  .score-bar .seg{display:flex;flex-direction:column;justify-content:center;padding:0 20px;color:#fff}
+  .seg.det{flex:0 0 60%;background:linear-gradient(120deg,var(--accent-strong),var(--accent))}
+  .seg.real{flex:0 0 40%;background:linear-gradient(120deg,var(--amber),color-mix(in srgb,var(--amber) 70%,#000))}
+  .seg .pct{font-family:var(--font-display);font-size:22px;line-height:1}
+  .seg .cap{font-size:11.5px;opacity:.92;margin-top:4px;letter-spacing:.02em}
+  .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+  .metric{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px}
+  .metric .k{font-family:var(--font-mono);font-weight:600;color:var(--amber);font-size:15px}
+  .metric .d{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+  @media(max-width:720px){.metric-grid{grid-template-columns:1fr 1fr}}
+
+  /* tiers */
+  .tier{display:grid;grid-template-columns:54px 1fr auto;gap:18px;align-items:start;
+       padding:18px 0;border-bottom:1px solid var(--line-soft)}
+  .tier:last-child{border-bottom:none}
+  .tier .num{font-family:var(--font-display);font-weight:900;font-size:30px;color:var(--accent);
+       line-height:1;font-variant-numeric:tabular-nums}
+  .tier h4{font-size:17px;margin-bottom:5px}
+  .tier p{font-size:14px;color:var(--ink-soft)}
+  .badges{display:flex;flex-direction:column;gap:6px;align-items:flex-end;white-space:nowrap}
+  .badge{font-family:var(--font-mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;
+       border:1px solid var(--line)}
+  .badge.impact{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
+  .badge.effort{color:var(--ink-soft);background:var(--surface-2)}
+  @media(max-width:720px){.tier{grid-template-columns:40px 1fr}.badges{grid-column:1/-1;flex-direction:row;align-items:flex-start}}
+
+  /* track compare */
+  .track-head{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+  .track-tag{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;
+       text-transform:uppercase;padding:4px 10px;border-radius:20px}
+  .tag-v2x{color:var(--accent-strong);background:var(--accent-soft)}
+  .tag-lum{color:var(--violet);background:var(--violet-soft)}
+  .kv{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--ink-faint);font-family:var(--font-mono);font-size:12px}
+  .kv .v{color:var(--ink);text-align:right;font-weight:500}
+
+  /* gap bars */
+  .gap-row{display:grid;grid-template-columns:210px 1fr;gap:16px;align-items:center;padding:9px 0}
+  .gap-row .lab{font-size:14px;font-weight:500}
+  .gap-row .lab small{display:block;color:var(--ink-faint);font-weight:400;font-size:12px}
+  .track-bar{height:12px;background:var(--surface-3);border-radius:20px;overflow:hidden}
+  .track-bar span{display:block;height:100%;border-radius:20px;
+       background:linear-gradient(90deg,var(--accent),var(--accent-strong))}
+  @media(max-width:640px){.gap-row{grid-template-columns:1fr}}
+
+  /* roadmap */
+  .road{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:24px}
+  .phase{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+       padding:15px 13px;position:relative}
+  .phase .p{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--accent-strong);
+       text-transform:uppercase;letter-spacing:.05em}
+  .phase .wk{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-top:2px}
+  .phase h4{font-size:14px;margin:9px 0 5px}
+  .phase p{font-size:12.5px;color:var(--ink-soft)}
+  @media(max-width:900px){.road{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.road{grid-template-columns:1fr}}
+
+  /* tools */
+  .tool{display:flex;gap:13px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+  .tool:last-child{border-bottom:none}
+  .tool .t{font-family:var(--font-mono);font-weight:600;font-size:13.5px;color:var(--accent-strong);
+       flex:0 0 150px}
+  .tool .x{font-size:13.5px;color:var(--ink-soft)}
+  @media(max-width:620px){.tool{flex-direction:column;gap:3px}.tool .t{flex:none}}
+
+  /* callout */
+  .note{border-left:3px solid var(--accent);background:var(--surface-2);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+       padding:15px 18px;font-size:14px;color:var(--ink-soft)}
+  .note.warn{border-left-color:var(--warn);background:var(--amber-soft)}
+  .note b{color:var(--ink)}
+
+  ul.clean{margin:12px 0 0;padding-left:20px}
+  ul.clean li{margin-bottom:7px;font-size:14px;color:var(--ink-soft)}
+  ul.clean li b{color:var(--ink);font-weight:600}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:38px 0 56px;color:var(--ink-soft);font-size:13.5px}
+  .ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 26px;margin-top:14px}
+  .ref-grid a{font-family:var(--font-mono);font-size:12.5px}
+  @media(max-width:720px){.ref-grid{grid-template-columns:1fr}}
+
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="brand"><span class="dot"></span>Sim2Real LiDAR Playbook</div>
+    <div class="nav-links">
+      <a href="#challenge">Challenge</a>
+      <a href="#scoring">Scoring</a>
+      <a href="#strategy">Strategy</a>
+      <a href="#tracks">Tracks</a>
+      <a href="#gap">Sim2Real gap</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#stack">Stack</a>
+    </div>
+    <button class="toggle" id="themeBtn" aria-label="Toggle color theme">Theme</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <canvas id="pc" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <span class="kicker">IEEE BigData Cup 2026 &middot; UCF UrbanTwin Challenge</span>
+    <h1>Train on synthetic. Win on real.</h1>
+    <p class="thesis">A learning-first field guide to both tracks of the UrbanTwin Sim2Real LiDAR Challenge. The task: <b>generate your own LiDAR point clouds, train a 3D detector on them alone, and prove it on real held-out data.</b> The edge: geospatial digital-twin fidelity, the pedestrian class everyone else drops, and a realism score most rivals ignore.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="n">2</div><div class="l">Tracks: V2X-Real + LUMPI</div></div>
+      <div class="stat"><div class="n">60/40</div><div class="l">Detection + realism score</div></div>
+      <div class="stat"><div class="n">~2 mo</div><div class="l">Dev phase to Oct 31</div></div>
+      <div class="stat"><div class="n">1st</div><div class="l">Edition: no prior winners</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="challenge">
+  <div class="wrap">
+    <span class="eyebrow">The task, decoded</span>
+    <h2 class="sec-title">Four mandatory steps, one hard rule</h2>
+    <p class="sec-lead">You never train on real labels. You synthesize data, learn from it, and are judged on a real sensor you have only seen unlabeled. Everything in this guide serves those four steps.</p>
+    <div class="flow">
+      <div class="step"><div class="idx">1</div><h4>Download real</h4><p>The real dataset from source, plus 50 real test frames as point clouds with no labels.</p><div class="arrow">&rarr;</div></div>
+      <div class="step"><div class="idx">2</div><h4>Generate synthetic</h4><p>Any method: CARLA, Helios++, NeRFs, diffusion, GANs, custom physics. You build the training set.</p><div class="arrow">&rarr;</div></div>
+      <div class="step"><div class="idx">3</div><h4>Train on synthetic only</h4><p>A 3D detector trained on your synthetic data alone. No real labels, no real fine-tuning.</p><div class="arrow">&rarr;</div></div>
+      <div class="step"><div class="idx">4</div><h4>Submit + declare</h4><p>50 synthetic frames, predictions on the 50 real frames, and a signed honor declaration.</p></div>
+    </div>
+    <div style="margin-top:20px" class="note warn"><b>The rule that shapes everything:</b> the detector must be trained on synthetic data only. A <span class="mono">forbidden_frames.txt</span> lists 100 frames per track (50 test + 50 realism reference) you must never touch. Confirm whether even <i>unlabeled</i> real frames may be used for self-training: it decides whether an entire class of adaptation methods is legal.</div>
+  </div>
+</section>
+
+<section id="scoring">
+  <div class="wrap">
+    <span class="eyebrow">Where points come from</span>
+    <h2 class="sec-title">The score is 60% detection, 40% realism</h2>
+    <p class="sec-lead">Both halves are normalized with endpoints shipped in <span class="mono">config.json</span>, and the exact scorer (<span class="mono">local_eval.py</span>) ships in the starting kit. Reproduce it locally on day one.</p>
+    <div class="score-bar">
+      <div class="seg det"><span class="pct">0.60</span><span class="cap">3D mAP @ IoU 0.5 &middot; KITTI R40 &middot; on 50 real frames</span></div>
+      <div class="seg real"><span class="pct">0.40</span><span class="cap">realism of your synthetic frames</span></div>
+    </div>
+    <p style="font-size:13px;color:var(--ink-faint);font-family:var(--font-mono)">score = 0.60 &middot; norm(mAP) + 0.40 &middot; mean( norm CD, norm MMD, norm EMD, norm FPD )</p>
+    <div class="metric-grid">
+      <div class="metric"><div class="k">CD</div><div class="d">Chamfer. Symmetric nearest-neighbor cost. Rewards matching extent; punishes outliers.</div></div>
+      <div class="metric"><div class="k">MMD</div><div class="d">Maximum Mean Discrepancy. Gaussian-kernel two-sample test. Rewards matching the density distribution.</div></div>
+      <div class="metric"><div class="k">EMD</div><div class="d">Earth Mover's, exact Wasserstein-1. The strictest: match point count and density profile.</div></div>
+      <div class="metric"><div class="k">FPD</div><div class="d">Frechet on 3-variate Gaussians. Matches the point cloud's centroid and spatial spread.</div></div>
+    </div>
+    <div style="margin-top:20px" class="note"><b>The key insight:</b> every realism metric operates on raw geometry and density. They are all won by the same action that helps detection: <b>replicate the real sensor and add realistic ray-drop.</b> Detection and realism share one lever.</div>
+  </div>
+</section>
+
+<section id="strategy">
+  <div class="wrap">
+    <span class="eyebrow">The winning formula</span>
+    <h2 class="sec-title">Priorities, highest leverage first</h2>
+    <p class="sec-lead">A real sequence, not a menu: earlier tiers unlock the later ones. Do Tier 1 before touching anything clever.</p>
+    <div style="margin-top:22px">
+      <div class="tier"><div class="num">1</div>
+        <div><h4>Digital twin + exact sensor and pose match</h4><p>Reproduce the UrbanTwin recipe: a geospatial twin of the real site, a virtual LiDAR matched to the real beam pattern, and matched mounting height and tilt. Moves detection and all four realism metrics at once.</p></div>
+        <div class="badges"><span class="badge impact">Impact: high</span><span class="badge effort">Effort: high</span></div>
+      </div>
+      <div class="tier"><div class="num">2</div>
+        <div><h4>Add the missing classes, especially pedestrians</h4><p>The provided synthetic data has no pedestrians and folds vehicles loosely. On a class-averaged mAP a missing class is a hard zero. Generating credible pedestrians is likely the single biggest detection gain available.</p></div>
+        <div class="badges"><span class="badge impact">Impact: high</span><span class="badge effort">Effort: med</span></div>
+      </div>
+      <div class="tier"><div class="num">3</div>
+        <div><h4>Ray-drop + density matching for the 40%</h4><p>Turn "too clean" simulator output into sensor-realistic frames. Fit ray-drop to the real return statistics; match extent, point count, and radial and height density. Validate on a local realism proxy.</p></div>
+        <div class="badges"><span class="badge impact">Impact: med-hi</span><span class="badge effort">Effort: med</span></div>
+      </div>
+      <div class="tier"><div class="num">4</div>
+        <div><h4>Robust detector + domain-generalization augmentation</h4><p>Anchor-free voxel detector (CenterPoint or Voxel R-CNN), trained geometry-only, with Random Object Scaling, density resampling, and synthetic copy-paste for rare classes. Optionally a GBlobs position-invariant front-end for roadside viewpoints.</p></div>
+        <div class="badges"><span class="badge impact">Impact: med</span><span class="badge effort">Effort: med</span></div>
+      </div>
+      <div class="tier"><div class="num">5</div>
+        <div><h4>Inference stack: TTA, ensemble, per-class thresholds</h4><p>The repeatable challenge-winning pattern. Test-time augmentation, a multi-seed and multi-architecture ensemble fused with weighted box fusion, and per-class score tuning. Several mAP points for near-zero risk.</p></div>
+        <div class="badges"><span class="badge impact">Impact: med</span><span class="badge effort">Effort: low</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tracks">
+  <div class="wrap">
+    <span class="eyebrow">Same paradigm, two worlds</span>
+    <h2 class="sec-title">V2X-Real vs LUMPI</h2>
+    <p class="sec-lead">Solo entrants should build one shared generation and training core, then specialize only the site, the sensor rig, and the class set. These are the differences that matter.</p>
+    <div class="grid-2" style="margin-top:24px">
+      <div class="card">
+        <div class="track-head"><span class="track-tag tag-v2x">Track V2X-Real</span></div>
+        <h3 style="font-size:19px;margin:6px 0 12px">LA infrastructure LiDAR</h3>
+        <div class="kv"><span class="k">Site</span><span class="v">Los Angeles, UCLA Mobility Lab</span></div>
+        <div class="kv"><span class="k">Viewpoint</span><span class="v">Single roadside unit (Ouster OS1-128/64)</span></div>
+        <div class="kv"><span class="k">Classes</span><span class="v">vehicle, pedestrian, truck (3)</span></div>
+        <div class="kv"><span class="k">Range</span><span class="v mono">[-40,-40,-8,40,40,2]</span></div>
+        <div class="kv"><span class="k">Provided</span><span class="v">UT-V2X-Real-IC, ~50k pts/frame</span></div>
+        <div class="kv"><span class="k">Baseline</span><span class="v">SECOND, Car AP 63.18 @0.5</span></div>
+        <div class="kv"><span class="k">Hard part</span><span class="v">Exact Ouster match, sparse far objects</span></div>
+      </div>
+      <div class="card">
+        <div class="track-head"><span class="track-tag tag-lum">Track LUMPI</span></div>
+        <h3 style="font-size:19px;margin:6px 0 12px">Hannover multi-LiDAR intersection</h3>
+        <div class="kv"><span class="k">Site</span><span class="v">Hannover, Leibniz University</span></div>
+        <div class="kv"><span class="k">Viewpoint</span><span class="v">5 LiDARs (Pandar64, HDL-64E, PandarQT, 2x VLP-16)</span></div>
+        <div class="kv"><span class="k">Classes</span><span class="v">Person, Car, Bicycle, Motorcycle, Bus, Truck, Van, Unknown (8)</span></div>
+        <div class="kv"><span class="k">Range</span><span class="v mono">[-40,-40,-5,40,40,5]</span></div>
+        <div class="kv"><span class="k">Provided</span><span class="v">UT-LUMPI, ~220k pts/frame (aggregate)</span></div>
+        <div class="kv"><span class="k">Baseline</span><span class="v">SEED, synthetic beat real</span></div>
+        <div class="kv"><span class="k">Hard part</span><span class="v">Multi-LiDAR registration, 8-class balance, Unknown</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gap">
+  <div class="wrap">
+    <span class="eyebrow">Why synthetic fails on real</span>
+    <h2 class="sec-title">The Sim2Real gap, by cause</h2>
+    <p class="sec-lead">Relative leverage of each gap source for roadside LiDAR. Nearly every recommendation in the plans maps to closing one of these rows.</p>
+    <div style="margin-top:22px">
+      <div class="gap-row"><div class="lab">Point density / beam pattern<small>high-to-low density is the hard direction</small></div><div class="track-bar"><span style="width:96%"></span></div></div>
+      <div class="gap-row"><div class="lab">Object size priors<small>the box head memorizes sim sizes</small></div><div class="track-bar"><span style="width:82%"></span></div></div>
+      <div class="gap-row"><div class="lab">Mounting height / tilt / viewpoint<small>roadside oblique geometry</small></div><div class="track-bar"><span style="width:74%"></span></div></div>
+      <div class="gap-row"><div class="lab">Missing points<small>occlusion, low reflectance, range</small></div><div class="track-bar"><span style="width:60%"></span></div></div>
+      <div class="gap-row"><div class="lab">Intensity / reflectance realism<small>CARLA uses a crude distance falloff</small></div><div class="track-bar"><span style="width:44%"></span></div></div>
+      <div class="gap-row"><div class="lab">Scene content / traffic layout<small>object placement distribution</small></div><div class="track-bar"><span style="width:34%"></span></div></div>
+    </div>
+    <div class="grid-3" style="margin-top:26px">
+      <div class="card"><h4 style="font-size:15px;color:var(--good)">Do</h4><ul class="clean"><li>Match the <b>exact sensor and pose</b></li><li>Set object sizes to <b>real statistics</b></li><li>Add <b>ray-drop</b> and realistic sparsity</li><li>Train <b>geometry-only</b> for robustness</li></ul></div>
+      <div class="card"><h4 style="font-size:15px;color:var(--crit)">Avoid</h4><ul class="clean"><li>Broad <b>domain randomization</b> (hurts realism)</li><li>Adding weather the real frames lack</li><li>Collapsing frame <b>diversity</b> to chase one metric</li><li>Heavy transformers that memorize sim patterns</li></ul></div>
+      <div class="card"><h4 style="font-size:15px;color:var(--accent-strong)">Steal</h4><ul class="clean"><li>UrbanTwin's <b>digital-twin</b> pipeline</li><li>ST3D's <b>Random Object Scaling</b></li><li>DTS <b>beam resampling</b> augmentation</li><li>LiDARsim's <b>learned ray-drop</b></li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <span class="eyebrow">Two-month build, solo</span>
+    <h2 class="sec-title">From zero to a defended submission</h2>
+    <p class="sec-lead">Get a legal end-to-end submission in week one from the provided data, then improve against the public leaderboard. Do not perfect the simulator before your first submission.</p>
+    <div class="road">
+      <div class="phase"><div class="p">Phase 0</div><div class="wk">Week 1</div><h4>Setup + baseline</h4><p>Env, OpenPCDet, provided data, first submission, local scorer that matches the leaderboard.</p></div>
+      <div class="phase"><div class="p">Phase 1</div><div class="wk">Weeks 2-3</div><h4>Digital twin</h4><p>Site geometry, sensor-matched virtual LiDAR, procedural traffic, auto-labels.</p></div>
+      <div class="phase"><div class="p">Phase 2</div><div class="wk">Weeks 3-5</div><h4>Classes + detector</h4><p>Add pedestrians and full taxonomy; train a robust anchor-free detector with DG augmentation.</p></div>
+      <div class="phase"><div class="p">Phase 3</div><div class="wk">Weeks 4-6</div><h4>Realism</h4><p>Ray-drop and density matching; pick the 50 frames that minimize CD/MMD/EMD/FPD.</p></div>
+      <div class="phase"><div class="p">Phase 4</div><div class="wk">Weeks 6-8</div><h4>Inference + climb</h4><p>TTA, ensemble with weighted box fusion, per-class thresholds; climb the dev leaderboard.</p></div>
+      <div class="phase"><div class="p">Phase 5</div><div class="wk">Nov 1-15</div><h4>Final + report</h4><p>Spend 5 hidden-leaderboard submissions deliberately; write the 4-8 page report.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <span class="eyebrow">The working stack</span>
+    <h2 class="sec-title">Tools worth standardizing on</h2>
+    <div class="grid-2" style="margin-top:22px">
+      <div class="card">
+        <h4 style="font-size:15px;margin-bottom:6px">Generate and refine</h4>
+        <div class="tool"><div class="t">CARLA</div><div class="x">Primary generator; matches the UrbanTwin recipe; labels from the actor graph.</div></div>
+        <div class="tool"><div class="t">UrbanTwin data</div><div class="x">Provided UT-LUMPI / UT-V2X-Real-IC on Harvard Dataverse; train and submit day one.</div></div>
+        <div class="tool"><div class="t">LiGuard</div><div class="x">Organizers' MIT pipeline; reads CARLA and KITTI; background filtering and clustering.</div></div>
+        <div class="tool"><div class="t">R2DM / DRUM</div><div class="x">Range-image diffusion for optional ray-drop and reflectance refinement of sim output.</div></div>
+      </div>
+      <div class="card">
+        <h4 style="font-size:15px;margin-bottom:6px">Train and evaluate</h4>
+        <div class="tool"><div class="t">bdasl-gpu-server</div><div class="x">8x RTX A6000 (48 GB): generate on 2 GPUs while training the rest with DDP; run both tracks in parallel.</div></div>
+        <div class="tool"><div class="t">OpenPCDet</div><div class="x">Primary trainer; SECOND, PointPillars, CenterPoint, Voxel R-CNN, DSVT; native KITTI R40 eval.</div></div>
+        <div class="tool"><div class="t">spconv</div><div class="x">Sparse-conv backend; install the CUDA-matched wheel.</div></div>
+        <div class="tool"><div class="t">Open3D</div><div class="x">Point-cloud I/O and ICP registration for LUMPI's multiple LiDARs.</div></div>
+        <div class="tool"><div class="t">PyTorch3D + geomloss</div><div class="x">Build the local realism scorer (Chamfer, EMD, MMD, FPD).</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h4 style="font-size:15px;margin-bottom:10px">The bar to beat, and the gaps to exploit</h4>
+      <div class="grid-3">
+        <div><div class="stat" style="box-shadow:none;border-color:var(--line)"><div class="n">63.18</div><div class="l">V2X-Real Car AP @0.5 (SECOND, synthetic)</div></div></div>
+        <div><div class="stat" style="box-shadow:none;border-color:var(--line)"><div class="n">Beat real</div><div class="l">LUMPI SEED synthetic &gt; real-trained</div></div></div>
+        <div><div class="stat" style="box-shadow:none;border-color:var(--line)"><div class="n">0 peds</div><div class="l">Provided data omits pedestrians</div></div></div>
+      </div>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-top:14px">The organizers proved synthetic-only can match or beat real training on these exact sites, crediting geospatial digital-twin fidelity. Your margin: cover the pedestrian class they drop, engineer the realism metrics they did not optimize, and add a stronger detector with a full inference stack.</p>
+    </div>
+  </div>
+</section>
+
+<section id="verify">
+  <div class="wrap">
+    <span class="eyebrow">Confirmed Aug 31, 2026</span>
+    <h2 class="sec-title">What is locked down, and the last details to read</h2>
+    <div class="grid-2" style="margin-top:20px">
+      <div class="card"><h4 style="font-size:15px;color:var(--good);margin-bottom:6px">Confirmed from CodaBench + papers</h4><ul class="clean" style="margin-top:0">
+        <li><b>Domain generalization only:</b> the detector trains on synthetic alone, no real data even unlabeled.</li>
+        <li>Realism is <b>xyz geometry only</b> (FPD is a 3-variate Gaussian); intensity does not affect the 40%.</li>
+        <li>LUMPI rig is <b>five LiDARs</b>: Hesai Pandar64, Velodyne HDL-64E, Hesai PandarQT, 2x Velodyne VLP-16.</li>
+        <li>Tracks 16684 (LUMPI) and 16685 (V2X-Real); LOI registered; not entering the ECCV instance.</li>
+      </ul></div>
+      <div class="card"><h4 style="font-size:15px;color:var(--accent-strong);margin-bottom:6px">Read once from the starting kit</h4><ul class="clean" style="margin-top:0">
+        <li>The <b>normalization endpoints</b> in <span class="mono">config.json</span> (which metric dominates).</li>
+        <li>The exact <b>submission folder structure</b> (frames, predictions, honor declaration).</li>
+        <li>Whether LUMPI <b>Unknown</b> is an evaluated class or an ignore label.</li>
+        <li>The <b>Ouster OS1-128</b> vertical beam-angle table for the V2X-Real sensor match.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p style="color:var(--ink);font-family:var(--font-display);font-weight:700;font-size:15px">Companion files in <span class="mono" style="font-family:var(--font-mono);font-weight:600">utsim2real-bdc26/reference/</span></p>
+    <p style="margin-top:6px">RESEARCH-OVERVIEW.md (literature and SOTA), SETUP-AND-STACK.md (8x A6000 environment, CARLA pipeline, distributed training, local scorer), and PLAN-V2X-Real.md / PLAN-LUMPI.md (phase-by-phase, with configs and ablation grids) carry the detail behind this page. The four UrbanTwin/LiGuard papers sit in reference/papers/.</p>
+    <div class="ref-grid">
+      <a href="https://urbanity-lab.github.io/bdc2026-urbantwin-sim2real/">Challenge site</a>
+      <a href="https://bigdataieee.org/BigData2026/cup/">IEEE BigData Cup 2026</a>
+      <a href="https://arxiv.org/abs/2509.02903">UrbanTwin: digital twins</a>
+      <a href="https://arxiv.org/abs/2509.06781">UrbanTwin: synthetic datasets</a>
+      <a href="https://github.com/ucla-mobility/V2X-Real">V2X-Real dataset</a>
+      <a href="https://data.uni-hannover.de/dataset/lumpi">LUMPI dataset</a>
+      <a href="https://github.com/open-mmlab/OpenPCDet">OpenPCDet</a>
+      <a href="https://github.com/m-shahbaz-kharal/LiGuard-2.x">LiGuard</a>
+      <a href="https://carla.readthedocs.io/en/latest/ref_sensors/">CARLA LiDAR sensor</a>
+    </div>
+    <p style="margin-top:18px;font-size:12px;color:var(--ink-faint)">Figures and baselines are as reported by the cited sources and should be confirmed against the live starting kit. Prepared as a learning companion, August 2026.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Theme toggle (system default respected; explicit choice persisted per-viewer)
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  try{var saved=localStorage.getItem('bdc-theme'); if(saved){root.setAttribute('data-theme',saved);}}catch(e){}
+  function draw(){} // set below
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var mql=window.matchMedia('(prefers-color-scheme: dark)');
+    var isDark = cur ? cur==='dark' : mql.matches;
+    var next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('bdc-theme',next);}catch(e){}
+    draw();
+  });
+
+  // Hero: a subtle top-down LiDAR scan (range rings + radial points + slow sweep)
+  var cv=document.getElementById('pc'); if(!cv) return;
+  var ctx=cv.getContext('2d'), W,H,cx,cy,pts=[],DPR=Math.min(window.devicePixelRatio||1,2);
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function accent(){return getComputedStyle(root).getPropertyValue('--accent').trim()||'#0C8B93';}
+  function size(){
+    var r=cv.getBoundingClientRect(); W=r.width; H=r.height;
+    cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx=W*0.72; cy=H*0.5; buildPts();
+  }
+  function buildPts(){
+    pts=[]; var n=Math.min(520,Math.floor(W*H/2200));
+    for(var i=0;i<n;i++){
+      var a=Math.random()*Math.PI*2, rr=Math.pow(Math.random(),0.65)*Math.max(W,H)*0.7;
+      pts.push({a:a,r:rr,s:Math.random()*1.6+0.4});
+    }
+  }
+  draw=function(){
+    if(!W) return; ctx.clearRect(0,0,W,H);
+    var col=accent();
+    // range rings
+    ctx.strokeStyle=col; ctx.globalAlpha=0.10; ctx.lineWidth=1;
+    for(var k=1;k<=6;k++){ctx.beginPath();ctx.arc(cx,cy,k*Math.max(W,H)*0.11,0,Math.PI*2);ctx.stroke();}
+    // points, brighter near sensor
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i], x=cx+Math.cos(p.a)*p.r, y=cy+Math.sin(p.a)*p.r;
+      var d=1-p.r/(Math.max(W,H)*0.72);
+      ctx.globalAlpha=0.10+d*0.5; ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(x,y,p.s,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  };
+  var sweep=0;
+  function frame(){
+    draw();
+    var col=accent();
+    ctx.save();
+    ctx.globalAlpha=0.14; ctx.fillStyle=col;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,Math.max(W,H)*0.72,sweep,sweep+0.5); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    sweep+=0.006; if(sweep>Math.PI*2)sweep-=Math.PI*2;
+    raf=requestAnimationFrame(frame);
+  }
+  var raf; size(); window.addEventListener('resize',function(){size();draw();});
+  if(reduce){draw();} else {frame();}
+})();
+</script>
+
+
+
+</body>
+</html>
