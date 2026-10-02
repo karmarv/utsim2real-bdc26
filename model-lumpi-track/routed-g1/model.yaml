@@ -1,0 +1,30 @@
+# Model card (machine-readable). Documentation: ./README.md and model-lumpi-track/README.md.
+# A routed model trains nothing itself: each class comes from one member (common/tools/route_predictions.py).
+name: routed-g1
+track: lumpi-track
+module: M11 (per-class routing)
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing of PointPillars G1 models
+members:
+  g1: {model: pointpillars-g1, ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth}
+  g1v3: {model: pointpillars-g1v3, ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth}
+data:
+  train: pcdet/g1-v2          # members' corpora: g1-v2 (pointpillars-g1) and g1-v3 (pointpillars-g1v3)
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v2   # selected frames: test/synthetic_ids.txt (copied from pointpillars-g1)
+status: "selected; first submission packaged and validated 2026-10-02 (submissions/2026-10-02_first)"
+notes: >
+  Route chosen on real validation (see route_selection). Members differ only in the walker model (v1 / v2).
+route:
+  Person: g1v3
+  Car: g1
+  Bicycle: g1
+  Motorcycle: g1v3
+  Bus: g1v3
+  Truck: g1v3
+  Van: g1
+  Unknown: g1
+route_selection:
+  rule: best realval-A AP; within 0.005 of the best, the higher realval-B AP
+  estimate_mAP_A: 0.26
+  estimate_mAP_B: 0.1664

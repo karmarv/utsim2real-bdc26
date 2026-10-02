@@ -1,0 +1,47 @@
+# Track 2: V2X-Real (CodaBench 16685). Single source of truth for track-specific facts used by code.
+# Evidence and caveats: data-v2x-track/README.md (data guide) and model-v2x-track/README.md.
+track: v2x-track
+codabench_id: 16685
+point_cloud_range: [-40.0, -40.0, -8.0, 40.0, 40.0, 2.0]
+classes: [vehicle, pedestrian, truck]
+classes_with_test_gt: [vehicle, pedestrian, truck]
+test_gt_counts: {vehicle: 470, pedestrian: 953, truck: 124}
+resample: {n_points: 50000, mask_first: true, with_replacement_if_short: true,
+           # valid (non-null) returns in range per real frame: about 50k x (1 - 0.31 null fraction).
+           # Used to resample UT-V2X (no nulls, about 69k valid in range). Re-measure on legal real frames (M5.3).
+           n_valid_points: 35000,
+           # (0,0,0) share of real frames after resampling (01 Section 4.2); synthetic realism frames get the same.
+           null_fraction: 0.31}
+
+ut:
+  doi: doi:10.7910/DVN/N6N4UR
+  licence: CC0-1.0
+  listing: manifests/dataverse_UT-V2X_N6N4UR.json
+  zip_root: UCF-DT-V2X-Real-Seq-1
+  members_default: [pcd, lbl]
+  members_seg: [sem_seg, ins_seg]
+  n_frames: 10000
+  # UT-V2X label classes -> challenge super-classes (spelling "MotorcyleRider" is the dataset's).
+  class_map: {Car: vehicle, Unknown: vehicle, Van: truck, Truck: truck, Bus: truck,
+              BicycleRider: pedestrian, MotorcyleRider: pedestrian}
+  actor_scale_fix: 1.0
+
+real:
+  licence: UCLA-Academic-Software-License   # academic only; dataset "All Rights Reserved": legal sign-off first
+  agent: "-1"                                # Ouster OS1-64, the IC ego (not agent -2, the OS1-128)
+  # Lidar-64 release; infrastructure bins are identical in all three releases.
+  box_static: https://ucla.box.com/shared/static/
+  shares: {test: 429ak8yk8pawnd84xqx5opcsl0p2mvrp, val: est8t7lxirg85ohkgoueietxd0xqpf36,
+           train1: nlnnfbx52m0rjdjwalckcnj3xoc6kckq, train2: 98rgies3hn0uw6d5oecajsru99lmvi0q,
+           train3: d1fuuvx4hisfxkxi1h0gipxfn7tpaony, train4: tre8f2n816n4dfqodp74cnqfz7on5qw2}
+  sensor: {model: OS1-64, rows: 64, cols: 1024, hz: 10}
+  # Official SUPER_CLASS_MAP (opencood/data_utils/__init__.py); other obj_types are dropped.
+  super_class_map:
+    vehicle: [LongVehicle, Car, PoliceCar]
+    pedestrian: [Child, RoadWorker, Pedestrian, Scooter, ScooterRider, Motorcycle, MotorcyleRider, BicycleRider]
+    truck: [Truck, Van, TrashCan, ConcreteTruck, Bus]
+
+guard:
+  # Challenge IDs are "<scenario index>_<frame>"; the index -> V2X-Real folder mapping is resolved from the
+  # starting kit by resolve_test_ids.py and stored in $BDC_DATA/v2x-track/kit/id_mapping.json.
+  buffer_frames: 20

@@ -1,0 +1,174 @@
+#!/usr/bin/env python
+"""Build the G1 training dataset for Track 1: UT-LUMPI frames + ray-cast procedural Persons (module M8, first version).
+
+What it adds on top of prepare_ut.py (ut-v1):
+  - Persons. UT-LUMPI has none, yet Person is 1/7 of the score. Each frame gets Poisson(--persons) walkers
+    (articulated ellipsoid bodies, common/bdc26/render/pedsim.py), ray-cast with the five Measurement4 lidars
+    as described in meta.json (pose, per-beam elevation table, azimuth step; the UT frames were simulated with
+    the same rig: beam residual median 0.03 deg). Inserted ray-consistently BEFORE the actor scale fix: frame
+    points behind a walker are removed (per sensor, exact ray test) and walker returns behind existing geometry
+    are dropped (per-sensor range image).
+  - Placement and annotation box from legal real Person labels (Measurement4 frames < 6400, through
+    ForbiddenGuard; Rules: real label statistics for generator parameters are allowed): each walker copies the
+    position, heading and l/w/h of a random real Person row, with jitter. The body is fitted inside that box.
+  - Class map: UT Van -> Van (--van-as car to keep ut-v1's Van -> Car). Legal M4 id 6 ("Van") boxes have van
+    dimensions (median 4.84 x 1.99 x 1.95 m vs car 4.48 x 1.99 x 1.70 m).
+Then the ut-v1 steps: actor scale fix 1/0.78, mask to range, resample to 50,000 points, min points.
+
+    python prepare_g1.py --name g1-v1
+    python prepare_g1.py --name g1-smoke --frames 40 --stride 250 --workers 8
+"""
+import argparse
+import json
+import sys
+from multiprocessing import Pool
+from pathlib import Path
+
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / "common"))
+from bdc26.config import load_track  # noqa: E402
+from bdc26.guard import ForbiddenGuard  # noqa: E402
+from bdc26.io import lumpi  # noqa: E402
+from bdc26.pcdet_export import write_card, write_frame, write_splits  # noqa: E402
+from bdc26.prep import UTConvertParams, convert_ut_frame  # noqa: E402
+from bdc26.render.g1 import FlatGround, WalkerInserter  # noqa: E402
+from bdc26.render.pedsim import InsertParams, Sensor  # noqa: E402
+
+T = load_track("lumpi-track")
+PRIOR = T.gen / "person_prior_m4.npz"
+
+
+def build_prior(margin: float = 2.0) -> Path:
+    """Legal Measurement4 Person rows (x, y, yaw, l, w, h) inside the range (+margin); cached."""
+    if PRIOR.exists():
+        return PRIOR
+    g = ForbiddenGuard.for_track(T)
+    lab = lumpi.read_labels_guarded(T.real / "labels" / "Measurement4_Label.guarded.csv", "Measurement4", g,
+                                    purpose="G1 generator: Person placement and box-size prior")
+    b = lab.boxes[lab.class_id == 0]
+    x0, y0, _, x1, y1, _ = T.pc_range
+    m = (b[:, 0] > x0 - margin) & (b[:, 0] < x1 + margin) & (b[:, 1] > y0 - margin) & (b[:, 1] < y1 + margin)
+    b = b[m]
+    PRIOR.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(PRIOR, xy=b[:, :2], yaw=b[:, 6], lwh=b[:, 3:6], source="legal M4 labels, class id 0")
+    return PRIOR
+
+
+def m4_sensors() -> list[Sensor]:
+    sess = lumpi.read_sessions(T.real / "raw" / "meta.json", T, experiment=4)
+    names = T["real"]["sessions_m4"]
+    return [Sensor(s.extrinsic_local, s.elevation_deg, s.horizontal_resolution, name=names.get(sid, str(sid)))
+            for sid, s in sorted(sess.items())]
+
+
+class PriorPose:
+    def __init__(self, path: Path, jitter_xy: float, jitter_yaw: float):
+        d = np.load(path)
+        self.xy, self.yaw, self.lwh = d["xy"], d["yaw"], d["lwh"]
+        self.jxy, self.jyaw = jitter_xy, jitter_yaw
+
+    def __call__(self, rng):
+        i = rng.integers(len(self.xy))
+        x, y = self.xy[i] + rng.normal(0, self.jxy, 2)
+        l, w, h = self.lwh[i] * rng.uniform(0.97, 1.03, 3)
+        return float(x), float(y), float(self.yaw[i] + rng.normal(0, self.jyaw)), (float(l), float(w), float(h))
+
+
+# Walker presets. v1: the first walker. v2: calibrated on legal real Persons (realval-A, 20-200 points):
+#   torso-band (0.3-1.6 m) horizontal std along / across the heading: real 0.125 / 0.123 m, v1 0.068 / 0.132,
+#   v2 0.116 / 0.121 (deeper torsos, stronger arm swing, bags, body yaw scatter 0.8 rad about the box heading);
+#   head band (1.5-1.8 m) share: real 12.7%, v1 8.7% (v2 puts the body top 2-14 cm below the box top, v1 6-20 cm);
+#   per-sensor misregistration / capture-time offsets of the five unsynchronised lidars (4 cm) and 3 cm range noise.
+WALKERS = {
+    "v1": {"style": {}, "insert": {}, "body_yaw_sigma": 0.0, "height_margin": [0.06, 0.20]},
+    "v2": {"style": {"depth_range": [1.25, 1.7], "arm_swing": 1.3, "backpack_prob": 0.3, "sidebag_prob": 0.25,
+                     "front_item_prob": 0.1},
+           "insert": {"range_noise": 0.03, "sensor_jitter_xy": 0.04, "sensor_jitter_z": 0.01},
+           "body_yaw_sigma": 0.8, "height_margin": [0.02, 0.14]},
+}
+
+
+class BodyFromBox:
+    def __init__(self, height_margin):
+        self.lo, self.hi = height_margin
+
+    def __call__(self, l, w, h, rng):
+        return (float(np.clip(h - rng.uniform(self.lo, self.hi), 1.45, 1.98)),
+                float(np.clip(w - rng.uniform(0.24, 0.34), 0.36, 0.52)))
+
+
+_INS = None
+
+
+def init(persons, jitter_xy, jitter_yaw, walker="v1", style_json=None, insert_json=None, body_yaw_sigma=None):
+    global _INS
+    w = WALKERS[walker]
+    style = dict(w["style"], **(json.loads(style_json) if style_json else {}))
+    ins = dict(w["insert"], **(json.loads(insert_json) if insert_json else {}))
+    _INS = WalkerInserter(m4_sensors(), PriorPose(PRIOR, jitter_xy, jitter_yaw), n_mean=persons,
+                          ground=FlatGround(T["ut"]["ground_z"]), pc_range=T.pc_range, params=InsertParams(**ins),
+                          walker_style=style, body_yaw_sigma=w["body_yaw_sigma"] if body_yaw_sigma is None else body_yaw_sigma,
+                          body_from_box=BodyFromBox(w["height_margin"]))
+
+
+def work(args):
+    idx, out, params = args
+    pts, boxes, names, st = convert_ut_frame(T, idx, params, inserter=_INS)
+    write_frame(out, f"{idx:06d}", pts, boxes, names)
+    return st
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--name", default="g1-v1")
+    ap.add_argument("--persons", type=float, default=16.0, help="mean walkers per frame (legal M4: 17.4 in range)")
+    ap.add_argument("--jitter-xy", type=float, default=0.4)
+    ap.add_argument("--jitter-yaw", type=float, default=0.2)
+    ap.add_argument("--van-as", default="Van", choices=["Van", "Car"])
+    ap.add_argument("--walker", default="v1", choices=sorted(WALKERS), help="walker preset (see WALKERS)")
+    ap.add_argument("--walker-style", default=None, help="JSON overrides of pedsim.human keywords")
+    ap.add_argument("--insert-params", default=None, help="JSON overrides of pedsim.InsertParams")
+    ap.add_argument("--body-yaw-sigma", type=float, default=None)
+    ap.add_argument("--scale-fix", type=float, default=T["ut"]["actor_scale_fix"])
+    ap.add_argument("--n-points", type=int, default=T.n_points)
+    ap.add_argument("--min-points", type=int, default=1)
+    ap.add_argument("--frames", type=int, default=T["ut"]["n_frames"])
+    ap.add_argument("--stride", type=int, default=1)
+    ap.add_argument("--density-prior", default=None, help="bdc26.density prior relative to $BDC_DATA/<track> (calibrated background)")
+    ap.add_argument("--val-from", type=int, default=9000)
+    ap.add_argument("--workers", type=int, default=48)
+    a = ap.parse_args()
+    build_prior()
+    cmap = dict(T["ut"]["class_map"], Van=a.van_as)
+    out = T.pcdet / a.name
+    params = UTConvertParams(n_points=a.n_points, scale_fix=a.scale_fix, min_points=a.min_points, class_map=cmap,
+                             density_prior=str(T.root / a.density_prior) if a.density_prior else None)
+    frames = list(range(0, T["ut"]["n_frames"], a.stride))[: a.frames]
+    with Pool(a.workers, initializer=init, initargs=(a.persons, a.jitter_xy, a.jitter_yaw, a.walker, a.walker_style,
+                                                     a.insert_params, a.body_yaw_sigma)) as pool:
+        stats = pool.map(work, [(i, out, params) for i in frames], chunksize=4)
+    ids = [f"{i:06d}" for i in frames]
+    write_splits(out, {"train": [i for i in ids if int(i) < a.val_from], "val": [i for i in ids if int(i) >= a.val_from]})
+    counts = {}
+    for s in stats:
+        for k, v in s.items():
+            if k.startswith("n_") and k not in ("n_boxes", "n_dropped_empty", "n_walkers"):
+                counts[k[2:]] = counts.get(k[2:], 0) + v
+    write_card(out, {"track": T.name, "source": "UT-LUMPI (doi:10.7910/DVN/D9SSWD, CC0) + G1 procedural walkers",
+                     "engine": "G1 (UT + ray-cast walkers, Measurement4 rig from meta.json)",
+                     "params": {**{k: v for k, v in vars(params).items() if k != "class_map"}, "persons": a.persons,
+                                "jitter_xy": a.jitter_xy, "jitter_yaw": a.jitter_yaw, "walker": a.walker,
+                                "walker_style": a.walker_style, "insert_params": a.insert_params,
+                                "body_yaw_sigma": a.body_yaw_sigma},
+                     "class_map": cmap, "person_prior": str(PRIOR.relative_to(T.root)),
+                     "real_data_use": "Measurement4 sensor metadata; legal M4 Person label rows (placement, box sizes)"
+                                      + ("; background density prior from legal unlabeled realval-A frames disjoint from the "
+                                         "realism proxies (docs/decisions/2026-09-30-g1-generator.md)" if a.density_prior else ""),
+                     "mean_boxes_per_frame": sum(s["n_boxes"] for s in stats) / max(len(stats), 1),
+                     "mean_walkers_per_frame": sum(s.get("n_walkers", 0) for s in stats) / max(len(stats), 1),
+                     "walker_hits_median_raw": float(np.median([s.get("walker_hits_median", 0) for s in stats])),
+                     "dropped_empty_boxes": sum(s["n_dropped_empty"] for s in stats), "boxes_per_class_out": counts})
+    print(f"wrote {len(ids)} frames to {out}")
+    print(json.dumps(counts))

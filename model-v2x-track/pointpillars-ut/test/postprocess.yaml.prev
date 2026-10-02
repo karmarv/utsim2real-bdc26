@@ -1,0 +1,8 @@
+# Per-class post-processing (bdc26.detect.postprocess). Starting values; select on the real validation set
+# (docs/04 M11). Never threshold aggressively: AP cannot drop by adding lower-scored boxes.
+default: {score_floor: 0.01, nms_iou: 0.2, max_boxes: 500, recenter: 0.0}
+classes:
+  vehicle:    {nms_iou: 0.1}
+  pedestrian: {nms_iou: 0.7, recenter: 0.25}    # pedestrians cluster; the ECCV winner's mAP 0.075 -> 0.43 from this
+  truck:      {nms_iou: 0.1}
+hedge: {}

@@ -1,0 +1,51 @@
+# OpenPCDet dataset config for model-v2x-track/pointpillars-ut (loaded via _BASE_CONFIG_ from pcdet_model.yaml).
+# DATA_PATH is injected by common/tools/pcdet_train.py from model.yaml (data.train) and $BDC_DATA.
+DATASET: 'BDCDataset'
+DATA_PATH: 'injected-at-runtime'
+
+POINT_CLOUD_RANGE: [-40.0, -40.0, -8.0, 40.0, 40.0, 2.0]
+
+MAP_CLASS_TO_KITTI: {'vehicle': 'Car', 'pedestrian': 'Pedestrian', 'truck': 'Truck'}   # unused: BDCDataset.evaluation
+
+DATA_SPLIT: {'train': train, 'test': val}
+INFO_PATH: {'train': [custom_infos_train.pkl], 'test': [custom_infos_val.pkl]}
+
+POINT_FEATURE_ENCODING: {
+    encoding_type: absolute_coordinates_encoding,
+    used_feature_list: ['x', 'y', 'z'],
+    src_feature_list: ['x', 'y', 'z'],
+}
+
+DATA_AUGMENTOR:
+    DISABLE_AUG_LIST: ['placeholder']
+    AUG_CONFIG_LIST:
+        - NAME: gt_sampling
+          USE_ROAD_PLANE: False
+          DB_INFO_PATH: [custom_dbinfos_train.pkl]
+          PREPARE: {filter_by_min_points: ['vehicle:5', 'pedestrian:5', 'truck:5']}
+          SAMPLE_GROUPS: ['vehicle:8', 'pedestrian:12', 'truck:6']
+          NUM_POINT_FEATURES: 3
+          DATABASE_WITH_FAKELIDAR: False
+          REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
+          LIMIT_WHOLE_SCENE: True
+
+        - NAME: random_world_flip           # ablate: the roadside layout is fixed (docs/04 M10)
+          ALONG_AXIS_LIST: ['x', 'y']
+
+        - NAME: random_world_rotation
+          WORLD_ROT_ANGLE: [-0.17453293, 0.17453293]   # +/-10 deg
+
+        - NAME: random_world_scaling
+          WORLD_SCALE_RANGE: [0.95, 1.05]
+
+DATA_PROCESSOR:
+    - NAME: mask_points_and_boxes_outside_range
+      REMOVE_OUTSIDE_BOXES: True
+
+    - NAME: shuffle_points
+      SHUFFLE_ENABLED: {'train': True, 'test': False}
+
+    - NAME: transform_points_to_voxels
+      VOXEL_SIZE: [0.15625, 0.15625, 10.0]            # 512 x 512 pillars over 80 m; one pillar spans z [-8, 2]
+      MAX_POINTS_PER_VOXEL: 32
+      MAX_NUMBER_OF_VOXELS: {'train': 30000, 'test': 40000}

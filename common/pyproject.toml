@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bdc26"
+version = "0.1.0"
+description = "Shared code for the UCF UrbanTwin Sim2Real LiDAR Challenge (IEEE BigData Cup 2026): I/O, guard, frames, scoring, submission, rendering"
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "pyyaml", "requests"]
+
+[project.optional-dependencies]
+realism = ["pot"]
+render = ["open3d>=0.19"]
+
+[tool.setuptools.packages.find]
+include = ["bdc26*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

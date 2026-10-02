@@ -1,0 +1,226 @@
+#!/usr/bin/env python
+"""Build the G1 training dataset for Track 2: UT-V2X-Real-IC frames + ray-cast procedural walkers (module M8, first version).
+
+What it adds on top of prepare_ut.py (ut-v1):
+  - Walking pedestrians. UT-V2X has riders only, yet "pedestrian" is 62% of the test objects. Each frame gets
+    Poisson(--walkers) articulated walkers (common/bdc26/render/pedsim.py) ray-cast with an Ouster OS1-64 at the
+    frame origin (the frames are in the IC sensor frame: tilted about 6 deg to the ground, 3.4 m above it):
+    64 uniform beams over +/-16.6 deg (OS1-64 spec), --cols columns. Inserted ray-consistently: UT points behind a
+    walker are removed (exact ray test from the origin, where the UT sensor also sits) and walker returns
+    behind existing geometry are dropped (range image of the frame's points, 3x3 neighbourhood).
+  - Density: real frames are resampled by the organizers from the full 64 x 1024 scan to 50k points, so real
+    objects keep about 76% of their returns, while UT frames are resampled to 35k of about 69k valid points
+    (51%). Walkers are therefore cast with --density-gain 1.5 more columns. Calibrate on legal real
+    pedestrians once the starting kit unlocks V2X real labels (compare points-vs-range, as for LUMPI).
+  - Placement: free, observed ground (local ground from the frame's points, no structure in the walker's
+    column, clear of all boxes) within the range; heading uniform.
+  - Annotation box: KITTI-like convention (no legal V2X statistics before the kit): l ~ N(0.80, 0.10),
+    w ~ N(0.66, 0.06), h = body height + 4 cm, body height ~ N(1.72, 0.08).
+Then the ut-v1 steps (classes -> super-classes, resample to --n-valid points, min points).
+
+    python prepare_g1.py --name g1-v1
+"""
+import argparse
+import json
+import sys
+from multiprocessing import Pool
+from pathlib import Path
+
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / "common"))
+from bdc26.config import load_track  # noqa: E402
+from bdc26.guard import ForbiddenGuard  # noqa: E402
+from bdc26.io import v2x  # noqa: E402
+from bdc26.pcdet_export import write_card, write_frame, write_splits  # noqa: E402
+from bdc26.prep import UTConvertParams, convert_ut_frame  # noqa: E402
+from bdc26.render.g1 import LocalGround, WalkerInserter  # noqa: E402
+from bdc26.render.pedsim import InsertParams, Sensor  # noqa: E402
+
+T = load_track("v2x-track")
+PRIOR = T.gen / "walker_prior_v1.npz"
+WALKER_TYPES = ("Pedestrian", "Child", "RoadWorker")      # riders already exist in UT-V2X
+
+
+def build_prior(margin: float = 2.0) -> Path:
+    """Legal V2X-Real walker rows (x, y, yaw, l, w, h) in the agent -1 sensor frame, inside the range (+margin);
+    every frame through ForbiddenGuard (logged). Cached in gen/walker_prior_v1.npz."""
+    if PRIOR.exists():
+        return PRIOR
+    g = ForbiddenGuard(T)
+    if not g.resolved:
+        sys.exit("kit/id_mapping.json missing: run ingest_kit.py and resolve_test_ids.py first")
+    agent = T["real"]["agent"]
+    ymls = sorted((p.parts[-3], int(p.stem), p) for p in (T.real / "raw").glob(f"*/*/{agent}/*.yaml"))
+    allowed = set(g.filter([(sc, f) for sc, f, _ in ymls], purpose="G1 generator: walker placement and box-size prior"))
+    x0, y0, _, x1, y1, _ = T.pc_range
+    rows = []
+    for sc, f, yml in ymls:
+        if (sc, f) not in allowed:
+            continue
+        lab = v2x.labels_in_sensor_frame(v2x.read_yaml(yml), T)
+        m = np.isin(lab.obj_types, WALKER_TYPES)
+        b = lab.boxes[m]
+        b = b[(b[:, 0] > x0 - margin) & (b[:, 0] < x1 + margin) & (b[:, 1] > y0 - margin) & (b[:, 1] < y1 + margin)]
+        rows.append(b)
+    b = np.concatenate(rows) if rows else np.zeros((0, 7))
+    PRIOR.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(PRIOR, xy=b[:, :2], yaw=b[:, 6], lwh=b[:, 3:6], z=b[:, 2],
+                        source="legal V2X-Real agent -1 labels, obj_type in Pedestrian/Child/RoadWorker")
+    return PRIOR
+
+
+class PriorPose:
+    """Position, heading and l/w/h of a random legal real walker row, jittered (as data-lumpi-track/prepare_g1.py)."""
+
+    def __init__(self, path: Path, jitter_xy: float = 0.4, jitter_yaw: float = 0.2):
+        d = np.load(path)
+        self.xy, self.yaw, self.lwh, self.z = d["xy"], d["yaw"], d["lwh"], d["z"]
+        self.jxy, self.jyaw = jitter_xy, jitter_yaw
+
+    def __call__(self, rng):
+        """The real row's box bottom is the ground height: UT-V2X is aligned with the real sensor frame, and the
+        FOV-masked UT frame has no ground near the pole to estimate it from (sloped campus: -2 to -7 m)."""
+        i = rng.integers(len(self.xy))
+        x, y = self.xy[i] + rng.normal(0, self.jxy, 2)
+        l, w, h = self.lwh[i] * rng.uniform(0.97, 1.03, 3)
+        z_ground = float(self.z[i] - self.lwh[i][2] / 2)
+        return float(x), float(y), float(self.yaw[i] + rng.normal(0, self.jyaw)), (float(l), float(w), float(h)), z_ground
+
+
+def body_from_box_prior(l, w, h, rng):
+    """Real annotators' boxes (median 0.71 x 0.72 x 1.73 m): body top 2-14 cm below the box top."""
+    return float(np.clip(h - rng.uniform(0.02, 0.14), 1.40, 1.98)), float(np.clip(w - rng.uniform(0.24, 0.34), 0.34, 0.52))
+
+
+CALIB = T.gen / "os1_64_calib_v1.npz"   # measured on legal unlabeled agent -1 frames: no tilt, rows +16.13..-16.77 deg
+
+
+def os1_64(cols: float, measured: bool = False) -> Sensor:
+    elev = np.load(CALIB)["elev_deg"] if measured else np.linspace(-16.6, 16.6, 64)
+    return Sensor(np.eye(4), elev, 360.0 / cols, min_range=0.8, max_range=120.0, name="OS1-64")
+
+
+class FovThenWalkers:
+    """Mask UT points to the real OS1-64 vertical field of view (UT-V2X emulates a sensor reaching -56 deg, so it
+    sees ground under the pole that the real unit never returns), then insert walkers."""
+
+    def __init__(self, inserter, elev_deg, margin: float = 0.27):
+        self.ins, self.lo, self.hi = inserter, float(np.min(elev_deg)) - margin, float(np.max(elev_deg)) + margin
+
+    def __call__(self, points, boxes, names, rng):
+        p = np.asarray(points, dtype=np.float64)[:, :3]
+        el = np.degrees(np.arctan2(p[:, 2], np.hypot(p[:, 0], p[:, 1])))
+        fov = (el >= self.lo) & (el <= self.hi)
+        out, keep_sub, b, n, st = self.ins(p[fov], boxes, names, rng)
+        keep = np.zeros(len(p), dtype=bool)
+        keep[np.nonzero(fov)[0][keep_sub]] = True
+        st["fov_removed"] = int((~fov).sum())
+        return out, keep, b, n, st
+
+
+class FreeGroundPose:
+    """Uniform position in the range annulus; KITTI-like box; body height drawn here and passed via the box."""
+
+    def __init__(self, r_min: float, r_max: float):
+        self.r_min, self.r_max = r_min, r_max
+
+    def __call__(self, rng):
+        r = np.sqrt(rng.uniform(self.r_min ** 2, self.r_max ** 2))
+        a = rng.uniform(-np.pi, np.pi)
+        H = float(np.clip(rng.normal(1.72, 0.08), 1.50, 1.95))
+        lwh = (float(np.clip(rng.normal(0.80, 0.10), 0.55, 1.1)), float(np.clip(rng.normal(0.66, 0.06), 0.5, 0.85)),
+               H + float(np.clip(rng.normal(0.04, 0.02), 0.0, 0.1)))
+        return float(r * np.cos(a)), float(r * np.sin(a)), float(rng.uniform(-np.pi, np.pi)), lwh
+
+
+def body_from_box(l, w, h, rng):
+    return float(np.clip(h - 0.04, 1.45, 1.98)), float(np.clip(w - rng.uniform(0.18, 0.26), 0.36, 0.52))
+
+
+# Walker presets (see data-lumpi-track/prepare_g1.py for the calibration on legal real LUMPI Persons). v2 carries
+# the body-shape part of that calibration over (deeper torsos, arm swing, bags, body yaw scatter); a single OS1-64
+# has no multi-lidar misregistration, so no per-sensor offsets. Re-check against legal V2X pedestrians after the kit.
+WALKERS = {
+    "v1": {"style": {}, "insert": {"block_nbr": [1, 1]}, "body_yaw_sigma": 0.0},
+    "v2": {"style": {"depth_range": [1.25, 1.7], "arm_swing": 1.3, "backpack_prob": 0.3, "sidebag_prob": 0.25,
+                     "front_item_prob": 0.1},
+           "insert": {"block_nbr": [1, 1], "range_noise": 0.02}, "body_yaw_sigma": 0.8},
+}
+
+_INS = None
+
+
+def init(walkers, cols, gain, walker="v1", placement="free", fov=False):
+    global _INS
+    w = WALKERS[walker]
+    if placement == "prior":
+        pose, body, ground = PriorPose(PRIOR), body_from_box_prior, LocalGround(1.5, 8)
+    else:
+        pose, body, ground = FreeGroundPose(2.0, 40.0), body_from_box, LocalGround(1.5, 8)
+    sensor = os1_64(cols * gain, measured=fov)
+    _INS = WalkerInserter([sensor], pose, n_mean=walkers, ground=ground,
+                          pc_range=T.pc_range, class_name="pedestrian", body_from_box=body,
+                          params=InsertParams(**{k: tuple(v) if isinstance(v, list) else v for k, v in w["insert"].items()}),
+                          min_dist_xy=2.0 if placement == "free" else 0.8, walker_style=w["style"],
+                          body_yaw_sigma=w["body_yaw_sigma"])
+    if fov:
+        _INS = FovThenWalkers(_INS, sensor.elev_deg)
+
+
+def work(args):
+    idx, out, params = args
+    pts, boxes, names, st = convert_ut_frame(T, idx, params, inserter=_INS)
+    write_frame(out, f"{idx:06d}", pts, boxes, names)
+    return st
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--name", default="g1-v1")
+    ap.add_argument("--walkers", type=float, default=12.0)
+    ap.add_argument("--walker", default="v1", choices=sorted(WALKERS), help="walker preset (see WALKERS)")
+    ap.add_argument("--fov-mask", action="store_true",
+                    help="mask UT points to the measured OS1-64 field of view and cast walkers with its beam table (g1-v3)")
+    ap.add_argument("--placement", default="free", choices=["free", "prior"],
+                    help="free: uniform free ground, KITTI-like boxes (g1-v1/v2); prior: legal real walker rows (g1-v3)")
+    ap.add_argument("--cols", type=int, default=T["real"]["sensor"]["cols"])
+    ap.add_argument("--density-gain", type=float, default=1.5)
+    ap.add_argument("--n-valid", type=int, default=T["resample"]["n_valid_points"])
+    ap.add_argument("--min-points", type=int, default=1)
+    ap.add_argument("--frames", type=int, default=T["ut"]["n_frames"])
+    ap.add_argument("--stride", type=int, default=1)
+    ap.add_argument("--density-prior", default=None, help="bdc26.density prior relative to $BDC_DATA/<track> (calibrated background)")
+    ap.add_argument("--val-from", type=int, default=9000)
+    ap.add_argument("--workers", type=int, default=48)
+    a = ap.parse_args()
+    out = T.pcdet / a.name
+    if a.placement == "prior":
+        build_prior()
+    params = UTConvertParams(n_points=a.n_valid, scale_fix=T["ut"]["actor_scale_fix"], min_points=a.min_points,
+                             density_prior=str(T.root / a.density_prior) if a.density_prior else None)
+    frames = list(range(0, T["ut"]["n_frames"], a.stride))[: a.frames]
+    with Pool(a.workers, initializer=init, initargs=(a.walkers, a.cols, a.density_gain, a.walker, a.placement, a.fov_mask)) as pool:
+        stats = pool.map(work, [(i, out, params) for i in frames], chunksize=4)
+    ids = [f"{i:06d}" for i in frames]
+    write_splits(out, {"train": [i for i in ids if int(i) < a.val_from], "val": [i for i in ids if int(i) >= a.val_from]})
+    counts = {}
+    for s in stats:
+        for k, v in s.items():
+            if k.startswith("n_") and k not in ("n_boxes", "n_dropped_empty", "n_walkers"):
+                counts[k[2:]] = counts.get(k[2:], 0) + v
+    write_card(out, {"track": T.name, "source": "UT-V2X-Real-IC (doi:10.7910/DVN/N6N4UR, CC0) + G1 procedural walkers",
+                     "engine": "G1 (UT + ray-cast walkers, OS1-64 spec at the frame origin)",
+                     "params": {**{k: v for k, v in vars(params).items() if k != "class_map"}, "walkers": a.walkers,
+                                "cols": a.cols, "density_gain": a.density_gain, "walker": a.walker, "placement": a.placement,
+                                "fov_mask": a.fov_mask},
+                     "class_map": T["ut"]["class_map"],
+                     "real_data_use": ("legal V2X-Real walker label rows (placement, box sizes; gen/walker_prior_v1.npz)"
+                                       if a.placement == "prior" else "none (sensor spec and KITTI-like box convention)"),
+                     "mean_boxes_per_frame": sum(s["n_boxes"] for s in stats) / max(len(stats), 1),
+                     "mean_walkers_per_frame": sum(s.get("n_walkers", 0) for s in stats) / max(len(stats), 1),
+                     "walker_hits_median_raw": float(np.median([s.get("walker_hits_median", 0) for s in stats])),
+                     "dropped_empty_boxes": sum(s["n_dropped_empty"] for s in stats), "boxes_per_class_out": counts})
+    print(f"wrote {len(ids)} frames to {out}")
+    print(json.dumps(counts))

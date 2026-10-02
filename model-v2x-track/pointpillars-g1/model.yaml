@@ -1,0 +1,16 @@
+# Model card (machine-readable). Documentation: ./README.md and model-v2x-track/README.md.
+name: pointpillars-g1
+track: v2x-track
+module: M8 (G1 first version)
+derived_from: pointpillars-ut
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (anchor-based), 0.15625 m pillars, xyz only; pedestrian anchors for walkers and riders
+data:
+  train: pcdet/g1-v1          # $BDC_DATA/v2x-track/pcdet/g1-v1 (data-v2x-track/prepare_g1.py: ut-v1 + ray-cast OS1-64 walkers)
+  realval: pcdet/realval-v1   # $BDC_DATA/v2x-track/pcdet/realval-v1 (data-v2x-track/prepare_realval.py; needs the starting kit)
+realism_frames: pcdet/g1-v1   # generated frames with nulls injected at the real rate (package step)
+postprocess: test/postprocess.yaml
+status: "trained and tuned (realval A 0.459 / B 0.404)"
+expected: "pedestrian AP well above the riders-only baseline; vehicle and truck as pointpillars-ut"
+notes: >
+  First G1 model. Real validation needs the starting kit (V2X guard); until then compare on the UT val split only.

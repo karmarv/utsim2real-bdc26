@@ -1,0 +1,45 @@
+# Track 1: LUMPI (CodaBench 16684). Single source of truth for track-specific facts used by code.
+# Evidence and caveats: data-lumpi-track/README.md (data guide) and model-lumpi-track/README.md.
+track: lumpi-track
+codabench_id: 16684
+point_cloud_range: [-40.0, -40.0, -5.0, 40.0, 40.0, 5.0]
+classes: [Person, Car, Bicycle, Motorcycle, Bus, Truck, Van, Unknown]   # config.json order
+classes_with_test_gt: [Person, Car, Bicycle, Motorcycle, Bus, Truck, Van]   # Unknown has 0 GT
+test_gt_counts: {Person: 512, Car: 1258, Bicycle: 82, Motorcycle: 27, Bus: 25, Truck: 192, Van: 79, Unknown: 0}
+resample: {n_points: 50000, mask_first: true, with_replacement_if_short: true}
+
+ut:
+  doi: doi:10.7910/DVN/D9SSWD
+  licence: CC0-1.0
+  listing: manifests/dataverse_UT-LUMPI_D9SSWD.json
+  zip_root: UCF-DT-LUMPI-Seq-1
+  members_default: [pcd, lbl]
+  members_seg: [sem_seg, ins_seg]
+  n_frames: 10000
+  # UT-LUMPI label classes -> challenge classes. UT "Unknown" = CARLA vehicles with empty base_type (car-sized).
+  # UT "Van" -> Car by default: real LUMPI has no Van class; the challenge "Van" is (hypothesis) LUMPI id 6.
+  class_map: {Car: Car, Unknown: Car, Van: Car, Truck: Truck, Bus: Bus, Motorcycle: Motorcycle, Bicycle: Bicycle}
+  # UT-LUMPI actors are about 0.78x real size (bus = 0.78 x CARLA Fusorosa); a 0.78x box peaks at 0.47 3D IoU.
+  actor_scale_fix: 1.2820513   # 1 / 0.78; verify on real val (M5)
+  ground_z: -2.152             # UT-LUMPI ground is flat at this height
+
+real:
+  licence: CC-BY-NC-3.0        # non-commercial: legal sign-off required before download
+  vault: https://data.uni-hannover.de/vault/ikg/busch/LUMPI/
+  meta: meta.json
+  labels_zip: labels.zip
+  measurements_all_sensors: [Measurement4, Measurement5, Measurement6]   # M0-M3 have only 3 sensors
+  lidar_parts: {Measurement4: 10, Measurement5: 9, Measurement6: 14}      # lidar.zip.001 ... .NNN
+  frame_offset: [364.0, 85.0, 100.0]   # local frame = meta.json M4-M6 frame minus this offset
+  ground_z: -2.1
+  sessions_m4: {34: Pandar64, 35: HDL-64E, 36: PandarQT, 37: VLP-16a, 38: VLP-16b}
+  # LUMPI SDK class ids. Hypothesis (verify in M5.1): the organizers mapped id k -> classes[k],
+  # so id 6 ("unknown", misc objects) is the challenge "Van" and the rare id 7 is the challenge "Unknown".
+  sdk_class_names: {0: person, 1: car, 2: bicycle, 3: motorcycle, 4: bus, 5: truck, 6: unknown, 7: undocumented}
+  class_id_to_track: {0: Person, 1: Car, 2: Bicycle, 3: Motorcycle, 4: Bus, 5: Truck, 6: Van, 7: Unknown}
+
+guard:
+  # All 100 forbidden IDs are Measurement4 frames 006497-008109 (the organizers' paper test split).
+  # Self-exclusion: the whole Measurement4 tail plus a margin.
+  blocked_windows: {Measurement4: [6400, 8199]}
+  test_id_measurement: Measurement4

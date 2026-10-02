@@ -1,0 +1,16 @@
+# Model card (machine-readable). Documentation: ./README.md and model-lumpi-track/README.md.
+name: pointpillars-g1v3
+track: lumpi-track
+module: M8 (G1, walker v2)
+derived_from: pointpillars-g1
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (anchor-based), 0.15625 m pillars, xyz only, 8 classes (same configs as pointpillars-g1)
+data:
+  train: pcdet/g1-v3          # $BDC_DATA/lumpi-track/pcdet/g1-v3 (prepare_g1.py --walker v2 --density-prior gen/density_prior_v1.npz)
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3   # 50 frames of the same corpus (val split, never trained on)
+postprocess: test/postprocess.yaml
+status: "trained and tuned (realval A 0.248 / B 0.163); member of routed-g1"
+expected: "Person recall on real frames well above pointpillars-g1 (real Persons are round 0.25 m-std blobs; v1 walkers were flat)"
+notes: >
+  Same detector as pointpillars-g1; only the walker model differs (calibrated on legal real Person clusters).

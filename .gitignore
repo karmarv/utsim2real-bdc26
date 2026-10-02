@@ -216,3 +216,25 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------------------------
+# UrbanTwin Sim2Real project: large artifacts stay out of git (data lives under $BDC_DATA)
+# Tracked: code, configs (*.yaml), scripts, manifests, model cards, small results (*.json),
+# submission manifest.json files and registry.csv.
+# ---------------------------------------------------------------------------------------------
+model-*/*/train/output/
+model-*/*/validation/output/
+model-*/*/test/output/
+model-*/*/submissions/*/submission.zip
+*.pth
+*.ckpt
+*.npy
+*.bin
+*.pkl
+*.ply
+*.label
+
+# local Python virtualenv (common/env/setup_venv_ut.sh) and starting kits dropped into the repo
+.venv_ut/
+.venv*/
+common/kit/*.zip

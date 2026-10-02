@@ -1,0 +1,49 @@
+# Python requirements for the whole project (train, evaluate, generate, package).
+# Target: Python 3.10, Linux x86_64, NVIDIA driver >= 530 (CUDA 12.1 wheels). Tested on bdasl-gpu-server.
+#
+#   python3.10 -m venv .venv_ut
+#   bash common/env/setup_venv_ut.sh        # installs this file, builds OpenPCDet, installs bdc26, verifies
+#
+# Notes
+# - numpy must stay < 1.24: OpenPCDet 233f849 still uses np.int / np.float / np.bool. The official scorer asks for
+#   numpy >= 1.24 but runs unchanged on 1.23.5 (verified, see common/tests/test_official_parity.py).
+# - setuptools < 70: torch 2.1's cpp_extension imports pkg_resources (needed to build OpenPCDet's CUDA ops).
+# - OpenPCDet itself is not on PyPI: setup_venv_ut.sh clones commit 233f849 into $BDC_THIRD_PARTY and builds it.
+# - The bdc26 package (common/) is installed in editable mode by setup_venv_ut.sh (pip install -e common).
+
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+# build tooling
+setuptools<70
+wheel
+ninja==1.13.2
+pybind11==3.1.0
+
+# deep learning stack
+torch==2.1.2+cu121
+torchvision==0.16.2+cu121
+spconv-cu121==2.3.8
+cumm-cu121==0.7.11
+
+# OpenPCDet runtime dependencies (pinned to the tested versions)
+numpy==1.23.5
+numba==0.58.1
+llvmlite==0.41.1
+scipy==1.15.3
+scikit-image==0.21.0
+opencv-python-headless==4.8.1.78
+tensorboardX==2.6.5
+easydict==1.13
+PyYAML==6.0.3
+tqdm==4.70.1
+SharedArray==3.2.4
+pyquaternion==0.9.9
+
+# metrics and the official CodaBench scorer (scoring_program/requirements.txt asks for shapely and POT)
+POT==0.9.7.post1
+shapely==2.0.6
+
+# data download, tests, diagnostics
+requests==2.34.2
+pytest==9.1.1
+matplotlib==3.9.2

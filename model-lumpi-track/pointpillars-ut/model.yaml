@@ -1,0 +1,16 @@
+# Model card (machine-readable). Documentation: ./README.md and model-lumpi-track/README.md.
+name: pointpillars-ut
+track: lumpi-track
+module: M4 baseline
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (anchor-based), 0.15625 m pillars, xyz only, 8 classes
+data:
+  train: pcdet/ut-v1          # $BDC_DATA/lumpi-track/pcdet/ut-v1 (data-lumpi-track/prepare_ut.py, actors x 1/0.78, 50k points)
+  realval: pcdet/realval-v1   # $BDC_DATA/lumpi-track/pcdet/realval-v1 (data-lumpi-track/prepare_realval.py)
+realism_frames: pcdet/ut-v1   # baseline: 50 UT frames at 50k points
+postprocess: test/postprocess.yaml
+status: "baseline / ablation: run2 trained and tuned (realval A 0.168 / B 0.127)"
+expected: "combined about 0.4 (no Person in UT; Van only through hedged Car duplicates)"
+notes: >
+  First legal submission and data-path check (Gate A). The 0.78x scale fix is on by default;
+  ablate with a model trained on pcdet/ut-noscale-v1 (prepare_ut.py --scale-fix 1.0).

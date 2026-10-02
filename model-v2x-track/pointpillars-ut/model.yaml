@@ -1,0 +1,15 @@
+# Model card (machine-readable). Documentation: ./README.md and model-v2x-track/README.md.
+name: pointpillars-ut
+track: v2x-track
+module: M4 baseline
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (anchor-based), 0.15625 m pillars, xyz only
+data:
+  train: pcdet/ut-v1          # $BDC_DATA/v2x-track/pcdet/ut-v1 (built by data-v2x-track/prepare_ut.py)
+  realval: pcdet/realval-v1   # $BDC_DATA/v2x-track/pcdet/realval-v1 (data-v2x-track/prepare_realval.py; after the guard is resolved)
+realism_frames: pcdet/ut-v1   # baseline: 50 UT frames (no null returns yet)
+postprocess: test/postprocess.yaml
+status: "baseline: trained and tuned (realval A 0.465 / B 0.419; truck 0.822)"
+expected: "combined about 0.6 (vehicle and truck only; UT has no walking pedestrians)"
+notes: >
+  First legal submission and data-path check (Gate A). Superseded by models trained on G1/G2 data.

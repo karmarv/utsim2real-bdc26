@@ -1,0 +1,16 @@
+# Model card (machine-readable). Documentation: ./README.md and model-v2x-track/README.md.
+name: pointpillars-g1v2
+track: v2x-track
+module: M8 (G1, walker v2)
+derived_from: pointpillars-g1
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (anchor-based), 0.15625 m pillars, xyz only (same configs as pointpillars-g1)
+data:
+  train: pcdet/g1-v2          # $BDC_DATA/v2x-track/pcdet/g1-v2 (data-v2x-track/prepare_g1.py --walker v2)
+  realval: pcdet/realval-v1   # needs the starting kit
+realism_frames: pcdet/g1-v2   # generated frames with nulls injected at the real rate (package step)
+postprocess: test/postprocess.yaml
+status: "trained and tuned (realval A 0.527 / B 0.477)"
+expected: "pedestrian AP above pointpillars-g1 if the LUMPI finding (real people are round, v1 walkers flat) transfers"
+notes: >
+  Same detector as pointpillars-g1; only the walker body model differs. Choose between the two on realval once the kit unlocks V2X labels.
