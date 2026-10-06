@@ -14,7 +14,7 @@ data:
   train: pcdet/g1-v3          # members' corpora: ut-v1, g1-v1, g1-v2, g1-v3
   realval: pcdet/realval-v1
 realism_frames: pcdet/g1-v3
-status: "selected; first submission packaged 2026-10-02 (submissions/2026-10-02_first)"
+status: "selected; submitted 2026-10-06 as CodaBench 965633 (submissions/2026-10-02_first), combined 0.7665"
 notes: >
   Route chosen on real validation (see route_selection): vehicle from g1v2, pedestrian from g1v3 (walkers calibrated on legal real
   walkers, FOV mask), truck from the UT-only baseline. Realism frames from g1-v3 (FOV-masked, the corpus of the pedestrian member).

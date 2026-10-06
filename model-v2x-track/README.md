@@ -8,8 +8,9 @@
 |---|---|
 | Selected model | [`routed-g1`](routed-g1): vehicle from [`pointpillars-g1v2`](pointpillars-g1v2), pedestrian from [`pointpillars-g1v3`](pointpillars-g1v3), truck from [`pointpillars-ut`](pointpillars-ut) |
 | Real validation (official metric, tuned) | **realval-A mAP 0.572**, realval-B 0.520 |
-| Local combined estimate | **0.858** (A) / 0.814 (B); ECCV winner 0.746, live leader 0.611 |
-| Ready to upload | [`routed-g1/submissions/2026-10-02_first/submission.zip`](routed-g1/submissions) (git-ignored; validated by the kit's `local_eval.py`) |
+| Local combined estimate | 0.858 (A) / 0.814 (B); ECCV winner 0.746 |
+| CodaBench (strategy S1) | **965633: combined 0.7665** (mAP 0.4648, R 0.9203), rank 1 on 2026-10-06 (Section 9; root README Section 12) |
+| Submitted zip | [`routed-g1/submissions/2026-10-02_first/`](routed-g1/submissions/2026-10-02_first) (zip git-ignored; attached to GitHub release 0.1 as `submission_v2x_karmarv.zip`) |
 | Realism of the submitted frames | R = 0.919 on held-out legal proxies, official scorer (frames from the FOV-masked `g1-v3` val split with 31% nulls) |
 | Submit | Section 6.7 |
 | Experiment log | [`registry.csv`](registry.csv) |
@@ -159,5 +160,16 @@ realval-B per class for `routed-g1`: vehicle 0.662, pedestrian 0.226, truck 0.67
 
 | Date | Model / tag | CodaBench id | Local mAP (A / B) | Local R | LB mAP | LB R | LB combined | Note |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-02 | `routed-g1` / `first`, hand-edited copy uploaded as `submission_v2x_20261002.zip` | 957439 | 0.572 / 0.520 | 0.919 | | | | Running for 4 days with no log ("Preparing submission..."), cancelled 2026-10-06; counted (1 of 100 used); root README Section 9.1 |
-| 2026-10-06 | `routed-g1` / `first`, team KarmaRV | (to upload) | 0.572 / 0.520 | 0.919 | | | | `check_submission.py --set-team KarmaRV` changed only declaration.txt; kit scorer valid in 95 s, 5.9 GB peak; estimate 0.858 |
+| 2026-10-02 | `routed-g1` / `first`, hand-edited copy uploaded as `submission_v2x_20261002.zip` | 957439 | 0.572 / 0.520 | 0.919 | | | | Running for 4 days with no log ("Preparing submission..."), cancelled 2026-10-06; counted (1 of 100 used); root README Section 8.7 |
+| 2026-10-06 | `routed-g1` / `first`, team KarmaRV, uploaded unchanged as `submission_v2x_karmarv.zip` | 965633 | 0.572 / 0.520 | 0.919 | **0.4648** | **0.9203** | **0.7665** | strategy S1; rank 1 of 34 (next 0.6114); server record [`codabench_965633.json`](routed-g1/submissions/2026-10-02_first/codabench_965633.json) |
+
+### 9.1 Local vs leaderboard per class (965633, 3D AP@0.5 R40)
+
+| | mAP | vehicle | pedestrian | truck |
+|---|---|---|---|---|
+| leaderboard | **0.4648** | 0.585 | 0.235 | 0.574 |
+| realval-A | 0.572 | 0.627 | 0.266 | 0.822 |
+| realval-B | 0.520 | 0.662 | 0.226 | 0.673 |
+| leaderboard / realval-A | 0.81 | 0.93 | 0.88 | 0.70 |
+
+Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis and next steps: root README Sections 12.4 and 13).

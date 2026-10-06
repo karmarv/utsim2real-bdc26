@@ -6,7 +6,8 @@
 
 | You want to | Read |
 |---|---|
-| Run the pipeline end to end | [root `README.md`](../README.md) Sections 4-9 |
+| Run the pipeline end to end | [root `README.md`](../README.md) Sections 4-8 |
+| See the named strategies and their CodaBench results | [root `README.md`](../README.md) Sections 11-12 |
 | Know the rules, the exact scoring and the submission spec | [`01-CHALLENGE-FACTS.md`](01-CHALLENGE-FACTS.md) |
 | Know where the points are and what to build next | [`02-STRATEGY.md`](02-STRATEGY.md) |
 | Understand the system design and the code map | [`03-ARCHITECTURE.md`](03-ARCHITECTURE.md) |

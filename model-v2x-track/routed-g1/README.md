@@ -9,7 +9,7 @@
 | Members | `ut` = [`pointpillars-ut`](../pointpillars-ut) (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`), `g1` = [`pointpillars-g1`](../pointpillars-g1) (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`), `g1v2` = [`pointpillars-g1v2`](../pointpillars-g1v2) (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`), `g1v3` = [`pointpillars-g1v3`](../pointpillars-g1v3) (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`) |
 | Real validation | `pcdet/realval-v1` (split `val` = realval-A, `valB` = realval-B) |
 | Realism frames | `pcdet/g1-v3` (selected list: [`test/synthetic_ids.txt`](test/synthetic_ids.txt)) |
-| Status | selected; first submission packaged 2026-10-02 (submissions/2026-10-02_first) |
+| Status | selected; submitted 2026-10-06 as CodaBench 965633 (submissions/2026-10-02_first), combined 0.7665 |
 
 Route chosen on real validation (see route_selection): vehicle from g1v2, pedestrian from g1v3 (walkers calibrated on legal real walkers, FOV mask), truck from the UT-only baseline. Realism frames from g1-v3 (FOV-masked, the corpus of the pedestrian member).
 
@@ -46,4 +46,4 @@ Combined estimate: A 0.8577, B 0.8136.
 
 | Folder | CodaBench id | Leaderboard |
 |---|---|---|
-| `2026-10-02_first` | - | - |
+| `2026-10-02_first` | 965633 | combined 0.7665, mAP 0.4648, R 0.9203 |

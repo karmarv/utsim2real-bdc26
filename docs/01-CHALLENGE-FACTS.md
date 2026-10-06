@@ -182,7 +182,7 @@ V2X forbidden IDs: all 26 scenario indices that occur among the test IDs resolve
 
 **ECCV V2X final (same scorer and data as IEEE):** amanupg 0.7457 (mAP 0.438, R 0.925); luopuu 0.7421 (mAP 0.452, R 0.887); loopy 0.6512.
 **ECCV LUMPI final:** amanupg 0.4793 (mAP 0.133, R 0.913); y1nnng 0.4782; best realism R 0.937 (deleted user).
-**IEEE live:** V2X leader 0.6114 (mAP 0.302, R 0.882); LUMPI leader 0.2769 (mAP 0.102, R 0.473). Sixteen accounts share one template (dummy LUMPI frames, raw UT-V2X frames, exactly 100 boxes per frame): a course cohort, low threat. Expect the ECCV teams to enter late.
+**IEEE live:** V2X leader 0.6114 (mAP 0.302, R 0.882); LUMPI leader 0.2769 (mAP 0.102, R 0.473). From 2026-10-06 our S1 entries (KarmaRV) lead both: V2X 0.7665 (mAP 0.465, R 0.920; submission 965633), LUMPI 0.4728 (mAP 0.136, R 0.891; 965614); the previous leaders are now second. Sixteen accounts share one template (dummy LUMPI frames, raw UT-V2X frames, exactly 100 boxes per frame): a course cohort, low threat. Expect the ECCV teams to enter late.
 
 ### 7.2 Per class (test GT counts are shown publicly on every detailed-results page)
 

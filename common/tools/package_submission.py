@@ -43,11 +43,15 @@ def main():
     if a.record:
         sub_dir = sorted((model_dir / "submissions").glob(f"*_{a.tag}"))[-1]
         man = json.loads((sub_dir / "manifest.json").read_text())
-        man["codabench_submission_id"], man["leaderboard"] = a.record[0], json.loads(Path(a.record[1]).read_text())
+        lb = json.loads(Path(a.record[1]).read_text())
+        lb = lb.get("scores", lb)                     # a codabench_<id>.json record or a bare scores dict
+        man["codabench_submission_id"], man["leaderboard"] = a.record[0], lb
         (sub_dir / "manifest.json").write_text(json.dumps(man, indent=2))
+        per_class = {k.removeprefix("AP_3d_0.5_R40_"): v for k, v in lb.items() if k.startswith("AP_3d_0.5_R40_")}
         registry.append(track, kind="leaderboard", model=card["name"], run=a.tag, codabench_id=a.record[0],
-                        leaderboard_combined=man["leaderboard"].get("score_combined", ""),
-                        **{"mAP_3d_0.5_R40": man["leaderboard"].get("mAP_3d_0.5_R40", "")})
+                        metric_source="codabench", leaderboard_combined=lb.get("score_combined", ""),
+                        realism_R=lb.get("score_realism", ""), per_class=json.dumps(per_class) if per_class else "",
+                        **{"mAP_3d_0.5_R40": lb.get("mAP_3d_0.5_R40", "")})
         print(f"recorded {a.record[0]} in {sub_dir}")
         return
 

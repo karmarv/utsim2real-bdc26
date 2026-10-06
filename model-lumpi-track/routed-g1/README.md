@@ -9,7 +9,7 @@
 | Members | `g1` = [`pointpillars-g1`](../pointpillars-g1) (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`), `g1v3` = [`pointpillars-g1v3`](../pointpillars-g1v3) (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`) |
 | Real validation | `pcdet/realval-v1` (split `val` = realval-A, `valB` = realval-B) |
 | Realism frames | `pcdet/g1-v2` (selected list: [`test/synthetic_ids.txt`](test/synthetic_ids.txt)) |
-| Status | selected; first submission packaged and validated 2026-10-02 (submissions/2026-10-02_first) |
+| Status | selected; submitted 2026-10-06 as CodaBench 965614 (submissions/2026-10-02_first), combined 0.4728 |
 
 Route chosen on real validation (see route_selection). Members differ only in the walker model (v1 / v2).
 
@@ -46,4 +46,4 @@ Combined estimate: A 0.5849, B 0.5047.
 
 | Folder | CodaBench id | Leaderboard |
 |---|---|---|
-| `2026-10-02_first` | - | - |
+| `2026-10-02_first` | 965614 | combined 0.4728, mAP 0.1357, R 0.8912 |

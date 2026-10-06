@@ -1,0 +1,47 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "release": "https://github.com/karmarv/utsim2real-bdc26/releases/tag/0.1",
+  "git_tag": "0.1",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 965614,
+  "uploaded_file": "submission_lumpi_karmarv.zip",
+  "submitted": "2026-10-06 16:37 CDT",
+  "leaderboard_rank_at_submission": 1,
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005392081351404081
+  },
+  "scores": {
+    "score_combined": 0.472786,
+    "score_detection": 0.193823,
+    "score_realism": 0.891229,
+    "mAP_3d_0.5_R40": 0.135676,
+    "mAP_3d_0.5_R11": 0.151888,
+    "mAP_3d_0.7_R40": 0.049969,
+    "mAP_bev_0.5_R40": 0.153334,
+    "CD": 1.689947,
+    "MMD": 0.00187433,
+    "EMD": 1.647213,
+    "FPD": 5.094576,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.116837,
+    "AP_3d_0.5_R40_Car": 0.632977,
+    "AP_3d_0.5_R40_Bicycle": 0.052796,
+    "AP_3d_0.5_R40_Motorcycle": 0.001182,
+    "AP_3d_0.5_R40_Bus": 0.0,
+    "AP_3d_0.5_R40_Truck": 0.028008,
+    "AP_3d_0.5_R40_Van": 0.117935,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] installing dependencies...",
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 1.6899468973324652, 'MMD': 0.001874328298857364, 'EMD': 1.647212781718087, 'FPD': 5.094575508584967, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.0005392081351404081}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.13567634912943655"
+  ]
+}

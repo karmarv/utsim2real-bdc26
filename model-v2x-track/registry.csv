@@ -15,3 +15,4 @@ time,kind,model,run,git_sha,data_version,config,seed,metric_source,mAP_3d_0.5_R4
 2026-10-02 08:36,eval,routed-g1,routed-official,2a0bc24,pcdet/realval-v1,,,pcdet/realval-v1:val,0.5718,"{""vehicle"": 0.626669195361395, ""pedestrian"": 0.266327224959661, ""truck"": 0.8224874370478628}",,,,mAP over the classes with test GT
 2026-10-02 08:36,eval,routed-g1,routed-official,2a0bc24,pcdet/realval-v1,,,pcdet/realval-v1:valB,0.5204,"{""vehicle"": 0.661763714953597, ""pedestrian"": 0.22595854354150954, ""truck"": 0.6733560945551298}",,,,mAP over the classes with test GT
 2026-10-02 08:37,submission,routed-g1,first,2a0bc24,pcdet/g1-v3,submissions/2026-10-02_first,,,,,,,,"packaged, not yet uploaded"
+2026-10-06 15:41,leaderboard,routed-g1,first,d6c708c,,,,codabench,0.464774,"{""vehicle"": 0.58491, ""pedestrian"": 0.235041, ""truck"": 0.57437}",0.920264,965633,0.766483,

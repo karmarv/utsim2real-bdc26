@@ -9,8 +9,9 @@
 | Selected model | [`routed-g1`](routed-g1): per-class routing of two PointPillars models trained on engine-G1 synthetic data ([`pointpillars-g1`](pointpillars-g1) with walker v1, [`pointpillars-g1v3`](pointpillars-g1v3) with walker v2) |
 | Real validation (official metric, tuned) | **realval-A mAP 0.260**, realval-B 0.166 (Section 7) |
 | Realism of the submitted frames | R = 0.906 on held-out legal proxies, official scorer (raw UT frames: 0.59) |
-| Local combined estimate | **0.585** (A) / 0.505 (B); ECCV winner 0.479, live leader 0.277 |
-| Ready to upload | [`routed-g1/submissions/2026-10-02_first/submission.zip`](routed-g1/submissions) (git-ignored; rebuild with Section 6.7) |
+| Local combined estimate | 0.585 (A) / 0.505 (B); ECCV winner 0.479 |
+| CodaBench (strategy S1) | **965614: combined 0.4728** (mAP 0.1357, R 0.8912), rank 1 on 2026-10-06 (Section 9; root README Section 12) |
+| Submitted zip | [`routed-g1/submissions/2026-10-02_first/`](routed-g1/submissions/2026-10-02_first) (zip git-ignored; attached to GitHub release 0.1 as `submission_lumpi_karmarv.zip`) |
 | Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
@@ -145,7 +146,7 @@ python common/tools/check_submission.py --track lumpi model-lumpi-track/routed-g
 # upload that submission.zip unchanged on CodaBench 16684 (Submit tab); never unzip, edit or re-zip it. Then:
 python common/tools/package_submission.py model-lumpi-track/routed-g1 --tag first --record <codabench_id> <leaderboard.json>
 ```
-The packager writes `submission.zip` (50 synthetic frames from `test/synthetic_ids.txt`, `predictions.json` for every test ID, `declaration.txt`), validates it against the published spec, and stores `manifest.json` (model, route, frames, local scores, validation result). See the root README, "Submission".
+The packager writes `submission.zip` (50 synthetic frames from `test/synthetic_ids.txt`, `predictions.json` for every test ID, `declaration.txt`), validates it against the published spec, and stores `manifest.json` (model, route, frames, local scores, validation result). See the root README Sections 8.5-8.7.
 
 ## 7. Results and ablations
 
@@ -198,5 +199,16 @@ Reference points: ECCV 2026 winner on the test set, mAP 0.133 (Person 0.149, Car
 
 | Date | Model / tag | CodaBench id | Local mAP (A / B) | Local R | LB mAP | LB R | LB combined | Note |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-02 | `routed-g1` / `first`, hand-edited copy (team typed into declaration.txt, re-zipped) | 957399 | 0.260 / 0.166 | 0.906 | | | | Failed after a few hours, no score; not counted (0 of 100 used); root README Section 9.1 |
-| 2026-10-06 | `routed-g1` / `first`, team KarmaRV | (to upload) | 0.260 / 0.166 | 0.906 | | | | `check_submission.py --set-team KarmaRV` changed only declaration.txt; kit scorer valid in 134 s, 5.9 GB peak; estimate 0.585 |
+| 2026-10-02 | `routed-g1` / `first`, hand-edited copy (team typed into declaration.txt, re-zipped) | 957399 | 0.260 / 0.166 | 0.906 | | | | Failed after a few hours, no score; not counted (0 of 100 used); root README Section 8.7 |
+| 2026-10-06 | `routed-g1` / `first`, team KarmaRV, uploaded unchanged as `submission_lumpi_karmarv.zip` | 965614 | 0.260 / 0.166 | 0.906 | **0.1357** | **0.8912** | **0.4728** | strategy S1; rank 1 of 31 (next 0.2769); server record [`codabench_965614.json`](routed-g1/submissions/2026-10-02_first/codabench_965614.json) |
+
+### 9.1 Local vs leaderboard per class (965614, 3D AP@0.5 R40)
+
+| | mAP | Person | Car | Bicycle | Motorcycle | Bus | Truck | Van |
+|---|---|---|---|---|---|---|---|---|
+| leaderboard | **0.1357** | 0.117 | 0.633 | 0.053 | 0.001 | 0.000 | 0.028 | 0.118 |
+| realval-A | 0.260 | 0.340 | 0.874 | 0.265 | 0.008 | 0.011 | 0.200 | 0.122 |
+| realval-B | 0.166 | 0.134 | 0.770 | 0.102 | 0.015 | 0.012 | 0.131 | 0.001 |
+| leaderboard / realval-A | 0.52 | 0.34 | 0.72 | 0.20 | | | 0.14 | 0.97 |
+
+Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (local proxy 4: 1.629, 0.00117, 1.530, 3.447, 0.9057). Van and Car transfer; Person, Bicycle and Truck lose most of their realval-A AP, so the realval-A selection does not represent the test window well (analysis and next steps: root README Sections 12.4 and 13).

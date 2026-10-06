@@ -70,8 +70,29 @@
       "synthetic/"
     ]
   },
-  "codabench_submission_id": null,
-  "leaderboard": null,
+  "codabench_submission_id": "965614",
+  "leaderboard": {
+    "score_combined": 0.472786,
+    "score_detection": 0.193823,
+    "score_realism": 0.891229,
+    "mAP_3d_0.5_R40": 0.135676,
+    "mAP_3d_0.5_R11": 0.151888,
+    "mAP_3d_0.7_R40": 0.049969,
+    "mAP_bev_0.5_R40": 0.153334,
+    "CD": 1.689947,
+    "MMD": 0.00187433,
+    "EMD": 1.647213,
+    "FPD": 5.094576,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.116837,
+    "AP_3d_0.5_R40_Car": 0.632977,
+    "AP_3d_0.5_R40_Bicycle": 0.052796,
+    "AP_3d_0.5_R40_Motorcycle": 0.001182,
+    "AP_3d_0.5_R40_Bus": 0.0,
+    "AP_3d_0.5_R40_Truck": 0.028008,
+    "AP_3d_0.5_R40_Van": 0.117935,
+    "AP_3d_0.5_R40_Unknown": null
+  },
   "team": "KarmaRV",
   "history": [
     {
@@ -90,6 +111,13 @@
       "file": "hand-edited copy of this zip (declaration.txt edited, re-zipped)",
       "status": "Failed",
       "log": "none seen yet"
+    },
+    {
+      "id": 965614,
+      "date": "2026-10-06 16:37 CDT",
+      "file": "submission_lumpi_karmarv.zip (this zip, unchanged, renamed; release asset of tag 0.1)",
+      "status": "Finished",
+      "record": "codabench_965614.json"
     }
   ]
 }

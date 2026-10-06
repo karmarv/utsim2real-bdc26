@@ -56,8 +56,24 @@
       "synthetic/"
     ]
   },
-  "codabench_submission_id": null,
-  "leaderboard": null,
+  "codabench_submission_id": "965633",
+  "leaderboard": {
+    "score_combined": 0.766483,
+    "score_detection": 0.663963,
+    "score_realism": 0.920264,
+    "mAP_3d_0.5_R40": 0.464774,
+    "mAP_3d_0.5_R11": 0.469687,
+    "mAP_3d_0.7_R40": 0.055624,
+    "mAP_bev_0.5_R40": 0.569633,
+    "CD": 2.214826,
+    "MMD": 0.003286,
+    "EMD": 1.414323,
+    "FPD": 1.0918,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.58491,
+    "AP_3d_0.5_R40_pedestrian": 0.235041,
+    "AP_3d_0.5_R40_truck": 0.57437
+  },
   "team": "KarmaRV",
   "history": [
     {
@@ -75,6 +91,13 @@
       "date": "2026-10-02 15:08 CDT",
       "file": "hand-edited copy, uploaded as submission_v2x_20261002.zip",
       "status": "Cancelled after 4 days Running with no log"
+    },
+    {
+      "id": 965633,
+      "date": "2026-10-06 17:07 CDT",
+      "file": "submission_v2x_karmarv.zip (this zip, unchanged, renamed; release asset of tag 0.1)",
+      "status": "Finished",
+      "record": "codabench_965633.json"
     }
   ]
 }

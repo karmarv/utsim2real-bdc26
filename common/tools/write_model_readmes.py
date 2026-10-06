@@ -97,7 +97,10 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
         lines += ["## Submissions", "", "| Folder | CodaBench id | Leaderboard |", "|---|---|---|"]
         for m in subs:
             man = json.loads(m.read_text())
-            lines.append(f"| `{m.parent.name}` | {man.get('codabench_submission_id') or '-'} | {man.get('leaderboard') or '-'} |")
+            lb = man.get("leaderboard") or {}
+            lbs = (f"combined {lb['score_combined']:.4f}, mAP {lb['mAP_3d_0.5_R40']:.4f}, R {lb['score_realism']:.4f}"
+                   if "score_combined" in lb else "-")
+            lines.append(f"| `{m.parent.name}` | {man.get('codabench_submission_id') or '-'} | {lbs} |")
         lines.append("")
     return "\n".join(lines)
 
