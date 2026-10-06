@@ -22,7 +22,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 bash model-v2x-track/pointpillars-ut/train/train.sh
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/pointpillars-ut/validation/tune_and_eval.sh model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth   # validate + tune
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/pointpillars-ut/validation/tune_and_eval.sh <ckpt> --eval-only                # re-score only
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/pointpillars-ut/test/predict.sh <ckpt>                                       # predict the 50 kit frames
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/pointpillars-ut/test/make_submission.sh <ckpt> <tag> "<team>"               # zip + validation + local score
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/pointpillars-ut/test/make_submission.sh <ckpt> <tag> [team]                 # zip + validation + local score
 ```
 
 ## Configuration

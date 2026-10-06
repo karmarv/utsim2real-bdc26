@@ -50,10 +50,10 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/validation/tune_and_eval.sh {rel}/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth   # validate + tune",
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/validation/tune_and_eval.sh <ckpt> --eval-only                # re-score only",
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/predict.sh <ckpt>                                       # predict the 50 kit frames",
-                  f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <ckpt> <tag> \"<team>\"               # zip + validation + local score"]
+                  f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <ckpt> <tag> [team]                 # zip + validation + local score"]
     else:
         lines += [f"python common/tools/route_predictions.py select {rel}                                  # choose the route",
-                  f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <tag> \"<team>\"                      # zip + validation + local score"]
+                  f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <tag> [team]                        # zip + validation + local score"]
     lines += ["```", ""]
     cfg = mdir / "train/pcdet_model.yaml"
     if cfg.exists():

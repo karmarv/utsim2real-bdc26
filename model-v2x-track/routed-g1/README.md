@@ -27,7 +27,7 @@ From the repository root after `source common/env/activate.sh`:
 
 ```bash
 python common/tools/route_predictions.py select model-v2x-track/routed-g1                                  # choose the route
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g1/test/make_submission.sh <tag> "<team>"                      # zip + validation + local score
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g1/test/make_submission.sh <tag> [team]                        # zip + validation + local score
 ```
 
 ## Latest real-validation result (official metric, 3D AP@0.5 R40)

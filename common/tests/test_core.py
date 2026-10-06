@@ -1,5 +1,6 @@
 """Unit tests for the shared library. Synthetic fixtures only: no real labeled frame is used."""
 import json
+from pathlib import Path
 import zipfile
 
 import numpy as np
@@ -174,13 +175,45 @@ def test_package_and_validate(tmp_path):
     rng = np.random.default_rng(0)
     syn = [rng.uniform(-30, 30, (50000, 3)).astype(np.float32) for _ in range(50)]
     preds = {"0_000001": [{"box": [1, 2, -1, 4, 2, 1.6, 0.1], "score": 0.9, "class": "vehicle"}], "0_000002": []}
-    z = submit.package(tmp_path / "sub", preds, syn, V2X, meta={"model": "toy"}, test_ids=list(preds))
+    z = submit.package(tmp_path / "sub", preds, syn, V2X, meta={"model": "toy"}, team="KarmaRV", test_ids=list(preds))
     errors, info = submit.validate(z, V2X, list(preds))
-    assert errors == [] and info["n_boxes"] == 1
+    assert errors == [] and info["n_boxes"] == 1 and info["team"] == "KarmaRV"
     m = json.loads((tmp_path / "sub" / "manifest.json").read_text())
     assert m["validation_errors"] == [] and m["track"] == "v2x-track"
     with zipfile.ZipFile(z) as zz:
         assert len([n for n in zz.namelist() if n.startswith("synthetic/")]) == 50
+
+
+def _toy_zip(zp, prefix="", team="KarmaRV"):
+    with zipfile.ZipFile(zp, "w") as z:
+        for i in range(50):
+            z.writestr(f"{prefix}synthetic/{i:04d}.bin", np.zeros((1000, 3), np.float32).tobytes())
+        z.writestr(f"{prefix}predictions.json", "{}")
+        z.writestr(f"{prefix}declaration.txt", f"{submit.DECLARATION}\nTeam: {team}\nDate: 2026-10-06\n")
+    return zp
+
+
+def test_validate_rejects_nested_folder_and_missing_team(tmp_path):
+    assert submit.validate(_toy_zip(tmp_path / "ok.zip"), V2X)[0] == []
+    errors, _ = submit.validate(_toy_zip(tmp_path / "nested.zip", prefix="submission/"), V2X)
+    assert any("unexpected entries" in e for e in errors)          # a re-compressed folder: nothing at the zip root
+    errors, _ = submit.validate(_toy_zip(tmp_path / "noteam.zip", team=""), V2X)
+    assert any("no team name" in e for e in errors)
+
+
+def test_set_team_rewrites_only_the_declaration(tmp_path):
+    import importlib, sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    cs = importlib.import_module("check_submission")
+    zp = _toy_zip(tmp_path / "s.zip", team="")
+    with zipfile.ZipFile(zp) as z:
+        before = {n: z.read(n) for n in z.namelist() if n != "declaration.txt"}
+    cs.set_team(zp, "KarmaRV")
+    with zipfile.ZipFile(zp) as z:
+        assert {n: z.read(n) for n in z.namelist() if n != "declaration.txt"} == before
+        decl = z.read("declaration.txt").decode().splitlines()
+    assert decl[0] == submit.DECLARATION and decl[1] == "Team: KarmaRV" and sum(l.startswith("Team:") for l in decl) == 1
+    assert submit.validate(zp, V2X)[0] == []
 
 
 def test_validate_rejects_nx4_ambiguity(tmp_path):

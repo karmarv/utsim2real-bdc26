@@ -22,7 +22,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 bash model-lumpi-track/pointpillars-g1v3/train/trai
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/pointpillars-g1v3/validation/tune_and_eval.sh model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth   # validate + tune
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/pointpillars-g1v3/validation/tune_and_eval.sh <ckpt> --eval-only                # re-score only
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/pointpillars-g1v3/test/predict.sh <ckpt>                                       # predict the 50 kit frames
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/pointpillars-g1v3/test/make_submission.sh <ckpt> <tag> "<team>"               # zip + validation + local score
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/pointpillars-g1v3/test/make_submission.sh <ckpt> <tag> [team]                 # zip + validation + local score
 ```
 
 ## Configuration

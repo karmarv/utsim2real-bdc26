@@ -5,7 +5,7 @@
 set -euo pipefail
 MODEL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$MODEL_DIR/../../common/env/activate.sh"      # .venv_ut if set up, else conda bdc-train
-TAG=${1:-first}; TEAM=${2:-}
+TAG=${1:-first}; TEAM=${2:-$BDC_TEAM}
 card() { python -c "import yaml;d=yaml.safe_load(open('$MODEL_DIR/model.yaml'));print($1)"; }
 TRACK=$(card "d['track']"); SYN=$(card "d['realism_frames']")
 cd "$BDC_REPO/common/tools"

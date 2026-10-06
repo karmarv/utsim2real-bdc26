@@ -103,9 +103,10 @@ As Track 1 (Sections 6.5-6.6 there): every member predicts the 50 kit frames wit
 
 ### 6.7 Submission
 ```bash
-CUDA_VISIBLE_DEVICES=4 bash model-v2x-track/routed-g1/test/make_submission.sh first "<team name>"
-# single model: bash model-v2x-track/pointpillars-g1/test/make_submission.sh <ckpt> first "<team name>"
-# upload on CodaBench 16685, then:
+CUDA_VISIBLE_DEVICES=4 bash model-v2x-track/routed-g1/test/make_submission.sh first
+# single model: bash model-v2x-track/pointpillars-g1/test/make_submission.sh <ckpt> first
+python common/tools/check_submission.py --track v2x model-v2x-track/routed-g1/submissions/<date>_first/submission.zip --official
+# upload that submission.zip unchanged on CodaBench 16685; never unzip, edit or re-zip it. Then:
 python common/tools/package_submission.py model-v2x-track/routed-g1 --tag first --record <codabench_id> <leaderboard.json>
 ```
 
@@ -158,4 +159,5 @@ realval-B per class for `routed-g1`: vehicle 0.662, pedestrian 0.226, truck 0.67
 
 | Date | Model / tag | CodaBench id | Local mAP (A / B) | Local R | LB mAP | LB R | LB combined | Note |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-02 | `routed-g1` / `first` | (to upload) | 0.572 / 0.520 | 0.919 | | | | packaged and validated; estimate 0.858 |
+| 2026-10-02 | `routed-g1` / `first`, hand-edited copy uploaded as `submission_v2x_20261002.zip` | 957439 | 0.572 / 0.520 | 0.919 | | | | Running for 4 days with no log ("Preparing submission..."), cancelled 2026-10-06; counted (1 of 100 used); root README Section 9.1 |
+| 2026-10-06 | `routed-g1` / `first`, team KarmaRV | (to upload) | 0.572 / 0.520 | 0.919 | | | | `check_submission.py --set-team KarmaRV` changed only declaration.txt; kit scorer valid in 95 s, 5.9 GB peak; estimate 0.858 |

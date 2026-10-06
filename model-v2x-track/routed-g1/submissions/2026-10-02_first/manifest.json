@@ -33,10 +33,10 @@
   "track": "v2x-track",
   "created": "2026-10-02 08:37",
   "git_sha": "2a0bc24",
-  "zip_md5": "c2a43fe935fe81247f062be77dbfb5f5",
+  "zip_md5": "5343da990d5cdd1f34df379433479e2a",
   "validation_errors": [],
   "info": {
-    "uncompressed_bytes": 33748675,
+    "uncompressed_bytes": 33748682,
     "points_per_frame": [
       50000,
       50000
@@ -48,8 +48,33 @@
       "truck": 4530,
       "vehicle": 4696,
       "pedestrian": 9502
-    }
+    },
+    "team": "KarmaRV",
+    "zip_roots": [
+      "declaration.txt",
+      "predictions.json",
+      "synthetic/"
+    ]
   },
   "codabench_submission_id": null,
-  "leaderboard": null
+  "leaderboard": null,
+  "team": "KarmaRV",
+  "history": [
+    {
+      "time": "2026-10-06 13:29",
+      "action": "check_submission (team=KarmaRV)"
+    },
+    {
+      "time": "2026-10-06 13:35",
+      "action": "check_submission (team=None)"
+    }
+  ],
+  "codabench_attempts": [
+    {
+      "id": 957439,
+      "date": "2026-10-02 15:08 CDT",
+      "file": "hand-edited copy, uploaded as submission_v2x_20261002.zip",
+      "status": "Cancelled after 4 days Running with no log"
+    }
+  ]
 }

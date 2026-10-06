@@ -230,3 +230,4 @@ What this says:
 4. Does `local_eval.py` drop GT boxes with zero LiDAR points or outside the range, and are range bounds inclusive?
 5. What is the exact report submission channel and format (Nov 15 report vs Nov 20 camera-ready)?
 6. Please confirm our LOI registration for both IEEE tracks.
+7. (Only if the clean re-uploads also fail.) Submissions 957399 (Track 1, Failed with no message) and 957439 (Track 2, Running for 4 days with no log, cancelled): can you see a worker error, and does the default queue give the scorer the 6 GB it needs for the 10k x 10k MMD?

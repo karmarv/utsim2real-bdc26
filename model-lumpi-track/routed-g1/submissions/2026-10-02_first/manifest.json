@@ -42,10 +42,10 @@
   "track": "lumpi-track",
   "created": "2026-10-02 07:48",
   "git_sha": "2a0bc24",
-  "zip_md5": "b7c58b67617f7f54c6b74f11bd18728a",
+  "zip_md5": "ea2c76393d6f8868762d6bac1ac03fa8",
   "validation_errors": [],
   "info": {
-    "uncompressed_bytes": 33387278,
+    "uncompressed_bytes": 33387285,
     "points_per_frame": [
       50000,
       50000
@@ -62,8 +62,34 @@
       "Motorcycle": 2357,
       "Person": 5129,
       "Truck": 1235
-    }
+    },
+    "team": "KarmaRV",
+    "zip_roots": [
+      "declaration.txt",
+      "predictions.json",
+      "synthetic/"
+    ]
   },
   "codabench_submission_id": null,
-  "leaderboard": null
+  "leaderboard": null,
+  "team": "KarmaRV",
+  "history": [
+    {
+      "time": "2026-10-06 13:28",
+      "action": "check_submission (team=KarmaRV)"
+    },
+    {
+      "time": "2026-10-06 13:32",
+      "action": "check_submission (team=None)"
+    }
+  ],
+  "codabench_attempts": [
+    {
+      "id": 957399,
+      "date": "2026-10-02 14:58 CDT",
+      "file": "hand-edited copy of this zip (declaration.txt edited, re-zipped)",
+      "status": "Failed",
+      "log": "none seen yet"
+    }
+  ]
 }

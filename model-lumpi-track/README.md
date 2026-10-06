@@ -11,7 +11,7 @@
 | Realism of the submitted frames | R = 0.906 on held-out legal proxies, official scorer (raw UT frames: 0.59) |
 | Local combined estimate | **0.585** (A) / 0.505 (B); ECCV winner 0.479, live leader 0.277 |
 | Ready to upload | [`routed-g1/submissions/2026-10-02_first/submission.zip`](routed-g1/submissions) (git-ignored; rebuild with Section 6.7) |
-| Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> "<team>"` (Section 6.7) |
+| Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
 ## 1. Folder conventions
@@ -140,8 +140,9 @@ For every class: the member with the best realval-A AP; within 0.005 of the best
 
 ### 6.7 Submission
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/make_submission.sh first "<team name>"
-# upload model-lumpi-track/routed-g1/submissions/<date>_first/submission.zip on CodaBench 16684 (Submit tab), then:
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/make_submission.sh first
+python common/tools/check_submission.py --track lumpi model-lumpi-track/routed-g1/submissions/<date>_first/submission.zip --official
+# upload that submission.zip unchanged on CodaBench 16684 (Submit tab); never unzip, edit or re-zip it. Then:
 python common/tools/package_submission.py model-lumpi-track/routed-g1 --tag first --record <codabench_id> <leaderboard.json>
 ```
 The packager writes `submission.zip` (50 synthetic frames from `test/synthetic_ids.txt`, `predictions.json` for every test ID, `declaration.txt`), validates it against the published spec, and stores `manifest.json` (model, route, frames, local scores, validation result). See the root README, "Submission".
@@ -197,4 +198,5 @@ Reference points: ECCV 2026 winner on the test set, mAP 0.133 (Person 0.149, Car
 
 | Date | Model / tag | CodaBench id | Local mAP (A / B) | Local R | LB mAP | LB R | LB combined | Note |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-02 | `routed-g1` / `first` | (to upload) | 0.260 / 0.166 | 0.906 | | | | packaged and validated; estimate 0.585 |
+| 2026-10-02 | `routed-g1` / `first`, hand-edited copy (team typed into declaration.txt, re-zipped) | 957399 | 0.260 / 0.166 | 0.906 | | | | Failed after a few hours, no score; not counted (0 of 100 used); root README Section 9.1 |
+| 2026-10-06 | `routed-g1` / `first`, team KarmaRV | (to upload) | 0.260 / 0.166 | 0.906 | | | | `check_submission.py --set-team KarmaRV` changed only declaration.txt; kit scorer valid in 134 s, 5.9 GB peak; estimate 0.585 |

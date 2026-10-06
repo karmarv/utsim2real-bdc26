@@ -33,6 +33,13 @@ def validate(zip_path: Path, track: Track, test_ids: list[str] | None = None) ->
     errors, info = [], {}
     with zipfile.ZipFile(zip_path) as z:
         names = z.namelist()
+        files = [n for n in names if not n.endswith("/")]
+        allowed = {"predictions.json", "declaration.txt", "declaration.pdf"}
+        extra = [n for n in files if n not in allowed and not (n.startswith("synthetic/") and n.count("/") == 1)]
+        if extra:
+            errors.append(f"unexpected entries (the scorer reads synthetic/, predictions.json, declaration.* at the zip ROOT, so a "
+                          f"re-zipped folder fails with 'Honor declaration is missing'; __MACOSX/.DS_Store entries mean the zip was "
+                          f"rebuilt by hand: upload the packaged zip instead): {extra[:5]}")
         syn = sorted(n for n in names if n.startswith("synthetic/") and n.endswith(".bin"))
         if len(syn) != 50:
             errors.append(f"expected 50 synthetic/*.bin files, found {len(syn)}")
@@ -89,8 +96,14 @@ def validate(zip_path: Path, track: Track, test_ids: list[str] | None = None) ->
         decl = [n for n in names if n in ("declaration.txt", "declaration.pdf")]
         if not decl:
             errors.append("declaration.txt / declaration.pdf missing")
-        elif "declaration.txt" in decl and DECLARATION.lower() not in z.read("declaration.txt").decode().lower():
-            errors.append("declaration.txt does not contain the verbatim statement")
+        elif "declaration.txt" in decl:
+            text = z.read("declaration.txt").decode("utf-8", errors="replace")
+            if DECLARATION.lower() not in text.lower():
+                errors.append("declaration.txt does not contain the verbatim statement")
+            team = next((l.split(":", 1)[1].strip() for l in text.splitlines() if l.lower().startswith("team:")), "")
+            info["team"] = team
+            if not team:
+                errors.append("declaration.txt has no team name (Team: <name>)")
     return errors, info
 
 

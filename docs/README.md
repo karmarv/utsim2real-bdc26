@@ -32,5 +32,6 @@
 | [`2026-09-30-research-exposure.md`](decisions/2026-09-30-research-exposure.md) | real data touched during research before the guard existed, and the 2026-10-02 follow-up check |
 | [`2026-09-30-real-data-download.md`](decisions/2026-09-30-real-data-download.md) | downloading real LUMPI and V2X-Real on the entrant's instruction; what is used how |
 | [`2026-09-30-g1-generator.md`](decisions/2026-09-30-g1-generator.md) | engine G1: walkers, Van mapping, calibrated background density (gray area, disclosed), walker v2 |
+| [`2026-10-06-codabench-submission-failures.md`](decisions/2026-10-06-codabench-submission-failures.md) | first uploads (957399 Failed, 957439 stuck) were hand-edited copies; team set by the packager; pre-upload checker |
 
 New records follow the template in [`decisions/README.md`](decisions/README.md): one dated file per decision, organizer answer, legal answer or gate outcome.

@@ -228,14 +228,22 @@ Picks 50 frames of the generator's val split (never trained on) whose pooled poi
 
 ### 6.8 Inference, packaging and local scoring
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/make_submission.sh first "<team name>"
-CUDA_VISIBLE_DEVICES=4 bash model-v2x-track/routed-g1/test/make_submission.sh first "<team name>"
-# a single model instead: bash model-<track>/<model>/test/make_submission.sh <ckpt> <tag> "<team name>"
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/make_submission.sh first
+CUDA_VISIBLE_DEVICES=4 bash model-v2x-track/routed-g1/test/make_submission.sh first
+# a single model instead: bash model-<track>/<model>/test/make_submission.sh <ckpt> <tag> [team]
 ```
-Predicts the 50 kit frames, packages `submission.zip`, validates it against the published spec and prints the local realism and combined estimates. Section 9.
+Predicts the 50 kit frames, packages `submission.zip`, validates it against the published spec and prints the local realism and combined estimates. The team name in `declaration.txt` defaults to `$BDC_TEAM` (`KarmaRV`, set in [`common/env/bdc26.env`](common/env/bdc26.env)); pass a third (single model) or second (routed) argument to override it. Section 9.
 
-### 6.9 Upload and record
-Upload `model-<track>/<model>/submissions/<date>_<tag>/submission.zip` on the CodaBench Submit tab (Track 1: competition 16684, Track 2: 16685), then save the scores shown on the detailed-results page as a small JSON file (for example `{"score_combined": 0.58, "mAP_3d_0.5_R40": 0.25, "score_realism": 0.90}`) and record it:
+### 6.9 Check, upload and record
+Check the zip exactly as the server will see it, including a run of the kit's own scorer under the server's 1,200 s limit (about 2 minutes and 6 GB of memory):
+```bash
+python common/tools/check_submission.py --track lumpi model-lumpi-track/routed-g1/submissions/<date>_<tag>/submission.zip --official
+```
+To change only the team line of an existing zip, add `--set-team <name>` (every other member is copied byte for byte and `manifest.json` is updated). **Upload the zip file unchanged**: never unzip it, edit it and compress it again (Section 9.1). If your browser runs on another machine, copy the file and compare its checksum with `zip_md5` in `manifest.json` before uploading:
+```bash
+md5sum submission.zip
+```
+Upload it on the CodaBench Submit tab (Track 1: competition 16684, Track 2: 16685), then save the scores shown on the detailed-results page as a small JSON file (for example `{"score_combined": 0.58, "mAP_3d_0.5_R40": 0.25, "score_realism": 0.90}`) and record it:
 ```bash
 python common/tools/package_submission.py model-lumpi-track/routed-g1 --tag first --record <codabench_submission_id> <leaderboard.json>
 ```
@@ -271,7 +279,7 @@ This stores the CodaBench id and the leaderboard numbers in the submission's `ma
 | R (held-out proxies) | [`score_realism.py`](common/tools/score_realism.py), [`select_realism_frames.py`](common/tools/select_realism_frames.py) | official realism score against legal frames not used for any choice |
 | combined estimate | `make_submission.sh` | `0.6 * clip(mAP_A / 0.7) + 0.4 * R` |
 
-The kit's own `local_eval.py` also runs on our zips (format check with its dummy reference; replace `reference_data_dummy/realism_reference/` by 50 legal frames for a realism number). Background on the scoring math and the sensitivity of each term: [`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md) Section 4.
+The kit's own `local_eval.py` also runs on our zips: [`check_submission.py`](common/tools/check_submission.py) `--official` runs it with a legal stand-in reference (realism-proxy-4 frames, realval labels under the test IDs) and reports validity, realism, wall time and memory (Section 6.9). Background on the scoring math and the sensitivity of each term: [`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md) Section 4.
 
 ## 9. Submission (common to both tracks)
 
@@ -279,25 +287,41 @@ The kit's own `local_eval.py` also runs on our zips (format check with its dummy
 |---|---|
 | exactly 50 `synthetic/*.bin`, float32 N x 3 (N x 4 accepted), each <= 1,500,000 bytes, total < ~75 MB | writes 50 x 50,000 points (600 KB each); validation errors stop packaging |
 | `predictions.json`: exactly the 50 test IDs as keys (empty lists allowed); boxes of 7 floats, positive extents; score in [0, 1]; valid class strings (others are discarded) | built from the routed or single-model predictions; every test ID present; classes from the track config |
-| declaration.pdf (signed) or declaration.txt containing the verbatim statement | `declaration.txt` with the statement, team and date (sign the kit's `declaration_template.pdf` if you prefer the PDF) |
+| declaration.pdf (signed) or declaration.txt containing the verbatim statement | `declaration.txt` with the statement, `Team: $BDC_TEAM` and the date; validation fails on an empty team (sign the kit's `declaration_template.pdf` if you prefer the PDF) |
+| the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | the packager writes exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | V2X: the real frames contain 31% (0,0,0) nulls | packager injects them (`track.yaml` `resample.null_fraction`) |
 
 Each submission is a folder `model-<track>/<model>/submissions/<date>_<tag>/` with `manifest.json` (model, checkpoints, route, frames, local scores, validation result, CodaBench id and leaderboard numbers after `--record`) and `synthetic_ids.txt`; the zip itself is git-ignored.
 
 **Budget and plan:** development phase 5 per day / 100 in total, public leaderboard; final phase **1 per day / 5 in total, hidden leaderboard, development submissions do not carry over**. Use development submissions to confirm that local estimates transfer (one per track first), never to tune against the leaderboard (probing the realism reference is forbidden). Plan the 5 final submissions in advance from local estimates; the schedule is in [`docs/05-SCHEDULE-AND-RUNBOOK.md`](docs/05-SCHEDULE-AND-RUNBOOK.md). The 4-8 page report (due Nov 15) must disclose the real-data uses in [Section 11](#11-integrity-rules-and-decision-records).
 
+### 9.1 When a CodaBench submission fails or hangs
+
+How the server runs a submission: both competitions use CodaBench's shared default queue (`queue: null` in the public API), Docker image `codalab/codalab-legacy:py312`, and a 1,200 s execution limit per phase. The worker unzips the upload into `/app/input/res`, `run.sh` pip-installs numpy, scipy, shapely and POT, then `score.py` validates and scores. On a validation error the scorer prints `[scoring] FATAL: <reason>`, writes a `scores.json` with zeros and `Infinity` for CD, MMD, EMD and FPD, writes the reason into `detailed_results.html`, and exits 0.
+
+What it costs, measured with `check_submission.py --official` on the 2026-10-02 zips (stand-in GT of real size): Track 1 134 s, Track 2 95 s, 5.9 GB peak memory each. Memory is the same for every participant (the realism metrics subsample 10,000 points per side; the dense MMD matrices dominate). Time grows with the number of predicted boxes (pure-Python IoU loops; Track 1 17,095 boxes, Track 2 18,728); a per-class box cap would cut it but costs mAP, so it stays off.
+
+| Symptom on the Submissions page | Most likely cause | What to do |
+|---|---|---|
+| Failed within minutes, or a score row of zeros | validation (declaration, `synthetic/`, prediction IDs) | read the scoring stdout (`FATAL:` line) and `detailed_results.html`; fix with the packager, never by hand |
+| Failed with no message after hours in the queue | as above, but the `Infinity` fields of the error `scores.json` may not be storable, so the reason never reaches the leaderboard; or the worker died | collect the logs (below); re-check the exact uploaded file with `check_submission.py` |
+| Running or "Preparing submission..." for more than a day with no log at all | no worker ever ran it, or the worker was lost mid-run | cancel, upload the same checked zip once more; if it hangs again, write to the organizers with the submission ids |
+| Failed after about 20 minutes | the 1,200 s execution limit | compare with the `--official` wall time; only then consider the box cap |
+
+Debug data to collect for every failed or stuck submission: the submission id; the status tooltip (the "?" icon next to the status); the expanded submission row (scoring stdout and stderr, detailed results, and the output files if the page offers them); the exact file that was uploaded (copy it to the server and run `unzip -l` and `check_submission.py --official` on it); its name, size and checksum; how it was made. History: 2026-10-02 attempts 957399 (Track 1, Failed) and 957439 (Track 2, cancelled after 4 days with no log) used hand-edited copies of the packaged zips; see [`docs/decisions/2026-10-06-codabench-submission-failures.md`](docs/decisions/2026-10-06-codabench-submission-failures.md).
+
 ## 10. Results so far
 
 All numbers use the official metric on legal real validation; realism is the official score against held-out legal proxies (Section 8). Per-class tables, ablations and every run: [`model-lumpi-track/README.md`](model-lumpi-track/README.md) Section 7, [`model-v2x-track/README.md`](model-v2x-track/README.md) Section 7, and `model-<track>/registry.csv`.
 
-| Track | Selected model | realval-A mAP | realval-B mAP | Realism R | Combined estimate (A / B) | ECCV winner | Live leader (2026-10-02) |
+| Track | Selected model | realval-A mAP | realval-B mAP | Realism R | Combined estimate (A / B) | ECCV winner | Live leader (2026-10-06) |
 |---|---|---|---|---|---|---|---|
 | 1 LUMPI | `routed-g1` | **0.260** | 0.166 | **0.905** | **0.585** / 0.505 | 0.479 | 0.277 |
 | 2 V2X-Real | `routed-g1` | **0.572** | 0.520 | **0.919** | **0.858** / 0.814 | 0.746 | 0.611 |
 
 What moved the numbers (Track 1): synthetic walkers (Person 0 -> 0.341; mAP 0.168 -> 0.253), UT Van trained as Van (0.034 -> 0.122), per-class post-processing (+0.043), routing two runs (+0.007), background density calibration and frame selection (realism 0.59 -> 0.905). Track 2: walkers (pedestrian 0 -> 0.118, 0.173 with the v2 body), walker calibration on legal real walkers and the OS1-64 field-of-view mask (pedestrian 0.173 -> 0.266; realism 0.901 -> 0.919), per-class routing (vehicle from `g1v2`, pedestrian from `g1v3`, truck from the UT-only baseline at 0.822: +0.045 over the best single model).
 
-Submission zips (git-ignored; rebuild with Section 6.8): `model-lumpi-track/routed-g1/submissions/2026-10-02_first/submission.zip` (validated by our packager and by the kit's own `local_eval.py`), `model-v2x-track/routed-g1/submissions/2026-10-02_first/submission.zip` (same checks). Caveats: realval-A is also the selection split (optimistic); realval-B is a different measurement or scene set (LUMPI: a different Person box convention, so pessimistic); the leaderboard is the final word.
+Submission zips (git-ignored; rebuild with Section 6.8): `model-lumpi-track/routed-g1/submissions/2026-10-02_first/submission.zip` and `model-v2x-track/routed-g1/submissions/2026-10-02_first/submission.zip`, team `KarmaRV` since 2026-10-06, both accepted by our validator and by the kit's own scorer (`check_submission.py --official`). No development score yet: the first uploads were hand-edited copies that did not run (Section 9.1). Caveats: realval-A is also the selection split (optimistic); realval-B is a different measurement or scene set (LUMPI: a different Person box convention, so pessimistic); the leaderboard is the final word.
 
 ## 11. Integrity rules and decision records
 
@@ -362,7 +386,7 @@ Tools ([`common/tools/`](common/tools)): `pcdet_build_infos`, `pcdet_train`, `pc
 
 Prioritized; module numbers refer to [`docs/04-IMPLEMENTATION-GUIDE.md`](docs/04-IMPLEMENTATION-GUIDE.md), dates to [`docs/05-SCHEDULE-AND-RUNBOOK.md`](docs/05-SCHEDULE-AND-RUNBOOK.md).
 
-1. **First development submission per track** (both zips are ready to build with Section 6.8) to confirm that local estimates transfer; record the results (Section 6.9).
+1. **First development submission per track**: upload the two checked `2026-10-02_first` zips unchanged (Section 6.9) to confirm that local estimates transfer; record the results. If either fails again, collect the debug data in Section 9.1.
 2. **Organizer email** ([`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md) Section 10): the density prior, the research-phase exposure, label statistics for the generator.
 3. **Detector routing by class (M10):** SECOND or CenterPoint for Person, Bicycle and pedestrians; keep PointPillars for vehicles.
 4. **Generator (M7-M9):** true-scale re-render of UT-LUMPI actors; riders and containers in the real conventions; static clutter and engine G2 for realism and hard negatives; V2X background density calibration.

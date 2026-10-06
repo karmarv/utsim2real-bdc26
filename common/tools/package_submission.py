@@ -10,6 +10,7 @@ output of the M12 frame selector) or at random with --seed. They are written as 
 Upload the zip by hand, then record the CodaBench id and scores with --record.
 """
 import argparse
+import os
 import json
 import time
 from pathlib import Path
@@ -31,7 +32,7 @@ def main():
     ap.add_argument("--seed", type=int, default=1234)
     ap.add_argument("--nulls", type=float, default=None,
                     help="(0,0,0) share of each synthetic frame (default track.yaml resample.null_fraction; V2X 0.31)")
-    ap.add_argument("--team", default="")
+    ap.add_argument("--team", default=os.environ.get("BDC_TEAM", ""), help="team name in declaration.txt (default $BDC_TEAM)")
     ap.add_argument("--ckpt", default="")
     ap.add_argument("--local-scores", default=None, help="json with local realism/AP estimates to store in the manifest")
     ap.add_argument("--record", nargs=2, metavar=("CODABENCH_ID", "LEADERBOARD_JSON"), default=None,
