@@ -1,4 +1,4 @@
-# 07. Literature and evidence (verified 2026-09-30)
+# 07. Literature and evidence (verified 2026-09-30; named references and detector research added 2026-10-06)
 
 > Every arXiv ID below was resolved against the arXiv API on 2026-09-30. "Use here" says how the work plugs into a module of `04-IMPLEMENTATION-GUIDE.md`. Licence notes matter because the entrant works at an industrial lab. Numbers are as reported by each source and are not comparable across papers.
 
@@ -162,3 +162,169 @@ Achlioptas et al. 1707.02392 (CD/EMD for point clouds); Gretton et al., JMLR 201
 - Test-time adaptation on the test frames: forbidden frames, 50-frame sample, unlicensed code.
 - Working on LUMPI Bus beyond hedged duplicates: the GT is mostly not buses.
 - Heavy multi-hypothesis class emission beyond measured confusions: about +0.001 combined, and it reads as metric mechanics in a paper.
+
+## 6. Named references (R1-R42)
+
+The root README, [`02-STRATEGY.md`](02-STRATEGY.md) and the track model READMEs cite these as **[Rn]**, and each citation links to the entry below. Each entry gives the work, a link, what we use it for, and the evidence we rely on. Numbers are as reported by each source and are not comparable across papers. R1-R23 were verified on 2026-09-30; R24-R42 were added on 2026-10-06 for the next strategies ([Section 7](#7-detector-research-for-the-next-strategies-2026-10-06)).
+
+### Challenge, data and framework
+
+#### R1 UrbanTwin papers
+UCF Urbanity Lab, the UrbanTwin papers: [arXiv:2509.02903](https://arxiv.org/abs/2509.02903), [arXiv:2509.02904](https://arxiv.org/abs/2509.02904), [arXiv:2509.06781](https://arxiv.org/abs/2509.06781) (OJ-ITS 2026); PDFs in [`reference/papers/`](reference/papers). **Used for:** the CC0 twin datasets UT-LUMPI and UT-V2X-Real-IC (the base of every strategy) and the challenge protocol and metrics. **Evidence:** twin fidelity beats a generic map; synthetic-only Car AP 63.2 (V2X) and 44.7 (LUMPI).
+
+#### R2 LiGuard
+The organizers' LiDAR research framework (PDF in [`reference/papers/`](reference/papers); LiGuard-2.x is MIT). **Used for:** data and label conventions of the organizer pipeline.
+
+#### R3 LUMPI dataset
+Busch et al., *LUMPI: The Leibniz University Multi-Perspective Intersection Dataset*, IEEE IV 2022; files at [data.uni-hannover.de/vault/ikg/busch/LUMPI](https://data.uni-hannover.de/vault/ikg/busch/LUMPI/) (CC BY-NC 3.0). **Used for:** Track 1 real validation (realval-A/B), sensor poses and beam tables of the five Measurement4 lidars, legal label statistics.
+
+#### R4 V2X-Real dataset
+Xiang et al., *V2X-Real*, ECCV 2024, [arXiv:2403.16034](https://arxiv.org/abs/2403.16034) (UCLA Academic licence). **Used for:** Track 2 real validation, the measured OS1-64 beam table, legal walker statistics. **Evidence:** infrastructure no-fusion PointPillars pedestrian AP@0.5 12.7.
+
+#### R5 PointPillars
+Lang et al., *PointPillars: Fast Encoders for Object Detection from Point Clouds*, CVPR 2019, [arXiv:1812.05784](https://arxiv.org/abs/1812.05784). **Used for:** the S1 detector on both tracks. **Evidence:** the ECCV 2026 winner's detector ([R19](#r19-eccv-2026-winner-reports)); weak on small objects in roadside benchmarks ([R24](#r24-inscope)).
+
+#### R6 OpenPCDet
+OpenPCDet Development Team, [github.com/open-mmlab/OpenPCDet](https://github.com/open-mmlab/OpenPCDet) (Apache-2.0), commit 233f849. **Used for:** training and inference of every model; its mainline already ships PointPillars, SECOND, CenterPoint, PV-RCNN++, Voxel R-CNN, VoxelNeXt, DSVT, TransFusion-L and PillarNet configs (checked 2026-10-06; DSVT and the dynamic pillar encoders also need `torch_scatter`, not installed yet).
+
+### Sim-to-real transfer and object insertion
+
+#### R7 Statistical normalization
+Wang et al., *Train in Germany, Test in the USA: Making 3D Object Detectors Generalize*, CVPR 2020, [arXiv:2005.08139](https://arxiv.org/abs/2005.08139). **Used for:** S1 size conventions (actor scale fix, size calibration). **Evidence:** nuScenes to KITTI Car AP3D 19.0 to 54.8 by matching object sizes.
+
+#### R8 PCGen
+*PCGen: Point Cloud Generator for LiDAR Simulation*, [arXiv:2210.08738](https://arxiv.org/abs/2210.08738). **Used for:** annotator box conventions for pedestrians. **Evidence:** pedestrian AP@0.5 6.56 to 54.31 by loosening boxes to the annotator convention.
+
+#### R9 LiDAR-Aug
+Fang et al., *LiDAR-Aug: A General Rendering-Based Augmentation Framework for 3D Object Detection*, CVPR 2021. **Used for:** S1 rendering-based walker insertion with occlusion.
+
+#### R10 DR.CPO
+[arXiv:2303.12743](https://arxiv.org/abs/2303.12743) (SNU-DRL/DRCPO, Apache-2.0). **Used for:** occlusion-correct whole-body insertion of vulnerable road users. **Evidence:** +2.08 mAP on KITTI, best on pedestrians and cyclists.
+
+#### R11 Real3D-Aug
+[arXiv:2206.07634](https://arxiv.org/abs/2206.07634), CVWW 2023. **Used for:** placement with occlusion. **Evidence:** +6.65 AP on hard pedestrians.
+
+#### R12 Huch et al. sim-to-real gap
+Huch et al., [arXiv:2303.01899](https://arxiv.org/abs/2303.01899), IEEE T-IV 2023. **Used for:** sizing the sim-to-real gap and the value of range noise. **Evidence:** about 14% AP drop sim-to-real; range noise helps, downsampling alone does not.
+
+#### R13 LiDARsim
+Manivasagam et al., *LiDARsim*, CVPR 2020, [arXiv:2006.09348](https://arxiv.org/abs/2006.09348). **Used for:** the statistical sensor model and the blueprint of engine G2 (surfels from real sweeps plus learned ray-drop).
+
+### Metrics
+
+#### R14 R40 average precision
+Simonelli et al., *Disentangling Monocular 3D Object Detection*, ICCV 2019, [arXiv:1905.12365](https://arxiv.org/abs/1905.12365). **Used for:** the 40-recall-point interpolated AP of the scorer.
+
+#### R15 Chamfer and Earth Mover's distances
+Achlioptas et al., ICML 2018, [arXiv:1707.02392](https://arxiv.org/abs/1707.02392). **Used for:** the CD and EMD realism terms.
+
+#### R16 Maximum mean discrepancy
+Gretton et al., *A Kernel Two-Sample Test*, [JMLR 13, 2012](https://jmlr.org/papers/v13/gretton12a.html). **Used for:** the MMD realism term.
+
+#### R17 Frechet distance
+Heusel et al., NeurIPS 2017, [arXiv:1706.08500](https://arxiv.org/abs/1706.08500). **Used for:** the FPD realism term (the challenge applies it to xyz, not to network features).
+
+#### R18 POT
+Flamary et al., *POT: Python Optimal Transport*, [JMLR 22, 2021](https://jmlr.org/papers/v22/20-451.html). **Used for:** the EMD solver of the scorer and of `bdc26.realism`.
+
+### This challenge's ECCV 2026 edition
+
+#### R19 ECCV 2026 winner reports
+amanupg, [urbantwin-sim2real-v2x](https://github.com/amanupg/urbantwin-sim2real-v2x) and [urbantwin-sim2real-lumpi](https://github.com/amanupg/urbantwin-sim2real-lumpi) (no licence: read and cite only). **Used for:** per-class NMS, re-centering, size calibration, null returns, realism findings. **Evidence:** V2X 0.7457 (mAP 0.438, R 0.925), LUMPI 0.4793 (mAP 0.133, R 0.913); per-class NMS took V2X pedestrian-dominated mAP from 0.075 to 0.43; 35% of the LUMPI reference mass lies where the twin has no geometry; the report found CenterPoint no better than PointPillars on this data (as summarized in our track READMEs; re-check before relying on it).
+
+#### R20 ECCV 2026 runner-up reports
+Luo et al., [arXiv:2609.07608](https://arxiv.org/abs/2609.07608) (V2X) and [arXiv:2609.07590](https://arxiv.org/abs/2609.07590) (LUMPI). **Used for:** evidence on sparse transformers in this exact setting. **Evidence:** DSVT experts (0.2 m voxels, range [-40, -40, -8, 40, 40, 2], 40-60 epochs) with PointPillars Car/Bus specialists and class-aware fusion (`s = 0.6 s_primary + 0.4 s_aux` for same-class matches at IoU >= 0.5); LUMPI local mAP 0.132 to 0.158 through routing, calibration and fusion; hidden test LUMPI combined 0.4692 (mAP 0.1258, R 0.9035), V2X 0.7421 (mAP 0.4518, R 0.8871); resizing synthetic pedestrians to real dimensions took pedestrian AP from 0 to 0.142.
+
+### Detectors
+
+#### R21 SECOND
+Yan, Mao, Li, *SECOND: Sparsely Embedded Convolutional Detection*, [Sensors 2018](https://www.mdpi.com/1424-8220/18/10/3337). **Used for:** the sparse 3D voxel backbone inside CenterPoint (S2) and Voxel R-CNN (S4). **Evidence:** beats pillars on DAIR-V2X-I roadside pedestrians.
+
+#### R22 CenterPoint
+Yin, Zhou, Krahenbuhl, *Center-based 3D Object Detection and Tracking*, CVPR 2021, [arXiv:2006.11275](https://arxiv.org/abs/2006.11275). **Used for:** S2 small-class specialists. **Evidence:** anchor-free center heat-map head; on roadside data see [R24](#r24-inscope); double-flip and yaw TTA in its nuScenes entry.
+
+#### R24 InScope
+*InScope: A New Real-world 3D Infrastructure-side Collaborative Perception Dataset for Open Traffic Scenarios*, [arXiv:2407.21581](https://arxiv.org/abs/2407.21581). **Used for:** roadside evidence for S2. **Evidence:** cyclist AP PointPillars 58.46 vs CenterPoint 74.74; pedestrian AP40@0.5 23.8 vs 49.6; PV-RCNN++ top in mAP40.
+
+#### R25 Robo3D
+Kong et al., *Robo3D: Towards Robust and Reliable 3D Perception against Corruptions*, ICCV 2023, [arXiv:2303.17597](https://arxiv.org/abs/2303.17597). **Used for:** robustness of detector families to sensor and weather corruptions (a proxy for domain shift). **Evidence:** mean corruption error (lower is better) PV-RCNN++ 91.60, CenterPoint 100.00, PV-RCNN 104.90, SECOND 121.43, PointPillars 127.53.
+
+#### R26 LiDAR domain generalization study
+*An Empirical Study of the Generalization Ability of LiDAR 3D Object Detectors to Unseen Domains*, CVPR 2024, [arXiv:2402.17562](https://arxiv.org/abs/2402.17562). **Used for:** S5 and the size-calibration rationale of S1. **Evidence:** transformer backbones with local point features are more robust than 3D CNNs; test-time anchor resizing took SECOND Waymo to KITTI from 9.9 to 65.7; line downsampling +17.5 Car / +24.5 Ped for low-resolution targets.
+
+#### R29 PV-RCNN++
+Shi et al., *PV-RCNN++*, IJCV 2023, [arXiv:2102.00463](https://arxiv.org/abs/2102.00463). **Used for:** S4 two-stage refinement (its OpenPCDet config uses a center-based first stage). **Evidence:** most robust detector in [R25](#r25-robo3d); top InScope mAP40 ([R24](#r24-inscope)).
+
+#### R30 Voxel R-CNN
+Deng et al., *Voxel R-CNN*, AAAI 2021, [arXiv:2012.15712](https://arxiv.org/abs/2012.15712). **Used for:** S4, the lighter two-stage alternative. **Evidence:** voxel RoI pooling refines boxes at IoU 0.5-0.7 at near one-stage speed.
+
+#### R31 DSVT
+Wang et al., *DSVT: Dynamic Sparse Voxel Transformer with Rotated Sets*, CVPR 2023, [arXiv:2301.06051](https://arxiv.org/abs/2301.06051). **Used for:** S6. **Evidence:** the ECCV runner-up's backbone ([R20](#r20-eccv-2026-runner-up-reports)), which scored below our S1 PointPillars on both tracks.
+
+#### R32 LION
+Liu et al., *LION: Linear Group RNN for 3D Object Detection in Point Clouds*, NeurIPS 2024, [arXiv:2407.18232](https://arxiv.org/abs/2407.18232) (Apache-2.0 fork of OpenPCDet). **Used for:** S6 option. **Evidence:** state of the art on Waymo and nuScenes with Mamba, RWKV or RetNet operators; 3D voxel generation densifies sparse foreground; needs a Mamba build.
+
+#### R33 HEDNet and SAFDNet
+Zhang et al., *HEDNet*, NeurIPS 2023, [arXiv:2310.20234](https://arxiv.org/abs/2310.20234); *SAFDNet*, CVPR 2024, [arXiv:2403.05817](https://arxiv.org/abs/2403.05817). **Used for:** S6 option (fully sparse). **Evidence:** on Argoverse2 SAFDNet beats HEDNet by 2.6 mAP at 2.1x the speed.
+
+#### R34 VoxelNeXt
+Chen et al., CVPR 2023, [arXiv:2303.11301](https://arxiv.org/abs/2303.11301). **Used for:** S6 option in mainline OpenPCDet. **Evidence:** fully sparse, built-in double-flip TTA config.
+
+#### R35 TransFusion-L
+Bai et al., CVPR 2022, [arXiv:2203.11496](https://arxiv.org/abs/2203.11496). **Used for:** S6 option. **Evidence:** best pedestrian AP on HoloVIC ([arXiv:2403.02640](https://arxiv.org/abs/2403.02640)): 45.5 vs 27.4 for pillars.
+
+#### R41 PillarNet
+Shi et al., *PillarNet*, ECCV 2022, [arXiv:2205.07403](https://arxiv.org/abs/2205.07403). **Used for:** S2 fallback: a center-head pillar detector that keeps the pillar encoding's density robustness.
+
+#### R42 MMDetection3D model comparison (secondary source)
+[zenn.dev/iasl/articles/3385bfcdf892e4](https://zenn.dev/iasl/articles/3385bfcdf892e4), reproducing MMDetection3D checkpoints. **Used for:** a same-framework comparison for S2. **Evidence:** nuScenes mAP PointPillars 39.25 vs CenterPoint 57.28, pedestrian 71.83 vs 84.68. Secondary source: cite the primary papers in the report.
+
+### Domain generalization and augmentation
+
+#### R27 GBlobs
+Malic et al., *GBlobs: Explicit Local Structure via Gaussian Blobs for Improved Cross-Domain LiDAR-based 3D Object Detection*, CVPR 2025, [arXiv:2503.08639](https://arxiv.org/abs/2503.08639) (BSD-3, OpenPCDet). **Used for:** S5. **Evidence:** parameter-free local covariance input features in place of absolute xyz; beats the single-source DG state of the art by over 21 mAP (Waymo to KITTI), 13 (KITTI to Waymo) and 12 (nuScenes to KITTI); multi-source +17 / +12 / +5 on Waymo / KITTI / ONCE.
+
+#### R28 GBlobs for sensor placement
+*GBlobs: Local LiDAR Geometry for Improved Sensor Placement Generalization*, [arXiv:2510.18539](https://arxiv.org/abs/2510.18539). **Used for:** S5. **Evidence:** top of RoboSense 2025 Track 3 (detection under different sensor placements).
+
+#### R36 DTS random beam re-sampling
+[arXiv:2304.09446](https://arxiv.org/abs/2304.09446), CVPR 2023. **Used for:** S5 augmentation. **Evidence:** closes 88-94% of the nuScenes to KITTI gap together with self-training (beam re-sampling alone is source-only and allowed).
+
+#### R40 ST3D
+Yang et al., *ST3D*, CVPR 2021, [arXiv:2103.05346](https://arxiv.org/abs/2103.05346). **Used for:** random object scaling (S5 augmentation); its self-training part is rule-gated (`01` Section 10, question 1).
+
+### Fusion and test-time augmentation
+
+#### R23 Weighted Boxes Fusion
+Solovyev et al., [arXiv:1910.13302](https://arxiv.org/abs/1910.13302). **Used for:** S3 fusion of routed members.
+
+#### R37 MS3D KDE box fusion
+[arXiv:2304.02431](https://arxiv.org/abs/2304.02431), ITSC 2023 (Apache-2.0; two known bugs). **Used for:** S3 alternative to WBF. **Evidence:** KDE box fusion 38.7 vs WBF 36.6 vs NMS 34.9 AP3D@0.7.
+
+#### R38 HorizonLiDAR3D
+Waymo 2020 1st place, [arXiv:2006.15505](https://arxiv.org/abs/2006.15505). **Used for:** S3. **Evidence:** rotated WBF +2.2, TTA +2.6.
+
+#### R39 RoboSense 2025 report
+[arXiv:2601.05014](https://arxiv.org/abs/2601.05014). **Used for:** S3 height TTA and the V2X ground-plane experiment. **Evidence:** ground-plane canonicalization +5.1; height TTA {-0.4, 0, +0.4} m for cars and {-0.6, 0, +0.6} m for pedestrians.
+
+## 7. Detector research for the next strategies (2026-10-06)
+
+**Question.** Which detector-side routes beat S1 (PointPillars, [R5](#r5-pointpillars)) on this challenge, and where should CenterPoint ([R22](#r22-centerpoint)) be used? The strategies themselves (effort, risk, steps, gates) are in [`02-STRATEGY.md` Section 8](02-STRATEGY.md#8-strategy-routes-after-s1).
+
+**What the first leaderboard results say** (submissions 965614 and 965633, details in the track model READMEs Section 9):
+1. Detector capacity is not the first bottleneck: S1's PointPillars beat the ECCV runner-up's DSVT ensembles on both tracks (mAP 0.136 vs 0.126 LUMPI, 0.465 vs 0.452 V2X; [R20](#r20-eccv-2026-runner-up-reports)).
+2. Transfer is: LUMPI Person 0.340 on realval-A vs 0.117 on the test frames, Bicycle 0.265 vs 0.053, Truck 0.200 vs 0.028, with 512, 82 and 192 test GT boxes (from the kit's `config.json`), so these are real gaps, not sampling noise.
+3. Height and z cost V2X 0.105 mAP: BEV@0.5 0.570 vs 3D@0.5 0.465.
+4. Localization is near the threshold: 3D mAP@0.7 is 0.050 (LUMPI) and 0.056 (V2X).
+
+**Evidence by route.**
+
+| Route | Best evidence for | Evidence against or unknown |
+|---|---|---|
+| Center heads for small classes (S2) | InScope cyclist 58.46 to 74.74 and pedestrian 23.8 to 49.6 vs pillars [R24](#r24-inscope); nuScenes pedestrian 71.8 to 84.7 [R42](#r42-mmdetection3d-model-comparison-secondary-source); mainline OpenPCDet [R6](#r6-openpcdet) | the ECCV winner reports CenterPoint no better than pillars here [R19](#r19-eccv-2026-winner-reports); real-data benchmarks, not synthetic-to-real |
+| Fusion and TTA (S3) | WBF +2.2 and TTA +2.6 [R38](#r38-horizonlidar3d); KDE fusion beats WBF and NMS [R37](#r37-ms3d-kde-box-fusion); the runner-up's class-aware fusion added +0.026 local mAP [R20](#r20-eccv-2026-runner-up-reports); height TTA [R39](#r39-robosense-2025-report) | gains measured in-domain; fusion knobs are tuned on validation, which is how LUMPI over-fit realval-A |
+| Two-stage refinement (S4) | most robust family under corruptions [R25](#r25-robo3d); top InScope mAP40 [R24](#r24-inscope); point-level refinement targets the V2X z and the IoU-0.7 gaps [R29](#r29-pv-rcnn), [R30](#r30-voxel-r-cnn) | refinement may relearn synthetic box conventions that post-processing corrects; 3-4x training cost |
+| Domain-generalizing inputs (S5) | +21 mAP Waymo to KITTI [R27](#r27-gblobs); RoboSense 2025 placement winner [R28](#r28-gblobs-for-sensor-placement); local point features generalize better [R26](#r26-lidar-domain-generalization-study); beam re-sampling [R36](#r36-dts-random-beam-re-sampling) | measured real-to-real; the twin is the same intersection as the test, so absolute position is partly legitimate signal |
+| Sparse transformers (S6) | state of the art on Waymo and nuScenes [R31](#r31-dsvt), [R32](#r32-lion), [R33](#r33-hednet-and-safdnet) | the only evidence in this challenge is negative [R20](#r20-eccv-2026-runner-up-reports); `torch_scatter` or a Mamba build needed; slow |
+
+**Conclusions carried into the strategy.** Route detectors by class (small classes to center heads, vehicles stay on pillars), fix height and localization with refinement or TTA, and gate every change on realval-B, because the transfer gap, not the architecture, decided the first leaderboard results. Rule-gated self-training ([R40](#r40-st3d)) remains the strongest unexplored sim-to-real lever and stays off until the organizers answer.

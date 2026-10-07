@@ -10,9 +10,10 @@
 | Real validation (official metric, tuned) | **realval-A mAP 0.260**, realval-B 0.166 (Section 7) |
 | Realism of the submitted frames | R = 0.906 on held-out legal proxies, official scorer (raw UT frames: 0.59) |
 | Local combined estimate | 0.585 (A) / 0.505 (B); ECCV winner 0.479 |
-| CodaBench (strategy S1) | **965614: combined 0.4728** (mAP 0.1357, R 0.8912), rank 1 on 2026-10-06 (Section 9; root README Section 12) |
+| CodaBench (strategy S1) | **965614: combined 0.4728** (mAP 0.1357, R 0.8912), rank 1 on 2026-10-06 (Section 9; root README Section 9) |
 | Submitted zip | [`routed-g1/submissions/2026-10-02_first/`](routed-g1/submissions/2026-10-02_first) (zip git-ignored; attached to GitHub release 0.1 as `submission_lumpi_karmarv.zip`) |
 | Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
+| Strategy | S1 submitted; next S2 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
 ## 1. Folder conventions
@@ -51,12 +52,12 @@ What matters for this challenge (from [`docs/02-STRATEGY.md`](../docs/02-STRATEG
 | Approach | Pros for this challenge | Cons for this challenge | Verdict |
 |---|---|---|---|
 | **PointPillars** (anchor-based, pillars) | fast (40 epochs on 9k frames in about 2 h on 4 GPUs); robust to density changes; multi-mode anchors fit fixed size conventions; won the ECCV edition on both tracks | coarse z (one pillar spans 10 m); weaker on small objects in the literature (InScope pedestrian AP 23.8 vs 49.6 for CenterPoint) | **selected as the base detector** (best speed / robustness trade-off; small-class weakness addressed with synthetic Persons and per-class post-processing) |
-| SECOND (sparse voxels, anchors) | finer z than pillars; beats pillars on roadside pedestrians (DAIR-V2X-I) | slower; voxel features more sensitive to density mismatch | next candidate for Person/Bicycle routing |
-| CenterPoint (center heads) | strong on small objects; no anchor tuning | heatmap head sensitive to density and box-convention shifts; the ECCV winner found it no better than pillars here | candidate for Person routing (M10) |
-| PV-RCNN++ / Voxel R-CNN (two-stage) | top accuracy on roadside benchmarks | 3-5x slower; refinement stage overfits synthetic point patterns | not selected |
-| VoxelNeXt / DSVT / LION / HEDNet (fully sparse, transformers) | state-of-the-art; DSVT experts were the ECCV runner-up's backbone | heavy; needs more data diversity than one 10k-frame twin; LION needs its own fork | later, once G2 provides more varied data |
+| SECOND (sparse voxels, anchors) | finer z than pillars; beats pillars on roadside pedestrians (DAIR-V2X-I) | slower; voxel features more sensitive to density mismatch | the sparse voxel backbone of the S2 CenterPoint members |
+| CenterPoint (center heads) | strong on small objects; no anchor tuning | heatmap head sensitive to density and box-convention shifts; the ECCV winner found it no better than pillars here | **strategy S2 (next)**: Person, Bicycle, Motorcycle specialists ([`docs/02` 8.2](../docs/02-STRATEGY.md#82-s2-center-routed-small-objects)) |
+| PV-RCNN++ / Voxel R-CNN (two-stage) | top accuracy on roadside benchmarks | 3-5x slower; refinement stage may relearn synthetic box conventions | strategy S4 ([`docs/02` 8.4](../docs/02-STRATEGY.md#84-s4-two-stage-refinement)) |
+| VoxelNeXt / DSVT / LION / HEDNet (fully sparse, transformers) | state-of-the-art; DSVT experts were the ECCV runner-up's backbone | heavy; needs more data diversity than one 10k-frame twin; LION needs its own fork | strategy S6, only if time remains ([`docs/02` 8.6](../docs/02-STRATEGY.md#86-s6-sparse-transformer-experts)) |
 | Domain adaptation (self-training on real frames, BN adaptation) | can close the gap without labels | self-training on real frames is a gray area ([`01`](../docs/01-CHALLENGE-FACTS.md) Section 3.1); the detector must stay "trained on synthetic data only" | not used |
-| Ensembles / per-class routing / WBF | per-class AP is independent, so a class can come from the model that is best for it; run-to-run variance is large on rare classes | needs a real validation set to choose routes (we have one: realval-A/B) | **used** (routing now; WBF later) |
+| Ensembles / per-class routing / WBF | per-class AP is independent, so a class can come from the model that is best for it; run-to-run variance is large on rare classes | needs a real validation set to choose routes (we have one: realval-A/B) | **used** (routing in S1); fusion and TTA are strategy S3 ([`docs/02` 8.3](../docs/02-STRATEGY.md#83-s3-fused-portfolio-with-tta)) |
 
 **Why the selected model.** `routed-g1` takes each class from the better of two PointPillars G1 runs on real validation. Compared with a single PointPillars model it gains where training variance is large (Bicycle, Truck, Bus, Motorcycle) and uses walker v2 for Person, which transfers better to other measurements. Compared with heavier architectures it trains in 2 hours, which let us iterate on the generator (the biggest lever: synthetic Persons, Van class, density calibration). Cons: two forward passes at inference; routing is chosen on realval-A, the same measurement the test frames come from, so realval-A numbers are optimistic (realval-B is the check); PointPillars' coarse z limits 3D IoU for small objects (Person boxes are predicted too tall; the size calibration in post-processing partly compensates).
 
@@ -144,9 +145,9 @@ For every class: the member with the best realval-A AP; within 0.005 of the best
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/make_submission.sh first
 python common/tools/check_submission.py --track lumpi model-lumpi-track/routed-g1/submissions/<date>_first/submission.zip --official
 # upload that submission.zip unchanged on CodaBench 16684 (Submit tab); never unzip, edit or re-zip it. Then:
-python common/tools/package_submission.py model-lumpi-track/routed-g1 --tag first --record <codabench_id> <leaderboard.json>
+python common/tools/package_submission.py model-lumpi-track/routed-g1 --tag first --record <codabench_id> model-lumpi-track/routed-g1/submissions/<date>_first/codabench_<codabench_id>.json
 ```
-The packager writes `submission.zip` (50 synthetic frames from `test/synthetic_ids.txt`, `predictions.json` for every test ID, `declaration.txt`), validates it against the published spec, and stores `manifest.json` (model, route, frames, local scores, validation result). See the root README Sections 8.5-8.7.
+The packager writes `submission.zip` (50 synthetic frames from `test/synthetic_ids.txt`, `predictions.json` for every test ID, `declaration.txt`), validates it against the published spec, and stores `manifest.json` (model, route, frames, local scores, validation result). Packaging rules, the pre-upload check and failure handling: Sections 10.4-10.6.
 
 ## 7. Results and ablations
 
@@ -190,16 +191,16 @@ Reference points: ECCV 2026 winner on the test set, mAP 0.133 (Person 0.149, Car
 | E4 | Walker v2 | done: Person on realval-B 0.091 -> 0.134; equal on A |
 | E5 | Calibrated background density | done: realism 0.59 -> 0.88 (0.906 with frame selection) |
 | E6 | Per-class post-processing | done: 0.210 -> 0.253 for `g1` (Section 7.2) |
-| E7 | Architecture routing (SECOND / CenterPoint for Person, Bicycle) | next (M10) |
+| E7 | Architecture routing (CenterPoint for Person, Bicycle, Motorcycle) | **next: strategy S2** |
 | E8 | Truck size modes, Bus convention | next (M7) |
-| E9 | TTA and weighted box fusion | next (M11) |
-| E10 | Static clutter and G2 for realism and hard negatives | next (M9) |
+| E9 | TTA and weighted box fusion | strategy S3 |
+| E10 | Static clutter and G2 for realism and hard negatives | in parallel with S2-S5 (`docs/02` Section 8.7): the cheapest LUMPI gain |
 
 ## 9. Submission log
 
 | Date | Model / tag | CodaBench id | Local mAP (A / B) | Local R | LB mAP | LB R | LB combined | Note |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-02 | `routed-g1` / `first`, hand-edited copy (team typed into declaration.txt, re-zipped) | 957399 | 0.260 / 0.166 | 0.906 | | | | Failed after a few hours, no score; not counted (0 of 100 used); root README Section 8.7 |
+| 2026-10-02 | `routed-g1` / `first`, hand-edited copy (team typed into declaration.txt, re-zipped) | 957399 | 0.260 / 0.166 | 0.906 | | | | Failed after a few hours, no score; not counted (0 of 100 used); Section 10.6 |
 | 2026-10-06 | `routed-g1` / `first`, team KarmaRV, uploaded unchanged as `submission_lumpi_karmarv.zip` | 965614 | 0.260 / 0.166 | 0.906 | **0.1357** | **0.8912** | **0.4728** | strategy S1; rank 1 of 31 (next 0.2769); server record [`codabench_965614.json`](routed-g1/submissions/2026-10-02_first/codabench_965614.json) |
 
 ### 9.1 Local vs leaderboard per class (965614, 3D AP@0.5 R40)
@@ -211,4 +212,160 @@ Reference points: ECCV 2026 winner on the test set, mAP 0.133 (Person 0.149, Car
 | realval-B | 0.166 | 0.134 | 0.770 | 0.102 | 0.015 | 0.012 | 0.131 | 0.001 |
 | leaderboard / realval-A | 0.52 | 0.34 | 0.72 | 0.20 | | | 0.14 | 0.97 |
 
-Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (local proxy 4: 1.629, 0.00117, 1.530, 3.447, 0.9057). Van and Car transfer; Person, Bicycle and Truck lose most of their realval-A AP, so the realval-A selection does not represent the test window well (analysis and next steps: root README Sections 12.4 and 13).
+Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (local proxy 4: 1.629, 0.00117, 1.530, 3.447, 0.9057). Van and Car transfer; Person, Bicycle and Truck lose most of their realval-A AP, so the realval-A selection does not represent the test window well (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
+
+### 9.2 Artifacts of 965614 (strategy S1)
+
+| | |
+|---|---|
+| Model | [`routed-g1`](routed-g1) ([at tag 0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1/model-lumpi-track/routed-g1)); members and route in [`routed-g1/model.yaml`](routed-g1/model.yaml); checkpoints are not in git |
+| Submitted file | [`submission_lumpi_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_lumpi_karmarv.zip) (GitHub release [0.1](https://github.com/karmarv/utsim2real-bdc26/releases/tag/0.1)), the packaged zip unchanged, md5 `ea2c76393d6f8868762d6bac1ac03fa8` |
+| Manifest | [`manifest.json`](routed-g1/submissions/2026-10-02_first/manifest.json) (checkpoints, route, frames, local scores, validation, CodaBench attempts), [`synthetic_ids.txt`](routed-g1/submissions/2026-10-02_first/synthetic_ids.txt) |
+| Server record | [`codabench_965614.json`](routed-g1/submissions/2026-10-02_first/codabench_965614.json): every `scores.json` field and the scoring log |
+| Leaderboard | [CodaBench 16684 results](https://www.codabench.org/competitions/16684/#/results-tab) |
+
+### 9.3 Realism on the server
+
+| | CD | MMD | EMD | FPD | R |
+|---|---|---|---|---|---|
+| leaderboard (965614) | 1.690 | 0.00187 | 1.647 | 5.095 | **0.8912** |
+| local, held-out proxy 4 | 1.629 | 0.00117 | 1.530 | 3.447 | 0.9057 |
+| ECCV 2026 winner | | | | | 0.913 |
+| other IEEE entries (identical values: the kit's dummy frames) | 10.245 | 0.0677 | 3.39 | 119.5 | 0.473 |
+
+Both sides pooled 2,500,000 points before subsampling (50 x 50,000), so the packaged density was used as intended. Share of the realism loss (1 - R) per term: EMD 76%, FPD 23%, MMD 1%, CD 0% (CD below 2 is free).
+
+### 9.4 What transferred and what did not
+
+| Finding | Evidence | Implication |
+|---|---|---|
+| Realism transfers, but less than on V2X | R 0.891 vs 0.906 locally (FPD 5.1 vs 3.4, EMD 1.65 vs 1.53) | the frames are slightly too average: the test-window reference has static structure the twin lacks (35% of the reference mass, [R19](../docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)); engine G2 static clutter (`docs/02` Section 8.7) |
+| Car and Van transfer | Car 0.633 (A 0.874, B 0.770); Van 0.118 (A 0.122) | keep the pillar members for vehicles in every later strategy |
+| Person, Bicycle and Truck do not | Person 0.117 (A 0.340), Bicycle 0.053 (A 0.265), Truck 0.028 (A 0.200), with 512, 82 and 192 test GT boxes, so real gaps | realval-A (Measurement4 frames 0-6399) precedes the excluded last 20% of the recording, which holds the forbidden frames (6497-8109) and presumably the test frames; post-processing tuned on A partly fits A; select on A and B jointly (S2 onward) |
+| Combined below the ECCV winner despite higher mAP | 0.4728 vs 0.4793: mAP 0.136 vs 0.133, R 0.891 vs 0.913 | +0.022 R is worth +0.009 combined: the cheapest LUMPI gain |
+| Local estimate was optimistic | estimate A / B / leaderboard: 0.585 / 0.505 / 0.473 | report the realval-B estimate; treat realval-A as an upper bound |
+
+## 10. Local evaluation and packaging
+
+Everything here runs locally before an upload. The metrics are common to both tracks; the numbers are this track's.
+
+### 10.1 Detection metric
+
+As the scorer computes it (`scoring_program/detection_eval.py`, reproduced by [`common/bdc26/evalap.py`](../common/bdc26/evalap.py), checked by [`common/tests/test_official_parity.py`](../common/tests/test_official_parity.py)):
+- per class and IoU threshold (0.5 primary, 0.7 reported): in each frame, predictions sorted by score each take the unused GT with the highest IoU and count as true positives if IoU >= threshold; predictions in frames without GT of the class are false positives; AP = mean over 40 recall points of the interpolated precision (R40 [R14](../docs/07-LITERATURE.md#r14-r40-average-precision); R11 reported);
+- 3D IoU = oriented BEV polygon intersection x z overlap / union volume; class names match case-insensitively; a missing `class` defaults to "Car"; classes without test GT are excluded from the mean; no difficulty filter, no cap on the number of boxes;
+- this track: mAP over the 7 classes with test GT (Unknown has none); test GT counts (kit `config.json`): Person 512, Car 1,258, Bicycle 82, Motorcycle 27, Bus 25, Truck 192, Van 79;
+- consequences: never threshold scores aggressively (low-scored boxes cannot lower AP); per-class NMS matters (duplicates are false positives); a box may be emitted under several classes (hedges).
+
+### 10.2 Realism metric
+
+`scoring_program/metrics.py`, reproduced bit-for-bit by [`common/bdc26/realism.py`](../common/bdc26/realism.py): concatenate the 50 frames per side, mask to the range (inclusive; (0,0,0) points are inside), one RNG with seed 1234 draws 10,000 synthetic then 10,000 real points; CD (squared L2) and EMD = sqrt(W1) [R15](../docs/07-LITERATURE.md#r15-chamfer-and-earth-movers-distances) with POT [R18](../docs/07-LITERATURE.md#r18-pot) (10M iterations), unbiased RBF MMD with a median-heuristic bandwidth [R16](../docs/07-LITERATURE.md#r16-maximum-mean-discrepancy), FPD (Gaussian Frechet distance on xyz [R17](../docs/07-LITERATURE.md#r17-frechet-distance)).
+```
+R = 1 - mean( clip((CD-2)/28), clip(MMD/0.5), clip(EMD/5), clip(FPD/50) )        combined = 0.6 * clip(mAP / 0.7) + 0.4 * R
+```
+The real reference is 50 held-out frames we never see; locally we score against 5 sets of 50 legal real frames (`pcdet/realism-proxy-*`; 1-3 select, 4-5 are held out). Sensitivity of each term: [`docs/01-CHALLENGE-FACTS.md`](../docs/01-CHALLENGE-FACTS.md) Section 4.
+
+### 10.3 Local estimates and how far to trust them
+
+| Number | Tool | Meaning |
+|---|---|---|
+| realval-A mAP | `tune_and_eval.sh`, [`eval_predictions.py`](../common/tools/eval_predictions.py) | official metric on legal real frames; also the selection split, so optimistic |
+| realval-B mAP | same | a second real split never used for selection |
+| R (held-out proxies 4-5) | [`score_realism.py`](../common/tools/score_realism.py), [`select_realism_frames.py`](../common/tools/select_realism_frames.py) | official realism score against legal frames not used for any choice |
+| combined estimate | `make_submission.sh` | `0.6 * clip(mAP / 0.7) + 0.4 * R`; **use the realval-B mAP** (Section 9.4) |
+
+Local results of every model are in Section 7; the leaderboard calibration is in Section 9.
+
+### 10.4 Packaging rules
+
+| Rule (kit `submission_format.md`, scorer `score.py`) | How the packager ([`common/bdc26/submit.py`](../common/bdc26/submit.py)) handles it |
+|---|---|
+| exactly 50 `synthetic/*.bin`, float32 N x 3 (N x 4 accepted), each <= 1,500,000 bytes, total < ~75 MB | 50 x 50,000 points (600 KB each); validation errors stop packaging |
+| `predictions.json`: exactly the 50 test IDs as keys (empty lists allowed); boxes of 7 floats, positive extents; score in [0, 1]; valid class strings | built from the routed or single-model predictions; every test ID present; classes from `track.yaml` |
+| declaration.pdf (signed) or declaration.txt containing the verbatim statement | `declaration.txt` with the statement, `Team: $BDC_TEAM` (KarmaRV) and the date; validation fails on an empty team |
+| the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
+| this track's frames | LUMPI frames have no (0,0,0) nulls: the packager writes 50,000 real-range points per frame |
+
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the zip is git-ignored and attached to the GitHub release of the tag it was built from.
+
+### 10.5 Server cost and the pre-upload check
+
+Both competitions use CodaBench's shared default queue, Docker image `codalab/codalab-legacy:py312` and a 1,200 s execution limit. The worker unzips the upload into `/app/input/res`, `run.sh` pip-installs numpy, scipy, shapely and POT, then `score.py` validates and scores; on a validation error it prints `[scoring] FATAL: <reason>`, writes zeros and `Infinity` into `scores.json` and the reason into `detailed_results.html`, and exits 0.
+
+[`check_submission.py`](../common/tools/check_submission.py) `--official` runs the kit's scorer on a zip with a legal stand-in reference (realism-proxy-4 frames; realval labels under the test IDs) and reports validity, realism, wall time and peak memory. This track's S1 zip: 134 s, 5.9 GB peak. Memory is the same for every participant (10,000-point subsamples; the dense MMD matrices dominate); time grows with the number of boxes (17,095 in S1); a per-class box cap of 100 would cost -0.0005 mAP on realval-A, so it stays off.
+
+### 10.6 When a CodaBench submission fails or hangs
+
+| Symptom on the Submissions page | Most likely cause | What to do |
+|---|---|---|
+| Failed within minutes, or a score row of zeros | validation (declaration, `synthetic/`, prediction IDs) | read the scoring stdout (`FATAL:` line) and `detailed_results.html`; fix with the packager, never by hand |
+| Failed with no message after hours in the queue | as above, but the `Infinity` fields may not be storable; or the worker died | collect the logs; re-check the exact uploaded file with `check_submission.py` |
+| Running or "Preparing submission..." for more than a day with no log | no worker ran it, or the worker was lost | cancel and upload the same checked zip once more; if it hangs again, write to the organizers with the ids |
+| Failed after about 20 minutes | the 1,200 s limit | compare with the `--official` wall time; only then consider the box cap |
+
+Collect for every failed or stuck submission: the id, the status tooltip, the expanded row (scoring stdout and stderr, detailed results), the exact uploaded file (`unzip -l`, `check_submission.py --official`), its name, size and checksum, and how it was made. History: [`docs/decisions/2026-10-06-codabench-submission-failures.md`](../docs/decisions/2026-10-06-codabench-submission-failures.md).
+
+### 10.7 Submission budget
+
+Development phase 5 per day / 100 in total (public leaderboard, ends Oct 30, 17:00 PDT); final phase **1 per day / 5 in total, hidden leaderboard, development submissions do not carry over**. One development submission per strategy to confirm the local estimate; never tune against the leaderboard (probing the realism reference is forbidden). The schedule: [`docs/05-SCHEDULE-AND-RUNBOOK.md`](../docs/05-SCHEDULE-AND-RUNBOOK.md); the gates per strategy: [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#80-overview) Section 8.0.
+
+## 11. Integrity rules and real-data uses
+
+The code enforces, for this track:
+- the detector is trained on synthetic data only (training sets are `pcdet/ut-*` and `pcdet/g1-*` built from UT frames; real sets are named `realval-*` and `realism-proxy-*` and no training config points at them);
+- every real-data reader goes through `bdc26.guard.ForbiddenGuard`: the 100 forbidden frames plus the self-exclusion window Measurement4 6400-8199 (the forbidden IDs lie in 6497-8109); every allowed access is logged with its purpose in `$BDC_DATA/lumpi-track/real/access_log.csv`;
+- the 50 test frames are read only for inference and format checks; nothing is fitted to kit data; no reference bundles; no realism probing; no warping of submitted frames toward real statistics.
+
+Uses of legal real data (allowed by the Rules tab: "hyperparameter selection or domain adaptation, provided no forbidden frame is touched"), all to be disclosed in the report:
+
+| Use | Record |
+|---|---|
+| Validation, post-processing selection, routing (realval-A = Measurement4 0-6399 every 5th; realval-B = Measurement5-6) | Sections 6.3-6.4 and 10.3 |
+| Sensor metadata: poses and beam tables of the five Measurement4 lidars (`meta.json`) | [`docs/decisions/2026-09-30-g1-generator.md`](../docs/decisions/2026-09-30-g1-generator.md) |
+| Label statistics for the generator: Person positions, headings and box sizes | same |
+| Background density prior from 400 unlabeled legal frames (gray area: "domain adaptation"; disclosed, ask the organizers) | same |
+| Research-phase exposure before the guard existed, and its follow-up check | [`docs/decisions/2026-09-30-research-exposure.md`](../docs/decisions/2026-09-30-research-exposure.md) |
+| Downloading real data on the entrant's instruction; licence sign-off still open | [`docs/decisions/2026-09-30-real-data-download.md`](../docs/decisions/2026-09-30-real-data-download.md) |
+
+All decision records: [`docs/decisions/`](../docs/decisions). Open questions for the organizers: [`docs/01-CHALLENGE-FACTS.md`](../docs/01-CHALLENGE-FACTS.md) Section 10.
+
+## 12. Contributing
+
+### 12.1 Code map (`common/bdc26/`, shared by both tracks)
+
+| Module | What it does |
+|---|---|
+| [`config.py`](../common/bdc26/config.py) | `load_track("lumpi"\|"v2x")`: the track config (`data-<track>/track.yaml`) plus paths (`kit`, `ut`, `real`, `pcdet`, `gen`, `model_dir`) |
+| [`guard.py`](../common/bdc26/guard.py) | `ForbiddenGuard`: blocks forbidden frames and windows, logs allowed access |
+| [`io/`](../common/bdc26/io) | `fetch.py` (parallel, resumable downloads), readers `ut.py`, `lumpi.py`, `v2x.py`, `kit.py` |
+| [`frames.py`](../common/bdc26/frames.py), [`boxes.py`](../common/bdc26/boxes.py), [`classmap.py`](../common/bdc26/classmap.py) | range masks, organizer-style resampling, nulls; box geometry, points in boxes, actor scaling; class maps |
+| [`prep.py`](../common/bdc26/prep.py), [`pcdet_export.py`](../common/bdc26/pcdet_export.py) | UT frame -> training frame; OpenPCDet dataset writer with provenance card |
+| [`render/pedsim.py`](../common/bdc26/render/pedsim.py), [`render/g1.py`](../common/bdc26/render/g1.py), [`density.py`](../common/bdc26/density.py) | engine G1: walker model, sensors, ray casting, ray-consistent insertion, placement; background density prior |
+| [`detect/pcdet_dataset.py`](../common/bdc26/detect/pcdet_dataset.py), [`detect/postprocess.py`](../common/bdc26/detect/postprocess.py) | OpenPCDet dataset adapter; per-class post-processing |
+| [`evalap.py`](../common/bdc26/evalap.py), [`realism.py`](../common/bdc26/realism.py) | the official detection and realism metrics |
+| [`submit.py`](../common/bdc26/submit.py), [`registry.py`](../common/bdc26/registry.py) | packaging and validation; experiment log |
+
+Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `new_model`, `write_model_readmes`; each has a docstring with usage.
+
+### 12.2 Conventions
+- Track facts live in `data-lumpi-track/track.yaml`, never as constants in code.
+- Dataset versions are immutable: build a new name and record it in [`data-lumpi-track/README.md`](../data-lumpi-track/README.md) Section 9 with the command that built it.
+- A model is a folder (`python common/tools/new_model.py lumpi <name> --from <model>`); outputs stay in git-ignored `output/`; decisions go to `registry.csv` and the model README.
+- A strategy is named (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8); every CodaBench submission is listed under it in the root README Section 9 and in Section 9 here.
+- Real data only through the guard, with a purpose string; a new use of real data gets a decision record before it influences a submission.
+- Evaluate with the official metric (`bdc26.evalap.evaluate`, `bdc26.realism.score`); never report KITTI-style numbers as challenge numbers.
+- Match the surrounding code; new dependencies go into `requirements.txt`.
+
+### 12.3 Typical contributions
+| Task | Where | Check |
+|---|---|---|
+| New generator feature | `common/bdc26/render/`, an option in `data-lumpi-track/prepare_g1.py` | a statistic against legal real data; a new dataset version |
+| New detector (S2, S4, S6) | a new model folder; `train/pcdet_model.yaml` | `tune_and_eval.sh`, then a member of a routed or fused model |
+| New post-processing or fusion knob (S3) | `common/bdc26/detect/`, `common/tools/tune_postprocess.py` | realval-A gain that holds on realval-B |
+| Metrics or packaging fix | `evalap.py`, `realism.py`, `submit.py` | `python -m pytest -q common/tests`, including the official-parity tests |
+
+### 12.4 Running long jobs on the shared server
+- Check `nvidia-smi` and `df -h` first; pin GPUs with `CUDA_VISIBLE_DEVICES` (LUMPI 0-3, V2X 4-7 match the NUMA nodes).
+- Generation: `OMP_NUM_THREADS=1` with many workers. Training: `--workers 6` per GPU.
+- Stop jobs by PID, not by pattern; never edit a shell script while a run of it is executing.
+- Run the tests before every commit.

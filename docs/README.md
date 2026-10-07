@@ -6,8 +6,8 @@
 
 | You want to | Read |
 |---|---|
-| Run the pipeline end to end | [root `README.md`](../README.md) Sections 4-8 |
-| See the named strategies and their CodaBench results | [root `README.md`](../README.md) Sections 11-12 |
+| Run the pipeline end to end | [root `README.md`](../README.md) Sections 4-7; evaluation, packaging, integrity and contributing per track: [`model-lumpi-track/README.md`](../model-lumpi-track/README.md), [`model-v2x-track/README.md`](../model-v2x-track/README.md) Sections 10-12 |
+| See the named strategies and their CodaBench results | [root `README.md`](../README.md) Sections 8-9; details in [`02-STRATEGY.md`](02-STRATEGY.md#8-strategy-routes-after-s1) Section 8 |
 | Know the rules, the exact scoring and the submission spec | [`01-CHALLENGE-FACTS.md`](01-CHALLENGE-FACTS.md) |
 | Know where the points are and what to build next | [`02-STRATEGY.md`](02-STRATEGY.md) |
 | Understand the system design and the code map | [`03-ARCHITECTURE.md`](03-ARCHITECTURE.md) |
