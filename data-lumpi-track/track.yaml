@@ -43,3 +43,10 @@ guard:
   # Self-exclusion: the whole Measurement4 tail plus a margin.
   blocked_windows: {Measurement4: [6400, 8199]}
   test_id_measurement: Measurement4
+
+# realval-A frames closest to the excluded window (guard: Measurement4 6400-8199); the late-A check of
+# docs/decisions/README.md Section 3.1 (common/bdc26/scorecard.py, common/tools/scorecard.py)
+late_a: {prefix: Measurement4, min_frame: 4800, max_frame: 6399}
+
+# bands for the error breakdowns of common/bdc26/diagnostics.py (eval_predictions.py --breakdown)
+diagnostics: {range_bins: [0, 15, 30, 45], point_bins: [1, 10, 30, 100]}

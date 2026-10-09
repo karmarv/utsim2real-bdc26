@@ -1,6 +1,7 @@
 # Model card (machine-readable). Documentation: ./README.md and model-v2x-track/README.md.
 # A routed model trains nothing itself: each class comes from one member (common/tools/route_predictions.py).
 name: routed-g1
+strategy: S1                 # docs/02-STRATEGY.md Section 8; the registry and scorecard read it
 track: v2x-track
 module: M11 (per-class routing)
 framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml

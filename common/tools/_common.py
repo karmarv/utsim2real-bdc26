@@ -44,3 +44,23 @@ def load_pcdet_cfg(model_dir: Path, data: Path):
         os.chdir(cwd)
     cfg.DATA_CONFIG.DATA_PATH = str(data)
     return cfg
+
+
+def validation_tag(model_dir: Path, card: dict) -> str:
+    """Suffix of a model's validation files: 'routed' for a routed model, else the run of local_scores.json
+    (<tag>_checkpoint_epoch_N), as written by tune_and_eval.sh."""
+    if card.get("members"):
+        return "routed"
+    import json
+    return json.loads((model_dir / "validation" / "results" / "local_scores.json").read_text())["run"]
+
+
+def member_tag(member: dict) -> str:
+    """Validation-file suffix of a routed model's member from its ckpt path (<tag>_checkpoint_epoch_N)."""
+    return Path(member["ckpt"]).parts[-3] + "_" + Path(member["ckpt"]).stem
+
+
+def validation_predictions(model_dir: Path, card: dict, split: str, tag: str | None = None) -> Path:
+    """Post-processed predictions of a model on its real validation split (validation/output/)."""
+    data = card["data"]["realval"].replace("/", "_")
+    return model_dir / "validation" / "output" / f"{data}_{split}_{tag or validation_tag(model_dir, card)}.json"

@@ -9,8 +9,9 @@
 | Selected model | [`routed-g1`](routed-g1): vehicle from [`pointpillars-g1v2`](pointpillars-g1v2), pedestrian from [`pointpillars-g1v3`](pointpillars-g1v3), truck from [`pointpillars-ut`](pointpillars-ut) |
 | Real validation (official metric, tuned) | **realval-A mAP 0.572**, realval-B 0.520 |
 | Local combined estimate | 0.858 (A) / 0.814 (B); ECCV winner 0.746 |
-| CodaBench (strategy S1) | **965633: combined 0.7665** (mAP 0.4648, R 0.9203), rank 1 on 2026-10-06 (Section 9; root README Section 9) |
-| Submitted zip | [`routed-g1/submissions/2026-10-02_first/`](routed-g1/submissions/2026-10-02_first) (zip git-ignored; attached to GitHub release 0.1 as `submission_v2x_karmarv.zip`) |
+| CodaBench (current entry) | **972563: combined 0.7855** (mAP 0.4869, R 0.9203), S1+C1 ([`routed-g1z`](routed-g1z)), rank 1 on 2026-10-09 (Section 9) |
+| CodaBench (previous) | 965633: combined 0.7665 (mAP 0.4648), S1 ([`routed-g1`](routed-g1)), 2026-10-06 |
+| Submitted zip | current entry: [`routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip`](routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (tag 1.0); S1: `submission_v2x_karmarv.zip` (release 0.1) |
 | Realism of the submitted frames | R = 0.919 on held-out legal proxies, official scorer (frames from the FOV-masked `g1-v3` val split with 31% nulls) |
 | Submit | Section 6.7 |
 | Strategy | S1 submitted; next S2 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
@@ -26,7 +27,8 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`pointpillars-g1`](pointpillars-g1) | `pcdet/g1-v1` (walkers v1, free placement, gain 1.5) | first G1 model | trained 40 epochs, tuned |
 | [`pointpillars-g1v2`](pointpillars-g1v2) | `pcdet/g1-v2` (walker v2 body) | routed member for vehicle | trained 40 epochs, tuned |
 | [`pointpillars-g1v3`](pointpillars-g1v3) | `pcdet/g1-v3` (walkers calibrated on legal real walkers, FOV-masked UT) | routed member for pedestrian | trained 40 epochs, tuned |
-| [`routed-g1`](routed-g1) | members above | **selected** | first submission packaged |
+| [`routed-g1`](routed-g1) | members above | S1 | submitted (965633, 0.7665) |
+| [`routed-g1z`](routed-g1z) | `routed-g1` + range-dependent z calibration (C1) | **selected** (S1+C1) | submitted (972563, **0.7855**; Section 7.4) |
 
 ## 2. Modeling approaches considered
 
@@ -143,6 +145,31 @@ realval-B per class for `routed-g1`: vehicle 0.662, pedestrian 0.226, truck 0.67
 
 `routed-g1/submissions/2026-10-02_first/submission.zip`: realval-A mAP 0.572, realism R 0.919 (the kit's `local_eval.py` with 50 legal frames as the reference agrees to every printed digit) -> **combined about 0.858** (0.814 with the realval-B mAP).
 
+### 7.4 S1 close-out diagnostics and the C1 candidate (2026-10-09)
+
+Official metric on legal real validation, S1 `routed-g1` predictions; files in [`routed-g1/validation/results/diagnostics/`](routed-g1/validation/results/diagnostics). Summary and decisions: [`docs/02-STRATEGY.md` Section 8.1.3](../docs/02-STRATEGY.md#813-close-out-results-2026-10-09).
+
+| Diagnostic | Finding |
+|---|---|
+| Test class mix vs realval-A (objects per frame) | vehicle 9.4 vs 8.1, pedestrian 19.1 vs 16.2, truck 2.5 vs 1.7 (close) |
+| BEV-3D gap (mAP) | 0.103 on A, 0.146 on B; pedestrian BEV 0.426 vs 3D 0.266 (A), 0.384 vs 0.226 (B) |
+| Pedestrian centre z error by range (0-10 / 10-20 / 20-30 / 30+ m) | +0.16 / +0.08 / +0.03 / -0.11 m on A; +0.16 / +0.06 / +0.04 / -0.11 m on B; heights +0.10 m |
+| Vehicle and truck z error by range | vehicle +0.02 / +0.09 / +0.09 / -0.12 m; truck heights +0.35 m, lengths -0.1 m median with a 2 m spread |
+| AP by range | pedestrian 0.18 / 0.36 / 0.35 / 0.15; vehicle 0.81 / 0.84 / 0.52 / 0.40; truck 0.23 / 0.33 / 0.92 / 0.53 |
+| Recall by points (score >= 0.3, 3D IoU 0.5) | pedestrian 0.51 / 0.63 / 0.60 / 0.70 for 1-10 / 10-30 / 30-100 / 100+ points; vehicle 0.12 / 0.32 / 0.65 / 0.89 |
+| Joint routing (A and B) | same route as S1 |
+
+**C1, range-dependent z calibration** (`z += z0 + z_per_m * range` per class after routing, selected on A, class gate on B; [decision record](../docs/decisions/2026-10-09-s1-closeout-z-calibration.md)):
+
+| Class | (z0, z_per_m) | realval-A | realval-B | Gate |
+|---|---|---|---|---|
+| vehicle | (-0.15, +0.005) | 0.627 -> 0.641 | 0.662 -> 0.685 (P 1.00) | kept |
+| pedestrian | (-0.175, +0.0075) | 0.266 -> 0.290 | 0.226 -> 0.252 (P 1.00) | kept |
+| truck | (-0.025, +0.0025) | +0.002 | +0.002 | dropped |
+| **mAP** | | **0.572 -> 0.585** | **0.520 -> 0.537** (90% interval +0.014 to +0.021) | |
+
+Candidate model [`routed-g1z`](routed-g1z): S1's members and route plus the calibration; BEV-3D gap on B 0.146 -> 0.129; combined estimate (B) 0.814 -> 0.828; zip `routed-g1z/submissions/2026-10-09_zcal/` (same 50 frames as S1, official check valid in 86 s). **Outcome: submitted as 972563 (S1+C1): combined 0.7665 -> 0.7855, confirmed** (Section 9.1).
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -152,7 +179,7 @@ realval-B per class for `routed-g1`: vehicle 0.662, pedestrian 0.226, truck 0.67
 | E3 | Walker body v1 vs v2 | done: pedestrian 0.118 -> 0.173 |
 | E4 | Walkers calibrated on legal real walkers + FOV mask | done: pedestrian 0.173 -> 0.266; realism 0.901 -> 0.919 |
 | E5 | Pedestrian NMS and re-centering | tuned per class (Section 6.3) |
-| E6 | Ground-plane canonicalization of the sloped scene | part of the S4 diagnosis (`docs/02` Section 8.4, step 0) |
+| E6 | Ground-plane canonicalization of the sloped scene | part of the S4 diagnosis (`docs/02` Section 8.1.2 D2 and Section 8.4 step 0) |
 | E7 | Architecture routing for pedestrians (CenterPoint) | **next: strategy S2** |
 | E8 | Background density calibration for realism (as Track 1) | next (data guide Section 12) |
 | E9 | TTA and weighted box fusion, height TTA | strategy S3 |
@@ -163,19 +190,27 @@ realval-B per class for `routed-g1`: vehicle 0.662, pedestrian 0.226, truck 0.67
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-02 | `routed-g1` / `first`, hand-edited copy uploaded as `submission_v2x_20261002.zip` | 957439 | 0.572 / 0.520 | 0.919 | | | | Running for 4 days with no log ("Preparing submission..."), cancelled 2026-10-06; counted (1 of 100 used); Section 10.6 |
 | 2026-10-06 | `routed-g1` / `first`, team KarmaRV, uploaded unchanged as `submission_v2x_karmarv.zip` | 965633 | 0.572 / 0.520 | 0.919 | **0.4648** | **0.9203** | **0.7665** | strategy S1; rank 1 of 34 (next 0.6114); server record [`codabench_965633.json`](routed-g1/submissions/2026-10-02_first/codabench_965633.json) |
+| 2026-10-09 | `routed-g1z` / `zcal` (S1+C1 z calibration), the packaged zip unchanged | 972563 | 0.585 / 0.537 | 0.919 | **0.4869** | **0.9203** | **0.7855** | strategy S1+C1; rank 1 of 19 (next 0.6616); scored in about 4 min; server record [`codabench_972563.json`](routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json); [decision record](../docs/decisions/2026-10-09-s1-closeout-z-calibration.md) |
 
-### 9.1 Local vs leaderboard per class (965633, 3D AP@0.5 R40)
+### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
-| | mAP | vehicle | pedestrian | truck |
-|---|---|---|---|---|
-| leaderboard | **0.4648** | 0.585 | 0.235 | 0.574 |
-| realval-A | 0.572 | 0.627 | 0.266 | 0.822 |
-| realval-B | 0.520 | 0.662 | 0.226 | 0.673 |
-| leaderboard / realval-A | 0.81 | 0.93 | 0.88 | 0.70 |
+| | mAP | vehicle | pedestrian | truck | BEV mAP@0.5 |
+|---|---|---|---|---|---|
+| **972563 leaderboard (S1+C1)** | **0.4869** | 0.605 | 0.281 | 0.574 | 0.5696 |
+| S1+C1 realval-A / realval-B | 0.585 / 0.537 | 0.641 / 0.685 | 0.290 / 0.252 | 0.822 / 0.673 | |
+| 965633 leaderboard (S1) | 0.4648 | 0.585 | 0.235 | 0.574 | 0.5696 |
+| S1 realval-A / realval-B | 0.572 / 0.520 | 0.627 / 0.662 | 0.266 / 0.226 | 0.822 / 0.673 | |
+| leaderboard / realval-B (S1 -> S1+C1) | 0.89 -> 0.91 | 0.88 -> 0.88 | 1.04 -> 1.12 | 0.85 | |
+
+The z calibration changed only z, so BEV AP and realism are identical; it gained more on the test frames than on realval-B for pedestrians (+0.046 vs +0.026) and about the same for vehicles (+0.020 vs +0.023), and the leaderboard BEV-3D gap fell from 0.105 to 0.083.
 
 Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
 
-### 9.2 Artifacts of 965633 (strategy S1)
+### 9.2 Artifacts
+
+972563 (S1+C1): model [`routed-g1z`](routed-g1z) ([`model.yaml`](routed-g1z/model.yaml): S1 members and route plus `calibration`); the packaged zip of [`routed-g1z/submissions/2026-10-09_zcal/`](routed-g1z/submissions/2026-10-09_zcal) committed as [`submission_v2x.zip`](routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (md5 `7fbb973e2c1715dea66d7850b8bde11f`, also in its [`manifest.json`](routed-g1z/submissions/2026-10-09_zcal/manifest.json); tag 1.0); server record [`codabench_972563.json`](routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json); register row: [`docs/decisions/README.md`](../docs/decisions/README.md#2-submission-register).
+
+965633 (S1):
 
 | | |
 |---|---|
@@ -189,7 +224,7 @@ Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (lo
 
 | | CD | MMD | EMD | FPD | R |
 |---|---|---|---|---|---|
-| leaderboard (965633) | 2.215 | 0.00329 | 1.414 | 1.092 | **0.9203** |
+| leaderboard (965633 and 972563, identical frames) | 2.215 | 0.00329 | 1.414 | 1.092 | **0.9203** |
 | local, held-out proxy 4 | 2.181 | 0.00384 | 1.441 | 1.126 | 0.9188 |
 | ECCV 2026 winner | | | | | 0.925 |
 
@@ -202,8 +237,8 @@ Both sides pooled 2,500,000 points before subsampling (50 x 50,000), so the pack
 | Realism transfers | R 0.920 vs 0.919 locally | the FOV mask, null returns and frame selection work; EMD is the remaining realism term |
 | Vehicle and pedestrian transfer close to realval-B | vehicle 0.585 (B 0.662), pedestrian 0.235 (B 0.226) | pedestrian (953 test GT, the largest class) is limited by the detector, not by transfer: the S2 target |
 | Truck does not | truck 0.574 (A 0.822, B 0.673) | the truck route (the UT-only run, best on A) lost the most; route on A and B jointly and add truck size modes |
-| Height costs 0.105 mAP | BEV@0.5 0.570 vs 3D@0.5 0.465 | z and height errors: height TTA (S3), refinement (S4); first check whether realval shows the same gap |
-| Local estimate was optimistic | estimate A / B / leaderboard: 0.858 / 0.814 / 0.767 | report the realval-B estimate |
+| Height costs 0.105 mAP | BEV@0.5 0.570 vs 3D@0.5 0.465 (S1) | realval shows the same gap (0.103 A, 0.146 B), caused partly by a range-dependent z bias: C1 removed part of it (leaderboard gap 0.083, Section 7.4); the rest is the S2-S4 target |
+| Local estimate was optimistic | estimate A / B / leaderboard: S1 0.858 / 0.814 / 0.767; S1+C1 0.869 / 0.828 / 0.786 | report the realval-B estimate; it overstates by about 0.045 |
 
 ## 10. Local evaluation and packaging
 
@@ -246,7 +281,7 @@ Local results of every model are in Section 7; the leaderboard calibration is in
 | the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | this track's frames | 31% of each realism frame are (0,0,0) nulls, as in the real frames (`track.yaml` `resample.null_fraction`) |
 
-Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the zip is git-ignored and attached to the GitHub release of the tag it was built from.
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
 
 ### 10.5 Server cost and the pre-upload check
 
@@ -263,11 +298,11 @@ Both competitions use CodaBench's shared default queue, Docker image `codalab/co
 | Running or "Preparing submission..." for more than a day with no log | no worker ran it, or the worker was lost | cancel and upload the same checked zip once more; if it hangs again, write to the organizers with the ids |
 | Failed after about 20 minutes | the 1,200 s limit | compare with the `--official` wall time; only then consider the box cap |
 
-Collect for every failed or stuck submission: the id, the status tooltip, the expanded row (scoring stdout and stderr, detailed results), the exact uploaded file (`unzip -l`, `check_submission.py --official`), its name, size and checksum, and how it was made. History: [`docs/decisions/2026-10-06-codabench-submission-failures.md`](../docs/decisions/2026-10-06-codabench-submission-failures.md).
+Collect for every failed or stuck submission: the id, the status tooltip, the expanded row (scoring stdout and stderr, detailed results), the exact uploaded file (`unzip -l`, `check_submission.py --official`), its name, size and checksum, and how it was made. History: [`docs/decisions/2026-10-06-s1-first-submission.md`](../docs/decisions/2026-10-06-s1-first-submission.md).
 
 ### 10.7 Submission budget
 
-Development phase 5 per day / 100 in total (public leaderboard, ends Oct 30, 17:00 PDT); final phase **1 per day / 5 in total, hidden leaderboard, development submissions do not carry over**. One development submission per strategy to confirm the local estimate; never tune against the leaderboard (probing the realism reference is forbidden). The schedule: [`docs/05-SCHEDULE-AND-RUNBOOK.md`](../docs/05-SCHEDULE-AND-RUNBOOK.md); the gates per strategy: [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#80-overview) Section 8.0.
+Development phase 5 per day / 100 in total (public leaderboard, ends Oct 30, 17:00 PDT); final phase **1 per day / 5 in total, hidden leaderboard, development submissions do not carry over**. One development submission per strategy to confirm the local estimate; never tune against the leaderboard (probing the realism reference is forbidden). The schedule: [`docs/05-SCHEDULE-AND-RUNBOOK.md`](../docs/05-SCHEDULE-AND-RUNBOOK.md); the gates, the progression tracker and the submission register: [`docs/decisions/README.md`](../docs/decisions/README.md#3-evaluation-protocol-and-gates) Sections 2-4.
 
 ## 11. Integrity rules and real-data uses
 
@@ -281,11 +316,11 @@ Uses of legal real data (allowed by the Rules tab: "hyperparameter selection or 
 | Use | Record |
 |---|---|
 | Validation, post-processing selection, routing (realval-A and realval-B are scene-disjoint) | Sections 6.3-6.4 and 10.3 |
-| Sensor measurement: the OS1-64 beam table from 23 legal unlabeled frames; field of view | [`docs/decisions/2026-09-30-g1-generator.md`](../docs/decisions/2026-09-30-g1-generator.md) |
+| Sensor measurement: the OS1-64 beam table from 23 legal unlabeled frames; field of view | [`docs/decisions/2026-09-30-s1-g1-generator.md`](../docs/decisions/2026-09-30-s1-g1-generator.md) |
 | Label statistics for the generator: 70,818 legal walker boxes (positions, sizes, ground heights) | same |
 | Test-ID resolution for the guard (point matching, format only) | [`data-v2x-track/README.md`](../data-v2x-track/README.md) |
-| Research-phase exposure before the guard existed, and its follow-up check | [`docs/decisions/2026-09-30-research-exposure.md`](../docs/decisions/2026-09-30-research-exposure.md) |
-| Downloading real data on the entrant's instruction; licence sign-off still open | [`docs/decisions/2026-09-30-real-data-download.md`](../docs/decisions/2026-09-30-real-data-download.md) |
+| Research-phase exposure before the guard existed, and its follow-up check | [`docs/decisions/2026-09-30-rules-research-exposure.md`](../docs/decisions/2026-09-30-rules-research-exposure.md) |
+| Downloading real data on the entrant's instruction; licence sign-off still open | [`docs/decisions/2026-09-30-rules-real-data-download.md`](../docs/decisions/2026-09-30-rules-real-data-download.md) |
 
 All decision records: [`docs/decisions/`](../docs/decisions). Open questions for the organizers: [`docs/01-CHALLENGE-FACTS.md`](../docs/01-CHALLENGE-FACTS.md) Section 10.
 
@@ -303,9 +338,10 @@ All decision records: [`docs/decisions/`](../docs/decisions). Open questions for
 | [`render/pedsim.py`](../common/bdc26/render/pedsim.py), [`render/g1.py`](../common/bdc26/render/g1.py), [`density.py`](../common/bdc26/density.py) | engine G1: walker model, sensors, ray casting, ray-consistent insertion, placement; background density prior |
 | [`detect/pcdet_dataset.py`](../common/bdc26/detect/pcdet_dataset.py), [`detect/postprocess.py`](../common/bdc26/detect/postprocess.py) | OpenPCDet dataset adapter; per-class post-processing |
 | [`evalap.py`](../common/bdc26/evalap.py), [`realism.py`](../common/bdc26/realism.py) | the official detection and realism metrics |
+| [`scorecard.py`](../common/bdc26/scorecard.py), [`diagnostics.py`](../common/bdc26/diagnostics.py), [`detect/zcalib.py`](../common/bdc26/detect/zcalib.py) | strategy scorecard and paired frame bootstrap; error breakdowns (box errors, AP by range, recall by points); range-dependent z calibration |
 | [`submit.py`](../common/bdc26/submit.py), [`registry.py`](../common/bdc26/registry.py) | packaging and validation; experiment log |
 
-Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `new_model`, `write_model_readmes`; each has a docstring with usage.
+Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `scorecard`, `new_model`, `write_model_readmes`; each has a docstring with usage.
 
 ### 12.2 Conventions
 - Track facts live in `data-v2x-track/track.yaml`, never as constants in code.

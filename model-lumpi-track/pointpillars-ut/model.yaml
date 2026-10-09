@@ -1,5 +1,6 @@
 # Model card (machine-readable). Documentation: ./README.md and model-lumpi-track/README.md.
 name: pointpillars-ut
+strategy: S1                 # docs/02-STRATEGY.md Section 8; the registry and scorecard read it
 track: lumpi-track
 module: M4 baseline
 framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)

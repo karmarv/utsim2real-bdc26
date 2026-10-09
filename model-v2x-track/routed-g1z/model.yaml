@@ -1,0 +1,45 @@
+name: routed-g1z
+strategy: S1+C1              # S1 with the close-out z calibration (docs/decisions/2026-10-09-s1-closeout-z-calibration.md)
+track: v2x-track
+module: M11 (per-class routing)
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing of PointPillars G1 models
+members:
+  ut:
+    model: pointpillars-ut
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v2:
+    model: pointpillars-g1v2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v3:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+status: "submitted 2026-10-09 as CodaBench 972563 (S1 + C1), combined 0.7855; the current Track 2 entry"
+notes: >
+  S1 close-out candidate C1: the members, route and realism frames of routed-g1, plus a range-dependent z
+  calibration after routing (z += z0 + z_per_m * range; vehicle and pedestrian; selected on realval-A, kept by
+  the class gate on realval-B; route_predictions.py calibrate). realval-A 0.572 -> 0.585, realval-B 0.520 -> 0.537.
+  Decision record docs/decisions/2026-10-09-s1-closeout-z-calibration.md.
+route:
+  vehicle: g1v2
+  pedestrian: g1v3
+  truck: ut
+route_selection:
+  rule: best realval-A AP; within 0.005 of the best, the higher realval-B AP
+  estimate_mAP_A: 0.5718
+  estimate_mAP_B: 0.5204
+derived_from: routed-g1
+calibration:
+  vehicle:
+    z0: -0.15
+    z_per_m: 0.005
+  pedestrian:
+    z0: -0.175
+    z_per_m: 0.0075

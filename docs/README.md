@@ -15,7 +15,8 @@
 | Plan the days to the final phase and the submission budget | [`05-SCHEDULE-AND-RUNBOOK.md`](05-SCHEDULE-AND-RUNBOOK.md) |
 | Learn the concepts, beginner to state of the art | [`06-LEARNING-PATH.md`](06-LEARNING-PATH.md) |
 | Find papers, code and licences | [`07-LITERATURE.md`](07-LITERATURE.md) |
-| See why something was decided | [`decisions/`](decisions) |
+| See every submission, its gate result and why it was decided; the gates, the progression tracker and the calendar | [`decisions/README.md`](decisions/README.md) |
+| Find the files of a released leaderboard entry | [`RELEASES.md`](../RELEASES.md) |
 | Read the organizers' papers | [`reference/papers/`](reference/papers) |
 
 ## Track documents (inside the track folders)
@@ -27,12 +28,4 @@
 
 ## Decision records
 
-| Record | Subject |
-|---|---|
-| [`2026-09-30-plan-review.md`](decisions/2026-09-30-plan-review.md) | review of the earlier plan set and what replaced it |
-| [`2026-09-30-research-exposure.md`](decisions/2026-09-30-research-exposure.md) | real data touched during research before the guard existed, and the 2026-10-02 follow-up check |
-| [`2026-09-30-real-data-download.md`](decisions/2026-09-30-real-data-download.md) | downloading real LUMPI and V2X-Real on the entrant's instruction; what is used how |
-| [`2026-09-30-g1-generator.md`](decisions/2026-09-30-g1-generator.md) | engine G1: walkers, Van mapping, calibrated background density (gray area, disclosed), walker v2 |
-| [`2026-10-06-codabench-submission-failures.md`](decisions/2026-10-06-codabench-submission-failures.md) | first uploads (957399 Failed, 957439 stuck) were hand-edited copies; team set by the packager; pre-upload checker |
-
-New records follow the template in [`decisions/README.md`](decisions/README.md): one dated file per decision, organizer answer, legal answer or gate outcome.
+The index of dated records (one per decision-ready version, named `YYYY-MM-DD-<strategy or scope>-<topic>.md`), the submission register, the evaluation protocol and gates, the progression tracker and the calendar are in [`decisions/README.md`](decisions/README.md).

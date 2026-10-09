@@ -83,6 +83,10 @@
     {
       "time": "2026-10-06 13:35",
       "action": "check_submission (team=None)"
+    },
+    {
+      "time": "2026-10-09 06:15",
+      "action": "check_submission (team=None)"
     }
   ],
   "codabench_attempts": [
@@ -99,5 +103,22 @@
       "status": "Finished",
       "record": "codabench_965633.json"
     }
-  ]
+  ],
+  "official_local_eval": {
+    "valid": true,
+    "error": null,
+    "stand_in_gt_boxes": 1134,
+    "score_realism": 0.918794,
+    "CD": 2.181376,
+    "MMD": 0.003838,
+    "EMD": 1.440777,
+    "FPD": 1.125782,
+    "wall_s": 90.2,
+    "peak_rss_mb": 5893,
+    "budget_s": 1200,
+    "returncode": 0,
+    "stderr_tail": "",
+    "time": "2026-10-09 06:16",
+    "n_boxes": 18728
+  }
 }

@@ -165,7 +165,7 @@ if __name__ == "__main__":
                      "class_map": cmap, "person_prior": str(PRIOR.relative_to(T.root)),
                      "real_data_use": "Measurement4 sensor metadata; legal M4 Person label rows (placement, box sizes)"
                                       + ("; background density prior from legal unlabeled realval-A frames disjoint from the "
-                                         "realism proxies (docs/decisions/2026-09-30-g1-generator.md)" if a.density_prior else ""),
+                                         "realism proxies (docs/decisions/2026-09-30-s1-g1-generator.md)" if a.density_prior else ""),
                      "mean_boxes_per_frame": sum(s["n_boxes"] for s in stats) / max(len(stats), 1),
                      "mean_walkers_per_frame": sum(s.get("n_walkers", 0) for s in stats) / max(len(stats), 1),
                      "walker_hits_median_raw": float(np.median([s.get("walker_hits_median", 0) for s in stats])),

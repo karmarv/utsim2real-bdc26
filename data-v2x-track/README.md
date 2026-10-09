@@ -35,7 +35,7 @@ Run from the repository root after `source common/env/activate.sh`.
 |---|---|---|---|---|---|
 | Starting kit | CodaBench 16685, Files tab (login) | 22.3 MB | everything | challenge terms | ingested |
 | UT-V2X-Real-IC | Dataverse doi:10.7910/DVN/N6N4UR (10 zip parts) | 21.3 GB | `pcd`, `lbl`, `sem_seg`, `ins_seg` | **CC0** | downloaded and verified |
-| V2X-Real | project page `https://mobility-lab.seas.ucla.edu/v2x-real/`; Lidar-64 release on UCLA box (share ids in `track.yaml`) | 28.3 GB | agent -1 bins of all splits (7,742 frames), yaml of guard-allowed frames (4,853) | **UCLA Academic; "All Rights Reserved"** | downloaded on the entrant's instruction ([decision record](../docs/decisions/2026-09-30-real-data-download.md)); legal sign-off open |
+| V2X-Real | project page `https://mobility-lab.seas.ucla.edu/v2x-real/`; Lidar-64 release on UCLA box (share ids in `track.yaml`) | 28.3 GB | agent -1 bins of all splits (7,742 frames), yaml of guard-allowed frames (4,853) | **UCLA Academic; "All Rights Reserved"** | downloaded on the entrant's instruction ([decision record](../docs/decisions/2026-09-30-rules-real-data-download.md)); legal sign-off open |
 
 ## 3. Data on disk
 
@@ -88,7 +88,7 @@ Labels are OPV2V-style yaml per frame (world `location`, half `extent`, `angle` 
   3. anything still unresolved would map to `"*"` (block that frame number in every scene); none remains.
 - The guard blocks every forbidden frame +/- 20 frames in its scene, in every candidate scene for listed indices, and refuses all V2X real data until `kit/id_mapping.json` exists. `fetch_real.py --labels`, `prepare_realval.py`, `prepare_g1.py` (walker prior) and the calibration scripts go through it; every access is logged in `real/access_log.csv`.
 - V2X-Real val and test splits contain no forbidden frame; 4,853 of 7,742 agent -1 frames have guard-allowed labels.
-- The day-0 research-exposure frames were checked against the resolved guard ([decision record](../docs/decisions/2026-09-30-research-exposure.md)).
+- The day-0 research-exposure frames were checked against the resolved guard ([decision record](../docs/decisions/2026-09-30-rules-research-exposure.md)).
 
 ## 7. Preparation pipeline, step by step
 

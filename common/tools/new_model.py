@@ -26,7 +26,7 @@ def main():
         raise SystemExit(f"{dst} exists")
     for sub in ("train", "validation/results", "test", "submissions"):
         (dst / sub).mkdir(parents=True)
-    for pattern in ("train/*.yaml", "train/*.sh", "test/*.yaml", "test/*.sh", "validation/*.sh"):
+    for pattern in ("train/*.yaml", "train/*.sh", "test/*.yaml", "test/*.sh", "test/*.txt", "validation/*.sh"):
         for f in src.glob(pattern):
             shutil.copy2(f, dst / f.relative_to(src))
     card = yaml.safe_load((src / "model.yaml").read_text())

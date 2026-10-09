@@ -10,8 +10,9 @@
 | Real validation (official metric, tuned) | **realval-A mAP 0.260**, realval-B 0.166 (Section 7) |
 | Realism of the submitted frames | R = 0.906 on held-out legal proxies, official scorer (raw UT frames: 0.59) |
 | Local combined estimate | 0.585 (A) / 0.505 (B); ECCV winner 0.479 |
+| Competition | rank 2 since 2026-10-07 behind 0.4784 (an entry with mAP 0.1185 and realism R 0.942); about +0.015 leaderboard R regains rank 1 ([`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#87-parallel-and-gated-work) Section 8.7) |
 | CodaBench (strategy S1) | **965614: combined 0.4728** (mAP 0.1357, R 0.8912), rank 1 on 2026-10-06 (Section 9; root README Section 9) |
-| Submitted zip | [`routed-g1/submissions/2026-10-02_first/`](routed-g1/submissions/2026-10-02_first) (zip git-ignored; attached to GitHub release 0.1 as `submission_lumpi_karmarv.zip`) |
+| Submitted zip | [`routed-g1/submissions/2026-10-02_first/submission_lumpi.zip`](routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0; uploaded as `submission_lumpi_karmarv.zip`, release 0.1) |
 | Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
 | Strategy | S1 submitted; next S2 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
@@ -30,7 +31,7 @@ model-lumpi-track/
     ├── train/                pcdet_model.yaml (+ _BASE_CONFIG_ pcdet_dataset.yaml), train.sh; output/ (git-ignored: ckpt, logs, tensorboard)
     ├── validation/           evaluate.sh, tune_and_eval.sh; output/ (git-ignored predictions); results/ (tracked JSON, local_scores.json)
     ├── test/                 postprocess.yaml (selected on real val), predict.sh, make_submission.sh, synthetic_ids.txt; output/ (git-ignored)
-    └── submissions/<date>_<tag>/   manifest.json + synthetic_ids.txt (tracked), submission.zip (git-ignored)
+    └── submissions/<date>_<tag>/   manifest.json, synthetic_ids.txt, codabench_<id>.json (tracked); submission.zip (git-ignored); submission_<track>.zip (tracked, leaderboard entries)
 ```
 
 Create a model with `python common/tools/new_model.py lumpi <name> --from <existing>` (copies configs, never outputs), then edit `model.yaml` and `train/pcdet_model.yaml`.
@@ -181,6 +182,23 @@ Reference points: ECCV 2026 winner on the test set, mAP 0.133 (Person 0.149, Car
 
 `routed-g1/submissions/2026-10-02_first/submission.zip`: realval-A mAP 0.260, realism R 0.906 (the kit's `local_eval.py` with 50 legal frames as the reference) -> **combined about 0.585** (0.505 with the realval-B mAP). The zip passes the kit's own validation (`valid_submission: 1`).
 
+### 7.4 S1 close-out diagnostics (2026-10-09)
+
+Official metric on legal real validation, S1 `routed-g1` predictions; files in [`routed-g1/validation/results/diagnostics/`](routed-g1/validation/results/diagnostics) and [`scorecard.json`](routed-g1/validation/results/scorecard.json). Summary and decisions: [`docs/02-STRATEGY.md` Section 8.1.3](../docs/02-STRATEGY.md#813-close-out-results-2026-10-09).
+
+| Diagnostic | Finding |
+|---|---|
+| Test class mix vs realval-A (objects per frame) | Person 10.2 vs 17.4, Car 25.2 vs 27.9, Bicycle 1.6 vs 4.8, Motorcycle 0.54 vs 0.02, Bus 0.50 vs 0.17, Truck 3.8 vs 1.0, Van 1.6 vs 1.4 (realval-B: Truck 1.7, Motorcycle 0.30, Bus 0.31) |
+| Drift toward the test window (realval-A frame bands 0-3199 / 3200-4799 / 4800-6399) | mAP 0.272 / 0.237 / 0.255; Person 0.421 / 0.225 / 0.196; Bicycle 0.278 / 0.283 / 0.232; Truck 0.223 / 0.002 / 0.387. The late band (late-A, 320 frames) has the test's Person density and is now part of the LUMPI gate |
+| Height and z (BEV-matched pairs, score >= 0.1) | 91% (A) / 84% (B) of matched Persons reach 3D IoU 0.5; Persons 0.07-0.08 m too tall, Cars 0.08 m too low, Buses 2.7 m too short; BEV-3D gap 0.025 on B: height is not LUMPI's problem |
+| Recall by points in the GT box (score >= 0.3, 3D IoU 0.5) | Person 0.24 / 0.51 / 0.65 / 0.64 (1-10 / 10-30 / 30-100 / 100+ points) on A; 0.21 / 0.38 / 0.42 / 0.23 on B (dense Persons missed on Measurement5-6); Truck 0.26-0.51 below 100 points |
+| AP by range (0-15 / 15-30 / 30-45 / 45+ m) | Person 0.005 / 0.355 / 0.322 / 0.028; Bicycle 0.42 / 0.35 / 0.11 / 0.03; Truck 0.47 / 0.27 / 0.17 / 0.03; Van 0.12 / 0.36 / 0.06 / 0.04 |
+| Truck lengths | real realval-A trucks: 5-6 m (224), 8-9 m (364), 12-14 m (213), 14-20 m (176); **synthetic `g1-v3` trucks: at most 8.47 m**; GT trucks over 12 m are predicted near 9.2 m. A generator gap (long trucks and trailers), not a post-processing one |
+| Joint routing (A and B) | same route as S1 (Motorcycle from `g1` fails the class gate) |
+| Range-dependent z calibration (C1) | no class passes the class gate (largest realval-B gain +0.004); [decision record](../docs/decisions/2026-10-09-s1-closeout-z-calibration.md) |
+
+**Outcome:** no new LUMPI submission from the close-out; S1 stays the Track 1 entry.
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -192,9 +210,9 @@ Reference points: ECCV 2026 winner on the test set, mAP 0.133 (Person 0.149, Car
 | E5 | Calibrated background density | done: realism 0.59 -> 0.88 (0.906 with frame selection) |
 | E6 | Per-class post-processing | done: 0.210 -> 0.253 for `g1` (Section 7.2) |
 | E7 | Architecture routing (CenterPoint for Person, Bicycle, Motorcycle) | **next: strategy S2** |
-| E8 | Truck size modes, Bus convention | next (M7) |
+| E8 | Truck size modes, Bus convention | next (M7); close-out D5: the synthetic trucks stop at 8.47 m while 29% of real trucks are 12-20 m, so long trucks and trailers must enter the generator (Section 7.4) |
 | E9 | TTA and weighted box fusion | strategy S3 |
-| E10 | Static clutter and G2 for realism and hard negatives | in parallel with S2-S5 (`docs/02` Section 8.7): the cheapest LUMPI gain |
+| E10 | Static clutter and G2 for realism and hard negatives | in parallel with S2-S5 (`docs/02` Section 8.7, R track; promoted 2026-10-09): the cheapest LUMPI gain |
 
 ## 9. Submission log
 
@@ -219,7 +237,7 @@ Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (lo
 | | |
 |---|---|
 | Model | [`routed-g1`](routed-g1) ([at tag 0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1/model-lumpi-track/routed-g1)); members and route in [`routed-g1/model.yaml`](routed-g1/model.yaml); checkpoints are not in git |
-| Submitted file | [`submission_lumpi_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_lumpi_karmarv.zip) (GitHub release [0.1](https://github.com/karmarv/utsim2real-bdc26/releases/tag/0.1)), the packaged zip unchanged, md5 `ea2c76393d6f8868762d6bac1ac03fa8` |
+| Submitted file | [`submission_lumpi.zip`](routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0), uploaded as [`submission_lumpi_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_lumpi_karmarv.zip) (GitHub release [0.1](https://github.com/karmarv/utsim2real-bdc26/releases/tag/0.1)), the packaged zip unchanged, md5 `ea2c76393d6f8868762d6bac1ac03fa8` |
 | Manifest | [`manifest.json`](routed-g1/submissions/2026-10-02_first/manifest.json) (checkpoints, route, frames, local scores, validation, CodaBench attempts), [`synthetic_ids.txt`](routed-g1/submissions/2026-10-02_first/synthetic_ids.txt) |
 | Server record | [`codabench_965614.json`](routed-g1/submissions/2026-10-02_first/codabench_965614.json): every `scores.json` field and the scoring log |
 | Leaderboard | [CodaBench 16684 results](https://www.codabench.org/competitions/16684/#/results-tab) |
@@ -239,7 +257,7 @@ Both sides pooled 2,500,000 points before subsampling (50 x 50,000), so the pack
 
 | Finding | Evidence | Implication |
 |---|---|---|
-| Realism transfers, but less than on V2X | R 0.891 vs 0.906 locally (FPD 5.1 vs 3.4, EMD 1.65 vs 1.53) | the frames are slightly too average: the test-window reference has static structure the twin lacks (35% of the reference mass, [R19](../docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)); engine G2 static clutter (`docs/02` Section 8.7) |
+| Realism transfers, but less than on V2X | R 0.891 vs 0.906 locally (FPD 5.1 vs 3.4, EMD 1.65 vs 1.53) | the frames are slightly too average: the test-window reference has static structure the twin lacks (35% of the reference mass, [R19](../docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)); engine G2 static clutter (`docs/02` Section 8.7, R track; promoted 2026-10-09) |
 | Car and Van transfer | Car 0.633 (A 0.874, B 0.770); Van 0.118 (A 0.122) | keep the pillar members for vehicles in every later strategy |
 | Person, Bicycle and Truck do not | Person 0.117 (A 0.340), Bicycle 0.053 (A 0.265), Truck 0.028 (A 0.200), with 512, 82 and 192 test GT boxes, so real gaps | realval-A (Measurement4 frames 0-6399) precedes the excluded last 20% of the recording, which holds the forbidden frames (6497-8109) and presumably the test frames; post-processing tuned on A partly fits A; select on A and B jointly (S2 onward) |
 | Combined below the ECCV winner despite higher mAP | 0.4728 vs 0.4793: mAP 0.136 vs 0.133, R 0.891 vs 0.913 | +0.022 R is worth +0.009 combined: the cheapest LUMPI gain |
@@ -286,7 +304,7 @@ Local results of every model are in Section 7; the leaderboard calibration is in
 | the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | this track's frames | LUMPI frames have no (0,0,0) nulls: the packager writes 50,000 real-range points per frame |
 
-Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the zip is git-ignored and attached to the GitHub release of the tag it was built from.
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
 
 ### 10.5 Server cost and the pre-upload check
 
@@ -303,11 +321,11 @@ Both competitions use CodaBench's shared default queue, Docker image `codalab/co
 | Running or "Preparing submission..." for more than a day with no log | no worker ran it, or the worker was lost | cancel and upload the same checked zip once more; if it hangs again, write to the organizers with the ids |
 | Failed after about 20 minutes | the 1,200 s limit | compare with the `--official` wall time; only then consider the box cap |
 
-Collect for every failed or stuck submission: the id, the status tooltip, the expanded row (scoring stdout and stderr, detailed results), the exact uploaded file (`unzip -l`, `check_submission.py --official`), its name, size and checksum, and how it was made. History: [`docs/decisions/2026-10-06-codabench-submission-failures.md`](../docs/decisions/2026-10-06-codabench-submission-failures.md).
+Collect for every failed or stuck submission: the id, the status tooltip, the expanded row (scoring stdout and stderr, detailed results), the exact uploaded file (`unzip -l`, `check_submission.py --official`), its name, size and checksum, and how it was made. History: [`docs/decisions/2026-10-06-s1-first-submission.md`](../docs/decisions/2026-10-06-s1-first-submission.md).
 
 ### 10.7 Submission budget
 
-Development phase 5 per day / 100 in total (public leaderboard, ends Oct 30, 17:00 PDT); final phase **1 per day / 5 in total, hidden leaderboard, development submissions do not carry over**. One development submission per strategy to confirm the local estimate; never tune against the leaderboard (probing the realism reference is forbidden). The schedule: [`docs/05-SCHEDULE-AND-RUNBOOK.md`](../docs/05-SCHEDULE-AND-RUNBOOK.md); the gates per strategy: [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#80-overview) Section 8.0.
+Development phase 5 per day / 100 in total (public leaderboard, ends Oct 30, 17:00 PDT); final phase **1 per day / 5 in total, hidden leaderboard, development submissions do not carry over**. One development submission per strategy to confirm the local estimate; never tune against the leaderboard (probing the realism reference is forbidden). The schedule: [`docs/05-SCHEDULE-AND-RUNBOOK.md`](../docs/05-SCHEDULE-AND-RUNBOOK.md); the gates, the progression tracker and the submission register: [`docs/decisions/README.md`](../docs/decisions/README.md#3-evaluation-protocol-and-gates) Sections 2-4.
 
 ## 11. Integrity rules and real-data uses
 
@@ -321,11 +339,11 @@ Uses of legal real data (allowed by the Rules tab: "hyperparameter selection or 
 | Use | Record |
 |---|---|
 | Validation, post-processing selection, routing (realval-A = Measurement4 0-6399 every 5th; realval-B = Measurement5-6) | Sections 6.3-6.4 and 10.3 |
-| Sensor metadata: poses and beam tables of the five Measurement4 lidars (`meta.json`) | [`docs/decisions/2026-09-30-g1-generator.md`](../docs/decisions/2026-09-30-g1-generator.md) |
+| Sensor metadata: poses and beam tables of the five Measurement4 lidars (`meta.json`) | [`docs/decisions/2026-09-30-s1-g1-generator.md`](../docs/decisions/2026-09-30-s1-g1-generator.md) |
 | Label statistics for the generator: Person positions, headings and box sizes | same |
 | Background density prior from 400 unlabeled legal frames (gray area: "domain adaptation"; disclosed, ask the organizers) | same |
-| Research-phase exposure before the guard existed, and its follow-up check | [`docs/decisions/2026-09-30-research-exposure.md`](../docs/decisions/2026-09-30-research-exposure.md) |
-| Downloading real data on the entrant's instruction; licence sign-off still open | [`docs/decisions/2026-09-30-real-data-download.md`](../docs/decisions/2026-09-30-real-data-download.md) |
+| Research-phase exposure before the guard existed, and its follow-up check | [`docs/decisions/2026-09-30-rules-research-exposure.md`](../docs/decisions/2026-09-30-rules-research-exposure.md) |
+| Downloading real data on the entrant's instruction; licence sign-off still open | [`docs/decisions/2026-09-30-rules-real-data-download.md`](../docs/decisions/2026-09-30-rules-real-data-download.md) |
 
 All decision records: [`docs/decisions/`](../docs/decisions). Open questions for the organizers: [`docs/01-CHALLENGE-FACTS.md`](../docs/01-CHALLENGE-FACTS.md) Section 10.
 
@@ -343,9 +361,10 @@ All decision records: [`docs/decisions/`](../docs/decisions). Open questions for
 | [`render/pedsim.py`](../common/bdc26/render/pedsim.py), [`render/g1.py`](../common/bdc26/render/g1.py), [`density.py`](../common/bdc26/density.py) | engine G1: walker model, sensors, ray casting, ray-consistent insertion, placement; background density prior |
 | [`detect/pcdet_dataset.py`](../common/bdc26/detect/pcdet_dataset.py), [`detect/postprocess.py`](../common/bdc26/detect/postprocess.py) | OpenPCDet dataset adapter; per-class post-processing |
 | [`evalap.py`](../common/bdc26/evalap.py), [`realism.py`](../common/bdc26/realism.py) | the official detection and realism metrics |
+| [`scorecard.py`](../common/bdc26/scorecard.py), [`diagnostics.py`](../common/bdc26/diagnostics.py), [`detect/zcalib.py`](../common/bdc26/detect/zcalib.py) | strategy scorecard and paired frame bootstrap; error breakdowns (box errors, AP by range, recall by points); range-dependent z calibration |
 | [`submit.py`](../common/bdc26/submit.py), [`registry.py`](../common/bdc26/registry.py) | packaging and validation; experiment log |
 
-Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `new_model`, `write_model_readmes`; each has a docstring with usage.
+Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `scorecard`, `new_model`, `write_model_readmes`; each has a docstring with usage.
 
 ### 12.2 Conventions
 - Track facts live in `data-lumpi-track/track.yaml`, never as constants in code.

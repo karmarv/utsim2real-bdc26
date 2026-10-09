@@ -37,7 +37,7 @@ Shared code used by these scripts: readers [`common/bdc26/io/`](../common/bdc26/
 |---|---|---|---|---|---|
 | Starting kit | CodaBench 16684, Files tab (login) | 30.6 MB | everything | challenge terms (no redistribution) | ingested |
 | UT-LUMPI | Dataverse doi:10.7910/DVN/D9SSWD (25 zip parts) | 52.0 GB | `pcd`, `lbl`, `sem_seg`, `ins_seg` | **CC0** | downloaded and verified |
-| LUMPI real | Vault `https://data.uni-hannover.de/vault/ikg/busch/LUMPI/` (plain HTTP, Range supported); SDK `github.com/St3ff3nBusch/LUMPI-SDK-Python` (MIT) | about 318 GB in total | `meta.json`, `HD_map/`, guarded `Label.csv` of Measurements 4-6; Measurement4 frames 0-6399 every 5th (1,280), Measurement5 every 20th (378), Measurement6 every 25th (489): 13 GB | **CC BY-NC 3.0** | downloaded on the entrant's instruction ([decision record](../docs/decisions/2026-09-30-real-data-download.md)); corporate legal sign-off still open |
+| LUMPI real | Vault `https://data.uni-hannover.de/vault/ikg/busch/LUMPI/` (plain HTTP, Range supported); SDK `github.com/St3ff3nBusch/LUMPI-SDK-Python` (MIT) | about 318 GB in total | `meta.json`, `HD_map/`, guarded `Label.csv` of Measurements 4-6; Measurement4 frames 0-6399 every 5th (1,280), Measurement5 every 20th (378), Measurement6 every 25th (489): 13 GB | **CC BY-NC 3.0** | downloaded on the entrant's instruction ([decision record](../docs/decisions/2026-09-30-rules-real-data-download.md)); corporate legal sign-off still open |
 
 ## 3. Data on disk
 
@@ -105,7 +105,7 @@ Legal real statistics (`pcdet/realval-v1/class_report.json` and M4 label medians
 
 - All 100 forbidden IDs lie in Measurement4 006497-008109 (the kit's test IDs are 006498-008100). The guard (`bdc26.guard.ForbiddenGuard`) blocks **Measurement4 6400-8199** plus the kit list (`track.yaml` `guard.blocked_windows`); before the kit is ingested the window alone already covers every forbidden frame (`ForbiddenGuard.for_track`).
 - `fetch_real.py --labels` filters rows while streaming (75,761 blocked-window rows never reached disk); `prepare_realval.py`, `prepare_g1.py` and `fit_density_prior.py` call the guard again and log every access with its purpose in `real/access_log.csv`.
-- What real data may and may not do: [`docs/01-CHALLENGE-FACTS.md`](../docs/01-CHALLENGE-FACTS.md) Section 3. Uses made here: validation and post-processing selection (realval-A/B); sensor metadata (poses, beam tables); label statistics for generator parameters (Person placement and box sizes); unlabeled frames for the background density prior (a gray-area use, disclosed: [G1 decision record](../docs/decisions/2026-09-30-g1-generator.md)).
+- What real data may and may not do: [`docs/01-CHALLENGE-FACTS.md`](../docs/01-CHALLENGE-FACTS.md) Section 3. Uses made here: validation and post-processing selection (realval-A/B); sensor metadata (poses, beam tables); label statistics for generator parameters (Person placement and box sizes); unlabeled frames for the background density prior (a gray-area use, disclosed: [G1 decision record](../docs/decisions/2026-09-30-s1-g1-generator.md)).
 
 ## 8. Preparation pipeline, step by step
 

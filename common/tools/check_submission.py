@@ -19,6 +19,7 @@
    realistic amount of work (the kit's dummy GT has no boxes and runs 6x faster than the server will). Runs
    under the server's execution budget (1,200 s) and reports validity, realism, wall time and peak memory. The
    stand-in AP is meaningless (those labels belong to other frames); only validity and cost matter.
+   The result is stored as `official_local_eval` in the manifest.json next to the zip (read by scorecard.py).
 """
 import argparse
 import hashlib
@@ -130,6 +131,11 @@ def main():
     if a.official:
         res = official(t, a.zip)
         print(json.dumps({"official_local_eval": res}, indent=2))
+        man = a.zip.parent / "manifest.json"
+        if man.exists():                                   # the scorecard reads the server-cost check from here
+            m = json.loads(man.read_text())
+            m["official_local_eval"] = {**res, "time": time.strftime("%Y-%m-%d %H:%M"), "n_boxes": info.get("n_boxes")}
+            man.write_text(json.dumps(m, indent=2))
         if not res["valid"]:
             errors.append(f"official scorer: {res.get('error')}")
     sys.exit(1 if errors else 0)

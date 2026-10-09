@@ -1,0 +1,83 @@
+{
+  "model": "routed-g1",
+  "track": "v2x-track",
+  "strategy": "S1",
+  "time": "2026-10-09 06:18",
+  "iou": "exact (official)",
+  "A_mAP": 0.5718279524563062,
+  "B_mAP": 0.5203594510167454,
+  "lateA_mAP": null,
+  "lateA_frames": 0,
+  "B_over_A": 0.9099930298641817,
+  "B_bev_3d_gap": 0.1455328638592459,
+  "B_3d07_mAP": 0.05770078027198533,
+  "A_bev_3d_gap": 0.10294164621507473,
+  "per_class": {
+    "vehicle": {
+      "A": 0.626669195361395,
+      "B": 0.661763714953597,
+      "lateA": null,
+      "B_bev": 0.8203363325195128,
+      "B_3d07": 0.15397810751615087,
+      "n_gt_A": 5570,
+      "n_gt_B": 2407
+    },
+    "pedestrian": {
+      "A": 0.266327224959661,
+      "B": 0.22595854354150954,
+      "lateA": null,
+      "B_bev": 0.3841917058299503,
+      "B_3d07": 0.00771399578702618,
+      "n_gt_A": 11138,
+      "n_gt_B": 3584
+    },
+    "truck": {
+      "A": 0.8224874370478628,
+      "B": 0.6733560945551298,
+      "lateA": null,
+      "B_bev": 0.793148906278511,
+      "B_3d07": 0.011410237512778955,
+      "n_gt_A": 1140,
+      "n_gt_B": 500
+    }
+  },
+  "realism": {
+    "per_proxy": {
+      "pcdet/realism-proxy-4": 0.9187937986272717,
+      "pcdet/realism-proxy-5": 0.9192629534472425
+    },
+    "R": 0.9190283760372571,
+    "source": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/routed-g1/submissions/2026-10-02_first/submission.zip (exact EMD)"
+  },
+  "estimate_B": 0.8136337370006846,
+  "estimate_A": 0.857749595377451,
+  "server_check": {
+    "valid": true,
+    "error": null,
+    "stand_in_gt_boxes": 1134,
+    "score_realism": 0.918794,
+    "CD": 2.181376,
+    "MMD": 0.003838,
+    "EMD": 1.440777,
+    "FPD": 1.125782,
+    "wall_s": 90.2,
+    "peak_rss_mb": 5893,
+    "budget_s": 1200,
+    "returncode": 0,
+    "stderr_tail": "",
+    "time": "2026-10-09 06:16",
+    "n_boxes": 18728
+  },
+  "leaderboard": {
+    "id": 965633,
+    "combined": 0.766483,
+    "mAP": 0.464774,
+    "R": 0.920264,
+    "per_class": {
+      "vehicle": 0.58491,
+      "pedestrian": 0.235041,
+      "truck": 0.57437
+    },
+    "LB_over_B": 0.8931787422941289
+  }
+}

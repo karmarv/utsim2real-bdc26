@@ -45,3 +45,6 @@ guard:
   # Challenge IDs are "<scenario index>_<frame>"; the index -> V2X-Real folder mapping is resolved from the
   # starting kit by resolve_test_ids.py and stored in $BDC_DATA/v2x-track/kit/id_mapping.json.
   buffer_frames: 20
+
+# bands for the error breakdowns of common/bdc26/diagnostics.py (eval_predictions.py --breakdown)
+diagnostics: {range_bins: [0, 10, 20, 30], point_bins: [1, 10, 30, 100]}

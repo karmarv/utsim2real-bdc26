@@ -1,5 +1,6 @@
 # Model card (machine-readable). Documentation: ./README.md and model-v2x-track/README.md.
 name: pointpillars-g1
+strategy: S1                 # docs/02-STRATEGY.md Section 8; the registry and scorecard read it
 track: v2x-track
 module: M8 (G1 first version)
 derived_from: pointpillars-ut

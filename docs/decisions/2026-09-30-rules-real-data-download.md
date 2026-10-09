@@ -8,7 +8,7 @@
 
 **How it is used** (every access logged in `<track>/real/access_log.csv`):
 - LUMPI realval-A (1,280 Measurement4 frames) and realval-B (867 Measurement5-6 frames) for validation and post-processing selection only; never for training.
-- LUMPI sensor metadata (poses, beam tables) and legal Person label statistics for the G1 generator; legal unlabeled frames for the density prior (`2026-09-30-g1-generator.md`).
+- LUMPI sensor metadata (poses, beam tables) and legal Person label statistics for the G1 generator; legal unlabeled frames for the density prior (`2026-09-30-s1-g1-generator.md`).
 - V2X (after the kit was ingested on 2026-10-02 and `resolve_test_ids.py` resolved the guard): labels of guard-allowed frames only (4,853 of 7,742 agent -1 frames); realval-v1 A/B (688 / 298 frames) and 5 realism proxies; legal walker rows for the G1 placement prior (`gen/walker_prior_v1.npz`); 23 unlabeled frames for the OS1-64 beam table (`gen/os1_64_calib_v1.npz`).
 
 **Decision.** Keep the download; record it here and in the challenge report. The licence question for a corporate researcher (Hitachi legal, `07-LITERATURE.md` Section 4) remains open and is the entrant's to close; if the answer is negative, delete `$BDC_DATA/*/real/` and every dataset derived from it (realval-*, realism-proxy-*, gen/person_prior_m4.npz, gen/density_prior_*.npz, gen/walker_prior_v1.npz, gen/os1_64_calib_v1.npz, and the G1 corpora built from them) and retrain without them.

@@ -4,7 +4,7 @@ Entry for the **UCF UrbanTwin Sim2Real LiDAR Challenge** at the IEEE BigData Cup
 
 **Contents.** Develop: [1 Objective](#1-objective) · [2 How the system works](#2-how-the-system-works) · [3 Repository layout](#3-repository-layout) · [4 Prerequisites](#4-prerequisites) · [5 Setup](#5-setup) · [6 Developer workflow](#6-developer-workflow-end-to-end) · [7 Tracks](#7-tracks). Strategy and results: [8 Strategy and next steps](#8-strategy-and-next-steps) · [9 CodaBench submissions](#9-codabench-submissions). Reference: [10 Documentation index](#10-documentation-index). Citations [Rn] open their entry in [`docs/07-LITERATURE.md`](docs/07-LITERATURE.md#6-named-references-r1-r42).
 
-**Status (2026-10-06):** the first CodaBench submissions (strategy S1, [Section 8](#8-strategy-and-next-steps)) rank **first on both development leaderboards**: Track 1 LUMPI combined **0.4728** (next 0.2769), Track 2 V2X-Real combined **0.7665** (next 0.6114). Leaderboard table: [Section 9](#9-codabench-submissions). Next: strategy S2 (CenterPoint specialists for small classes).
+**Status (2026-10-09):** Track 2 V2X-Real **0.7855, rank 1** (S1+C1, submission 972563; next 0.6616). Track 1 LUMPI **0.4728, rank 2** (S1, 965614) behind 0.4784 from an entry with lower detection (mAP 0.1185) but much higher realism (R 0.942). Next: strategy S2 (CenterPoint specialists for small classes), with LUMPI realism promoted. Submissions: [Section 9](#9-codabench-submissions); register, gates and calendar: [`docs/decisions/README.md`](docs/decisions/README.md).
 
 ---
 
@@ -37,7 +37,7 @@ combined = 0.6 * clip(mAP_3D@0.5 / 0.7)  +  0.4 * R          R = 1 - mean( clip(
 | Final | Nov 1 - Nov 15, 2026 00:00 UTC (Nov 14, 17:00 PDT) | **1 per day, 5 in total** (development submissions do not carry over) | hidden until close |
 | Report | 4-8 page challenge report due Nov 15, 2026 | | winners announced Nov 25; conference Dec 14-17, Phoenix |
 
-**Targets and status:** the ECCV 2026 edition used the same scorer and test data; its winners scored V2X 0.746 and LUMPI 0.479. Targets: V2X 0.80, LUMPI 0.53. Strategy S1 scored V2X 0.7665 (above the ECCV winner) and LUMPI 0.4728 (0.007 below it, from realism). Leaderboard: [Section 9](#9-codabench-submissions); local results: the track model READMEs Section 7. Facts and rules: [`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md); strategy and where the points are: [`docs/02-STRATEGY.md`](docs/02-STRATEGY.md).
+**Targets and status:** the ECCV 2026 edition used the same scorer and test data; its winners scored V2X 0.746 and LUMPI 0.479. Targets: V2X 0.80, LUMPI 0.53. S1+C1 scores V2X 0.7855 (above the ECCV winner) and S1 scores LUMPI 0.4728 (0.007 below it, from realism). Leaderboard: [Section 9](#9-codabench-submissions); local results: the track model READMEs Section 7. Facts and rules: [`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md); strategy and where the points are: [`docs/02-STRATEGY.md`](docs/02-STRATEGY.md).
 
 ## 2. How the system works
 
@@ -126,7 +126,7 @@ utsim2real-bdc26/
 └── docs/                        plan of record (01-07), decisions/, reference/papers/
 ```
 
-Large data lives outside git under `$BDC_DATA` (default `<repo>/../bdc26-data`); checkpoints, predictions and zips are in git-ignored `output/` and `submissions/*/submission.zip` (uploaded zips are attached to the GitHub release of the matching tag, Section 9).
+Large data lives outside git under `$BDC_DATA` (default `<repo>/../bdc26-data`); checkpoints, predictions and working zips are in git-ignored `output/` and `submissions/*/submission.zip`; the zip of every leaderboard entry is also committed next to its manifest as `submission_<track>.zip` and listed in [`RELEASES.md`](RELEASES.md).
 
 ```
 $BDC_DATA/
@@ -268,46 +268,49 @@ This stores the CodaBench id and the leaderboard numbers in the submission's `ma
 
 ## 8. Strategy and next steps
 
-A strategy is the complete recipe behind one submission per track: synthetic data, detectors, post-processing, routing or fusion, and the 50 realism frames. **S1 is the current stage** (code at tag [0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1), submitted). S2-S6 are the researched next routes, ordered by increasing effort and risk; the order is the execution order, and each strategy keeps whatever passed in the previous one. Details per route (idea, members, pros, cons, steps, gates, calendar): [`docs/02-STRATEGY.md` Section 8](docs/02-STRATEGY.md#8-strategy-routes-after-s1); the research behind them: [`docs/07-LITERATURE.md` Section 7](docs/07-LITERATURE.md#7-detector-research-for-the-next-strategies-2026-10-06).
+A strategy is the complete recipe behind one submission per track: synthetic data, detectors, post-processing, routing or fusion, and the 50 realism frames. **S1 is the current stage**: S1 on LUMPI and its close-out variant S1+C1 (a range-dependent z calibration) on V2X, both submitted. Every submission, its gate result and the calendar are in [`docs/decisions/README.md`](docs/decisions/README.md). S2-S6 are the researched next routes, ordered by increasing effort and risk; the order is the execution order, and each strategy keeps whatever passed in the previous one. Details per route (idea, members, pros, cons, steps, gates, calendar): [`docs/02-STRATEGY.md` Section 8](docs/02-STRATEGY.md#8-strategy-routes-after-s1); the research behind them: [`docs/07-LITERATURE.md` Section 7](docs/07-LITERATURE.md#7-detector-research-for-the-next-strategies-2026-10-06).
 
 | Code | Strategy | Stage | What it adds | Gap it targets | Effort / risk | Research |
 |---|---|---|---|---|---|---|
-| **S1** | [Calibrated Twin, Routed Pillars](docs/02-STRATEGY.md#81-s1-calibrated-twin-routed-pillars) | **current: submitted** (tag 0.1; 965614, 965633) | engine G1 data (walkers ray-cast with the real sensors, actor scale fix, density and FOV calibration), PointPillars x 2-4 runs, per-class post-processing and routing | missing classes, box conventions, realism | done | [R1](docs/07-LITERATURE.md#r1-urbantwin-papers) [R5](docs/07-LITERATURE.md#r5-pointpillars) [R7](docs/07-LITERATURE.md#r7-statistical-normalization) [R9](docs/07-LITERATURE.md#r9-lidar-aug) [R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports) |
+| **S1** | [Calibrated Twin, Routed Pillars](docs/02-STRATEGY.md#81-s1-calibrated-twin-routed-pillars) | **current**: LUMPI S1 (965614); V2X S1+C1 (972563, 0.7855; [8.1.3](docs/02-STRATEGY.md#813-close-out-results-2026-10-09)) | engine G1 data (walkers ray-cast with the real sensors, actor scale fix, density and FOV calibration), PointPillars x 2-4 runs, per-class post-processing and routing | missing classes, box conventions, realism | done | [R1](docs/07-LITERATURE.md#r1-urbantwin-papers) [R5](docs/07-LITERATURE.md#r5-pointpillars) [R7](docs/07-LITERATURE.md#r7-statistical-normalization) [R9](docs/07-LITERATURE.md#r9-lidar-aug) [R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports) |
 | **S2** | [Center-Routed Small Objects](docs/02-STRATEGY.md#82-s2-center-routed-small-objects) | **next** | CenterPoint specialists for small classes next to the S1 pillars; routes chosen on realval-A and B jointly | LUMPI Person, Bicycle, Motorcycle; V2X pedestrian | low-medium / low | [R22](docs/07-LITERATURE.md#r22-centerpoint) [R24](docs/07-LITERATURE.md#r24-inscope) [R41](docs/07-LITERATURE.md#r41-pillarnet) |
 | S3 | [Fused Portfolio with TTA](docs/02-STRATEGY.md#83-s3-fused-portfolio-with-tta) | planned | per-class box fusion of the members; flip, yaw and height TTA | run-to-run variance; V2X height | low-medium / low | [R23](docs/07-LITERATURE.md#r23-weighted-boxes-fusion) [R37](docs/07-LITERATURE.md#r37-ms3d-kde-box-fusion) [R38](docs/07-LITERATURE.md#r38-horizonlidar3d) [R39](docs/07-LITERATURE.md#r39-robosense-2025-report) |
 | S4 | [Two-Stage Refinement](docs/02-STRATEGY.md#84-s4-two-stage-refinement) | planned | a PV-RCNN++ or Voxel R-CNN member | V2X height (BEV 0.570 vs 3D 0.465); IoU 0.7; LUMPI Truck | medium / medium | [R29](docs/07-LITERATURE.md#r29-pv-rcnn) [R30](docs/07-LITERATURE.md#r30-voxel-r-cnn) [R25](docs/07-LITERATURE.md#r25-robo3d) |
 | S5 | [Geometry-Invariant Inputs](docs/02-STRATEGY.md#85-s5-geometry-invariant-inputs) | planned | GBlobs local-geometry features, beam and object-scale augmentation | the realval-to-test transfer gap | medium / medium | [R27](docs/07-LITERATURE.md#r27-gblobs) [R28](docs/07-LITERATURE.md#r28-gblobs-for-sensor-placement) [R26](docs/07-LITERATURE.md#r26-lidar-domain-generalization-study) [R36](docs/07-LITERATURE.md#r36-dts-random-beam-re-sampling) |
 | S6 | [Sparse Transformer Experts](docs/02-STRATEGY.md#86-s6-sparse-transformer-experts) | only if time remains | DSVT (or LION, SAFDNet) members | capacity, long range | high / high | [R31](docs/07-LITERATURE.md#r31-dsvt) [R32](docs/07-LITERATURE.md#r32-lion) [R33](docs/07-LITERATURE.md#r33-hednet-and-safdnet) [R20](docs/07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
 
-**Why this order.** The S1 leaderboard showed that transfer and small-object localization, not detector capacity, limit the score: S1's PointPillars beat the ECCV runner-up's DSVT ensembles on both tracks [R20](docs/07-LITERATURE.md#r20-eccv-2026-runner-up-reports), while LUMPI Person, Bicycle and Truck lost most of their local AP and V2X lost 0.105 mAP to height (track model READMEs Section 9.4).
+**Why this order.** The S1 leaderboard showed that transfer and small-object localization, not detector capacity, limit the score: S1's PointPillars beat the ECCV runner-up's DSVT ensembles on both tracks [R20](docs/07-LITERATURE.md#r20-eccv-2026-runner-up-reports), while LUMPI Person, Bicycle and Truck lost most of their local AP and V2X lost 0.105 mAP to height (0.083 after the S1+C1 z calibration; track model READMEs Section 9.4).
 
-**Next step: S2, and what it needs** (target Tue Oct 13; full steps in [`docs/02-STRATEGY.md` 8.2](docs/02-STRATEGY.md#82-s2-center-routed-small-objects)):
-1. Create `centerpoint-g1v3` on both tracks from `pointpillars-g1v3` (`common/tools/new_model.py`), with a CenterPoint config (0.1 m voxels, the track's range, head groups per class family) built from OpenPCDet's mainline CenterPoint configs; no new dependencies.
+**Next step: S2, with LUMPI realism in parallel.** Every strategy has the same template in [`docs/02-STRATEGY.md` Section 8](docs/02-STRATEGY.md#8-strategy-routes-after-s1) (hypothesis, prerequisites, steps, evaluation, gate, deliverables, risks, time box); the gates, the progression tracker and the calendar are in [`docs/decisions/README.md`](docs/decisions/README.md) ([gates](docs/decisions/README.md#32-gates), [tracker](docs/decisions/README.md#4-progression-tracker), [calendar](docs/decisions/README.md#5-calendar-and-compute-plan)).
+0. **S1 close-out: done 2026-10-09** ([8.1.3](docs/02-STRATEGY.md#813-close-out-results-2026-10-09)): new tools (joint routing with the class gate, `scorecard.py` with paired bootstrap, the `strategy` registry column, evaluation subsets and error breakdowns, range-dependent z calibration). V2X S1+C1 passed the gate and the leaderboard confirmed it (972563: 0.7665 -> 0.7855; pedestrian 0.235 -> 0.281); LUMPI had no candidate. Inputs for S2: late-A in the LUMPI gate, V2X far pedestrians and LUMPI dense Persons as targets, and long trucks missing from the LUMPI generator.
+1. Create `centerpoint-g1v3` on both tracks from `pointpillars-g1v3` (`common/tools/new_model.py`), with a CenterPoint config (0.1 x 0.1 x 0.25 m voxels, the track's range, head groups per class family) built from OpenPCDet's mainline CenterPoint configs; no new dependencies.
 2. Smoke run (2 epochs, 1 GPU), then 40 epochs on 4 GPUs per track (LUMPI on GPUs 0-3, V2X on 4-7 in parallel).
-3. `tune_and_eval.sh` on realval-A and realval-B with the existing per-class tuner.
-4. Add a joint selection rule to `route_predictions.py select` (mean of realval-A and realval-B AP, with the common gate) and build `routed-g2` from the S1 members plus the CenterPoint members.
-5. Gate: keep a class's new route only if its realval-B AP rises by 0.01 or more and realval-A does not drop; upload only if the realval-B combined estimate beats S1's (LUMPI 0.505, V2X 0.814).
-6. Package, `check_submission.py --official`, one upload per track, record it, and add its row to Section 9.
+3. `tune_and_eval.sh` on realval-A and realval-B with the existing per-class tuner; scorecard against `pointpillars-g1v3`.
+4. Build `routed-g2` from the S1 members plus the CenterPoint members with the joint routing rule, then re-select the z calibration (`route_predictions.py calibrate`).
+5. Gate: keep a class's new route only if its realval-B AP rises by 0.01 or more (paired bootstrap P >= 0.9) and realval-A does not drop; upload only if the realval-B combined estimate beats the best previous one (LUMPI 0.505; V2X 0.828, the S1+C1 estimate).
+6. Package, `check_submission.py --official`, one upload per track (target Tue Oct 13), record it: a dated `s2-...` decision record, the register and tracker rows, and a row in Section 9. Full steps: [8.2](docs/02-STRATEGY.md#82-s2-center-routed-small-objects).
 
-In parallel (CPU-bound, joins the current strategy when it passes): LUMPI realism with engine G2 static clutter, the cheapest LUMPI gain (+0.022 R is +0.009 combined). Still open for the organizers ([`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md) Section 10): the density prior, the research-phase exposure, label statistics for the generator, and self-training on unlabeled real frames [R40](docs/07-LITERATURE.md#r40-st3d). Final phase (Nov 1-14, 1 per day, 5 in total): only frozen strategies after Gate E (Oct 25).
+In parallel, **promoted** (CPU-bound, joins the next LUMPI upload when it passes): LUMPI realism ([`docs/02-STRATEGY.md` Section 8.7](docs/02-STRATEGY.md#87-parallel-and-gated-work)). The LUMPI leader's realism (R 0.942: CD 0.877, EMD 1.108, FPD 0.498) shows how far the realism term can go; at our mAP, about +0.015 leaderboard R regains rank 1. Order: R1 diagnosis and R2 frame selection on the full realism score (Oct 10-12), then R3 engine G2-lite with static clutter and 12-20 m trucks (Oct 13-19). Still open for the organizers ([`docs/01-CHALLENGE-FACTS.md`](docs/01-CHALLENGE-FACTS.md) Section 10): the density prior, the research-phase exposure, label statistics for the generator, and self-training on unlabeled real frames [R40](docs/07-LITERATURE.md#r40-st3d). Final phase (Nov 1-14, 1 per day, 5 in total): only frozen strategies after Gate E (Oct 25).
 
 ## 9. CodaBench submissions
 
 Development phase leaderboards: [Track 1 (16684)](https://www.codabench.org/competitions/16684/#/results-tab), [Track 2 (16685)](https://www.codabench.org/competitions/16685/#/results-tab). Scores are the server's own `scores.json` fields, kept with each submission as `codabench_<id>.json`. Per-class AP, realism detail and the local-vs-leaderboard analysis are in the track model READMEs Section 9.
 
-| Rank | Strategy | Track | Id (date, CDT) | Combined | Detection | 3D mAP@0.5 | 3D mAP@0.7 | BEV mAP@0.5 | Realism | CD | MMD | EMD | FPD |
+| Rank (at submission / 2026-10-09) | Version | Track | Id (date, CDT) | Combined | Detection | 3D mAP@0.5 | 3D mAP@0.7 | BEV mAP@0.5 | Realism | CD | MMD | EMD | FPD |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **1** of 31 | S1 | 1 LUMPI | 965614 (2026-10-06 16:37) | **0.4728** | 0.1938 | 0.1357 | 0.0500 | 0.1533 | 0.8912 | 1.6899 | 0.001874 | 1.6472 | 5.0946 |
-| **1** of 34 | S1 | 2 V2X-Real | 965633 (2026-10-06 17:07) | **0.7665** | 0.6640 | 0.4648 | 0.0556 | 0.5696 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
+| **1 / 1** of 19 (current entry) | S1+C1 | 2 V2X-Real | 972563 (2026-10-09 10:17) | **0.7855** | 0.6956 | 0.4869 | 0.0555 | 0.5696 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
+| 1 / superseded | S1 | 2 V2X-Real | 965633 (2026-10-06 17:07) | 0.7665 | 0.6640 | 0.4648 | 0.0556 | 0.5696 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
+| 1 / **2** of 18 (current entry) | S1 | 1 LUMPI | 965614 (2026-10-06 16:37) | **0.4728** | 0.1938 | 0.1357 | 0.0500 | 0.1533 | 0.8912 | 1.6899 | 0.001874 | 1.6472 | 5.0946 |
 
-Runner-up at the time: LUMPI tesla2026 0.2769, V2X linyongchun 0.6114. ECCV 2026 winners on the same test data ([R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)): LUMPI 0.4793, V2X 0.7457.
+Others on 2026-10-09: LUMPI leader Raj Patil 0.4784 (mAP 0.1185, R 0.942), V2X runner-up linyongchun 0.6616. ECCV 2026 winners on the same test data ([R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)): LUMPI 0.4793, V2X 0.7457. Every upload with its gate result and decision record: [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register); release log with the files of the current entries: [`RELEASES.md`](RELEASES.md).
 
-| Id | Model | Submitted file (release 0.1) | Server record | Details |
+| Id | Model | Submitted file | Server record | Details |
 |---|---|---|---|---|
-| 965614 | [`model-lumpi-track/routed-g1`](model-lumpi-track/routed-g1) ([at 0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1/model-lumpi-track/routed-g1)) | [`submission_lumpi_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_lumpi_karmarv.zip) | [`codabench_965614.json`](model-lumpi-track/routed-g1/submissions/2026-10-02_first/codabench_965614.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md#9-submission-log) Section 9 |
-| 965633 | [`model-v2x-track/routed-g1`](model-v2x-track/routed-g1) ([at 0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1/model-v2x-track/routed-g1)) | [`submission_v2x_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_v2x_karmarv.zip) | [`codabench_965633.json`](model-v2x-track/routed-g1/submissions/2026-10-02_first/codabench_965633.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9 |
+| 972563 | [`model-v2x-track/routed-g1z`](model-v2x-track/routed-g1z) | [`submission_v2x.zip`](model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (tag 1.0) | [`codabench_972563.json`](model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-09-s1-closeout-z-calibration.md) |
+| 965633 | [`model-v2x-track/routed-g1`](model-v2x-track/routed-g1) ([at 0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1/model-v2x-track/routed-g1)) | [`submission_v2x_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_v2x_karmarv.zip) (release 0.1) | [`codabench_965633.json`](model-v2x-track/routed-g1/submissions/2026-10-02_first/codabench_965633.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-06-s1-first-submission.md) |
+| 965614 | [`model-lumpi-track/routed-g1`](model-lumpi-track/routed-g1) ([at 0.1](https://github.com/karmarv/utsim2real-bdc26/tree/0.1/model-lumpi-track/routed-g1)) | [`submission_lumpi.zip`](model-lumpi-track/routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0; uploaded as [`submission_lumpi_karmarv.zip`](https://github.com/karmarv/utsim2real-bdc26/releases/download/0.1/submission_lumpi_karmarv.zip), release 0.1) | [`codabench_965614.json`](model-lumpi-track/routed-g1/submissions/2026-10-02_first/codabench_965614.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-06-s1-first-submission.md) |
 
-Not scored: 957399 and 957439, hand-edited copies of the same zips ([decision record](docs/decisions/2026-10-06-codabench-submission-failures.md)).
+Not scored: 957399 and 957439, hand-edited copies of the same zips ([decision record](docs/decisions/2026-10-06-s1-first-submission.md)).
 
 ## 10. Documentation index
 
@@ -321,11 +324,12 @@ Not scored: 957399 and 957439, hand-edited copies of the same zips ([decision re
 | [`docs/05-SCHEDULE-AND-RUNBOOK.md`](docs/05-SCHEDULE-AND-RUNBOOK.md) | calendar to the final phase, daily loop, compute and submission budget |
 | [`docs/06-LEARNING-PATH.md`](docs/06-LEARNING-PATH.md) | beginner-to-state-of-the-art curriculum tied to the modules |
 | [`docs/07-LITERATURE.md`](docs/07-LITERATURE.md) | reading list by module, citation audit, licence register; **Section 6: named references R1-R42; Section 7: detector research for S2-S6** |
-| [`docs/decisions/`](docs/decisions) | dated decision records |
+| [`docs/decisions/README.md`](docs/decisions/README.md) | **submission register, evaluation protocol and gates, progression tracker, calendar**, and the index of dated decision records (one per decision-ready version, named for its strategy) |
 | [`docs/reference/papers/`](docs/reference/papers) | the organizers' UrbanTwin and LiGuard papers |
 | [`data-lumpi-track/README.md`](data-lumpi-track/README.md), [`data-v2x-track/README.md`](data-v2x-track/README.md) | per-track data guides |
 | [`model-lumpi-track/README.md`](model-lumpi-track/README.md), [`model-v2x-track/README.md`](model-v2x-track/README.md) | per-track model guides: approaches, lifecycle, results (7), submission log and CodaBench detail (9), local evaluation and packaging (10), integrity (11), contributing (12) |
-| `model-<track>/<model>/submissions/<date>_<tag>/` | `manifest.json`, `synthetic_ids.txt` and the server's `codabench_<id>.json` for every submission |
+| `model-<track>/<model>/submissions/<date>_<tag>/` | `manifest.json`, `synthetic_ids.txt` and the server's `codabench_<id>.json` for every submission; `submission_<track>.zip` for the leaderboard entries |
+| [`RELEASES.md`](RELEASES.md) | release log: per tag, the leaderboard entries, their files and checksums |
 
 ## Licence
 

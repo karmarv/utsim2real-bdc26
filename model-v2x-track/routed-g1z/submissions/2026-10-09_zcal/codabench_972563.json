@@ -1,0 +1,58 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S1 + C1 (close-out z calibration)",
+  "codabench_competition": 16685,
+  "codabench_submission_id": 972563,
+  "uploaded_file": "the packaged submission.zip of this folder, unchanged (md5 in manifest.json)",
+  "submitted": "2026-10-09 15:17 UTC (10:17 CDT)",
+  "scoring_wall_time": "about 4 minutes (entrant's observation)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 19,
+  "runner_up_at_check": {
+    "owner": "linyongchun",
+    "id": 972310,
+    "combined": 0.6616
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0019154888113823469
+  },
+  "scores": {
+    "score_combined": 0.785477,
+    "score_detection": 0.69562,
+    "score_realism": 0.920264,
+    "mAP_3d_0.5_R40": 0.486934,
+    "mAP_3d_0.5_R11": 0.495498,
+    "mAP_3d_0.7_R40": 0.055473,
+    "mAP_bev_0.5_R40": 0.569633,
+    "CD": 2.214826,
+    "MMD": 0.003286,
+    "EMD": 1.414323,
+    "FPD": 1.0918,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.605221,
+    "AP_3d_0.5_R40_pedestrian": 0.28121,
+    "AP_3d_0.5_R40_truck": 0.57437
+  },
+  "scoring_log": [
+    "[scoring] installing dependencies...",
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 2.214825776412225, 'MMD': 0.0032860012374742453, 'EMD': 1.414322551675401, 'FPD': 1.091800260323737, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.0019154888113823469}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.48693373170591964"
+  ],
+  "vs_previous": {
+    "id": 965633,
+    "combined": 0.766483,
+    "mAP_3d_0.5_R40": 0.464774,
+    "AP_vehicle": 0.58491,
+    "AP_pedestrian": 0.235041,
+    "AP_truck": 0.57437,
+    "mAP_bev_0.5_R40": 0.569633,
+    "realism_identical": true
+  }
+}
