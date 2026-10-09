@@ -1,0 +1,98 @@
+# S2 variant (docs/02-STRATEGY.md Section 8.2, step 5): stride-4 heads (0.4 m cells) for small objects; otherwise as centerpoint-g1v3.
+# CenterPoint on the S1 corpus pcdet/g1-v3, xyz only, synthetic data only.
+# Sparse 3D voxel backbone (0.1 x 0.1 x 0.25 m, [-8, 2] m in z: 40 voxels, so z has 0.25 m resolution instead of the
+# single 10 m pillar of S1) and anchor-free center heat-map heads, one group per class family.
+# pedestrian (953 test GT, S1+C1 test AP 0.281, BEV-3D gap 0.16 on realval) is the S2 target; one head per class.
+# Built from OpenPCDet's mainline cfgs/waymo_models/centerpoint.yaml (233f849); raw outputs stay near-raw
+# (score 0.01, NMS 0.9 inside each head): per-class NMS and box calibration are done by bdc26.detect.postprocess.
+CLASS_NAMES: ['vehicle', 'pedestrian', 'truck']
+
+DATA_CONFIG:
+    _BASE_CONFIG_: pcdet_dataset.yaml
+
+MODEL:
+    NAME: CenterPoint
+
+    VFE:
+        NAME: MeanVFE
+
+    BACKBONE_3D:
+        NAME: VoxelResBackBone8x
+
+    MAP_TO_BEV:
+        NAME: HeightCompression
+        NUM_BEV_FEATURES: 256              # 40 z voxels -> 2 x 128 channels after the 8x backbone
+
+    BACKBONE_2D:
+        NAME: BaseBEVBackbone
+        LAYER_NUMS: [5, 5]
+        LAYER_STRIDES: [1, 2]
+        NUM_FILTERS: [128, 256]
+        UPSAMPLE_STRIDES: [2, 4]
+        NUM_UPSAMPLE_FILTERS: [128, 128]   # output stride 4: 0.4 m BEV cells (S2 variant for small objects)
+
+    DENSE_HEAD:
+        NAME: CenterHead
+        CLASS_AGNOSTIC: False
+
+        CLASS_NAMES_EACH_HEAD: [
+            ['pedestrian'],
+            ['vehicle'],
+            ['truck']
+        ]
+
+        SHARED_CONV_CHANNEL: 64
+        USE_BIAS_BEFORE_NORM: True
+        NUM_HM_CONV: 2
+        SEPARATE_HEAD_CFG:
+            HEAD_ORDER: ['center', 'center_z', 'dim', 'rot']
+            HEAD_DICT: {
+                'center': {'out_channels': 2, 'num_conv': 2},
+                'center_z': {'out_channels': 1, 'num_conv': 2},
+                'dim': {'out_channels': 3, 'num_conv': 2},
+                'rot': {'out_channels': 2, 'num_conv': 2},
+            }
+
+        TARGET_ASSIGNER_CONFIG:
+            FEATURE_MAP_STRIDE: 4
+            NUM_MAX_OBJS: 500
+            GAUSSIAN_OVERLAP: 0.1
+            MIN_RADIUS: 2
+
+        LOSS_CONFIG:
+            LOSS_WEIGHTS: {
+                'cls_weight': 1.0,
+                'loc_weight': 2.0,
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+            }
+
+        POST_PROCESSING:
+            SCORE_THRESH: 0.01
+            POST_CENTER_LIMIT_RANGE: [-40.0, -40.0, -8.0, 40.0, 40.0, 2.0]
+            MAX_OBJ_PER_SAMPLE: 500
+            NMS_CONFIG:
+                NMS_TYPE: nms_gpu
+                NMS_THRESH: 0.9                # near-duplicates only; per-class NMS is selected on real validation
+                NMS_PRE_MAXSIZE: 4096
+                NMS_POST_MAXSIZE: 500
+
+    POST_PROCESSING:
+        RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
+        EVAL_METRIC: kitti
+
+OPTIMIZATION:
+    BATCH_SIZE_PER_GPU: 4
+    NUM_EPOCHS: 40
+    OPTIMIZER: adam_onecycle
+    LR: 0.003
+    WEIGHT_DECAY: 0.01
+    MOMENTUM: 0.9
+    MOMS: [0.95, 0.85]
+    PCT_START: 0.4
+    DIV_FACTOR: 10
+    DECAY_STEP_LIST: [35, 45]
+    LR_DECAY: 0.1
+    LR_CLIP: 0.0000001
+    LR_WARMUP: False
+    WARMUP_EPOCH: 1
+    GRAD_NORM_CLIP: 10

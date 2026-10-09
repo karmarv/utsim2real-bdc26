@@ -121,3 +121,61 @@ def test_registry_migration_adds_strategy(tmp_path):
     rows = list(csv.DictReader(open(p)))
     assert list(rows[0]) == registry.FIELDS and rows[0]["strategy"] == "S1" and rows[0]["notes"] == "n, with comma"
     assert not registry.migrate(p, lambda r: "S1")                        # already current
+
+
+def test_merge_route_keeps_each_class_from_its_member():
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import route_predictions as rp
+    a = {"f1": [{"box": [0] * 7, "score": 0.9, "class": "pedestrian"}, {"box": [1] * 7, "score": 0.8, "class": "vehicle"}]}
+    b = {"f1": [{"box": [2] * 7, "score": 0.7, "class": "pedestrian"}], "f2": [{"box": [3] * 7, "score": 0.6, "class": "truck"}]}
+    out = rp.merge_route({"pedestrian": "b", "vehicle": "a", "truck": "b"}, {"a": a, "b": b})
+    assert [d["box"][0] for d in out["f1"]] == [1, 2] and [d["class"] for d in out["f2"]] == ["truck"]
+
+
+def test_upload_copy_is_track_prefixed_and_identical(tmp_path):
+    import hashlib
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import package_submission as ps
+    z = tmp_path / "submission.zip"
+    z.write_bytes(b"PK\x05\x06" + b"\x00" * 18)
+    (tmp_path / "manifest.json").write_text("{}")
+    up = ps.upload_copy(z, V2X, {"strategy": "S1+C1"})
+    assert up.name == "v2x_s1-c1_submission.zip" and up.read_bytes() == z.read_bytes()
+    man = json.loads((tmp_path / "manifest.json").read_text())
+    assert man["upload_file"] == {"name": up.name, "md5": hashlib.md5(z.read_bytes()).hexdigest()}
+    assert ps.upload_copy(z, load_track("lumpi"), {"strategy": "S2"}).name == "lumpi_s2_submission.zip"
+
+
+def test_centerhead_targets_keep_class_labels():
+    """OpenPCDet CenterHead.assign_targets relabels boxes in place across head groups; bdc26 patches it."""
+    torch = pytest.importorskip("torch")
+    pytest.importorskip("pcdet")
+    from easydict import EasyDict
+    from bdc26.detect.pcdet_dataset import register
+    from pcdet.models.dense_heads.center_head import CenterHead
+    register()
+    cfg = EasyDict({"CLASS_AGNOSTIC": False, "CLASS_NAMES_EACH_HEAD": [["pedestrian"], ["vehicle"], ["truck"]],
+                    "SHARED_CONV_CHANNEL": 8, "USE_BIAS_BEFORE_NORM": True, "NUM_HM_CONV": 2,
+                    "SEPARATE_HEAD_CFG": {"HEAD_ORDER": ["center", "center_z", "dim", "rot"],
+                                          "HEAD_DICT": {"center": {"out_channels": 2, "num_conv": 2}, "center_z": {"out_channels": 1, "num_conv": 2},
+                                                        "dim": {"out_channels": 3, "num_conv": 2}, "rot": {"out_channels": 2, "num_conv": 2}}},
+                    "TARGET_ASSIGNER_CONFIG": {"FEATURE_MAP_STRIDE": 8, "NUM_MAX_OBJS": 50, "GAUSSIAN_OVERLAP": 0.1, "MIN_RADIUS": 2},
+                    "LOSS_CONFIG": {"LOSS_WEIGHTS": {"cls_weight": 1.0, "loc_weight": 2.0, "code_weights": [1.0] * 8}},
+                    "POST_PROCESSING": {"SCORE_THRESH": 0.1, "POST_CENTER_LIMIT_RANGE": [-40, -40, -8, 40, 40, 2], "MAX_OBJ_PER_SAMPLE": 50,
+                                        "NMS_CONFIG": {"NMS_TYPE": "nms_gpu", "NMS_THRESH": 0.9, "NMS_PRE_MAXSIZE": 100, "NMS_POST_MAXSIZE": 50}}})
+    head = CenterHead(cfg, input_channels=16, num_class=3, class_names=["vehicle", "pedestrian", "truck"],
+                      grid_size=np.array([800, 800, 40]), point_cloud_range=np.array([-40, -40, -8, 40, 40, 2.0]),
+                      voxel_size=[0.1, 0.1, 0.25], predict_boxes_when_training=False)
+    gt = torch.tensor([[[10.0, 0, -1, 4.5, 1.9, 1.6, 0, 1], [-10.0, 0, -1, 0.7, 0.7, 1.7, 0, 2], [0, 20.0, -1, 8, 2.5, 3, 0, 3]]])
+    t = head.assign_targets(gt.clone(), feature_map_size=[100, 100])
+    ped, veh, trk = (t["heatmaps"][k][0, 0] for k in range(3))
+    assert float(veh[50, 37]) == 0.0 and float(veh[50, 62]) == 1.0      # no vehicle target at the pedestrian
+    assert float(ped[50, 37]) == 1.0 and float(ped[50, 62]) == 0.0
+    assert float(trk[75, 50]) == 1.0 and float(trk[50, 37]) == 0.0
+    gt2 = gt.clone()
+    head.assign_targets(gt2, feature_map_size=[100, 100])
+    assert torch.equal(gt2, gt)                                            # the caller's labels are untouched

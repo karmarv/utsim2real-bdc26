@@ -225,7 +225,7 @@ What this says:
 ## 10. Questions for the organizers (email Muhammad.Shahbaz@ucf.edu on day 1)
 
 1. Is self-training or pseudo-labeling on unlabeled, non-forbidden real train-split frames permitted as "domain adaptation"?
-2. May a generator be fitted to non-forbidden real scans (reconstructed static scene, learned ray-drop, diffusion model), and may a static-background occupancy map from train-split frames be used at inference?
+2. May a generator be fitted to non-forbidden real scans (reconstructed static scene, learned ray-drop, diffusion model), and may a static-background occupancy map from train-split frames be used at inference? (Measured value, 2026-10-09: 72-77% of the V2X and 50-69% of the LUMPI unmatched walker detections are static structures; suppressing them is worth up to +0.09 pedestrian AP on V2X realval-B.)
 3. May a small set of post-processing parameters (per-class size scale factors, NMS IoU) be selected on labeled non-forbidden real frames?
 4. Does `local_eval.py` drop GT boxes with zero LiDAR points or outside the range, and are range bounds inclusive?
 5. What is the exact report submission channel and format (Nov 15 report vs Nov 20 camera-ready)?

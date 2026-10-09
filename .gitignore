@@ -226,6 +226,8 @@ model-*/*/train/output/
 model-*/*/validation/output/
 model-*/*/test/output/
 model-*/*/submissions/*/submission.zip
+# upload copies (<track>_<strategy>_submission.zip): add the copy of a leaderboard entry explicitly with git add -f (RELEASES.md)
+model-*/*/submissions/*/*_submission.zip
 *.pth
 *.ckpt
 *.npy

@@ -14,7 +14,7 @@
 | CodaBench (strategy S1) | **965614: combined 0.4728** (mAP 0.1357, R 0.8912), rank 1 on 2026-10-06 (Section 9; root README Section 9) |
 | Submitted zip | [`routed-g1/submissions/2026-10-02_first/submission_lumpi.zip`](routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0; uploaded as `submission_lumpi_karmarv.zip`, release 0.1) |
 | Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
-| Strategy | S1 submitted; next S2 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
+| Strategy | S1 submitted; S2 done, below the upload gate (Section 7.5); next S3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
 ## 1. Folder conventions
@@ -41,7 +41,10 @@ Create a model with `python common/tools/new_model.py lumpi <name> --from <exist
 | [`pointpillars-ut`](pointpillars-ut) | `pcdet/ut-v1` (UT only, actors x 1/0.78, Van -> Car) | baseline and ablation (what G1 adds) | run2 trained 40 epochs |
 | [`pointpillars-g1`](pointpillars-g1) | `pcdet/g1-v2` (walkers v1, Van as Van, calibrated density) | routed member | trained 40 epochs, tuned |
 | [`pointpillars-g1v3`](pointpillars-g1v3) | `pcdet/g1-v3` (walkers v2) | routed member | trained 40 epochs, tuned |
-| [`routed-g1`](routed-g1) | members above | **selected** | ready to submit |
+| [`routed-g1`](routed-g1) | members above | **selected** (S1) | submitted (965614) |
+| [`centerpoint-g1v3`](centerpoint-g1v3) | `pcdet/g1-v3` | S2 member: CenterPoint, stride 8 | trained 40 epochs (label fix), tuned; wins Bicycle (Section 7.5) |
+| [`centerpoint-s4-g1v3`](centerpoint-s4-g1v3) | `pcdet/g1-v3` | S2 variant: CenterPoint, stride 4 | trained 40 epochs, tuned; no class won |
+| [`routed-g2`](routed-g2) | `routed-g1` members + `cp` (+ `cp4`) | S2 candidate | Bicycle from `cp`; below the upload gate (+0.003); package `2026-10-09_s2/lumpi_s2_submission.zip` checked, not uploaded |
 
 ## 2. Modeling approaches considered
 
@@ -199,6 +202,22 @@ Official metric on legal real validation, S1 `routed-g1` predictions; files in [
 
 **Outcome:** no new LUMPI submission from the close-out; S1 stays the Track 1 entry.
 
+### 7.5 S2 results: CenterPoint members (2026-10-09)
+
+Official metric, tuned post-processing, realval-A / realval-B (late-A for the selected route). Summary, gates and lessons: [`docs/02-STRATEGY.md` Section 8.2.1](../docs/02-STRATEGY.md#821-results-2026-10-09); [decision record](../docs/decisions/2026-10-09-s2-center-routed.md).
+
+| Member | Person | Car | Bicycle | Motorcycle | Truck | Van | mAP |
+|---|---|---|---|---|---|---|---|
+| S1 route (`g1`, `g1v3`) | **0.340 / 0.134** | **0.874 / 0.770** | 0.265 / 0.102 | 0.008 / 0.015 | **0.200 / 0.131** | 0.122 / 0.001 | 0.260 / 0.166 |
+| `centerpoint-g1v3` (stride 8) | 0.095 / 0.038 | 0.848 / 0.756 | **0.350 / 0.128** | 0.069 / 0.022 | 0.137 / 0.077 | 0.119 / 0.001 | 0.233 / 0.147 |
+| `centerpoint-s4-g1v3` (stride 4) | 0.168 / 0.047 | 0.844 / 0.749 | 0.318 / **0.134** | 0.057 / 0.023 | 0.118 / 0.109 | 0.087 / 0.001 | 0.230 / 0.153 |
+
+- **Gate:** Bicycle moves to `centerpoint-g1v3` (B 0.102 -> 0.128, P(gain) 1.00, A 0.265 -> 0.350); Motorcycle (B +0.007) and Bus fail; everything else keeps its S1 member. `routed-g2`: A 0.260 -> 0.272, late-A 0.255 -> 0.271, B 0.1664 -> 0.1700; combined estimate (B) 0.5047 -> 0.5078, **+0.0031, below the +0.005 upload gate**. Package `routed-g2/submissions/2026-10-09_s2/lumpi_s2_submission.zip` (same 50 frames as S1, only the Bicycle boxes differ; kit scorer valid in 156 s) is kept for an optional confirmation upload.
+
+- **Why the Person collapses:** CenterPoint emits about 39 Person boxes per frame scoring >= 0.5 against 17 real Persons; 69% of its unmatched ones sit in the same 1 m cells in at least 20% of the frames (static structures such as poles, signs and trees, which the twin does not contain), 2.7x more than the pillars. Removing those cells with the labels (an upper bound) would lift the S1 Person from 0.340 to 0.400 on A.
+- **What it does well:** Bicycle (raw 0.196 vs 0.058 for the pillars on a 320-frame sample) and Car before tuning (0.805 vs 0.753).
+- **Bug fixed on the way:** OpenPCDet's `CenterHead.assign_targets` trained the Car head on Motorcycles with these head groups; see `common/bdc26/detect/pcdet_patches.py`.
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -209,7 +228,7 @@ Official metric on legal real validation, S1 `routed-g1` predictions; files in [
 | E4 | Walker v2 | done: Person on realval-B 0.091 -> 0.134; equal on A |
 | E5 | Calibrated background density | done: realism 0.59 -> 0.88 (0.906 with frame selection) |
 | E6 | Per-class post-processing | done: 0.210 -> 0.253 for `g1` (Section 7.2) |
-| E7 | Architecture routing (CenterPoint for Person, Bicycle, Motorcycle) | **next: strategy S2** |
+| E7 | Architecture routing (CenterPoint for Person, Bicycle, Motorcycle) | done (S2): Bicycle moves to CenterPoint; Person collapses on static false positives (Section 7.5) |
 | E8 | Truck size modes, Bus convention | next (M7); close-out D5: the synthetic trucks stop at 8.47 m while 29% of real trucks are 12-20 m, so long trucks and trailers must enter the generator (Section 7.4) |
 | E9 | TTA and weighted box fusion | strategy S3 |
 | E10 | Static clutter and G2 for realism and hard negatives | in parallel with S2-S5 (`docs/02` Section 8.7, R track; promoted 2026-10-09): the cheapest LUMPI gain |
@@ -304,7 +323,7 @@ Local results of every model are in Section 7; the leaderboard calibration is in
 | the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | this track's frames | LUMPI frames have no (0,0,0) nulls: the packager writes 50,000 real-range points per frame |
 
-Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt`, the upload copy `lumpi_<strategy>_submission.zip` (byte-identical to `submission.zip`, written by the packager; upload this file unchanged) and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
 
 ### 10.5 Server cost and the pre-upload check
 
@@ -361,10 +380,11 @@ All decision records: [`docs/decisions/`](../docs/decisions). Open questions for
 | [`render/pedsim.py`](../common/bdc26/render/pedsim.py), [`render/g1.py`](../common/bdc26/render/g1.py), [`density.py`](../common/bdc26/density.py) | engine G1: walker model, sensors, ray casting, ray-consistent insertion, placement; background density prior |
 | [`detect/pcdet_dataset.py`](../common/bdc26/detect/pcdet_dataset.py), [`detect/postprocess.py`](../common/bdc26/detect/postprocess.py) | OpenPCDet dataset adapter; per-class post-processing |
 | [`evalap.py`](../common/bdc26/evalap.py), [`realism.py`](../common/bdc26/realism.py) | the official detection and realism metrics |
+| [`detect/pcdet_patches.py`](../common/bdc26/detect/pcdet_patches.py) | runtime fix of OpenPCDet's CenterHead label corruption (applied by `register()`) |
 | [`scorecard.py`](../common/bdc26/scorecard.py), [`diagnostics.py`](../common/bdc26/diagnostics.py), [`detect/zcalib.py`](../common/bdc26/detect/zcalib.py) | strategy scorecard and paired frame bootstrap; error breakdowns (box errors, AP by range, recall by points); range-dependent z calibration |
 | [`submit.py`](../common/bdc26/submit.py), [`registry.py`](../common/bdc26/registry.py) | packaging and validation; experiment log |
 
-Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `scorecard`, `new_model`, `write_model_readmes`; each has a docstring with usage.
+Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `scorecard`, `pcdet_smoke`, `new_model`, `write_model_readmes`; each has a docstring with usage. `route_predictions.py` modes: `select` (`--rule joint`, `--calibrated`), `validate`, `calibrate`, `merge`.
 
 ### 12.2 Conventions
 - Track facts live in `data-lumpi-track/track.yaml`, never as constants in code.

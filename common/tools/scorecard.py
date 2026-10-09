@@ -54,6 +54,8 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--realism", action="store_true", help="recompute the exact realism of the latest submission zip")
     ap.add_argument("--fast", action="store_true", help="float32 IoU (OpenPCDet op) instead of the exact polygons")
+    ap.add_argument("--realism-from", default=None,
+                    help="reuse the realism of another model's scorecard (only when both use the same synthetic_ids.txt)")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
     exact = False if a.fast else None
@@ -70,7 +72,14 @@ def main():
     sub = latest_submission(model_dir)
     man = json.loads((sub / "manifest.json").read_text()) if sub else {}
     realism = prev.get("realism")
-    if a.realism and sub and (sub / "submission.zip").exists():
+    if a.realism_from:
+        odir = model_info(a.realism_from)[0]
+        mine, theirs = (model_dir / "test" / "synthetic_ids.txt").read_text(), (odir / "test" / "synthetic_ids.txt").read_text()
+        if mine != theirs:
+            sys.exit(f"--realism-from {a.realism_from}: different synthetic_ids.txt, realism cannot be reused")
+        realism = dict(json.loads((odir / "validation" / "results" / "scorecard.json").read_text())["realism"])
+        realism["source"] = f"same 50 frames as {odir.name}: " + str(realism.get("source"))
+    elif a.realism and sub and (sub / "submission.zip").exists():
         realism = realism_exact(track, sub / "submission.zip")
     elif realism is None and man.get("local_scores", {}).get("realism_R_heldout"):
         r = {k: v for k, v in man["local_scores"]["realism_R_heldout"].items() if k.startswith("pcdet/")}

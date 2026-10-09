@@ -1,0 +1,133 @@
+{
+  "model": "routed-g2",
+  "track": "v2x-track",
+  "strategy": "S2",
+  "time": "2026-10-09 12:56",
+  "iou": "exact (official)",
+  "A_mAP": 0.5845371020478124,
+  "B_mAP": 0.536903093130462,
+  "lateA_mAP": null,
+  "lateA_frames": 0,
+  "B_over_A": 0.9185098623329916,
+  "B_bev_3d_gap": 0.1289892217455293,
+  "B_3d07_mAP": 0.0554407040299414,
+  "A_bev_3d_gap": 0.09023249662356858,
+  "per_class": {
+    "vehicle": {
+      "A": 0.6408602038186038,
+      "B": 0.6849966357288924,
+      "lateA": null,
+      "B_bev": 0.8203363325195128,
+      "B_3d07": 0.14495489319415744,
+      "n_gt_A": 5570,
+      "n_gt_B": 2407
+    },
+    "pedestrian": {
+      "A": 0.2902636652769706,
+      "B": 0.2523565491073637,
+      "lateA": null,
+      "B_bev": 0.3841917058299503,
+      "B_3d07": 0.009956981382887819,
+      "n_gt_A": 11138,
+      "n_gt_B": 3584
+    },
+    "truck": {
+      "A": 0.8224874370478628,
+      "B": 0.6733560945551298,
+      "lateA": null,
+      "B_bev": 0.793148906278511,
+      "B_3d07": 0.011410237512778955,
+      "n_gt_A": 1140,
+      "n_gt_B": 500
+    }
+  },
+  "realism": {
+    "per_proxy": {
+      "pcdet/realism-proxy-4": 0.9187937986272717,
+      "pcdet/realism-proxy-5": 0.9192629534472425
+    },
+    "R": 0.9190283760372571,
+    "source": "same 50 frames as routed-g1z: /home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/submission.zip (exact EMD)"
+  },
+  "estimate_B": 0.8278140016695845,
+  "estimate_A": 0.8686431521701707,
+  "server_check": null,
+  "leaderboard": null,
+  "vs": {
+    "model": "routed-g1z",
+    "bootstrap": 200,
+    "A": {
+      "vehicle": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "pedestrian": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "truck": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "mAP": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "B": {
+      "vehicle": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "pedestrian": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "truck": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "mAP": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "class_gate": {
+      "vehicle": false,
+      "pedestrian": false,
+      "truck": false
+    }
+  }
+}

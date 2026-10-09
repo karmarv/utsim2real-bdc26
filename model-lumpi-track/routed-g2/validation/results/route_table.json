@@ -1,0 +1,279 @@
+{
+  "Person": {
+    "members": {
+      "g1": {
+        "A": 0.3412487075429454,
+        "B": 0.09093626362955184,
+        "joint": 0.2160924855862486,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.33972286344560226,
+        "B": 0.1341325677844224,
+        "joint": 0.23692771561501233,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.09512547686365111,
+        "B": 0.03832218613835847,
+        "joint": 0.06672383150100479,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.16827012370765848,
+        "B": 0.046680733448788245,
+        "joint": 0.10747542857822337,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1v3",
+    "candidate": "g1v3",
+    "compared": "with gated calibration",
+    "decision": "the incumbent has the best joint AP"
+  },
+  "Car": {
+    "members": {
+      "g1": {
+        "A": 0.8738115482263116,
+        "B": 0.7702012625838887,
+        "joint": 0.8220064054051002,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.8728197587029985,
+        "B": 0.7681175239889615,
+        "joint": 0.8204686413459801,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.8475077777422049,
+        "B": 0.7560750395015482,
+        "joint": 0.8017914086218765,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.8437220727541964,
+        "B": 0.7489179207085931,
+        "joint": 0.7963199967313948,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1",
+    "candidate": "g1",
+    "compared": "with gated calibration",
+    "decision": "the incumbent has the best joint AP"
+  },
+  "Bicycle": {
+    "members": {
+      "g1": {
+        "A": 0.26511741557705604,
+        "B": 0.10243259287376058,
+        "joint": 0.18377500422540832,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.18582492204593043,
+        "B": 0.08125886337762742,
+        "joint": 0.1335418927117789,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.3504820890140032,
+        "B": 0.12773846817325837,
+        "joint": 0.23911027859363077,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.3176337660099949,
+        "B": 0.1337570944060472,
+        "joint": 0.22569543020802102,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1",
+    "candidate": "cp",
+    "compared": "with gated calibration",
+    "dB": 0.025305875299497793,
+    "p_gain": 1.0,
+    "ci90": [
+      0.0142365375629398,
+      0.03632916821482982
+    ],
+    "dA": 0.08536467343694715,
+    "decision": "switched (class gate passed)"
+  },
+  "Motorcycle": {
+    "members": {
+      "g1": {
+        "A": 0.009599950804259108,
+        "B": 0.013101356957313274,
+        "joint": 0.011350653880786191,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.008014745550644643,
+        "B": 0.014525425873763684,
+        "joint": 0.011270085712204163,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.06932456539085693,
+        "B": 0.021769207577201077,
+        "joint": 0.045546886484029006,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.056895491097073106,
+        "B": 0.02316716533629384,
+        "joint": 0.040031328216683475,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1v3",
+    "candidate": "cp",
+    "compared": "with gated calibration",
+    "dB": 0.007243781703437393,
+    "p_gain": 0.855,
+    "ci90": [
+      -0.0026562536291150135,
+      0.02791175906469777
+    ],
+    "dA": 0.06130981984021229,
+    "decision": "kept (class gate failed)"
+  },
+  "Bus": {
+    "members": {
+      "g1": {
+        "A": 0.006425087686020642,
+        "B": 0.008528475026446828,
+        "joint": 0.007476781356233735,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.011449401702474576,
+        "B": 0.011821160127306237,
+        "joint": 0.011635280914890408,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.01000420287423398,
+        "B": 0.007973447943866693,
+        "joint": 0.008988825409050338,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.017261430476868435,
+        "B": 0.007374769741419859,
+        "joint": 0.012318100109144147,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1v3",
+    "candidate": "cp4",
+    "compared": "with gated calibration",
+    "dB": -0.004446390385886378,
+    "p_gain": 0.025,
+    "ci90": [
+      -0.008484495213866523,
+      -0.0005571004258713032
+    ],
+    "dA": 0.005812028774393858,
+    "decision": "kept (class gate failed)"
+  },
+  "Truck": {
+    "members": {
+      "g1": {
+        "A": 0.1536878316846518,
+        "B": 0.10489982642614078,
+        "joint": 0.1292938290553963,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.19964600306732705,
+        "B": 0.130664300490103,
+        "joint": 0.16515515177871504,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.13713411895749372,
+        "B": 0.07723662354738123,
+        "joint": 0.10718537125243748,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.1180905221472899,
+        "B": 0.10870779666772146,
+        "joint": 0.11339915940750568,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1v3",
+    "candidate": "g1v3",
+    "compared": "with gated calibration",
+    "decision": "the incumbent has the best joint AP"
+  },
+  "Van": {
+    "members": {
+      "g1": {
+        "A": 0.12199537261470135,
+        "B": 0.0010857122390470978,
+        "joint": 0.06154054242687423,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.11841552599398444,
+        "B": 0.0010384219902635338,
+        "joint": 0.05972697399212399,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.11867085898456645,
+        "B": 0.001197122205305036,
+        "joint": 0.05993399059493574,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.0874422645138934,
+        "B": 0.0011845749042286326,
+        "joint": 0.04431341970906102,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1",
+    "candidate": "g1",
+    "compared": "with gated calibration",
+    "decision": "the incumbent has the best joint AP"
+  },
+  "Unknown": {
+    "members": {
+      "g1": {
+        "A": 0.0035383680267617825,
+        "B": null,
+        "joint": 0.0035383680267617825,
+        "calibration": null
+      },
+      "g1v3": {
+        "A": 0.003352062921726248,
+        "B": null,
+        "joint": 0.003352062921726248,
+        "calibration": null
+      },
+      "cp": {
+        "A": 0.0,
+        "B": null,
+        "joint": 0.0,
+        "calibration": null
+      },
+      "cp4": {
+        "A": 0.0,
+        "B": null,
+        "joint": 0.0,
+        "calibration": null
+      }
+    },
+    "incumbent": "g1",
+    "candidate": "g1",
+    "compared": "with gated calibration",
+    "decision": "the incumbent has the best joint AP"
+  }
+}

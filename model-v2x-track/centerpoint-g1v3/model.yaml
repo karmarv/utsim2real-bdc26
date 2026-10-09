@@ -1,0 +1,22 @@
+name: centerpoint-g1v3
+strategy: S2
+track: v2x-track
+module: M10 (detector routing by class)
+derived_from: pointpillars-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: CenterPoint (anchor-free center heads), sparse 3D voxels 0.1 x 0.1 x
+  0.25 m, VoxelResBackBone8x, xyz only
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'S2 member: trained 40 epochs (with the CenterHead label fix), tuned (realval
+  A 0.551 / B 0.492); no class won'
+expected: higher realval-B AP than the S1 pillars on small classes (LUMPI Person,
+  Bicycle, Motorcycle; V2X pedestrian) and a smaller BEV-3D gap
+notes: 'S2 Center-Routed Small Objects (docs/02-STRATEGY.md Section 8.2): same corpus,
+  augmentation and real-validation loop as pointpillars-g1v3; only the detector changes,
+  so the comparison isolates the architecture.
+
+  '

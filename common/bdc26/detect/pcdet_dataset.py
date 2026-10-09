@@ -60,5 +60,8 @@ class BDCDataset(CustomDataset):
 
 
 def register() -> None:
+    """Register BDCDataset with OpenPCDet and apply the runtime fixes of bdc26.detect.pcdet_patches."""
     import pcdet.datasets as D
     D.__all__["BDCDataset"] = BDCDataset
+    from . import pcdet_patches
+    pcdet_patches.apply()

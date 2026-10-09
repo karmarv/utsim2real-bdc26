@@ -1,0 +1,20 @@
+name: centerpoint-s4-g1v3
+strategy: S2
+track: lumpi-track
+module: M10 (detector routing by class)
+derived_from: centerpoint-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: CenterPoint, stride-4 heads (0.4 m BEV cells), sparse 3D voxels 0.1
+  x 0.1 x 0.25 m, xyz only
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'S2 variant: trained 40 epochs, tuned (realval A 0.230 / B 0.153); no class
+  won'
+expected: better small-class detection than centerpoint-g1v3 (Person, Bicycle, Motorcycle)
+notes: 'S2 step 5 variant: Person and Motorcycle missed the class gate with stride
+  8 and the S1 diagnostics show sparse misses (Person recall 0.24 below 10 points).
+
+  '

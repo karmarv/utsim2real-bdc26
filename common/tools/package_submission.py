@@ -6,8 +6,9 @@
 Synthetic frames: 50 frames from --synthetic (split --syn-split), chosen by --syn-list (one id per line, e.g. the
 output of the M12 frame selector) or at random with --seed. They are written as float32 N x 3 as stored
 (V2X realism frames must already contain their (0,0,0) null returns). The folder receives submission.zip
-(gitignored), manifest.json and synthetic_ids.txt (tracked); a registry row is appended.
-Upload the zip by hand, then record the CodaBench id and scores with --record.
+(gitignored), its upload copy <track>_<strategy>_submission.zip (for example lumpi_s2_submission.zip, the file
+to upload unchanged), manifest.json and synthetic_ids.txt (tracked); a registry row is appended.
+Upload the copy by hand, then record the CodaBench id and scores with --record.
 """
 import argparse
 import os
@@ -19,6 +20,22 @@ import numpy as np
 
 from _common import data_path, model_info
 from bdc26 import registry, submit
+
+
+def upload_copy(z: Path, track, card: dict) -> Path:
+    """The file to upload: a byte-identical copy of submission.zip named <track>_<strategy>_submission.zip
+    (for example lumpi_s2_submission.zip), recorded in the manifest. The working submission.zip stays git-ignored."""
+    import hashlib
+    import shutil
+    short = track.name.split("-")[0]
+    version = str(card.get("strategy") or "s0").lower().replace("+", "-")
+    up = z.with_name(f"{short}_{version}_submission.zip")
+    shutil.copy2(z, up)
+    man_path = z.parent / "manifest.json"
+    man = json.loads(man_path.read_text())
+    man["upload_file"] = {"name": up.name, "md5": hashlib.md5(up.read_bytes()).hexdigest()}
+    man_path.write_text(json.dumps(man, indent=2))
+    return up
 
 
 def main():
@@ -75,9 +92,10 @@ def main():
             "local_scores": json.loads(Path(a.local_scores).read_text()) if a.local_scores else None}
     z = submit.package(out, {i: preds.get(i, []) for i in ids}, frames, track, meta, team=a.team, test_ids=ids)
     (out / "synthetic_ids.txt").write_text("\n".join(chosen) + "\n")
+    up = upload_copy(z, track, card)
     registry.append(track, kind="submission", model=card["name"], run=a.tag, data_version=a.synthetic,
                     config=str(out.relative_to(model_dir)), notes="packaged, not yet uploaded")
-    print(f"ready: {z}  (upload on CodaBench {track['codabench_id']}, then --record)")
+    print(f"ready: {up}  (upload this file unchanged on CodaBench {track['codabench_id']}, then --record)")
 
 
 if __name__ == "__main__":

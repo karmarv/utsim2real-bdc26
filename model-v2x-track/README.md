@@ -14,7 +14,7 @@
 | Submitted zip | current entry: [`routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip`](routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (tag 1.0); S1: `submission_v2x_karmarv.zip` (release 0.1) |
 | Realism of the submitted frames | R = 0.919 on held-out legal proxies, official scorer (frames from the FOV-masked `g1-v3` val split with 31% nulls) |
 | Submit | Section 6.7 |
-| Strategy | S1 submitted; next S2 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
+| Strategy | S1+C1 submitted; S2 done without a new V2X version (Section 7.5); next S3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
@@ -29,6 +29,9 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`pointpillars-g1v3`](pointpillars-g1v3) | `pcdet/g1-v3` (walkers calibrated on legal real walkers, FOV-masked UT) | routed member for pedestrian | trained 40 epochs, tuned |
 | [`routed-g1`](routed-g1) | members above | S1 | submitted (965633, 0.7665) |
 | [`routed-g1z`](routed-g1z) | `routed-g1` + range-dependent z calibration (C1) | **selected** (S1+C1) | submitted (972563, **0.7855**; Section 7.4) |
+| [`centerpoint-g1v3`](centerpoint-g1v3) | `pcdet/g1-v3` | S2 member: CenterPoint, stride 8 | trained 40 epochs (label fix), tuned; no class won (Section 7.5) |
+| [`centerpoint-s4-g1v3`](centerpoint-s4-g1v3) | `pcdet/g1-v3` | S2 variant: CenterPoint, stride 4 | trained 40 epochs, tuned; no class won |
+| [`routed-g2`](routed-g2) | members of `routed-g1z` + `cp`, `cp4` | S2 candidate | route and calibration unchanged from S1+C1: no new version |
 
 ## 2. Modeling approaches considered
 
@@ -170,6 +173,21 @@ Official metric on legal real validation, S1 `routed-g1` predictions; files in [
 
 Candidate model [`routed-g1z`](routed-g1z): S1's members and route plus the calibration; BEV-3D gap on B 0.146 -> 0.129; combined estimate (B) 0.814 -> 0.828; zip `routed-g1z/submissions/2026-10-09_zcal/` (same 50 frames as S1, official check valid in 86 s). **Outcome: submitted as 972563 (S1+C1): combined 0.7665 -> 0.7855, confirmed** (Section 9.1).
 
+### 7.5 S2 results: CenterPoint members (2026-10-09)
+
+Official metric, tuned post-processing, realval-A / realval-B. Summary, gates and lessons: [`docs/02-STRATEGY.md` Section 8.2.1](../docs/02-STRATEGY.md#821-results-2026-10-09); [decision record](../docs/decisions/2026-10-09-s2-center-routed.md).
+
+| Member | vehicle | pedestrian | truck | mAP | BEV-3D gap (B) | 3D@0.7 (B) |
+|---|---|---|---|---|---|---|
+| S1+C1 route (`g1v2` + C1, `g1v3` + C1, `ut`) | 0.641 / 0.685 | **0.290** / 0.252 | **0.822 / 0.673** | **0.585 / 0.537** | 0.129 | 0.055 |
+| `centerpoint-g1v3` (stride 8) | 0.650 / 0.675 | 0.252 / **0.279** | 0.750 / 0.520 | 0.551 / 0.492 | 0.114 | 0.052 |
+| `centerpoint-s4-g1v3` (stride 4) | **0.685** / 0.681 | 0.256 / 0.277 | 0.611 / 0.502 | 0.517 / 0.487 | 0.116 | **0.082** |
+
+- **Gate:** no class passes (`route_predictions.py select --rule joint --calibrated`): vehicle from stride 4 gains +0.045 on A but -0.004 on B; the CenterPoint pedestrian gains +0.027 on B but loses 0.038 on A, so the incumbent keeps the best joint AP. `routed-g2` equals S1+C1 (A 0.585, B 0.537): no new V2X version.
+- **Height:** the CenterPoint pedestrian has the same BEV AP as the pillar member on B (0.391 vs 0.384) but a smaller BEV-3D gap (0.112 vs 0.158), and no range-dependent z calibration passes for it: z voxels remove most of the bias C1 corrects.
+- **Static false positives:** 72-77% of the unmatched pedestrian boxes scoring >= 0.5 repeat in the same 1 m cells across at least 20% of a scene's frames (both architectures; CenterPoint 1.8x more). Removing them with the labels (an upper bound) would lift the S1+C1 pedestrian from 0.290 to 0.356 (A) and 0.252 to 0.346 (B): the twin lacks the static structures, so they are never negatives in training.
+- **Bug fixed on the way:** OpenPCDet's `CenterHead.assign_targets` relabeled pedestrians as vehicles in this head layout (vehicle 3D AP 0.019 at epoch 12 before the fix, 0.546 after); see `common/bdc26/detect/pcdet_patches.py`.
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -180,7 +198,7 @@ Candidate model [`routed-g1z`](routed-g1z): S1's members and route plus the cali
 | E4 | Walkers calibrated on legal real walkers + FOV mask | done: pedestrian 0.173 -> 0.266; realism 0.901 -> 0.919 |
 | E5 | Pedestrian NMS and re-centering | tuned per class (Section 6.3) |
 | E6 | Ground-plane canonicalization of the sloped scene | part of the S4 diagnosis (`docs/02` Section 8.1.2 D2 and Section 8.4 step 0) |
-| E7 | Architecture routing for pedestrians (CenterPoint) | **next: strategy S2** |
+| E7 | Architecture routing for pedestrians (CenterPoint) | done (S2): no class passes the class gate; static false positives are the main pedestrian error (Section 7.5) |
 | E8 | Background density calibration for realism (as Track 1) | next (data guide Section 12) |
 | E9 | TTA and weighted box fusion, height TTA | strategy S3 |
 
@@ -281,7 +299,7 @@ Local results of every model are in Section 7; the leaderboard calibration is in
 | the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | this track's frames | 31% of each realism frame are (0,0,0) nulls, as in the real frames (`track.yaml` `resample.null_fraction`) |
 
-Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt` and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt`, the upload copy `v2x_<strategy>_submission.zip` (byte-identical to `submission.zip`, written by the packager; upload this file unchanged) and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
 
 ### 10.5 Server cost and the pre-upload check
 
@@ -338,10 +356,11 @@ All decision records: [`docs/decisions/`](../docs/decisions). Open questions for
 | [`render/pedsim.py`](../common/bdc26/render/pedsim.py), [`render/g1.py`](../common/bdc26/render/g1.py), [`density.py`](../common/bdc26/density.py) | engine G1: walker model, sensors, ray casting, ray-consistent insertion, placement; background density prior |
 | [`detect/pcdet_dataset.py`](../common/bdc26/detect/pcdet_dataset.py), [`detect/postprocess.py`](../common/bdc26/detect/postprocess.py) | OpenPCDet dataset adapter; per-class post-processing |
 | [`evalap.py`](../common/bdc26/evalap.py), [`realism.py`](../common/bdc26/realism.py) | the official detection and realism metrics |
+| [`detect/pcdet_patches.py`](../common/bdc26/detect/pcdet_patches.py) | runtime fix of OpenPCDet's CenterHead label corruption (applied by `register()`) |
 | [`scorecard.py`](../common/bdc26/scorecard.py), [`diagnostics.py`](../common/bdc26/diagnostics.py), [`detect/zcalib.py`](../common/bdc26/detect/zcalib.py) | strategy scorecard and paired frame bootstrap; error breakdowns (box errors, AP by range, recall by points); range-dependent z calibration |
 | [`submit.py`](../common/bdc26/submit.py), [`registry.py`](../common/bdc26/registry.py) | packaging and validation; experiment log |
 
-Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `scorecard`, `new_model`, `write_model_readmes`; each has a docstring with usage.
+Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, `pcdet_predict`, `eval_predictions`, `tune_postprocess`, `route_predictions`, `fit_density_prior`, `select_realism_frames`, `score_realism`, `package_submission`, `check_submission`, `scorecard`, `pcdet_smoke`, `new_model`, `write_model_readmes`; each has a docstring with usage. `route_predictions.py` modes: `select` (`--rule joint`, `--calibrated`), `validate`, `calibrate`, `merge`.
 
 ### 12.2 Conventions
 - Track facts live in `data-v2x-track/track.yaml`, never as constants in code.

@@ -32,6 +32,8 @@ Every CodaBench upload and every decision-ready version, newest first. Leaderboa
 
 | Date | Version | Track | Model / submission folder | Local A / B mAP, R, estimate (B) | Gate | CodaBench id | Leaderboard combined (mAP, R) | Rank | Record |
 |---|---|---|---|---|---|---|---|---|---|
+| 2026-10-09 | S2 | LUMPI | [`routed-g2`](../../model-lumpi-track/routed-g2) / [`2026-10-09_s2`](../../model-lumpi-track/routed-g2/submissions/2026-10-09_s2) | 0.272 / 0.170 (late-A 0.271), 0.905, 0.508 | class gate passed for Bicycle; **upload gate failed** (+0.003 < 0.005) | not uploaded (`lumpi_s2_submission.zip` checked: valid, 156 s) | - | - | [s2 center-routed](2026-10-09-s2-center-routed.md) |
+| 2026-10-09 | S2 | V2X | [`routed-g2`](../../model-v2x-track/routed-g2) | 0.585 / 0.537 (equal to S1+C1) | no class passed the class gate | - | - | - | [s2 center-routed](2026-10-09-s2-center-routed.md) |
 | 2026-10-09 | **S1+C1** | V2X | [`routed-g1z`](../../model-v2x-track/routed-g1z) / [`2026-10-09_zcal`](../../model-v2x-track/routed-g1z/submissions/2026-10-09_zcal) | 0.585 / 0.537, 0.919, 0.828 | upload gate passed (+0.014); confirmed | [972563](../../model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json) | **0.7855** (0.4869, 0.9203) | 1 of 19 | [s1 close-out](2026-10-09-s1-closeout-z-calibration.md) |
 | 2026-10-09 | S1+C1 | LUMPI | none | calibration at most +0.004 on B | class gate failed for every class | - | - | - | [s1 close-out](2026-10-09-s1-closeout-z-calibration.md) |
 | 2026-10-06 | **S1** | V2X | [`routed-g1`](../../model-v2x-track/routed-g1) / [`2026-10-02_first`](../../model-v2x-track/routed-g1/submissions/2026-10-02_first) | 0.572 / 0.520, 0.919, 0.814 | first upload (Gate A) | [965633](../../model-v2x-track/routed-g1/submissions/2026-10-02_first/codabench_965633.json) | 0.7665 (0.4648, 0.9203) | 1 (Oct 6) | [s1 first submission](2026-10-06-s1-first-submission.md) |
@@ -74,7 +76,7 @@ Every model and every candidate gets the same numbers from [`scorecard.py`](../.
 
 1. Candidate: registry rows (with the `strategy` column), `scorecard.json`, a row in Section 4.
 2. Decision-ready (upload gate passed): a record in this folder named for its strategy, a row in Section 2.
-3. Upload: the packaged zip unchanged; save the scoring log as `codabench_<id>.json`; `package_submission.py <model> --tag <tag> --record <id> <json>`; fill the Outcome of the record and the rows in Sections 2 and 4, the track model README Section 9 and the root README Section 9; when the version becomes a leaderboard entry, commit its zip next to the manifest as `submission_<track>.zip` and add it to [`RELEASES.md`](../../RELEASES.md) under the release tag (the entrant chooses the tags).
+3. Upload: the packager's track-prefixed copy `<track>_<strategy>_submission.zip` (byte-identical to `submission.zip`), unchanged; save the scoring log as `codabench_<id>.json`; `package_submission.py <model> --tag <tag> --record <id> <json>`; fill the Outcome of the record and the rows in Sections 2 and 4, the track model README Section 9 and the root README Section 9; when the version becomes a leaderboard entry, commit its zip next to the manifest as `submission_<track>.zip` and add it to [`RELEASES.md`](../../RELEASES.md) under the release tag (the entrant chooses the tags).
 
 ## 4. Progression tracker
 
@@ -85,7 +87,8 @@ One row per version and track; realism R is the mean of held-out proxies 4-5.
 | S1 | LUMPI | 0.260 (late-A 0.255) | 0.166 | 0.64 | 0.025 | 0.051 | 0.905 | 0.505 | 133 s / 17,095 | 0.4728 | 0.1357 | 0.8912 | 0.82 |
 | S1 | V2X | 0.572 | 0.520 | 0.91 | 0.146 | 0.058 | 0.919 | 0.814 | 90 s / 18,728 | 0.7665 | 0.4648 | 0.9203 | 0.89 |
 | S1+C1 | V2X | 0.585 | 0.537 | 0.92 | 0.129 | 0.055 | 0.919 | 0.828 | 86 s / 18,728 | **0.7855** | **0.4869** | 0.9203 | 0.91 |
-| S2 | LUMPI / V2X | | | | | | | | | | | | |
+| S2 | LUMPI | 0.272 (late-A 0.271) | 0.170 | 0.62 | 0.025 | 0.052 | 0.905 | 0.508 | 156 s / 24,639 | below the upload gate | | | |
+| S2 | V2X | 0.585 | 0.537 | 0.92 | 0.129 | 0.055 | 0.919 | 0.828 | (equal to S1+C1) | no new version | | | |
 | S3 | LUMPI / V2X | | | | | | | | | | | | |
 | S4 | LUMPI / V2X | | | | | | | | | | | | |
 | S5 | LUMPI / V2X | | | | | | | | | | | | |
@@ -94,16 +97,13 @@ One row per version and track; realism R is the mean of held-out proxies 4-5.
 
 | Dates | Development work | GPUs 0-3 (LUMPI) | GPUs 4-7 (V2X) | Gate / upload | Status |
 |---|---|---|---|---|---|
-| Fri Oct 9 | S1 close-out: tools, diagnostics, C1 calibration | | | V2X S1+C1 upload (972563) | done |
-| Sat Oct 10 | S2 configs; LUMPI realism R1 diagnosis and R2 selection objective (CPU; promoted because LUMPI is rank 2 since Oct 7) | S2 smoke | S2 smoke | | next |
-| Sat Oct 10 - Sun Oct 11 | S2 full runs; R2 on held-out proxies | S2 CenterPoint, 40 epochs (about 5 h) | S2 CenterPoint, 40 epochs (about 3 h) | | planned |
-| Mon Oct 12 | S2 tuning, joint routing, calibration, scorecards; R2 gate (joins the next LUMPI upload) | S2 variant run if needed; S4 smoke | S4 smoke | | planned |
-| Tue Oct 13 | S2 packaging and check | S4 PV-RCNN++ (about 10 h) | S4 PV-RCNN++ (about 6 h) | **S2 gate, uploads** | planned |
-| Wed Oct 14 - Thu Oct 15 | S3: TTA in `pcdet_predict.py`, `fusion.py`, fuse mode; R3 engine G2-lite with long trucks and static clutter (CPU) | S4 continues | S3 TTA inference on realval | | planned |
-| Fri Oct 16 | S3 tuning on A and B; packaging | S4 tuning | | **S3 gate, uploads** | planned |
-| Sat Oct 17 - Mon Oct 19 | S4 into the portfolio; S5 port of the GBlobs encoder; R4 decision (retrain LUMPI members on `g1-v4` or not) | | | **S4 gate, uploads (Mon)** | planned |
-| Tue Oct 20 - Wed Oct 21 | S5 configs and smoke | S5 runs a-c (3 x about 5 h), or the `g1-v4` retrain | S5 runs a-c (3 x about 3 h) | | planned |
-| Thu Oct 22 - Fri Oct 23 | S5 tuning and fusion | extra seeds of kept members | extra seeds of kept members | **S5 gate, uploads (Fri)** | planned |
+| Fri Oct 9 | S1 close-out (tools, diagnostics, C1); V2X S1+C1 upload (972563); **S2 complete** (CenterPoint stride 8 and 4 on both tracks, label-bug fix, gates); R1-R2 | S2 runs | S2 runs | 972563; S2: no upload-ready version | done |
+| Sat Oct 10 - Mon Oct 12 | S3: TTA in `pcdet_predict.py`, `fusion.py`, fuse mode over the `routed-g2` members (pillars and CenterPoint); R3 engine G2-lite: static clutter as hard negatives (poles, signs, trees, parked-car rows) and 12-20 m trucks (CPU; promoted by S2) | S4 smoke (measures the cost), then PV-RCNN++ | S4 smoke, then PV-RCNN++ | | next |
+| Tue Oct 13 | S3 tuning on A and B; packaging | S4 tuning | S4 tuning | **S3 gate, uploads** | planned |
+| Wed Oct 14 - Thu Oct 15 | S4 into the portfolio; R3 corpus `g1-v4` built and checked (static false-positive rate, realism on proxies) | `g1-v4` retrain of the kept LUMPI members | `g1-v4` retrain of the V2X members | **S4 gate, uploads (Thu)** | planned |
+| Fri Oct 16 - Sat Oct 17 | R3/R4 gate: `g1-v4` members vs `g1-v3` (static false positives, class gate), realism frames from `g1-v4` | | | **R3 gate, uploads** | planned |
+| Sun Oct 18 - Thu Oct 22 | S5 (GBlobs) on the best voxel member, runs a-c | S5 runs | S5 runs | **S5 gate (Thu)** | planned |
+| Fri Oct 23 | extra seeds of kept members | seeds | seeds | | planned |
 | Sat Oct 24 | final portfolio and realism frames; dry-run packaging | | | | planned |
 | Sun Oct 25 | **Gate E: feature freeze** | | | | planned |
 | Mon Oct 26 - Fri Oct 30 | at most 2 confirmation uploads per track; report outline; S6 smoke as research | S6 smoke | | dev phase closes Fri Oct 30, 17:00 PDT | planned |
@@ -115,6 +115,7 @@ If a route slips by more than a day, the next route starts on time and the slipp
 
 | Date | Scope | Record | Decision |
 |---|---|---|---|
+| 2026-10-09 | S2 | [`2026-10-09-s2-center-routed.md`](2026-10-09-s2-center-routed.md) | no S2 upload: LUMPI Bicycle moves to CenterPoint but the upload gate fails (+0.003); V2X unchanged; OpenPCDet CenterHead bug fixed; static false positives found to be the main walker error (R3 promoted) |
 | 2026-10-09 | S1+C1 | [`2026-10-09-s1-closeout-z-calibration.md`](2026-10-09-s1-closeout-z-calibration.md) | V2X range-dependent z calibration kept for vehicle and pedestrian (972563: 0.7855, confirmed); none for LUMPI |
 | 2026-10-06 | S1 | [`2026-10-06-s1-first-submission.md`](2026-10-06-s1-first-submission.md) | S1 uploaded unchanged on both tracks (965614: 0.4728, 965633: 0.7665) after two hand-edited copies failed; gates rank on realval-B from now on |
 | 2026-09-30 | S1 | [`2026-09-30-s1-g1-generator.md`](2026-09-30-s1-g1-generator.md) | engine G1: ray-cast walkers, UT Van as Van, calibrated background density (gray area, disclosed), walker v2, V2X calibration on legal real data |

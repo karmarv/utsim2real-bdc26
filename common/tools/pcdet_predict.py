@@ -46,6 +46,9 @@ def main():
     cfg = load_pcdet_cfg(model_dir, data_path(track, card["data"]["train"]))
 
     import torch
+    from bdc26.detect.pcdet_dataset import register
+
+    register()                                   # BDCDataset and the OpenPCDet runtime fixes
     from pcdet.datasets import DatasetTemplate
     from pcdet.models import build_network, load_data_to_gpu
     from pcdet.utils import common_utils

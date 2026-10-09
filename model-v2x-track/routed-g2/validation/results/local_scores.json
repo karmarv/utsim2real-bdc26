@@ -1,0 +1,15 @@
+{
+  "run": "routed (official metric) + calibration",
+  "realval_A_mAP_3d_0.5_R40": 0.5845371020478124,
+  "realval_A_per_class": {
+    "vehicle": 0.6408602038186038,
+    "pedestrian": 0.2902636652769706,
+    "truck": 0.8224874370478628
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.536903093130462,
+  "realval_B_per_class": {
+    "vehicle": 0.6849966357288924,
+    "pedestrian": 0.2523565491073637,
+    "truck": 0.6733560945551298
+  }
+}

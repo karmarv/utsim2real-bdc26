@@ -1,0 +1,48 @@
+name: routed-g2
+strategy: S2
+track: lumpi-track
+module: M10 (detector routing by class)
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing of PointPillars G1 models and a CenterPoint G1 model
+members:
+  g1:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v3:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp4:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+data:
+  train: pcdet/g1-v2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v2
+status: 'S2 candidate: Bicycle from cp (realval A 0.272 / B 0.170); below the upload
+  gate (+0.003); package 2026-10-09_s2 checked, not uploaded'
+notes: 'S2 Center-Routed Small Objects (docs/02-STRATEGY.md Section 8.2): the members
+  of routed-g1 plus centerpoint-g1v3 (cp). The route starts from the S1 route (the
+  incumbent); a class moves to another member only through the class gate (route_predictions.py
+  select --rule joint --calibrated), and the z calibration is re-selected with the
+  route. Realism frames unchanged from routed-g1.
+
+  '
+route:
+  Person: g1v3
+  Car: g1
+  Bicycle: cp
+  Motorcycle: g1v3
+  Bus: g1v3
+  Truck: g1v3
+  Van: g1
+  Unknown: g1
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); members compared with their gated z calibration'
+  estimate_mAP_A: 0.2722
+  estimate_mAP_B: 0.17
+calibration: {}
