@@ -49,4 +49,4 @@ guard:
 late_a: {prefix: Measurement4, min_frame: 4800, max_frame: 6399}
 
 # bands for the error breakdowns of common/bdc26/diagnostics.py (eval_predictions.py --breakdown)
-diagnostics: {range_bins: [0, 15, 30, 45], point_bins: [1, 10, 30, 100]}
+diagnostics: {walker_classes: [Person], range_bins: [0, 15, 30, 45], point_bins: [1, 10, 30, 100]}

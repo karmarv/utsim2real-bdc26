@@ -6,15 +6,15 @@
 
 | | |
 |---|---|
-| Selected model | [`routed-g1`](routed-g1): per-class routing of two PointPillars models trained on engine-G1 synthetic data ([`pointpillars-g1`](pointpillars-g1) with walker v1, [`pointpillars-g1v3`](pointpillars-g1v3) with walker v2) |
-| Real validation (official metric, tuned) | **realval-A mAP 0.260**, realval-B 0.166 (Section 7) |
+| Selected model | [`routed-g3`](routed-g3) (S3): TTA variants of the pillar and CenterPoint members, Person, Car and Bicycle fused from two members, per-class score floors (Section 7.6); S1 baseline [`routed-g1`](routed-g1) (two PointPillars models on engine-G1 data) |
+| Real validation (official metric, tuned) | **realval-A mAP 0.301**, realval-B 0.184, late-A 0.298 (S3); S1 0.260 / 0.166 (Section 7) |
 | Realism of the submitted frames | R = 0.906 on held-out legal proxies, official scorer (raw UT frames: 0.59) |
-| Local combined estimate | 0.585 (A) / 0.505 (B); ECCV winner 0.479 |
-| Competition | rank 2 since 2026-10-07 behind 0.4784 (an entry with mAP 0.1185 and realism R 0.942); about +0.015 leaderboard R regains rank 1 ([`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#87-parallel-and-gated-work) Section 8.7) |
-| CodaBench (strategy S1) | **965614: combined 0.4728** (mAP 0.1357, R 0.8912), rank 1 on 2026-10-06 (Section 9; root README Section 9) |
-| Submitted zip | [`routed-g1/submissions/2026-10-02_first/submission_lumpi.zip`](routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0; uploaded as `submission_lumpi_karmarv.zip`, release 0.1) |
-| Submit | `bash model-lumpi-track/routed-g1/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
-| Strategy | S1 submitted; S2 done, below the upload gate (Section 7.5); next S3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
+| Local combined estimate | 0.520 (B) for S3; scorer log 0.5015 (Section 9.4); ECCV winner 0.479 |
+| Competition | leaderboard rank 2 since 2026-10-07 behind 0.4784 (mAP 0.1185, realism R 0.942); the S3 upload scored 0.5015 by the scorer log, above it, once CodaBench lists it ([`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#87-parallel-and-gated-work) Section 8.7) |
+| CodaBench | S3 upload 974348 (2026-10-10): scorer log **combined 0.5015** (mAP 0.1692, R 0.8912), status still Running after scoring, not listed yet; listed entry 965614 (S1): combined 0.4728 (mAP 0.1357, R 0.8912) (Section 9; root README Section 9) |
+| Submitted zip | S3: [`routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip`](routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip) (tag 3.0); S1: [`submission_lumpi.zip`](routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0; uploaded as `submission_lumpi_karmarv.zip`, release 0.1) |
+| Submit | `bash model-lumpi-track/routed-g3/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
+| Strategy | S1 and **S3 submitted** (Section 7.6); S2 done, below the upload gate (Section 7.5); next S4 and R3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
 ## 1. Folder conventions
@@ -31,7 +31,7 @@ model-lumpi-track/
     ├── train/                pcdet_model.yaml (+ _BASE_CONFIG_ pcdet_dataset.yaml), train.sh; output/ (git-ignored: ckpt, logs, tensorboard)
     ├── validation/           evaluate.sh, tune_and_eval.sh; output/ (git-ignored predictions); results/ (tracked JSON, local_scores.json)
     ├── test/                 postprocess.yaml (selected on real val), predict.sh, make_submission.sh, synthetic_ids.txt; output/ (git-ignored)
-    └── submissions/<date>_<tag>/   manifest.json, synthetic_ids.txt, codabench_<id>.json (tracked); submission.zip (git-ignored); submission_<track>.zip (tracked, leaderboard entries)
+    └── submissions/<date>_<tag>/   manifest.json, synthetic_ids.txt, codabench_<id>.json, <track>_<strategy>_submission.zip (tracked; 1.0 entries: submission_<track>.zip); submission.zip (git-ignored)
 ```
 
 Create a model with `python common/tools/new_model.py lumpi <name> --from <existing>` (copies configs, never outputs), then edit `model.yaml` and `train/pcdet_model.yaml`.
@@ -41,10 +41,11 @@ Create a model with `python common/tools/new_model.py lumpi <name> --from <exist
 | [`pointpillars-ut`](pointpillars-ut) | `pcdet/ut-v1` (UT only, actors x 1/0.78, Van -> Car) | baseline and ablation (what G1 adds) | run2 trained 40 epochs |
 | [`pointpillars-g1`](pointpillars-g1) | `pcdet/g1-v2` (walkers v1, Van as Van, calibrated density) | routed member | trained 40 epochs, tuned |
 | [`pointpillars-g1v3`](pointpillars-g1v3) | `pcdet/g1-v3` (walkers v2) | routed member | trained 40 epochs, tuned |
-| [`routed-g1`](routed-g1) | members above | **selected** (S1) | submitted (965614) |
+| [`routed-g1`](routed-g1) | members above | S1 | submitted (965614) |
 | [`centerpoint-g1v3`](centerpoint-g1v3) | `pcdet/g1-v3` | S2 member: CenterPoint, stride 8 | trained 40 epochs (label fix), tuned; wins Bicycle (Section 7.5) |
 | [`centerpoint-s4-g1v3`](centerpoint-s4-g1v3) | `pcdet/g1-v3` | S2 variant: CenterPoint, stride 4 | trained 40 epochs, tuned; no class won |
 | [`routed-g2`](routed-g2) | `routed-g1` members + `cp` (+ `cp4`) | S2 candidate | Bicycle from `cp`; below the upload gate (+0.003); package `2026-10-09_s2/lumpi_s2_submission.zip` checked, not uploaded |
+| [`routed-g3`](routed-g3) | `routed-g2` members and their TTA variants (`<member>_tta`) | **selected** (S3) | Person, Car, Bicycle fused, Truck from `g1v3_tta`; submitted 2026-10-10 (scorer log 0.5015; Section 7.6) |
 
 ## 2. Modeling approaches considered
 
@@ -218,6 +219,25 @@ Official metric, tuned post-processing, realval-A / realval-B (late-A for the se
 - **What it does well:** Bicycle (raw 0.196 vs 0.058 for the pillars on a 320-frame sample) and Car before tuning (0.805 vs 0.753).
 - **Bug fixed on the way:** OpenPCDet's `CenterHead.assign_targets` trained the Car head on Motorcycles with these head groups; see `common/bdc26/detect/pcdet_patches.py`.
 
+### 7.6 S3 results: TTA variants, fusion and score floors (2026-10-09)
+
+Official metric, realval-A / realval-B. Summary, gates and lessons: [`docs/02-STRATEGY.md` Section 8.3.1](../docs/02-STRATEGY.md#831-results-2026-10-09); [decision record](../docs/decisions/2026-10-09-s3-fused-portfolio.md).
+
+| Class | S2 route | S3 (`routed-g3`) | From | dB (bootstrap P) |
+|---|---|---|---|---|
+| Person | 0.340 / 0.134 | **0.396 / 0.145** | fused `g1v3_tta` + `g1_tta` (IoU 0.5) | +0.011 (1.00) |
+| Car | 0.874 / 0.770 | **0.898 / 0.792** | fused `g1v3_tta` + `cp_tta` (IoU 0.7) | +0.022 (1.00) |
+| Bicycle | 0.350 / 0.128 | **0.444 / 0.173** | fused `cp4_tta` + `cp_tta` (IoU 0.5) | +0.045 (1.00) |
+| Truck | 0.200 / 0.131 | **0.231 / 0.153** | `g1v3_tta` | +0.023 (1.00) |
+| Motorcycle, Bus, Van | B 0.015, 0.012, 0.001 | B 0.013, 0.011, 0.001 | S2 members (score floors cost -0.001) | gate failed for every change |
+| **mAP** (late-A) | 0.272 / 0.170 (0.271) | **0.301 / 0.184 (0.298)** | | +0.014 (+0.012 to +0.016) |
+
+- **TTA per member** (8 views: flips, yaw +/-5 deg, z +/-0.25 m; each variant with its own tuned `test/postprocess_tta.yaml`): Person on B from 0.091 to 0.141 for `g1` and from 0.038 to 0.081 for `centerpoint-g1v3`, Bicycle up for all four members, Car +0.009 to +0.024; `g1v3` Person is the exception (B 0.134 -> 0.128).
+- **Static false positives** (Person on B, boxes ranked above the median true-positive score): 9.7 -> 4.1 per frame with fusion; 41% of the remaining unmatched ones are still static: R3 (static hard negatives) is the next Person lever.
+- **Gated out:** Motorcycle fusion of `cp_tta` + `cp4` (A 0.008 -> 0.143, but B only +0.008, P 0.92); the Person fusion is the fragile gain (selected on realval-A alone, its pair loses on B).
+- **Upload gate:** combined estimate (B) 0.505 (S1, uploaded) -> **0.520**, late-A 0.255 -> 0.298, R 0.905 (same 50 frames); kit scorer 181 s with 17,193 boxes (score floors: 1,045 -> 359 boxes per realval-A frame for -0.0007 B-mAP). **Passed.** Projected before the upload (0.82 x B): mAP about 0.151, combined about 0.486.
+- **Leaderboard (974348, 2026-10-10, scorer log):** combined **0.5015**, mAP 0.1692 (Person 0.157, Car 0.652, Bicycle **0.224**, Truck 0.033, Van 0.117), 3D@0.7 0.0609, BEV 0.1781; confirmation passed by the log (+0.029 over 965614). CodaBench kept the submission in Running after the scorer printed DONE (Section 10.6). The gain was 1.89 x the realval-B gain and 0.81 x the realval-A gain (Section 9.4).
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -230,7 +250,7 @@ Official metric, tuned post-processing, realval-A / realval-B (late-A for the se
 | E6 | Per-class post-processing | done: 0.210 -> 0.253 for `g1` (Section 7.2) |
 | E7 | Architecture routing (CenterPoint for Person, Bicycle, Motorcycle) | done (S2): Bicycle moves to CenterPoint; Person collapses on static false positives (Section 7.5) |
 | E8 | Truck size modes, Bus convention | next (M7); close-out D5: the synthetic trucks stop at 8.47 m while 29% of real trucks are 12-20 m, so long trucks and trailers must enter the generator (Section 7.4) |
-| E9 | TTA and weighted box fusion | strategy S3 |
+| E9 | TTA and weighted box fusion | done (S3): Person, Car, Bicycle, Truck up on B; mAP B 0.170 -> 0.184 (Section 7.6) |
 | E10 | Static clutter and G2 for realism and hard negatives | in parallel with S2-S5 (`docs/02` Section 8.7, R track; promoted 2026-10-09): the cheapest LUMPI gain |
 
 ## 9. Submission log
@@ -239,19 +259,28 @@ Official metric, tuned post-processing, realval-A / realval-B (late-A for the se
 |---|---|---|---|---|---|---|---|---|
 | 2026-10-02 | `routed-g1` / `first`, hand-edited copy (team typed into declaration.txt, re-zipped) | 957399 | 0.260 / 0.166 | 0.906 | | | | Failed after a few hours, no score; not counted (0 of 100 used); Section 10.6 |
 | 2026-10-06 | `routed-g1` / `first`, team KarmaRV, uploaded unchanged as `submission_lumpi_karmarv.zip` | 965614 | 0.260 / 0.166 | 0.906 | **0.1357** | **0.8912** | **0.4728** | strategy S1; rank 1 of 31 (next 0.2769); server record [`codabench_965614.json`](routed-g1/submissions/2026-10-02_first/codabench_965614.json) |
+| 2026-10-10 | `routed-g3` / `s3` (strategy S3), uploaded unchanged as `lumpi_s3_submission.zip` | 974348 | 0.301 / 0.184 | 0.905 | **0.1692** | **0.8912** | **0.5015** | strategy S3; scores from the scorer log (DONE), status Running afterwards, not listed yet; kit scorer 181 s, 17,193 boxes; server record [`codabench_974348.json`](routed-g3/submissions/2026-10-09_s3/codabench_974348.json); [decision record](../docs/decisions/2026-10-09-s3-fused-portfolio.md) |
 
-### 9.1 Local vs leaderboard per class (965614, 3D AP@0.5 R40)
+### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | Person | Car | Bicycle | Motorcycle | Bus | Truck | Van |
 |---|---|---|---|---|---|---|---|---|
-| leaderboard | **0.1357** | 0.117 | 0.633 | 0.053 | 0.001 | 0.000 | 0.028 | 0.118 |
-| realval-A | 0.260 | 0.340 | 0.874 | 0.265 | 0.008 | 0.011 | 0.200 | 0.122 |
-| realval-B | 0.166 | 0.134 | 0.770 | 0.102 | 0.015 | 0.012 | 0.131 | 0.001 |
-| leaderboard / realval-A | 0.52 | 0.34 | 0.72 | 0.20 | | | 0.14 | 0.97 |
+| **S3 leaderboard (974348, scorer log)** | **0.1692** | 0.157 | 0.652 | **0.224** | 0.001 | 0.000 | 0.033 | 0.117 |
+| S3 realval-A / realval-B | 0.301 / 0.184 | 0.396 / 0.145 | 0.898 / 0.792 | 0.444 / 0.173 | 0.008 / 0.013 | 0.011 / 0.011 | 0.231 / 0.153 | 0.120 / 0.001 |
+| S3 leaderboard / realval-B | 0.92 | 1.08 | 0.82 | 1.29 | | | 0.22 | |
+| leaderboard gain / realval-A gain (S1 -> S3) | 0.81 | 0.71 | 0.81 | 0.96 | | | 0.16 | |
+| S1 leaderboard (965614) | 0.1357 | 0.117 | 0.633 | 0.053 | 0.001 | 0.000 | 0.028 | 0.118 |
+| S1 realval-A | 0.260 | 0.340 | 0.874 | 0.265 | 0.008 | 0.011 | 0.200 | 0.122 |
+| S1 realval-B | 0.166 | 0.134 | 0.770 | 0.102 | 0.015 | 0.012 | 0.131 | 0.001 |
+| S1 leaderboard / realval-A | 0.52 | 0.34 | 0.72 | 0.20 | | | 0.14 | 0.97 |
 
 Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (local proxy 4: 1.629, 0.00117, 1.530, 3.447, 0.9057). Van and Car transfer; Person, Bicycle and Truck lose most of their realval-A AP, so the realval-A selection does not represent the test window well (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
 
-### 9.2 Artifacts of 965614 (strategy S1)
+### 9.2 Artifacts
+
+S3 (974348): model [`routed-g3`](routed-g3) ([`model.yaml`](routed-g3/model.yaml): members with TTA variants, `route`, `fusion`, `budget`); the upload copy [`lumpi_s3_submission.zip`](routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip) (md5 `9133dd7d9d8b377ec9228b79b75065a0`, byte-identical to the folder's `submission.zip`, in its [`manifest.json`](routed-g3/submissions/2026-10-09_s3/manifest.json)); server record [`codabench_974348.json`](routed-g3/submissions/2026-10-09_s3/codabench_974348.json) (scorer log); reproducible: the zip's predictions equal `route_predictions.py merge` of the saved member predictions with the committed `model.yaml`.
+
+965614 (strategy S1):
 
 | | |
 |---|---|
@@ -265,7 +294,7 @@ Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (lo
 
 | | CD | MMD | EMD | FPD | R |
 |---|---|---|---|---|---|
-| leaderboard (965614) | 1.690 | 0.00187 | 1.647 | 5.095 | **0.8912** |
+| leaderboard (965614 and the S3 upload, identical frames) | 1.690 | 0.00187 | 1.647 | 5.095 | **0.8912** |
 | local, held-out proxy 4 | 1.629 | 0.00117 | 1.530 | 3.447 | 0.9057 |
 | ECCV 2026 winner | | | | | 0.913 |
 | other IEEE entries (identical values: the kit's dummy frames) | 10.245 | 0.0677 | 3.39 | 119.5 | 0.473 |
@@ -280,7 +309,10 @@ Both sides pooled 2,500,000 points before subsampling (50 x 50,000), so the pack
 | Car and Van transfer | Car 0.633 (A 0.874, B 0.770); Van 0.118 (A 0.122) | keep the pillar members for vehicles in every later strategy |
 | Person, Bicycle and Truck do not | Person 0.117 (A 0.340), Bicycle 0.053 (A 0.265), Truck 0.028 (A 0.200), with 512, 82 and 192 test GT boxes, so real gaps | realval-A (Measurement4 frames 0-6399) precedes the excluded last 20% of the recording, which holds the forbidden frames (6497-8109) and presumably the test frames; post-processing tuned on A partly fits A; select on A and B jointly (S2 onward) |
 | Combined below the ECCV winner despite higher mAP | 0.4728 vs 0.4793: mAP 0.136 vs 0.133, R 0.891 vs 0.913 | +0.022 R is worth +0.009 combined: the cheapest LUMPI gain |
-| Local estimate was optimistic | estimate A / B / leaderboard: 0.585 / 0.505 / 0.473 | report the realval-B estimate; treat realval-A as an upper bound |
+| Local estimate was optimistic | estimate A / B / leaderboard: 0.585 / 0.505 / 0.473; S3 0.620 / 0.520 / 0.501 | report the realval-B estimate; treat realval-A as an upper bound for levels |
+| S3 gains transferred more than realval-B predicted | mAP +0.034 on the leaderboard vs +0.018 on B (1.89 x), but 0.81 x the realval-A gain (V2X: 0.80 x) | levels follow B, gains follow A: project the leaderboard from the A gain |
+| Bicycle is the first weak class that moved | 0.053 -> 0.224 (B 0.102 -> 0.173, A 0.265 -> 0.444) | CenterPoint plus TTA and fusion fit the bikes of the test window; keep both CenterPoint members |
+| Truck still does not transfer | 0.028 -> 0.033 (B +0.022) | the synthetic trucks stop at 8.47 m (close-out D5): long trucks in the generator (R3) |
 
 ## 10. Local evaluation and packaging
 
@@ -323,7 +355,7 @@ Local results of every model are in Section 7; the leaderboard calibration is in
 | the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | this track's frames | LUMPI frames have no (0,0,0) nulls: the packager writes 50,000 real-range points per frame |
 
-Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt`, the upload copy `lumpi_<strategy>_submission.zip` (byte-identical to `submission.zip`, written by the packager; upload this file unchanged) and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt`, the upload copy `lumpi_<strategy>_submission.zip` (byte-identical to `submission.zip`, written by the packager; upload this file unchanged) and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the upload copy is committed (from 3.0; the 1.0 entries as `submission_<track>.zip`), and the leaderboard entries are listed in [`RELEASES.md`](../RELEASES.md).
 
 ### 10.5 Server cost and the pre-upload check
 
@@ -339,6 +371,7 @@ Both competitions use CodaBench's shared default queue, Docker image `codalab/co
 | Failed with no message after hours in the queue | as above, but the `Infinity` fields may not be storable; or the worker died | collect the logs; re-check the exact uploaded file with `check_submission.py` |
 | Running or "Preparing submission..." for more than a day with no log | no worker ran it, or the worker was lost | cancel and upload the same checked zip once more; if it hangs again, write to the organizers with the ids |
 | Failed after about 20 minutes | the 1,200 s limit | compare with the `--official` wall time; only then consider the box cap |
+| Running for hours although the scoring log already shows `[scoring] DONE: scores=...` (S3 upload, 2026-10-10) | the scorer finished; the platform did not finish the post-scoring step (storing the results) | keep the log (it holds every score); wait; if it ends as Failed or stays Running for a day, upload the same checked zip once more (it costs one of 5 per day) and report the id to the organizers |
 
 Collect for every failed or stuck submission: the id, the status tooltip, the expanded row (scoring stdout and stderr, detailed results), the exact uploaded file (`unzip -l`, `check_submission.py --official`), its name, size and checksum, and how it was made. History: [`docs/decisions/2026-10-06-s1-first-submission.md`](../docs/decisions/2026-10-06-s1-first-submission.md).
 

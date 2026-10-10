@@ -2,7 +2,7 @@
   "model": "routed-g2",
   "track": "v2x-track",
   "strategy": "S2",
-  "time": "2026-10-09 12:56",
+  "time": "2026-10-09 19:39",
   "iou": "exact (official)",
   "A_mAP": 0.5845371020478124,
   "B_mAP": 0.536903093130462,
@@ -53,6 +53,24 @@
   "estimate_A": 0.8686431521701707,
   "server_check": null,
   "leaderboard": null,
+  "B_static_fp": {
+    "pedestrian": {
+      "score_min": 0.5,
+      "boxes_per_frame": 28.543624161073826,
+      "unmatched_per_frame": 18.35234899328859,
+      "static_per_frame": 12.221476510067115,
+      "static_share": 0.6659352715304443
+    }
+  },
+  "B_static_fp_ranked": {
+    "pedestrian": {
+      "score_min": 0.6452640295028687,
+      "boxes_per_frame": 17.808724832214764,
+      "unmatched_per_frame": 9.476510067114093,
+      "static_per_frame": 6.197986577181208,
+      "static_share": 0.6540368271954674
+    }
+  },
   "vs": {
     "model": "routed-g1z",
     "bootstrap": 200,

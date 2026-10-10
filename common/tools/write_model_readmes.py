@@ -32,7 +32,8 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
               f"| Module | {card.get('module', '-')} |",
               f"| Architecture | {card.get('architecture', '-')} |",
               f"| Training data | `{card.get('data', {}).get('train', '-')}` |" if not routed else
-              f"| Members | " + ", ".join(f"`{k}` = [`{v['model']}`](../{v['model']}) (`{v['ckpt']}`)" for k, v in card["members"].items()) + " |",
+              f"| Members | " + ", ".join(f"`{k}` = [`{v['model']}`](../{v['model']}) (`{v['ckpt']}`" + (f", TTA `{v['tta']}`" if v.get("tta") else "") + ")"
+                                          for k, v in card["members"].items()) + " |",
               f"| Real validation | `{card.get('data', {}).get('realval', '-')}` (split `val` = realval-A, `valB` = realval-B) |",
               f"| Realism frames | `{card.get('realism_frames', '-')}`" + (" (selected list: [`test/synthetic_ids.txt`](test/synthetic_ids.txt))" if (mdir / "test/synthetic_ids.txt").exists() else " (random 50 of the val split until selected)") + " |",
               f"| Status | {card.get('status', '-')} |", ""]
@@ -44,6 +45,20 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
         sel = card.get("route_selection")
         if sel:
             lines += [f"Rule: {sel.get('rule')}.", ""]
+        if card.get("calibration"):
+            lines += ["Range-dependent z calibration of the routed classes (z += z0 + z_per_m x range): "
+                      + ", ".join(f"{c} ({v['z0']}, {v['z_per_m']})" for c, v in card["calibration"].items()) + ".", ""]
+    if routed and card.get("fusion"):
+        lines += ["## Fusion (classes replaced by the fused members, `route_predictions.py fuse`)", "",
+                  "| Class | Members | Weights | BEV IoU | Member z calibration |", "|---|---|---|---|---|"]
+        for c, fz in card["fusion"].items():
+            cal = ", ".join(f"{n} ({v['z0']}, {v['z_per_m']})" for n, v in (fz.get("calibration") or {}).items()) or "-"
+            lines.append(f"| {c} | {' + '.join(fz['members'])} | {fz.get('weights', '-')} | {fz['iou']} | {cal} |")
+        lines.append("")
+    if routed and card.get("budget"):
+        lines += ["## Score floors (server-cost budget, `route_predictions.py budget`)", "",
+                  "| " + " | ".join(card["budget"]) + " |", "|" + "---|" * len(card["budget"]),
+                  "| " + " | ".join(str(v) for v in card["budget"].values()) + " |", ""]
     lines += ["## Commands", "", "From the repository root after `source common/env/activate.sh`:", "", "```bash"]
     if not routed:
         lines += [f"CUDA_VISIBLE_DEVICES=0,1,2,3 bash {rel}/train/train.sh 4 run1 --fix_random_seed --workers 6      # train",
@@ -52,8 +67,13 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/predict.sh <ckpt>                                       # predict the 50 kit frames",
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <ckpt> <tag> [team]                 # zip + validation + local score"]
     else:
-        lines += [f"python common/tools/route_predictions.py select {rel}                                  # choose the route",
-                  f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <tag> [team]                        # zip + validation + local score"]
+        lines += [f"python common/tools/route_predictions.py select {rel}" + (" --rule joint --calibrated" if card.get("fusion") else "")
+                  + "                                  # choose the route"]
+        if card.get("fusion"):
+            lines += [f"python common/tools/route_predictions.py fuse {rel}                                    # per-class fusion (class gate)"]
+        if card.get("budget"):
+            lines += [f"python common/tools/route_predictions.py budget {rel}                                  # per-class score floors"]
+        lines += [f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <tag> [team]                        # zip + validation + local score"]
     lines += ["```", ""]
     cfg = mdir / "train/pcdet_model.yaml"
     if cfg.exists():

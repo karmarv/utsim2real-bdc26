@@ -1,0 +1,63 @@
+{
+  "phase": "Development",
+  "status": "Running (CodaBench status on 2026-10-10 after the scorer printed DONE; the scores below are from the scoring log)",
+  "team": "KarmaRV",
+  "strategy": "S3 (Fused Portfolio with TTA)",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 974348,
+  "uploaded_file": "lumpi_s3_submission.zip of this folder, unchanged (md5 9133dd7d9d8b377ec9228b79b75065a0, as in manifest.json)",
+  "submitted": "2026-10-10 05:48 (time shown to the entrant on the Submissions page)",
+  "leaderboard_rank_at_submission": null,
+  "leaderboard_note": "not listed on 2026-10-10 (status Running); the listed KarmaRV entry is 965614 (rank 2 of 18 behind Raj Patil 966997, 0.4784)",
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005392081351404081
+  },
+  "scores": {
+    "score_combined": 0.501479,
+    "score_detection": 0.241645,
+    "score_realism": 0.891229,
+    "mAP_3d_0.5_R40": 0.169152,
+    "mAP_3d_0.5_R11": 0.175985,
+    "mAP_3d_0.7_R40": 0.060871,
+    "mAP_bev_0.5_R40": 0.178132,
+    "CD": 1.689947,
+    "MMD": 0.00187433,
+    "EMD": 1.647213,
+    "FPD": 5.094576,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.156613,
+    "AP_3d_0.5_R40_Car": 0.652404,
+    "AP_3d_0.5_R40_Bicycle": 0.223896,
+    "AP_3d_0.5_R40_Motorcycle": 0.000909,
+    "AP_3d_0.5_R40_Bus": 0.0,
+    "AP_3d_0.5_R40_Truck": 0.033136,
+    "AP_3d_0.5_R40_Van": 0.117103,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] installing dependencies...",
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 1.6899468973324652, 'MMD': 0.001874328298857364, 'EMD': 1.647212781718087, 'FPD': 5.094575508584967, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.0005392081351404081}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.1691517154281428",
+    "[scoring] DONE: scores={'score_combined': 0.501479, 'score_detection': 0.241645, 'score_realism': 0.891229, 'mAP_3d_0.5_R40': 0.169152, 'mAP_3d_0.5_R11': 0.175985, 'mAP_3d_0.7_R40': 0.060871, 'mAP_bev_0.5_R40': 0.178132, 'CD': 1.689947, 'MMD': 0.00187433, 'EMD': 1.647213, 'FPD': 5.094576, 'valid_submission': 1, 'AP_3d_0.5_R40_Person': 0.156613, 'AP_3d_0.5_R40_Car': 0.652404, 'AP_3d_0.5_R40_Bicycle': 0.223896, 'AP_3d_0.5_R40_Motorcycle': 0.000909, 'AP_3d_0.5_R40_Bus': 0.0, 'AP_3d_0.5_R40_Truck': 0.033136, 'AP_3d_0.5_R40_Van': 0.117103, 'AP_3d_0.5_R40_Unknown': None}"
+  ],
+  "vs_previous": {
+    "id": 965614,
+    "combined": 0.472786,
+    "mAP_3d_0.5_R40": 0.135676,
+    "AP_Person": 0.116837,
+    "AP_Car": 0.632977,
+    "AP_Bicycle": 0.052796,
+    "AP_Motorcycle": 0.001182,
+    "AP_Bus": 0.0,
+    "AP_Truck": 0.028008,
+    "AP_Van": 0.117935,
+    "mAP_bev_0.5_R40": 0.153334,
+    "mAP_3d_0.7_R40": 0.049969,
+    "realism_identical": true
+  }
+}

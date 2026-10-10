@@ -21,6 +21,8 @@ S2 Center-Routed Small Objects (docs/02-STRATEGY.md Section 8.2): the members of
 
 Rule: joint: rank members by the mean of realval-A and realval-B AP; a class leaves its current member only through the class gate (dB >= 0.01, paired bootstrap x200 P(gain) >= 0.9, dA >= -0.005); members compared with their gated z calibration.
 
+Range-dependent z calibration of the routed classes (z += z0 + z_per_m x range): vehicle (-0.15, 0.005), pedestrian (-0.175, 0.0075).
+
 ## Commands
 
 From the repository root after `source common/env/activate.sh`:

@@ -56,8 +56,10 @@ def validation_tag(model_dir: Path, card: dict) -> str:
 
 
 def member_tag(member: dict) -> str:
-    """Validation-file suffix of a routed model's member from its ckpt path (<tag>_checkpoint_epoch_N)."""
-    return Path(member["ckpt"]).parts[-3] + "_" + Path(member["ckpt"]).stem
+    """Validation-file suffix of a routed model's member from its ckpt path (<tag>_checkpoint_epoch_N), plus "_tta"
+    for a test-time-augmentation variant (member entry with a `tta` view spec; tune_and_eval.sh --tta writes it)."""
+    tag = Path(member["ckpt"]).parts[-3] + "_" + Path(member["ckpt"]).stem
+    return tag + "_tta" if member.get("tta") else tag
 
 
 def validation_predictions(model_dir: Path, card: dict, split: str, tag: str | None = None) -> Path:

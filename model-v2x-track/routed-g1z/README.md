@@ -21,6 +21,8 @@ S1 close-out candidate C1: the members, route and realism frames of routed-g1, p
 
 Rule: best realval-A AP; within 0.005 of the best, the higher realval-B AP.
 
+Range-dependent z calibration of the routed classes (z += z0 + z_per_m x range): vehicle (-0.15, 0.005), pedestrian (-0.175, 0.0075).
+
 ## Commands
 
 From the repository root after `source common/env/activate.sh`:

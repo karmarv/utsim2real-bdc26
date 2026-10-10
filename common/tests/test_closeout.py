@@ -179,3 +179,79 @@ def test_centerhead_targets_keep_class_labels():
     gt2 = gt.clone()
     head.assign_targets(gt2, feature_map_size=[100, 100])
     assert torch.equal(gt2, gt)                                            # the caller's labels are untouched
+
+
+def test_tta_views_invert_exactly_and_keep_points_in_boxes():
+    from bdc26.boxes import points_in_boxes
+    from bdc26.detect import tta
+    rng = np.random.default_rng(5)
+    boxes = np.c_[rng.uniform(-30, 30, (20, 2)), rng.uniform(-2, 0, 20), rng.uniform(0.5, 6, (20, 3)), rng.uniform(-np.pi, np.pi, 20)]
+    pts = np.concatenate([b[:3] + rng.uniform(-0.3, 0.3, (30, 3)) * b[3:6] for b in boxes]).astype(np.float32)
+    inside = points_in_boxes(pts, boxes)
+    for v in tta.parse("flip4+yaw+z"):
+        back = tta.inverse_boxes(tta.forward_boxes(boxes, v), v)
+        d = back - boxes
+        d[:, 6] = (d[:, 6] + np.pi) % (2 * np.pi) - np.pi
+        assert np.abs(d).max() < 1e-9, v
+        assert np.array_equal(points_in_boxes(tta.forward_points(pts, v), tta.forward_boxes(boxes, v)), inside), v
+    assert [v.name for v in tta.parse("flip4")] == ["id", "fx", "fy", "fxy"]
+
+
+def test_wbf_merges_agreeing_sources_and_demotes_lonely_boxes():
+    from bdc26.detect.fusion import fuse_dets, wbf
+    a = [1.0, 2.0, -1.0, 4.0, 2.0, 1.5, 0.3]
+    b = [1.1, 2.0, -1.1, 4.2, 2.0, 1.5, 0.3]
+    lonely = [20.0, 5.0, -1.0, 0.7, 0.7, 1.7, 0.0]
+    fb, fs, n = wbf(np.array([a, b, lonely]), np.array([0.8, 0.6, 0.9]), np.array([0, 1, 0]), 2, 0.5)
+    order = np.argsort(-fs)
+    assert len(fb) == 2 and n[order[0]] == 2                      # the two agreeing boxes became one cluster
+    assert fs[order[0]] == pytest.approx(0.7) and fs[order[1]] == pytest.approx(0.45)
+    assert fb[order[0]][0] == pytest.approx((1.0 * 0.8 + 1.1 * 0.6) / 1.4)
+    out = fuse_dets([[{"box": a, "score": 0.8, "class": "vehicle"}], [{"box": b, "score": 0.6, "class": "vehicle"}]], 0.5, [1.0, 0.5])
+    assert len(out) == 1 and out[0]["score"] == pytest.approx((0.8 + 0.5 * 0.6) / 1.5)
+
+
+def test_merge_card_fuses_listed_classes_with_member_calibration():
+    """Classes in `fusion` come from the fused members (each with its own z calibration), the others from the route."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import route_predictions as rp
+    ped = lambda x, z, s: {"box": [x, 0.0, z, 0.8, 0.8, 1.7, 0.0], "score": s, "class": "pedestrian"}
+    a = {"f1": [ped(10.0, 0.0, 0.8), {"box": [5.0, 5.0, 0.0, 4.0, 2.0, 1.5, 0.0], "score": 0.9, "class": "vehicle"}]}
+    b = {"f1": [ped(10.0, 0.5, 0.6), ped(30.0, 0.0, 0.5)]}
+    card = {"route": {"pedestrian": "a", "vehicle": "a"},
+            "fusion": {"pedestrian": {"members": ["a", "b"], "weights": [1.0, 1.0], "iou": 0.3,
+                                      "calibration": {"b": {"z0": -0.5, "z_per_m": 0.0}}}}}
+    assert rp.used_members(card) == ["a", "b"]
+    out = rp.merge_card(card, {"a": a, "b": b})["f1"]
+    peds = sorted((d for d in out if d["class"] == "pedestrian"), key=lambda d: d["box"][0])
+    assert [d["class"] for d in out].count("vehicle") == 1 and len(peds) == 2
+    assert peds[0]["score"] == pytest.approx(0.7) and peds[0]["box"][2] == pytest.approx(0.0)   # b's z calibrated onto a's
+    assert peds[1]["score"] == pytest.approx(0.25)                                              # only b saw it
+
+
+def test_static_fp_share_separates_repeating_structures_from_moving_errors():
+    gt = (np.array([[0.0, 0.0, 0.0, 0.8, 0.8, 1.7, 0.0]]), np.array(["pedestrian"]))
+    ped = lambda x, y: {"box": [x, y, 0.0, 0.8, 0.8, 1.7, 0.0], "score": 0.9, "class": "pedestrian"}
+    gts = {f"s__{k:06d}": gt for k in range(10)}
+    preds = {f: [ped(0.0, 0.0), ped(20.0, 5.0), ped(-10.0 + 3 * k, 8.0)] for k, f in enumerate(gts)}  # TP, pole, mover
+    r = dg.static_fp_share(preds, gts, "pedestrian")
+    assert r["unmatched_per_frame"] == 2 and r["static_per_frame"] == 1 and r["static_share"] == pytest.approx(0.5)
+
+
+def test_budget_floor_ap_equals_ap_of_truncated_flags():
+    """Greedy matching runs in score order, so removing boxes below a floor never changes the matches above it:
+    the official AP of the filtered predictions equals the AP of the truncated flags (route_predictions budget)."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import route_predictions as rp
+    preds, gts = _toy(seed=3, spurious=8)
+    fl = sc.frame_flags(preds, gts, ["pedestrian"])["pedestrian"]
+    for floor in (0.2, 0.45):
+        kept = rp.apply_budget(preds, {"pedestrian": floor})
+        official = evalap.evaluate(kept, gts, ["pedestrian"])["per_class"]["pedestrian"]["3d@0.5"]["AP_R40"]
+        tr = [{"n_gt": r["n_gt"], "scores": r["scores"][r["scores"] >= floor], "3d@0.5": r["3d@0.5"][r["scores"] >= floor]} for r in fl]
+        assert sc.ap_from_flags(tr, "3d@0.5") == pytest.approx(official, abs=1e-9)
+        assert all(d["score"] >= floor for v in kept.values() for d in v if d["class"] == "pedestrian")

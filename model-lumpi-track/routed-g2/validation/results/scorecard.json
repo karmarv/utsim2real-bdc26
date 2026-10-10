@@ -2,7 +2,7 @@
   "model": "routed-g2",
   "track": "lumpi-track",
   "strategy": "S2",
-  "time": "2026-10-09 15:19",
+  "time": "2026-10-09 19:39",
   "iou": "exact (official)",
   "A_mAP": 0.27216028908872353,
   "B_mAP": 0.17002412818168416,
@@ -96,8 +96,42 @@
   },
   "estimate_B": 0.5078404850979789,
   "estimate_A": 0.5953857658754411,
-  "server_check": null,
+  "server_check": {
+    "valid": true,
+    "error": null,
+    "stand_in_gt_boxes": 3652,
+    "score_realism": 0.905657,
+    "CD": 1.628759,
+    "MMD": 0.00117104,
+    "EMD": 1.530407,
+    "FPD": 3.447446,
+    "wall_s": 156.3,
+    "peak_rss_mb": 5894,
+    "budget_s": 1200,
+    "returncode": 0,
+    "stderr_tail": "",
+    "time": "2026-10-09 15:25",
+    "n_boxes": 24639
+  },
   "leaderboard": null,
+  "B_static_fp": {
+    "Person": {
+      "score_min": 0.5,
+      "boxes_per_frame": 19.440599769319494,
+      "unmatched_per_frame": 9.149942329873126,
+      "static_per_frame": 3.2779700115340256,
+      "static_share": 0.3582503466532207
+    }
+  },
+  "B_static_fp_ranked": {
+    "Person": {
+      "score_min": 0.29843807220458984,
+      "boxes_per_frame": 32.33448673587082,
+      "unmatched_per_frame": 18.856978085351788,
+      "static_per_frame": 9.713956170703575,
+      "static_share": 0.5151385405835219
+    }
+  },
   "vs": {
     "model": "routed-g1",
     "bootstrap": 200,

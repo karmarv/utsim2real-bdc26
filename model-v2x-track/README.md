@@ -6,15 +6,15 @@
 
 | | |
 |---|---|
-| Selected model | [`routed-g1`](routed-g1): vehicle from [`pointpillars-g1v2`](pointpillars-g1v2), pedestrian from [`pointpillars-g1v3`](pointpillars-g1v3), truck from [`pointpillars-ut`](pointpillars-ut) |
-| Real validation (official metric, tuned) | **realval-A mAP 0.572**, realval-B 0.520 |
-| Local combined estimate | 0.858 (A) / 0.814 (B); ECCV winner 0.746 |
-| CodaBench (current entry) | **972563: combined 0.7855** (mAP 0.4869, R 0.9203), S1+C1 ([`routed-g1z`](routed-g1z)), rank 1 on 2026-10-09 (Section 9) |
-| CodaBench (previous) | 965633: combined 0.7665 (mAP 0.4648), S1 ([`routed-g1`](routed-g1)), 2026-10-06 |
-| Submitted zip | current entry: [`routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip`](routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (tag 1.0); S1: `submission_v2x_karmarv.zip` (release 0.1) |
+| Selected model | [`routed-g3`](routed-g3) (S3): every class fused from a TTA pillar member and a TTA CenterPoint member, per-class score floors (Section 7.6); S1 baseline [`routed-g1`](routed-g1) |
+| Real validation (official metric, tuned) | **realval-A mAP 0.661**, realval-B 0.664 (S3); S1 0.572 / 0.520 |
+| Local combined estimate | 0.937 (B) for S3; leaderboard 0.838 (Section 9.4); ECCV winner 0.746 |
+| CodaBench (current entry) | **974400: combined 0.8381** (mAP 0.5483, R 0.9203), S3 ([`routed-g3`](routed-g3)), rank 1 of 19 on 2026-10-10 (Section 9) |
+| CodaBench (previous) | 972563: combined 0.7855 (mAP 0.4869), S1+C1 ([`routed-g1z`](routed-g1z)), 2026-10-09; 965633: 0.7665, S1, 2026-10-06 |
+| Submitted zip | current entry: [`routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip`](routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip) (tag 3.0); S1+C1: [`submission_v2x.zip`](routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (tag 1.0); S1: `submission_v2x_karmarv.zip` (release 0.1) |
 | Realism of the submitted frames | R = 0.919 on held-out legal proxies, official scorer (frames from the FOV-masked `g1-v3` val split with 31% nulls) |
 | Submit | Section 6.7 |
-| Strategy | S1+C1 submitted; S2 done without a new V2X version (Section 7.5); next S3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
+| Strategy | S1, S1+C1 and **S3 submitted** (Section 7.6); S2 done without a new V2X version (Section 7.5); next S4 and R3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
@@ -28,10 +28,11 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`pointpillars-g1v2`](pointpillars-g1v2) | `pcdet/g1-v2` (walker v2 body) | routed member for vehicle | trained 40 epochs, tuned |
 | [`pointpillars-g1v3`](pointpillars-g1v3) | `pcdet/g1-v3` (walkers calibrated on legal real walkers, FOV-masked UT) | routed member for pedestrian | trained 40 epochs, tuned |
 | [`routed-g1`](routed-g1) | members above | S1 | submitted (965633, 0.7665) |
-| [`routed-g1z`](routed-g1z) | `routed-g1` + range-dependent z calibration (C1) | **selected** (S1+C1) | submitted (972563, **0.7855**; Section 7.4) |
+| [`routed-g1z`](routed-g1z) | `routed-g1` + range-dependent z calibration (C1) | S1+C1 | submitted (972563, 0.7855; Section 7.4) |
 | [`centerpoint-g1v3`](centerpoint-g1v3) | `pcdet/g1-v3` | S2 member: CenterPoint, stride 8 | trained 40 epochs (label fix), tuned; no class won (Section 7.5) |
 | [`centerpoint-s4-g1v3`](centerpoint-s4-g1v3) | `pcdet/g1-v3` | S2 variant: CenterPoint, stride 4 | trained 40 epochs, tuned; no class won |
 | [`routed-g2`](routed-g2) | members of `routed-g1z` + `cp`, `cp4` | S2 candidate | route and calibration unchanged from S1+C1: no new version |
+| [`routed-g3`](routed-g3) | `routed-g2` members and their TTA variants (`<member>_tta`) | **selected** (S3) | all three classes fused; submitted (974400, **0.8381**, rank 1; Section 7.6) |
 
 ## 2. Modeling approaches considered
 
@@ -188,6 +189,24 @@ Official metric, tuned post-processing, realval-A / realval-B. Summary, gates an
 - **Static false positives:** 72-77% of the unmatched pedestrian boxes scoring >= 0.5 repeat in the same 1 m cells across at least 20% of a scene's frames (both architectures; CenterPoint 1.8x more). Removing them with the labels (an upper bound) would lift the S1+C1 pedestrian from 0.290 to 0.356 (A) and 0.252 to 0.346 (B): the twin lacks the static structures, so they are never negatives in training.
 - **Bug fixed on the way:** OpenPCDet's `CenterHead.assign_targets` relabeled pedestrians as vehicles in this head layout (vehicle 3D AP 0.019 at epoch 12 before the fix, 0.546 after); see `common/bdc26/detect/pcdet_patches.py`.
 
+### 7.6 S3 results: TTA variants, fusion and score floors (2026-10-09)
+
+Official metric, realval-A / realval-B. Summary, gates and lessons: [`docs/02-STRATEGY.md` Section 8.3.1](../docs/02-STRATEGY.md#831-results-2026-10-09); [decision record](../docs/decisions/2026-10-09-s3-fused-portfolio.md).
+
+| Step | vehicle | pedestrian | truck | mAP | BEV-3D gap (B) | 3D@0.7 (B) |
+|---|---|---|---|---|---|---|
+| S1+C1 = S2 route (`g1v2` + C1, `g1v3` + C1, `ut`) | 0.641 / 0.685 | 0.290 / 0.252 | 0.822 / 0.673 | 0.585 / 0.537 | 0.129 | 0.055 |
+| TTA variants routed (`cp_tta`, `g1v3_tta` + C1', `ut_tta` + C1') | 0.723 / 0.766 | 0.316 / 0.296 | 0.866 / 0.788 | 0.635 / 0.617 | | |
+| fused pairs (`cp_tta` + `g1v2_tta`, `g1v3_tta` + `cp4_tta`, `ut_tta` + `g1v2_tta`; IoU 0.5) | 0.758 / 0.821 | 0.350 / 0.362 | 0.877 / 0.814 | 0.662 / 0.666 | 0.063 | 0.078 |
+| **with score floors (0.05, 0.075, 0.2): `routed-g3`** | **0.757 / 0.819** | **0.350 / 0.361** | **0.876 / 0.812** | **0.661 / 0.664** | **0.062** | **0.078** |
+
+- **TTA per member** (8 views: flips, yaw +/-5 deg, z +/-0.25 m; each variant with its own tuned `test/postprocess_tta.yaml`): on B, truck +0.09 to +0.14 for every pillar member, vehicle +0.02 to +0.09 (except `g1v3`), pedestrian +0.03 to +0.05 for `g1v3` and both CenterPoint members. C1' is the gated z calibration of the TTA variant (pedestrian z0 -0.225 m, 0.0075 per m).
+- **Every class passes the class gate** against S2 (P(gain) 1.00): vehicle +0.134, pedestrian +0.109, truck +0.139 on B; mAP +0.127 (90% interval +0.114 to +0.137). Selected on realval-A alone, B-mAP is still 0.653.
+- **Height:** the BEV-3D gap on B halves (0.129 -> 0.062), from the z-shift views and the CenterPoint z voxels in the fused pairs.
+- **Static false positives** (pedestrian on B, ranked above the median true-positive score): 6.2 -> 1.8 per frame; 58% of the remaining unmatched ones are still static (R3).
+- **Upload gate:** combined estimate (B) 0.828 -> **0.937**, R 0.919 (same 50 frames); kit scorer 74 s with 10,671 boxes (unbudgeted: 48,110 boxes, 224 s; score floors: 955 -> 207 boxes per realval-A frame for -0.0014 B-mAP). **Passed.** Projected before the upload (0.91 x B): mAP about 0.60, combined about 0.89.
+- **Leaderboard (974400, 2026-10-10):** combined **0.8381**, mAP 0.5483 (vehicle 0.681, pedestrian 0.346, truck 0.619), 3D@0.7 0.0755, BEV 0.6179, rank 1 of 19; confirmation passed (+0.053 over 972563). The gain was 0.48 x the realval-B gain but 0.80 x the realval-A gain (Section 9.4).
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -200,7 +219,7 @@ Official metric, tuned post-processing, realval-A / realval-B. Summary, gates an
 | E6 | Ground-plane canonicalization of the sloped scene | part of the S4 diagnosis (`docs/02` Section 8.1.2 D2 and Section 8.4 step 0) |
 | E7 | Architecture routing for pedestrians (CenterPoint) | done (S2): no class passes the class gate; static false positives are the main pedestrian error (Section 7.5) |
 | E8 | Background density calibration for realism (as Track 1) | next (data guide Section 12) |
-| E9 | TTA and weighted box fusion, height TTA | strategy S3 |
+| E9 | TTA and weighted box fusion, height TTA | done (S3): every class up on B; mAP B 0.537 -> 0.664; BEV-3D gap 0.129 -> 0.062 (Section 7.6) |
 
 ## 9. Submission log
 
@@ -209,22 +228,29 @@ Official metric, tuned post-processing, realval-A / realval-B. Summary, gates an
 | 2026-10-02 | `routed-g1` / `first`, hand-edited copy uploaded as `submission_v2x_20261002.zip` | 957439 | 0.572 / 0.520 | 0.919 | | | | Running for 4 days with no log ("Preparing submission..."), cancelled 2026-10-06; counted (1 of 100 used); Section 10.6 |
 | 2026-10-06 | `routed-g1` / `first`, team KarmaRV, uploaded unchanged as `submission_v2x_karmarv.zip` | 965633 | 0.572 / 0.520 | 0.919 | **0.4648** | **0.9203** | **0.7665** | strategy S1; rank 1 of 34 (next 0.6114); server record [`codabench_965633.json`](routed-g1/submissions/2026-10-02_first/codabench_965633.json) |
 | 2026-10-09 | `routed-g1z` / `zcal` (S1+C1 z calibration), the packaged zip unchanged | 972563 | 0.585 / 0.537 | 0.919 | **0.4869** | **0.9203** | **0.7855** | strategy S1+C1; rank 1 of 19 (next 0.6616); scored in about 4 min; server record [`codabench_972563.json`](routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json); [decision record](../docs/decisions/2026-10-09-s1-closeout-z-calibration.md) |
+| 2026-10-10 | `routed-g3` / `s3` (strategy S3), uploaded unchanged as `v2x_s3_submission.zip` | 974400 | 0.661 / 0.664 | 0.919 | **0.5483** | **0.9203** | **0.8381** | strategy S3; rank 1 of 19 (next 0.6616); kit scorer 74 s, 10,671 boxes; server record [`codabench_974400.json`](routed-g3/submissions/2026-10-09_s3/codabench_974400.json); [decision record](../docs/decisions/2026-10-09-s3-fused-portfolio.md) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | vehicle | pedestrian | truck | BEV mAP@0.5 |
 |---|---|---|---|---|---|
-| **972563 leaderboard (S1+C1)** | **0.4869** | 0.605 | 0.281 | 0.574 | 0.5696 |
+| **974400 leaderboard (S3)** | **0.5483** | 0.681 | 0.346 | 0.619 | 0.6179 |
+| S3 realval-A / realval-B | 0.661 / 0.664 | 0.757 / 0.819 | 0.350 / 0.361 | 0.876 / 0.812 | |
+| 972563 leaderboard (S1+C1) | 0.4869 | 0.605 | 0.281 | 0.574 | 0.5696 |
 | S1+C1 realval-A / realval-B | 0.585 / 0.537 | 0.641 / 0.685 | 0.290 / 0.252 | 0.822 / 0.673 | |
 | 965633 leaderboard (S1) | 0.4648 | 0.585 | 0.235 | 0.574 | 0.5696 |
 | S1 realval-A / realval-B | 0.572 / 0.520 | 0.627 / 0.662 | 0.266 / 0.226 | 0.822 / 0.673 | |
 | leaderboard / realval-B (S1 -> S1+C1) | 0.89 -> 0.91 | 0.88 -> 0.88 | 1.04 -> 1.12 | 0.85 | |
+| leaderboard / realval-B (S3) | 0.83 | 0.83 | 0.96 | 0.76 | |
+| leaderboard gain / realval-A gain (S1+C1 -> S3) | 0.80 | 0.65 | 1.07 | 0.82 | |
 
-The z calibration changed only z, so BEV AP and realism are identical; it gained more on the test frames than on realval-B for pedestrians (+0.046 vs +0.026) and about the same for vehicles (+0.020 vs +0.023), and the leaderboard BEV-3D gap fell from 0.105 to 0.083.
+S3 changed only the detections (same 50 frames, identical realism): the leaderboard BEV-3D gap fell from 0.083 to 0.070 (realval-B: 0.129 to 0.062), 3D@0.7 rose from 0.0555 to 0.0755. The S1+C1 z calibration changed only z, so BEV AP and realism are identical; it gained more on the test frames than on realval-B for pedestrians (+0.046 vs +0.026) and about the same for vehicles (+0.020 vs +0.023), and the leaderboard BEV-3D gap fell from 0.105 to 0.083.
 
 Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
 
 ### 9.2 Artifacts
+
+974400 (S3): model [`routed-g3`](routed-g3) ([`model.yaml`](routed-g3/model.yaml): members with TTA variants, `route`, `calibration`, `fusion`, `budget`); the upload copy [`v2x_s3_submission.zip`](routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip) (md5 `5e46f9450feb7846455c4b8428483641`, byte-identical to the folder's `submission.zip`, in its [`manifest.json`](routed-g3/submissions/2026-10-09_s3/manifest.json)); server record [`codabench_974400.json`](routed-g3/submissions/2026-10-09_s3/codabench_974400.json); reproducible: the zip's predictions equal `route_predictions.py merge` of the saved member predictions with the committed `model.yaml`.
 
 972563 (S1+C1): model [`routed-g1z`](routed-g1z) ([`model.yaml`](routed-g1z/model.yaml): S1 members and route plus `calibration`); the packaged zip of [`routed-g1z/submissions/2026-10-09_zcal/`](routed-g1z/submissions/2026-10-09_zcal) committed as [`submission_v2x.zip`](routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (md5 `7fbb973e2c1715dea66d7850b8bde11f`, also in its [`manifest.json`](routed-g1z/submissions/2026-10-09_zcal/manifest.json); tag 1.0); server record [`codabench_972563.json`](routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json); register row: [`docs/decisions/README.md`](../docs/decisions/README.md#2-submission-register).
 
@@ -242,7 +268,7 @@ Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (lo
 
 | | CD | MMD | EMD | FPD | R |
 |---|---|---|---|---|---|
-| leaderboard (965633 and 972563, identical frames) | 2.215 | 0.00329 | 1.414 | 1.092 | **0.9203** |
+| leaderboard (965633, 972563 and 974400, identical frames) | 2.215 | 0.00329 | 1.414 | 1.092 | **0.9203** |
 | local, held-out proxy 4 | 2.181 | 0.00384 | 1.441 | 1.126 | 0.9188 |
 | ECCV 2026 winner | | | | | 0.925 |
 
@@ -256,7 +282,10 @@ Both sides pooled 2,500,000 points before subsampling (50 x 50,000), so the pack
 | Vehicle and pedestrian transfer close to realval-B | vehicle 0.585 (B 0.662), pedestrian 0.235 (B 0.226) | pedestrian (953 test GT, the largest class) is limited by the detector, not by transfer: the S2 target |
 | Truck does not | truck 0.574 (A 0.822, B 0.673) | the truck route (the UT-only run, best on A) lost the most; route on A and B jointly and add truck size modes |
 | Height costs 0.105 mAP | BEV@0.5 0.570 vs 3D@0.5 0.465 (S1) | realval shows the same gap (0.103 A, 0.146 B), caused partly by a range-dependent z bias: C1 removed part of it (leaderboard gap 0.083, Section 7.4); the rest is the S2-S4 target |
-| Local estimate was optimistic | estimate A / B / leaderboard: S1 0.858 / 0.814 / 0.767; S1+C1 0.869 / 0.828 / 0.786 | report the realval-B estimate; it overstates by about 0.045 |
+| Local estimate was optimistic | estimate A / B / leaderboard: S1 0.858 / 0.814 / 0.767; S1+C1 0.869 / 0.828 / 0.786; S3 0.934 / 0.937 / 0.838 | the B estimate overstated S3 by 0.099: its large B gain did not transfer in full |
+| S3 gains transferred at 0.80 x the realval-A gain, 0.48 x the realval-B gain | vehicle +0.076 (B +0.134), pedestrian +0.064 (B +0.109), truck +0.044 (B +0.139) | project the leaderboard from the A gain (same factor on LUMPI, 0.81); B took part in every joint ranking and is the smaller split |
+| Truck transfers least | S3 truck leaderboard / B 0.76 (S1 0.85); gain 0.32 x B | the TTA truck route and its fusion pair won mostly on B; long trucks in the generator (R3) |
+| Height improved on the test frames too | BEV-3D gap 0.083 -> 0.070, 3D@0.7 0.0555 -> 0.0755 | z-shift views and CenterPoint z voxels transfer; S4 is now judged on 3D@0.7 |
 
 ## 10. Local evaluation and packaging
 
@@ -299,7 +328,7 @@ Local results of every model are in Section 7; the leaderboard calibration is in
 | the scorer reads `synthetic/`, `predictions.json` and `declaration.*` at the zip root | exactly these entries; `check_submission.py` rejects anything else (a nested folder, `__MACOSX/`, `.DS_Store`) |
 | this track's frames | 31% of each realism frame are (0,0,0) nulls, as in the real frames (`track.yaml` `resample.null_fraction`) |
 
-Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt`, the upload copy `v2x_<strategy>_submission.zip` (byte-identical to `submission.zip`, written by the packager; upload this file unchanged) and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the zip of a leaderboard entry is committed beside it as `submission_<track>.zip` and listed in [`RELEASES.md`](../RELEASES.md).
+Each submission is a folder `<model>/submissions/<date>_<tag>/` with `manifest.json`, `synthetic_ids.txt`, the upload copy `v2x_<strategy>_submission.zip` (byte-identical to `submission.zip`, written by the packager; upload this file unchanged) and, after an upload, `codabench_<id>.json`; the working `submission.zip` is git-ignored; the upload copy is committed (from 3.0; the 1.0 entries as `submission_<track>.zip`), and the leaderboard entries are listed in [`RELEASES.md`](../RELEASES.md).
 
 ### 10.5 Server cost and the pre-upload check
 

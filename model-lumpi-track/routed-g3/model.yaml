@@ -1,0 +1,106 @@
+name: routed-g3
+strategy: S3
+track: lumpi-track
+module: M11 (TTA and fusion)
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing and box fusion of PointPillars and CenterPoint members,
+  with test-time augmentation
+members:
+  g1:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1_tta:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  g1v3:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v3_tta:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp_tta:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp4:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp4_tta:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+data:
+  train: pcdet/g1-v2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v2
+status: 'S3 submitted 2026-10-10: 974348 combined 0.5015 by the scorer log (mAP 0.1692,
+  R 0.8912), CodaBench status Running after scoring; realval-A 0.301, realval-B 0.184,
+  late-A 0.298, estimate (B) 0.520'
+notes: 'S3 Fused Portfolio with TTA (docs/02-STRATEGY.md Section 8.3.1): the members
+  of routed-g2 and their 8-view TTA variants (<member>_tta, tune_and_eval.sh --tta);
+  route by select --rule joint --calibrated, per-class fusion of two checkpoints by
+  fuse, per-class score floors by budget; every choice passed the class gate.
+
+  '
+route:
+  Person: g1v3
+  Car: g1
+  Bicycle: cp4_tta
+  Motorcycle: g1v3
+  Bus: g1v3
+  Truck: g1v3_tta
+  Van: g1
+  Unknown: g1
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); members compared with their gated z calibration'
+  estimate_mAP_A: 0.2847
+  estimate_mAP_B: 0.1784
+calibration: {}
+fusion:
+  Person:
+    members:
+    - g1v3_tta
+    - g1_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  Car:
+    members:
+    - g1v3_tta
+    - cp_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Bicycle:
+    members:
+    - cp4_tta
+    - cp_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+budget:
+  Person: 0.02
+  Car: 0.02
+  Bicycle: 0.03
+  Motorcycle: 0.3
+  Bus: 0.3
+  Truck: 0.03
+  Van: 0.075
+  Unknown: 0.075

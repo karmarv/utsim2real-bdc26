@@ -7,7 +7,7 @@ Synthetic frames: 50 frames from --synthetic (split --syn-split), chosen by --sy
 output of the M12 frame selector) or at random with --seed. They are written as float32 N x 3 as stored
 (V2X realism frames must already contain their (0,0,0) null returns). The folder receives submission.zip
 (gitignored), its upload copy <track>_<strategy>_submission.zip (for example lumpi_s2_submission.zip, the file
-to upload unchanged), manifest.json and synthetic_ids.txt (tracked); a registry row is appended.
+to upload unchanged; tracked), manifest.json and synthetic_ids.txt (tracked); a registry row is appended.
 Upload the copy by hand, then record the CodaBench id and scores with --record.
 """
 import argparse

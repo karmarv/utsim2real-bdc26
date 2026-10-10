@@ -51,7 +51,8 @@ def append(track: Track, **row) -> Path:
     if not new:
         migrate(path, lambda r: model_strategy(track, r.get("model")))
     row = {"time": time.strftime("%Y-%m-%d %H:%M"), "git_sha": git_sha(), **row}
-    row.setdefault("strategy", model_strategy(track, row.get("model")))
+    tta = str(row.get("run", "")).endswith("_tta")             # a member's TTA variant belongs to S3 (its own folder may be S1)
+    row.setdefault("strategy", "S3" if tta else model_strategy(track, row.get("model")))
     with open(path, "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
         if new:

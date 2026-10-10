@@ -130,3 +130,36 @@ def recall_by_points(preds: dict, gts: dict, points_of, classes: list[str], poin
                 out[c][f"{lo:g}-{hi:g}"][0] += int((m & hit).sum())
                 out[c][f"{lo:g}-{hi:g}"][1] += int(m.sum())
     return {c: {k: {"recall": (v[0] / v[1]) if v[1] else None, "n_gt": v[1]} for k, v in d.items()} for c, d in out.items()}
+
+
+def static_fp_share(preds: dict, gts: dict, cls: str, score_min: float | None = 0.5, min_frac: float = 0.2, cell: float = 1.0) -> dict:
+    """Unmatched boxes of a class (BEV IoU < 0.3 with every GT) that repeat at the same cell in at least min_frac of
+    their scene's frames: static structures detected as objects (the S2 diagnosis, docs/02-STRATEGY.md 8.2.1).
+    Scenes come from the frame id before the last "__". score_min=None ranks instead of thresholding: only boxes
+    scoring at least the median score of the class's true detections (BEV IoU >= 0.5) count, which stays comparable
+    when fusion rescales the scores. Returns counts per frame, the static share and the threshold used."""
+    from collections import Counter
+    scene = lambda f: f.rsplit("__", 1)[0]
+    frames = Counter(scene(f) for f in gts)
+    per_frame = []
+    for f, (gb, gn) in gts.items():
+        gb = np.asarray(gb, dtype=np.float64).reshape(-1, 7)
+        d = [x for x in preds.get(f, []) if x["class"] == cls]
+        b = np.array([x["box"] for x in d]).reshape(-1, 7)
+        sc_ = np.array([x["score"] for x in d])
+        ib = iou_pair(b, gb, exact=False)[1].max(1) if len(b) and len(gb) else np.zeros(len(b))
+        per_frame.append((f, b, sc_, ib))
+    if score_min is None:
+        tp = np.concatenate([s_[i_ >= 0.5] for _, _, s_, i_ in per_frame] + [np.zeros(0)])
+        score_min = float(np.median(tp)) if len(tp) else 0.5
+    hits, n_unmatched, n_boxes = Counter(), 0, 0
+    for f, b, s_, ib in per_frame:
+        k = s_ >= score_min
+        n_boxes += int(k.sum())
+        un = b[k & (ib < 0.3)]
+        n_unmatched += len(un)
+        hits.update((scene(f), int(round(x / cell)), int(round(y / cell))) for x, y in un[:, :2])
+    static = sum(c for k, c in hits.items() if c >= min_frac * frames[k[0]])
+    n = max(len(gts), 1)
+    return {"score_min": score_min, "boxes_per_frame": n_boxes / n, "unmatched_per_frame": n_unmatched / n,
+            "static_per_frame": static / n, "static_share": static / max(n_unmatched, 1)}

@@ -8,6 +8,9 @@
     python common/tools/pcdet_predict.py model-v2x-track/pointpillars-ut --ckpt CKPT --frames pcdet/realval-v1 --split val \
         --out model-v2x-track/pointpillars-ut/validation/output/realval-v1.json
 Post-processing: <model>/test/postprocess.yaml (override with --postprocess; use --raw to skip it).
+Test-time augmentation (strategy S3): --tta flip4[+yaw][+z] runs every frame in all views as one batch, maps the
+boxes back (bdc26.detect.tta) and fuses them class by class (bdc26.detect.fusion.wbf) before post-processing; the
+fused output keeps the raw format, so tune_postprocess.py tunes the TTA variant like any member.
 """
 import argparse
 import json
@@ -41,6 +44,8 @@ def main():
     ap.add_argument("--postprocess", default=None)
     ap.add_argument("--raw", action="store_true", help="skip bdc26 post-processing (write OpenPCDet outputs)")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--tta", default=None, help="views: flip4, flip4+yaw, flip4+yaw+z (bdc26.detect.tta.parse)")
+    ap.add_argument("--tta-iou", default=None, help="per-class view-fusion IoU, e.g. pedestrian=0.3,vehicle=0.5 (default: 0.3 small classes, 0.5 others)")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
     cfg = load_pcdet_cfg(model_dir, data_path(track, card["data"]["train"]))
@@ -70,18 +75,42 @@ def main():
     model.load_params_from_file(filename=a.ckpt, logger=logger, to_cpu=True)
     model.cuda().eval()
     pp_cfg = yaml.safe_load(Path(a.postprocess or model_dir / "test" / "postprocess.yaml").read_text())
+    from bdc26.detect import tta
+    from bdc26.detect.fusion import wbf
+    views = tta.parse(a.tta) if a.tta else None
+    tta_iou = tta.default_iou(list(cfg.CLASS_NAMES))
+    if a.tta_iou:
+        tta_iou.update({k: float(v) for k, v in (x.split("=") for x in a.tta_iou.split(","))})
     preds = {}
     with torch.no_grad():
         for k, (fid, pts) in enumerate(frames_iter(track, a.frames, a.split)):
             if a.limit is not None and k >= a.limit:
                 break
             p = strip_nulls(pts)[:, :3]
-            batch = ds.collate_batch([ds.prepare_data({"points": p, "frame_id": fid})])
-            load_data_to_gpu(batch)
-            out, _ = model.forward(batch)
-            boxes = out[0]["pred_boxes"].cpu().numpy().astype(np.float64)
-            scores = out[0]["pred_scores"].cpu().numpy().astype(np.float64)
-            labels = [cfg.CLASS_NAMES[int(i) - 1] for i in out[0]["pred_labels"].cpu().numpy()]
+            if views is None:
+                batch = ds.collate_batch([ds.prepare_data({"points": p, "frame_id": fid})])
+                load_data_to_gpu(batch)
+                out, _ = model.forward(batch)
+                boxes = out[0]["pred_boxes"].cpu().numpy().astype(np.float64)
+                scores = out[0]["pred_scores"].cpu().numpy().astype(np.float64)
+                labels = [cfg.CLASS_NAMES[int(i) - 1] for i in out[0]["pred_labels"].cpu().numpy()]
+            else:
+                batch = ds.collate_batch([ds.prepare_data({"points": tta.forward_points(p, v), "frame_id": fid}) for v in views])
+                load_data_to_gpu(batch)
+                out, _ = model.forward(batch)
+                rows = {}
+                for j, v in enumerate(views):
+                    vb = tta.inverse_boxes(out[j]["pred_boxes"].cpu().numpy().astype(np.float64), v)
+                    vs = out[j]["pred_scores"].cpu().numpy().astype(np.float64)
+                    for b_, s_, l_ in zip(vb, vs, out[j]["pred_labels"].cpu().numpy()):
+                        rows.setdefault(cfg.CLASS_NAMES[int(l_) - 1], []).append((b_, s_, j))
+                boxes, scores, labels = [], [], []
+                for c, r in rows.items():
+                    fb, fs, _ = wbf(np.array([x[0] for x in r]), np.array([x[1] for x in r]), np.array([x[2] for x in r]),
+                                    len(views), tta_iou.get(c, 0.5))
+                    boxes.append(fb); scores.append(fs); labels += [c] * len(fs)
+                boxes = np.concatenate(boxes) if boxes else np.zeros((0, 7))
+                scores = np.concatenate(scores) if scores else np.zeros(0)
             if a.raw:
                 preds[fid] = [{"box": b.tolist(), "score": float(s), "class": c} for b, s, c in zip(boxes, scores, labels)]
             else:
