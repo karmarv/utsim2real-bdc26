@@ -43,8 +43,8 @@ data:
   realval: pcdet/realval-v1
 realism_frames: pcdet/g1-v2
 status: 'S3 submitted 2026-10-10: 974348 combined 0.5015 by the scorer log (mAP 0.1692,
-  R 0.8912), CodaBench status Running after scoring; realval-A 0.301, realval-B 0.184,
-  late-A 0.298, estimate (B) 0.520'
+  R 0.8912), never listed (CodaBench status Running after scoring); superseded by
+  routed-g4 (975871)'
 notes: 'S3 Fused Portfolio with TTA (docs/02-STRATEGY.md Section 8.3.1): the members
   of routed-g2 and their 8-view TTA variants (<member>_tta, tune_and_eval.sh --tta);
   route by select --rule joint --calibrated, per-class fusion of two checkpoints by

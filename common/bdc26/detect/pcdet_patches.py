@@ -10,16 +10,60 @@ other grouping, a class trains a later head. Example (V2X, CLASS_NAMES [vehicle,
 vehicle head learned pedestrians (realval: about 96 pedestrian-sized "vehicle" boxes per frame at score >= 0.5).
 The fix runs the original method once per head group on a fresh copy of gt_boxes; outputs are identical to the
 original wherever the original was correct.
+
+Two-stage score blend (added 2026-10-10 for the S4 Voxel R-CNN members, docs/02-STRATEGY.md Section 8.4): at test
+time VoxelRCNNHead (and PVRCNNHead) replaces the stage-1 heat-map score of each proposal with its stage-2 IoU-quality score alone. With
+ROI_HEAD.SCORE_BLEND_ALPHA = a set, the final score becomes stage1^a x stage2^(1-a) (a = 0: mainline; a = 0.5: the
+geometric mean of CenterPoint's two-stage variant; a list sets one a per class in CLASS_NAMES order); padded proposals (stage-1 score 0) get score 0 instead of an IoU
+prediction for an empty box. Training is unchanged.
 """
 from __future__ import annotations
 
 _APPLIED = False
 
 
+def blend_scores(roi_scores, rcnn_logits, alpha, roi_labels=None):
+    """(B, N) stage-1 scores and (B, N, 1) stage-2 logits -> (B, N, 1) probabilities stage1^a x stage2^(1-a).
+    alpha: one value, or one per class in CLASS_NAMES order (indexed by the 1-based stage-1 roi_labels): the IoU
+    head is class-agnostic and trained mostly on the frequent classes, so the best blend differs per class."""
+    import torch
+    p2 = torch.sigmoid(rcnn_logits.reshape(roi_scores.shape))
+    p1 = roi_scores.clamp(min=0.0)
+    if isinstance(alpha, (list, tuple)):
+        table = torch.tensor([float(x) for x in alpha], dtype=p2.dtype, device=p2.device)
+        a = table[(roi_labels.long() - 1).clamp(min=0, max=len(alpha) - 1)]
+    else:
+        a = torch.full_like(p2, float(alpha))
+    p = torch.exp(a * torch.log(p1.clamp(min=1e-12)) + (1.0 - a) * torch.log(p2.clamp(min=1e-12)))
+    return torch.where(roi_scores > 0, p, torch.zeros_like(p)).unsqueeze(-1)
+
+
+def _patch_two_stage_scores() -> None:
+    from pcdet.models.roi_heads.pvrcnn_head import PVRCNNHead
+    from pcdet.models.roi_heads.voxelrcnn_head import VoxelRCNNHead
+
+    for head in (VoxelRCNNHead, PVRCNNHead):
+        original = head.forward
+
+        def forward(self, batch_dict, _original=original):
+            out = _original(self, batch_dict)
+            alpha = self.model_cfg.get("SCORE_BLEND_ALPHA", None)
+            if not self.training and alpha is not None and not batch_dict.get("cls_preds_normalized", False):
+                alpha = list(alpha) if isinstance(alpha, (list, tuple)) else float(alpha)
+                batch_dict["batch_cls_preds"] = blend_scores(batch_dict["roi_scores"], batch_dict["batch_cls_preds"], alpha,
+                                                             batch_dict.get("roi_labels"))
+                batch_dict["cls_preds_normalized"] = True
+            return out
+
+        forward.__doc__ = "bdc26 score blend: " + (original.__doc__ or "")
+        head.forward = forward
+
+
 def apply() -> None:
     global _APPLIED
     if _APPLIED:
         return
+    _patch_two_stage_scores()
     from pcdet.models.dense_heads.center_head import CenterHead
 
     original = CenterHead.assign_targets

@@ -255,3 +255,29 @@ def test_budget_floor_ap_equals_ap_of_truncated_flags():
         tr = [{"n_gt": r["n_gt"], "scores": r["scores"][r["scores"] >= floor], "3d@0.5": r["3d@0.5"][r["scores"] >= floor]} for r in fl]
         assert sc.ap_from_flags(tr, "3d@0.5") == pytest.approx(official, abs=1e-9)
         assert all(d["score"] >= floor for v in kept.values() for d in v if d["class"] == "pedestrian")
+
+
+def test_two_stage_score_blend():
+    """S4: final score = stage1^a x stage2^(1-a); a = 0 is OpenPCDet's IoU score; padded proposals score 0."""
+    torch = pytest.importorskip("torch")
+    from bdc26.detect.pcdet_patches import blend_scores
+    roi = torch.tensor([[0.81, 0.25, 0.0]])
+    logit = torch.logit(torch.tensor([[[0.64], [0.36], [0.9]]]))
+    half = blend_scores(roi, logit, 0.5).squeeze(-1)[0]
+    assert torch.allclose(half, torch.tensor([0.72, 0.30, 0.0]), atol=1e-6)
+    assert torch.allclose(blend_scores(roi, logit, 0.0).squeeze(-1)[0], torch.tensor([0.64, 0.36, 0.0]), atol=1e-6)
+    assert torch.allclose(blend_scores(roi, logit, 1.0).squeeze(-1)[0], torch.tensor([0.81, 0.25, 0.0]), atol=1e-6)
+    per_class = blend_scores(roi, logit, [1.0, 0.5], torch.tensor([[1, 2, 2]])).squeeze(-1)[0]   # class 1: a=1, class 2: a=0.5
+    assert torch.allclose(per_class, torch.tensor([0.81, 0.30, 0.0]), atol=1e-6)
+
+
+def test_ap_loss_decomposition_separates_localization_ranking_and_misses():
+    preds, gts = _toy(seed=5, noise=0.0, spurious=1)          # spurious=1: no spurious boxes
+    exact = dg.ap_loss_decomposition(preds, gts, "pedestrian")
+    assert exact["AP_3d50"] == pytest.approx(exact["oracle25"]) and exact["loss_localization"] == pytest.approx(0.0)
+    off = {f: [{**d, "box": [d["box"][0] + 0.2, *d["box"][1:]]} for d in v] for f, v in preds.items()}  # 0.2 m shift
+    r = dg.ap_loss_decomposition(off, gts, "pedestrian")
+    assert r["AP_3d50"] < 0.2 and r["AP_3d25"] == pytest.approx(exact["AP_3d25"]) and r["loss_localization"] > 0.5
+    assert r["loss_miss"] == pytest.approx(exact["loss_miss"]) and r["loss_miss"] > 0.05      # 15% of objects never predicted
+    official = evalap.evaluate(off, gts, ["pedestrian"])["per_class"]["pedestrian"]["3d@0.5"]["AP_R40"]
+    assert r["AP_3d50"] == pytest.approx(official, abs=1e-6)

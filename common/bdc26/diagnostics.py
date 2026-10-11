@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 
 from .boxes import count_points_in_boxes
-from .evalap import _greedy_tp, _official_ap, iou_pair
+from .evalap import _greedy_tp, _interp_ap, _official_ap, iou_pair
 
 
 def _class_rows(preds: dict, gts: dict, cls: str, score_min: float = 0.0):
@@ -163,3 +163,39 @@ def static_fp_share(preds: dict, gts: dict, cls: str, score_min: float | None = 
     n = max(len(gts), 1)
     return {"score_min": score_min, "boxes_per_frame": n_boxes / n, "unmatched_per_frame": n_unmatched / n,
             "static_per_frame": static / n, "static_share": static / max(n_unmatched, 1)}
+
+
+def ap_loss_decomposition(preds: dict, gts: dict, cls: str, exact: bool | None = False) -> dict | None:
+    """Where a class loses 3D AP@0.5 (the S4 review, docs/02-STRATEGY.md Section 8.4): 1 - AP3d@0.5 split into
+    localization (AP3d@0.25 - AP3d@0.5: found, but not precisely enough), ranking (AP3d@0.25 with the true positives
+    ranked first, minus AP3d@0.25: false positives outrank found objects) and misses (1 - that oracle AP: not found
+    even at IoU 0.25). Same greedy matching and R40 interpolation as the official scorer."""
+    lc = cls.lower()
+    tps = {0.5: [], 0.25: []}
+    scores, n_gt = [], 0
+    for fid, (gb, gn) in gts.items():
+        g = np.asarray(gb, dtype=np.float64).reshape(-1, 7)[np.array([str(n).lower() == lc for n in gn], dtype=bool)]
+        ps = [d for d in preds.get(fid, []) if str(d["class"]).lower() == lc]
+        n_gt += len(g)
+        if not ps:
+            continue
+        b = np.array([d["box"] for d in ps], dtype=np.float64).reshape(-1, 7)
+        s = np.array([d["score"] for d in ps], dtype=np.float64)
+        o = np.argsort(-s, kind="stable")
+        b, s = b[o], s[o]
+        scores.append(s)
+        i3 = iou_pair(b, g, exact=exact)[0] if len(g) else np.zeros((len(b), 0))
+        for thr in tps:
+            tps[thr].append(_greedy_tp(np.ascontiguousarray(i3), thr) if len(g) else np.zeros(len(b), dtype=np.int64))
+    if n_gt == 0:
+        return None
+    if not scores:
+        return {"AP_3d50": 0.0, "AP_3d25": 0.0, "recall50": 0.0, "recall25": 0.0, "oracle25": 0.0,
+                "loss_localization": 0.0, "loss_ranking": 0.0, "loss_miss": 1.0, "n_gt": n_gt}
+    order = np.argsort(-np.concatenate(scores), kind="stable")
+    t50, t25 = np.concatenate(tps[0.5])[order], np.concatenate(tps[0.25])[order]
+    ap50, ap25 = _interp_ap(t50, n_gt)[0], _interp_ap(t25, n_gt)[0]
+    oracle = _interp_ap(np.sort(t25)[::-1], n_gt)[0]
+    return {"AP_3d50": ap50, "AP_3d25": ap25, "recall50": float(t50.sum() / n_gt), "recall25": float(t25.sum() / n_gt),
+            "oracle25": oracle, "loss_localization": ap25 - ap50, "loss_ranking": oracle - ap25, "loss_miss": 1.0 - oracle,
+            "n_gt": n_gt}

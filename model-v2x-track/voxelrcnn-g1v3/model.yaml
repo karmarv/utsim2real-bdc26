@@ -1,0 +1,24 @@
+name: voxelrcnn-g1v3
+strategy: S4
+track: v2x-track
+module: M10 (detector routing by class)
+derived_from: centerpoint-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: 'Voxel R-CNN: CenterPoint proposals (sparse 3D voxels 0.1 x 0.1 x 0.25
+  m, VoxelResBackBone8x) refined by voxel RoI grid pooling (6 x 6 x 6) with an IoU-quality
+  score, xyz only'
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'S4 member: trained 40 epochs, per-class score blend [0.5, 0.5, 1.0], tuned
+  plain (realval A 0.597 / B 0.555) and TTA (0.647 / 0.632); in routed-g4 fusions
+  for vehicle and truck'
+expected: smaller localization loss than the one-stage members on walkers (V2X pedestrian,
+  LUMPI Person) and vehicles, a third architecture family for S3 fusion
+notes: 'S4 Two-Stage Refinement (docs/02-STRATEGY.md Section 8.4): same corpus, voxels,
+  head groups and augmentation as centerpoint-g1v3; only the second stage is added,
+  so the comparison isolates the refinement.
+
+  '

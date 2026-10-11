@@ -1,0 +1,122 @@
+name: routed-g4
+strategy: S4
+track: lumpi-track
+module: M11 (TTA and fusion) with two-stage members
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing and box fusion (up to 3 members) of PointPillars,
+  CenterPoint and two-stage (Voxel R-CNN, PV-RCNN++) members, with test-time augmentation
+members:
+  g1:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1_tta:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  g1v3:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v3_tta:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp_tta:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp4:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp4_tta:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vr:
+    model: voxelrcnn-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vr_tta:
+    model: voxelrcnn-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pv:
+    model: pvrcnnpp-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pv_tta:
+    model: pvrcnnpp-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+data:
+  train: pcdet/g1-v2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v2
+status: 'S4 submitted 2026-10-10 (below its upload gate, the entrant''s call): 975871
+  combined 0.5040 (mAP 0.1721, R 0.8912), rank 1 of 18; realval-A 0.313, realval-B
+  0.188, late-A 0.304, estimate (B) 0.523'
+notes: 'S4 Two-Stage Refinement (docs/02-STRATEGY.md Section 8.4): the routed-g3 portfolio
+  (its route, fusion and score floors are the incumbents) plus the two-stage members
+  voxelrcnn-g1v3 and pvrcnnpp-g1v3 and their TTA variants; every change passes the
+  class gate against the S3 choice.
+
+  '
+route:
+  Person: g1v3
+  Car: pv_tta
+  Bicycle: vr_tta
+  Motorcycle: g1v3
+  Bus: g1v3
+  Truck: g1v3_tta
+  Van: g1
+  Unknown: g1
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); members compared with their gated z calibration'
+  estimate_mAP_A: 0.2982
+  estimate_mAP_B: 0.1853
+calibration: {}
+fusion:
+  Person:
+    members:
+    - g1v3_tta
+    - g1_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  Car:
+    members:
+    - g1v3_tta
+    - cp_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Bicycle:
+    members:
+    - vr_tta
+    - pv_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+budget:
+  Person: 0.02
+  Car: 0.02
+  Bicycle: 0.02
+  Motorcycle: 0.3
+  Bus: 0.3
+  Truck: 0.03
+  Van: 0.075
+  Unknown: 0.075

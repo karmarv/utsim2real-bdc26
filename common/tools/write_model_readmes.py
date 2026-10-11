@@ -70,7 +70,9 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
         lines += [f"python common/tools/route_predictions.py select {rel}" + (" --rule joint --calibrated" if card.get("fusion") else "")
                   + "                                  # choose the route"]
         if card.get("fusion"):
-            lines += [f"python common/tools/route_predictions.py fuse {rel}                                    # per-class fusion (class gate)"]
+            big = max([len(fz["members"]) for fz in card["fusion"].values()] + [3 if str(card.get("strategy", "")) >= "S4" else 2])  # S4 on: triples searched
+            lines += [f"python common/tools/route_predictions.py fuse {rel}" + (f" --max-members {big}" if big > 2 else "")
+                      + "                                    # per-class fusion (class gate)"]
         if card.get("budget"):
             lines += [f"python common/tools/route_predictions.py budget {rel}                                  # per-class score floors"]
         lines += [f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <tag> [team]                        # zip + validation + local score"]

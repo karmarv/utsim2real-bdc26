@@ -1,0 +1,22 @@
+name: pvrcnnpp-g1v3
+strategy: S4
+track: v2x-track
+module: M10 (detector routing by class)
+derived_from: voxelrcnn-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: 'PV-RCNN++: CenterPoint proposals (sparse 3D voxels 0.1 x 0.1 x 0.25
+  m, VoxelResBackBone8x), 2,048 proposal-centric keypoints with raw-point, voxel and
+  BEV features (VectorPool), RoI grid pooling with an IoU-quality score, xyz only'
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'S4 member: trained 40 epochs, per-class score blend [0.5, 0.5, 1.0], tuned
+  plain (A 0.603 / B 0.606) and TTA (0.641 / 0.644); in the routed-g4 vehicle fusion'
+expected: smaller localization loss than the one-stage members on walkers (V2X pedestrian,
+  LUMPI Person) and vehicles, a third architecture family for S3 fusion
+notes: 'S4 Two-Stage Refinement (docs/02-STRATEGY.md Section 8.4): the point-based
+  second stage, next to the voxel-based voxelrcnn-g1v3; same stage 1, corpus and augmentation.
+
+  '

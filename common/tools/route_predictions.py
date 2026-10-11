@@ -18,7 +18,7 @@ come from the member that is best for it on real validation.
     python common/tools/route_predictions.py validate model-v2x-track/routed-g2
     # S3 cross-member fusion per class (pairs of two different checkpoints among the top-4 members, IoU in
     # {0.3, 0.5, 0.7}, class gate vs the route); needs a prior `select --rule joint --calibrated` (route_table.json);
-    # writes model.yaml `fusion`, then validates
+    # writes model.yaml `fusion`, then validates; --max-members 3 (S4) also tries triples
     python common/tools/route_predictions.py fuse model-v2x-track/routed-g3
     # S3 server-cost budget: per class the highest score floor costing <= 0.002 AP on realval-A and on realval-B;
     # writes model.yaml `budget` (applied last by merge), then validates
@@ -302,12 +302,16 @@ def _fuse_eval(job):
 
 
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
-                top: int = 4, workers: int = 32) -> dict:
+                top: int = 4, workers: int = 32, max_members: int = 2) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
     (joint realval-A/B AP after their gated z calibration, from route_table.json of `select --calibrated`) with equal
     weights at each IoU of iou_grid; the best joint candidate replaces the routed member only through the class gate
-    (exact official IoU, paired bootstrap on realval-B). Two knobs per class: the pair and the IoU. A pair needs two
-    different checkpoints: a member and its own TTA variant are views of one model, which TTA already fuses."""
+    (exact official IoU, paired bootstrap on realval-B). Two knobs per class: the set and the IoU. A set needs
+    different checkpoints: a member and its own TTA variant are views of one model, which TTA already fuses.
+    max_members=3 (S4) also tries the triples among the top members, so three architecture families can be fused.
+    Cumulative strategies: a class that already has a `fusion` in model.yaml keeps it as the incumbent (its set is
+    always a candidate, with its stored calibrations), so a new member can replace an earlier fusion only through the
+    class gate against that fusion, never against the single routed member."""
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -324,52 +328,69 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
             raw[(n, split)] = json.loads(validation_predictions(model_dir.parent / m["model"], card, split, tag=member_tag(m)).read_text())
         return raw[(n, split)]
 
-    def class_preds(n, split, c):
-        cal = table[c]["members"][n]["calibration"]
+    def class_preds(n, split, c, cal="table"):
+        cal = table[c]["members"].get(n, {}).get("calibration") if cal == "table" else cal
         pc = {f: [d for d in member_preds(n, split).get(f, []) if d["class"] == c] for f in gts[split]}
         return zcalib.apply(pc, {c: cal}) if cal else pc
 
+    prior = card.get("fusion") or {}                    # the incumbent fusion of each class, if any
+
     ranked = {c: sorted(table[c]["members"], key=lambda n: -(table[c]["members"][n]["joint"] or 0.0))[:top] for c in classes}
     ckpt = lambda n: (card["members"][n]["model"], card["members"][n]["ckpt"])
-    jobs = [(c, pair, thr) for c in classes for pair in itertools.combinations(ranked[c], 2) if ckpt(pair[0]) != ckpt(pair[1])
-            for thr in iou_grid]
+    sets = lambda c: [m for k in range(2, max_members + 1) for m in itertools.combinations(ranked[c], k)
+                      if len({ckpt(n) for n in m}) == len(m)]
+    jobs = [(c, members, thr) for c in classes for members in sets(c) for thr in iou_grid]
+    for c, fz in prior.items():
+        if c in classes and (c, tuple(fz["members"]), fz["iou"]) not in jobs:
+            jobs.append((c, tuple(fz["members"]), fz["iou"]))
     _FUSE.clear()
     _FUSE["gts"] = gts
     results = {}
     for c in classes:                                   # one pool per class: the workers see that class's predictions
-        _FUSE["preds"] = {(n, split): class_preds(n, split, c) for n in ranked[c] for split in ("val", "valB")}
+        need = set(ranked[c]) | set(prior.get(c, {}).get("members", []))
+        _FUSE["preds"] = {(n, split): class_preds(n, split, c) for n in need for split in ("val", "valB")}
         cj = [j for j in jobs if j[0] == c]
         with ProcessPoolExecutor(max_workers=min(workers, len(cj)), mp_context=mp.get_context("fork")) as ex:
             for job, out in ex.map(_fuse_eval, cj):
                 results[job] = out
-                print(f"  {c:11s} {'+'.join(job[1]):12s} iou {job[2]}: A {out['val']:.4f} B {out['valB']:.4f}", flush=True)
-    fusion, report = {}, {}
+                print(f"  {c:11s} {'+'.join(job[1]):24s} iou {job[2]}: A {out['val']:.4f} B {out['valB']:.4f}", flush=True)
+    fusion, report = {c: fz for c, fz in prior.items() if c not in classes}, {}
     for c in classes:
         cand = {j: r for j, r in results.items() if j[0] == c}
         if not cand:
             continue
         best = max(cand, key=lambda j: (cand[j]["val"] + cand[j]["valB"]) / 2)
         _, pair, thr = best
-        inc = card["route"][c]
         mem = table[c]["members"]
+        pz = prior.get(c)
+        if pz:                                          # incumbent: the earlier fusion, with its stored calibrations
+            inc = "fusion " + "+".join(pz["members"]) + f"@{pz['iou']}"
+            I = {s_: {f: fuse_dets([class_preds(n, s_, c, (pz.get("calibration") or {}).get(n))[f] for n in pz["members"]], pz["iou"])
+                      for f in gts[s_]} for s_ in ("val", "valB")}
+        else:
+            inc = card["route"][c]
+            I = {s_: class_preds(inc, s_, c) for s_ in ("val", "valB")}
         F = {s_: {f: fuse_dets([class_preds(n, s_, c)[f] for n in pair], thr) for f in gts[s_]} for s_ in ("val", "valB")}
-        I = {s_: class_preds(inc, s_, c) for s_ in ("val", "valB")}
         fl = {(k, s_): sc.frame_flags(X[s_], gts[s_], [c]) for k, X in (("fused", F), ("inc", I)) for s_ in ("val", "valB")}
         boot = sc.paired_bootstrap(fl[("inc", "valB")], fl[("fused", "valB")], [c], n_boot, seed)[c]
         dA = sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5") - sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5")
-        ok = boot["p_gain"] is not None and sc.class_gate(boot["delta"], boot["p_gain"], dA)
+        same = bool(pz) and tuple(pz["members"]) == tuple(pair) and pz["iou"] == thr
+        ok = not same and boot["p_gain"] is not None and sc.class_gate(boot["delta"], boot["p_gain"], dA)
         report[c] = {"incumbent": inc, "incumbent_A": sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5"),
                      "incumbent_B": sc.ap_from_flags(fl[("inc", "valB")][c], "3d@0.5"),
                      "best": {"members": list(pair), "iou": thr, "A": sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5"),
                               "B": sc.ap_from_flags(fl[("fused", "valB")][c], "3d@0.5")},
                      "dB": boot["delta"], "p_gain": boot["p_gain"], "ci90": boot["ci90"], "dA": dA,
-                     "decision": "fused (class gate passed)" if ok else "routed member kept (class gate failed)",
+                     "decision": ("fused (class gate passed)" if ok else "incumbent fusion kept (it is the best candidate)" if same
+                                  else "incumbent fusion kept (class gate failed)" if pz else "routed member kept (class gate failed)"),
                      "search_fast_iou": {f"{'+'.join(j[1])}@{j[2]}": r for j, r in cand.items()}}
         a_best = max(cand, key=lambda j: cand[j]["val"])      # selection-bias check: the pick of realval-A alone
         report[c]["a_only_pick"] = {"members": list(a_best[1]), "iou": a_best[2], "A": cand[a_best]["val"], "B": cand[a_best]["valB"]}
         if ok:
-            fusion[c] = {"members": list(pair), "weights": [1.0, 1.0], "iou": thr,
+            fusion[c] = {"members": list(pair), "weights": [1.0] * len(pair), "iou": thr,
                          "calibration": {n: mem[n]["calibration"] for n in pair if mem[n]["calibration"]}}
+        elif pz:
+            fusion[c] = pz
         print(c, json.dumps({k: v for k, v in report[c].items() if k != "search_fast_iou"}), flush=True)
     card["fusion"] = fusion
     text = (model_dir / "model.yaml").read_text().split("\nfusion:")[0].rstrip() + "\n"
@@ -447,6 +468,7 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--classes", nargs="*", default=None, help="calibrate: classes to try (default: all with test GT)")
     ap.add_argument("--calibrated", action="store_true", help="select --rule joint: compare members with their gated z calibration")
+    ap.add_argument("--max-members", type=int, default=2, help="fuse: largest member set (2: pairs, as in S3; 3: also triples)")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
     if a.mode == "select":
@@ -489,7 +511,7 @@ def main():
         validate(model_dir, card, track, registry_run="routed + fusion + budget")
         return
     if a.mode == "fuse":
-        fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes)
+        fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion")
         return

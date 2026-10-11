@@ -11,6 +11,8 @@ Post-processing: <model>/test/postprocess.yaml (override with --postprocess; use
 Test-time augmentation (strategy S3): --tta flip4[+yaw][+z] runs every frame in all views as one batch, maps the
 boxes back (bdc26.detect.tta) and fuses them class by class (bdc26.detect.fusion.wbf) before post-processing; the
 fused output keeps the raw format, so tune_postprocess.py tunes the TTA variant like any member.
+Two-stage members (strategy S4): --score-blend A overrides the final-score blend stage1^A x stage2^(1-A) of the config
+(bdc26.detect.pcdet_patches), for choosing A on real validation.
 """
 import argparse
 import json
@@ -46,9 +48,15 @@ def main():
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--tta", default=None, help="views: flip4, flip4+yaw, flip4+yaw+z (bdc26.detect.tta.parse)")
     ap.add_argument("--tta-iou", default=None, help="per-class view-fusion IoU, e.g. pedestrian=0.3,vehicle=0.5 (default: 0.3 small classes, 0.5 others)")
+    ap.add_argument("--score-blend", type=float, default=None,
+                    help="two-stage members: override ROI_HEAD.SCORE_BLEND_ALPHA (final score = stage1^a x stage2^(1-a))")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
     cfg = load_pcdet_cfg(model_dir, data_path(track, card["data"]["train"]))
+    if a.score_blend is not None:
+        if "ROI_HEAD" not in cfg.MODEL:
+            raise SystemExit("--score-blend needs a two-stage model (MODEL.ROI_HEAD)")
+        cfg.MODEL.ROI_HEAD.SCORE_BLEND_ALPHA = a.score_blend
 
     import torch
     from bdc26.detect.pcdet_dataset import register

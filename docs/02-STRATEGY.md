@@ -22,8 +22,11 @@
 | TTA and fusion (S3) | LUMPI | B-mAP 0.170 -> 0.185 (Person, Car, Bicycle, Truck), A 0.272 -> 0.302, late-A 0.271 -> 0.298 | Section 8.3.1 |
 | Per-class score floors for the server cost (S3) | both | 66-78% fewer boxes for at most -0.0014 B-mAP | Section 8.3.1 |
 | S3 on the leaderboard (2026-10-10) | both | V2X 0.7855 -> **0.8381** (974400, mAP 0.4869 -> 0.5483, rank 1); LUMPI 0.4728 -> **0.5015** by the scorer log (mAP 0.1357 -> 0.1692; Bicycle 0.053 -> 0.224) | Section 8.3.1 |
+| Two-stage members (Voxel R-CNN, PV-RCNN++) in the fusion (S4) | V2X | B-mAP 0.664 -> 0.679 (vehicle +0.024, truck +0.022); vehicle localization loss 0.140 -> 0.058; walker localization unchanged | Section 8.4.1 |
+| Two-stage members in the fusion (S4) | LUMPI | Bicycle B 0.173 -> 0.202; mAP B 0.184 -> 0.188: below the upload gate | Section 8.4.1 |
+| S4 on the leaderboard (2026-10-10/11) | both | V2X 0.8381 -> **0.8485** (975938; vehicle +0.027, truck +0.010); LUMPI 0.5015 -> **0.5040** (975871; Bicycle 0.224 -> 0.244): **rank 1 on both tracks** | Section 8.4.1 |
 
-**First leaderboard results (2026-10-06, strategy S1):** LUMPI 965614 combined 0.4728 (mAP 0.1357, R 0.8912), V2X 965633 combined 0.7665 (mAP 0.4648, R 0.9203), both rank 1. Realism transferred (V2X +0.001, LUMPI -0.014 vs held-out proxies); detection transferred at 0.82-0.89 x realval-B but only 0.52 x realval-A on LUMPI (Person 0.117, Bicycle 0.053, Truck 0.028 on the test frames). Per-class tables: `model-<track>/README.md` Section 9. **2026-10-09:** V2X S1+C1 (972563) 0.7855, mAP 0.4869, rank 1; LUMPI S1 is rank 2 since Oct 7 behind an entry with lower mAP (0.1185) but realism R 0.942, so LUMPI realism is now the most valuable LUMPI lever (Section 8.7). **2026-10-10:** S3 uploaded on both tracks: V2X 974400 combined **0.8381** (mAP 0.5483, rank 1 of 19); LUMPI scored **0.5015** by the scorer log (mAP 0.1692), above the LUMPI leader (0.4784), but the submission was still Running at the server after scoring. The S3 gains transferred at 0.8 x the realval-A gain on both tracks, while the realval-B gain over-predicted V2X (0.48 x) and under-predicted LUMPI (1.89 x). Register: [`decisions/README.md` Section 2](decisions/README.md#2-submission-register).
+**First leaderboard results (2026-10-06, strategy S1):** LUMPI 965614 combined 0.4728 (mAP 0.1357, R 0.8912), V2X 965633 combined 0.7665 (mAP 0.4648, R 0.9203), both rank 1. Realism transferred (V2X +0.001, LUMPI -0.014 vs held-out proxies); detection transferred at 0.82-0.89 x realval-B but only 0.52 x realval-A on LUMPI (Person 0.117, Bicycle 0.053, Truck 0.028 on the test frames). Per-class tables: `model-<track>/README.md` Section 9. **2026-10-09:** V2X S1+C1 (972563) 0.7855, mAP 0.4869, rank 1; LUMPI S1 is rank 2 since Oct 7 behind an entry with lower mAP (0.1185) but realism R 0.942, so LUMPI realism is now the most valuable LUMPI lever (Section 8.7). **2026-10-10:** S3 uploaded on both tracks: V2X 974400 combined **0.8381** (mAP 0.5483, rank 1 of 19); LUMPI scored **0.5015** by the scorer log (mAP 0.1692), above the LUMPI leader (0.4784), but the submission was still Running at the server after scoring. The S3 gains transferred at 0.8 x the realval-A gain on both tracks, while the realval-B gain over-predicted V2X (0.48 x) and under-predicted LUMPI (1.89 x). **2026-10-10/11:** S4 uploaded on both tracks: V2X 975938 combined **0.8485** (mAP 0.5605), LUMPI 975871 **0.5040** (mAP 0.1721, uploaded below its upload gate by the entrant's call): rank 1 on both tracks. Over the five uploads with a local change, the leaderboard gain had the right sign every time but was 0.25-1.74 x the realval-A gain and 0.48-1.90 x the realval-B gain; projections now use 0.6 x the mean of both (Section 8.4.1). Register: [`decisions/README.md` Section 2](decisions/README.md#2-submission-register).
 
 The thesis below holds: detection decides, the open points are per class, and the real train split lets us measure the target. The leaderboard adds one correction: **select on realval-A and realval-B jointly**, because realval-A alone over-predicted LUMPI. Planning estimates marked "est." remain for the levers not yet built.
 
@@ -171,7 +174,7 @@ Every strategy below uses the same template: **hypothesis** (what it should fix,
 | **S1** | Calibrated Twin, Routed Pillars | **submitted** (965614, 965633); S1+C1 submitted on V2X (972563, 0.7855; Section 8.1.3) | engine G1 data, PointPillars x 2-4 runs, per-class post-processing and routing | missing walkers, actor scale, density | done; close-out 1-2 days | done | [R1](07-LITERATURE.md#r1-urbantwin-papers), [R5](07-LITERATURE.md#r5-pointpillars), [R7](07-LITERATURE.md#r7-statistical-normalization), [R9](07-LITERATURE.md#r9-lidar-aug), [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports) |
 | **S2** | Center-Routed Small Objects | **done 2026-10-09**: no upload-ready version; LUMPI Bicycle route and CenterPoint members carried to S3 (8.2.1) | CenterPoint specialists for small classes, routed with the S1 pillars; routes chosen on realval-A and B jointly | LUMPI Person, Bicycle, Motorcycle; V2X pedestrian, including its height loss | 4 days; about 32 GPU-hours | low | [R22](07-LITERATURE.md#r22-centerpoint), [R24](07-LITERATURE.md#r24-inscope), [R41](07-LITERATURE.md#r41-pillarnet), [R42](07-LITERATURE.md#r42-mmdetection3d-model-comparison-secondary-source) |
 | **S3** | Fused Portfolio with TTA | **submitted 2026-10-10**: V2X 974400 combined 0.8381 (rank 1); LUMPI scored 0.5015 by the scorer log, status Running at the server (8.3.1) | test-time augmentation as routable member variants; per-class box fusion of members; per-class score floors | run-to-run variance; V2X height | 1 day; about 3 GPU-hours | low | [R23](07-LITERATURE.md#r23-weighted-boxes-fusion), [R37](07-LITERATURE.md#r37-ms3d-kde-box-fusion), [R38](07-LITERATURE.md#r38-horizonlidar3d), [R39](07-LITERATURE.md#r39-robosense-2025-report), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
-| S4 | Two-Stage Refinement | planned | a PV-RCNN++ (or Voxel R-CNN) member that re-fits boxes on raw points | V2X height (BEV-3D gap 0.146 on realval-B); IoU 0.7; LUMPI Truck and Car | 5 days; about 64 GPU-hours | medium | [R29](07-LITERATURE.md#r29-pv-rcnn), [R30](07-LITERATURE.md#r30-voxel-r-cnn), [R25](07-LITERATURE.md#r25-robo3d), [R24](07-LITERATURE.md#r24-inscope) |
+| **S4** | Two-Stage Refinement | **submitted 2026-10-10/11**: V2X 975938 0.8485, LUMPI 975871 0.5040, rank 1 on both (8.4.1) | Voxel R-CNN and PV-RCNN++ members (plain and TTA, per-class score blend) in fusions of up to three members | walker localization (revised after the S3 review); in effect vehicle, truck and bicycle | 1 day; about 50 GPU-hours (4 runs at once) | medium | [R29](07-LITERATURE.md#r29-pv-rcnn), [R30](07-LITERATURE.md#r30-voxel-r-cnn), [R25](07-LITERATURE.md#r25-robo3d), [R24](07-LITERATURE.md#r24-inscope) |
 | S5 | Geometry-Invariant Inputs | planned | GBlobs voxel features plus dropout and object-scale augmentation on the best voxel member | the realval-to-test transfer gap itself | 5 days; about 96 GPU-hours (3 runs per track) | medium | [R27](07-LITERATURE.md#r27-gblobs), [R28](07-LITERATURE.md#r28-gblobs-for-sensor-placement), [R26](07-LITERATURE.md#r26-lidar-domain-generalization-study), [R36](07-LITERATURE.md#r36-dts-random-beam-re-sampling), [R40](07-LITERATURE.md#r40-st3d) |
 | S6 | Sparse Transformer Experts | after the freeze, unless a route is dropped | DSVT (or LION, SAFDNet) members | capacity and long range | 7-10 days; 100+ GPU-hours | high | [R31](07-LITERATURE.md#r31-dsvt), [R32](07-LITERATURE.md#r32-lion), [R33](07-LITERATURE.md#r33-hednet-and-safdnet), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
 
@@ -412,30 +415,114 @@ Decision record: [`decisions/2026-10-09-s3-fused-portfolio.md`](decisions/2026-1
 
 ### 8.4 S4 Two-Stage Refinement
 
-**Hypothesis.** A second stage that pools the raw points inside each proposal corrects box height, z and size [R29](07-LITERATURE.md#r29-pv-rcnn), [R30](07-LITERATURE.md#r30-voxel-r-cnn), the remaining V2X height loss after S2-S3, and improves 3D@0.7. PV-RCNN++ is also the most corruption-robust family [R25](07-LITERATURE.md#r25-robo3d). Targets: V2X BEV-3D gap on B (halve it), 3D@0.7, LUMPI Truck and Car B AP.
+**Hypothesis (revised 2026-10-10 after the review below).** A second stage that pools the voxel or keypoint features inside each proposal reduces the per-instance localization noise that is now the largest AP loss on walkers [R29](07-LITERATURE.md#r29-pv-rcnn), [R30](07-LITERATURE.md#r30-voxel-r-cnn), and its IoU-quality score ranks well-localized boxes above poorly localized ones. Both members also add a third architecture family to the S3 fusion. PV-RCNN++ is the most corruption-robust family [R25](07-LITERATURE.md#r25-robo3d). Targets: V2X pedestrian and LUMPI Person AP on B, and their localization loss (AP at 3D IoU 0.25 minus AP at 0.5).
 
-**Prerequisites.** D2 (decides between refinement and a ground-height model); S2's CenterPoint config (the PV-RCNN++ proposal head is a `CenterHead`).
+**Prerequisites.** S3 decided (`routed-g3` is the starting portfolio); S2's CenterPoint configs (stage 1 of both members is the S2 CenterPoint).
 
-**Inputs from S3 (2026-10-09).** S3 already meets the V2X height target (BEV-3D gap on B 0.129 -> 0.063, Section 8.3.1), so S4's value now rests on 3D@0.7 (B 0.078 V2X, 0.062 LUMPI) and on LUMPI Truck (B 0.153) and Car; expect less from S4 on V2X than planned. Start from `routed-g3`: a new member joins as plain and TTA variants (`tune_and_eval.sh --tta`), then `select --rule joint --calibrated`, `fuse` and `budget` are re-run (fusion pairs and score floors depend on the members).
+**Review (2026-10-10): where the S3 portfolio loses AP@0.5.** `1 - AP3d@0.5` per class split into localization (AP at 3D IoU 0.25 minus AP at 0.5), ranking (oracle-ranked AP at 0.25 minus AP at 0.25) and misses (1 minus the oracle-ranked AP at 0.25); `routed-g3` on realval-A / realval-B:
+
+| Class | AP3d@0.5 | Recall at 3D IoU 0.5 / 0.25 | Localization | Ranking | Misses |
+|---|---|---|---|---|---|
+| V2X pedestrian | 0.350 / 0.362 | 0.65 / 0.98 (A) | **0.33 / 0.27** | 0.30 / 0.34 | 0.03 / 0.03 |
+| V2X vehicle | 0.757 / 0.819 | 0.88 / 0.98 (A) | 0.11 / 0.09 | 0.10 / 0.07 | 0.03 / 0.03 |
+| V2X truck | 0.876 / 0.812 | 0.95 / 0.98 (A) | 0.03 / 0.03 | 0.07 / 0.04 | 0.03 / 0.13 |
+| LUMPI Person | 0.396 / 0.146 | 0.70 / 0.91 (A) | **0.18 / 0.29** | 0.33 / 0.42 | 0.10 / 0.15 |
+| LUMPI Car | 0.898 / 0.792 | 0.96 / 0.99 (A) | 0.03 / 0.06 | 0.05 / 0.05 | 0.03 / 0.10 |
+| LUMPI Bicycle | 0.444 / 0.173 | 0.78 / 0.88 (A) | 0.04 / 0.04 | **0.39 / 0.67** | 0.13 / 0.13 |
+| LUMPI Truck | 0.231 / 0.153 | 0.70 / 0.98 (A) | 0.29 / 0.15 | 0.45 / 0.42 | 0.03 / 0.28 |
+
+Near misses (3D IoU 0.25-0.5 with a same-class GT, score >= 0.3) of walkers are **noise, not bias**: for V2X pedestrians and LUMPI Persons the mean errors are about 0 in every component, while the spread doubles against the hits (centre 0.13 vs 0.07 m along and across the ray, length 0.33-0.45 vs 0.14-0.16 m). Replacing one component with the label lifts this share of the near misses over 0.5: centre 0.48-0.50, size 0.51-0.54, centre and z 0.56-0.61, height 0.09-0.10, yaw 0.08-0.15. Vehicles and LUMPI Cars instead show a range-dependent bias along the ray (+0.25 to +0.32 m beyond 20 m for LUMPI Car).
+
+**What changes against the plan of 2026-10-06.**
+1. **3D@0.7 is dropped as a target:** the score uses 3D mAP@0.5 only; 3D@0.7 stays a diagnostic.
+2. **LUMPI Truck is not an S4 target:** its localization loss is the length gap of the generator (D5, synthetic trucks at most 8.47 m), which a refiner trained on those trucks cannot close; long trucks belong to R3.
+3. **The V2X height target is met** by S3 (BEV-3D gap on B 0.062); step 0 (ground-height map) is dropped.
+4. **Walker localization noise is the target**, the largest remaining block of AP on V2X (pedestrians are 62% of its test boxes): even a third of the V2X pedestrian localization loss is about +0.03 mAP.
+5. **A cheap calibration was tested first and failed:** a range-dependent radial (along the ray) and z calibration of the S3 outputs per class (C2, selected on A) gains A +0.020 (V2X vehicle), +0.006 (LUMPI Car), but B only +0.007, +0.007 and +0.009 (V2X truck): below the class gate, not used. The walker errors have no bias for a calibration to remove.
+6. **Two families instead of one**, since the measured cost is a third of the plan (smoke runs below): Voxel R-CNN (voxel RoI pooling) and PV-RCNN++ (keypoint RoI pooling) run at the same time.
 
 **Steps.**
-0. Read D2. If V2X z errors follow the slope or position, first test a fixed ground-height map of the static sensor fitted on legal unlabeled frames (sensor calibration, an allowed use; it is not fitted on test frames) as a z-offset input to post-processing, one cheap experiment on the S3 portfolio; then continue with steps 1-6 for the residual.
-1. Model `pvrcnnpp-g1v3` on both tracks from mainline `cfgs/waymo_models/pv_rcnn_plusplus.yaml`: S2's voxel grid and head groups, xyz only, 2,048 keypoints (50,000-point frames), `VectorPoolAggregation` modules as in the config, `PVRCNNHead` refinement, batch 2 per GPU.
-2. Alternative if PV-RCNN++ is too slow (smoke run over 3 s per iteration): `voxelrcnn-g1v3` from `voxel_rcnn_with_centerhead_dyn_voxel.yaml` with `MeanVFE` and `VoxelBackBone8x` in place of the dynamic voxel encoder (avoids `torch_scatter`).
-3. Smoke run (2 epochs), then 40 epochs on 4 GPUs per track (est. 10 h LUMPI, 6 h V2X).
-4. `tune_and_eval.sh`, scorecard vs the S3 portfolio's best member per class.
-5. Add as a member (plain and TTA variant) to `routed-g4` (from `routed-g3`); joint routing and fusion decide per class.
-6. Scorecard vs S3, upload gate, upload, record.
+1. `voxelrcnn-g1v3` on both tracks from mainline `voxel_rcnn_with_centerhead_dyn_voxel.yaml`: stage 1 is the S2 CenterPoint (voxels 0.1 x 0.1 x 0.25 m, `VoxelResBackBone8x`, the S2 head groups, `MeanVFE` instead of the dynamic voxel encoder that needs `torch_scatter`); proposals up to 300 per head at score >= 0.03 (dense scenes, and the S3 lesson that low-score boxes still carry AP); `REG_FG_THRESH` 0.45 instead of 0.55 (the boxes to correct are near misses at IoU 0.25-0.5, so regression must train on such proposals); class-agnostic RoI head, IoU-quality score; near-raw final output (score 0.01, NMS 0.9), as for every member. Smoke run: 0.40 s (V2X) and 0.49 s (LUMPI) per iteration at batch 4, 2.5 h and 3.0 h for 40 epochs on 4 GPUs (10 and 12 GPU-hours).
+2. `pvrcnnpp-g1v3` on both tracks from mainline `pv_rcnn_plusplus.yaml`: same stage 1 and targets; 2,048 sectorized proposal-centric keypoints (mainline 4,096 for about 150k Waymo points); keypoint features from `bev`, `x_conv1`, `x_conv3`, `x_conv4` (VectorPool), with `x_conv1` (full-resolution voxels) in place of `raw_points`, because xyz-only points give the raw-point branch no input channels; `x_conv4` input 128 channels (residual backbone). Smoke run: 0.56-0.67 s per iteration at batch 2 while sharing the GPUs, 5 GB; trained at batch 4 next to the Voxel R-CNN runs.
+3. Score blend (`common/bdc26/detect/pcdet_patches.py`): OpenPCDet's two-stage heads replace the stage-1 heat-map score with the stage-2 IoU score; with `ROI_HEAD.SCORE_BLEND_ALPHA` = a the final score is stage1^a x stage2^(1-a), and padded proposals score 0. a in {0, 0.5, 1} is chosen per member on realval-A (raw predictions with the neutral post-processing), checked on B, and fixed in the config before tuning.
+4. `tune_and_eval.sh` (plain) and `tune_and_eval.sh --tta flip4+yaw+z` for both members on both tracks.
+5. `routed-g4` from `routed-g3`: members `vr`, `vr_tta`, `pv`, `pv_tta` added; `select --rule joint --calibrated`, then `fuse` with sets of up to 3 members of different checkpoints (pairs and triples among the top 4 per class; still 2 knobs: the set and the IoU), then `budget`.
+6. Scorecard vs S3 (with the AP-loss decomposition repeated: the walker localization loss should fall), upload gate, package, kit-scorer check, upload, record; leaderboard projection: previous leaderboard mAP + 0.8 x the A gain.
 
-**Evaluation.** V2X BEV-3D gap on B (target set before S3: from 0.146 to 0.07 or less; S3 reached 0.063), 3D@0.7 on B, LUMPI Truck and Car B AP, check time (two-stage outputs are fewer, cleaner boxes, so the box count should fall).
+**Evaluation.** Localization loss of V2X pedestrian and LUMPI Person on B; per-class B AP of the two-stage members against the S2 CenterPoint (the same stage 1, so the difference is the refinement) and against the S3 portfolio; combined estimate (B); box count and check time.
 
-**Gate.** Class gate; strategy success when the V2X BEV-3D gap shrinks by half or LUMPI Truck passes the class gate, and the upload gate holds.
+**Gate.** Class gate per member, route and fusion set; strategy success when V2X pedestrian or LUMPI Person passes the class gate through a two-stage member or a fusion containing one, and the upload gate holds (bars after S3: LUMPI 0.520, V2X 0.937).
 
-**Deliverables.** `pvrcnnpp-g1v3` (or `voxelrcnn-g1v3`), `routed-g4`, scorecards, tracker row, upload.
+**Deliverables.** `voxelrcnn-g1v3`, `pvrcnnpp-g1v3` (plain and TTA), `routed-g4`, scorecards, tracker rows, upload.
 
-**Risks and fallbacks.** Refinement may relearn synthetic box conventions that the post-processing corrects (judge on B, not on synthetic val); training cost; if the member never wins a class, S4 contributes only the D2 ground-height experiment.
+**Risks and fallbacks.** The refinement learns synthetic box conventions (the near misses are noise in real length, which depends on the gait of real walkers; the synthetic walkers may lack that variation): judge on B, never on synthetic val, and let post-processing re-fit size and z per variant; the IoU score is trained without the static structures of the real scenes, so ranking may not improve on static false positives (R3 remains their lever); if neither member wins a class or a fusion, S4 contributes only diversity, and R3 follows.
 
-**Time box.** Smoke Mon Oct 12, training Tue Oct 13 - Thu Oct 15 (in parallel with S3 coding), tuning and upload Sat Oct 17 - Mon Oct 19; about 64 GPU-hours.
+**Time box.** Training Sat Oct 10 (both families concurrently, about 3 h and 6-8 h), score blend, tuning and TTA Sun Oct 11, routing, fusion and upload Mon Oct 12.
+
+#### 8.4.1 Results (2026-10-10)
+
+**Implementation.** Members `voxelrcnn-g1v3` and `pvrcnnpp-g1v3` on both tracks (steps 1-2), trained 40 epochs on 4 GPUs each, all four runs at once on the 8 GPUs (wall time 5.4 h V2X, 6.7 h LUMPI; shared GPUs). Score blend (step 3): **per class**, not per member: the class-agnostic IoU head is trained mostly on the frequent classes, so for V2X trucks the stage-1 score is far better (Voxel R-CNN truck A 0.218 at a = 0, 0.570 at a = 1) while walkers and vehicles prefer the blend (pedestrian 0.273 / 0.291 / 0.237 at a = 0 / 0.5 / 1); `ROI_HEAD.SCORE_BLEND_ALPHA` is a list in `CLASS_NAMES` order (V2X [0.5, 0.5, 1]; LUMPI per class). `fuse` gained sets of three and keeps an earlier fusion as the incumbent (regression check: re-running it on a copy of `routed-g3` keeps every S3 fusion). New diagnostics in the scorecard: the AP-loss decomposition per class (`bdc26.diagnostics.ap_loss_decomposition`). Models `routed-g4` on both tracks.
+
+**Members on real validation** (official 3D AP@0.5, tuned; realval-A / realval-B; the S2 CenterPoint is the same stage 1, so the difference is the second stage):
+
+| Track / class | CenterPoint (TTA) | Voxel R-CNN plain / TTA | PV-RCNN++ plain / TTA |
+|---|---|---|---|
+| V2X vehicle | 0.650 / 0.675 (0.723 / 0.766) | 0.739 / 0.751, 0.796 / 0.820 | 0.748 / 0.791, 0.794 / **0.831** |
+| V2X pedestrian | 0.252 / 0.279 (0.282 / 0.324) | 0.300 / 0.331, 0.323 / 0.359 | 0.285 / 0.332, 0.318 / **0.374** |
+| V2X truck | 0.750 / 0.520 (0.723 / 0.528) | 0.752 / 0.584, 0.822 / 0.715 | 0.776 / 0.697, 0.810 / 0.727 |
+| V2X mAP | 0.551 / 0.492 (0.576 / 0.539) | 0.597 / 0.555, 0.647 / 0.632 | 0.603 / 0.606, 0.641 / **0.644** |
+| LUMPI Person | 0.095 / 0.038 (0.211 / 0.081) | 0.189 / 0.041, 0.289 / 0.069 | 0.174 / 0.037, 0.309 / 0.073 |
+| LUMPI Car | 0.848 / 0.756 (0.886 / 0.780) | 0.879 / 0.775, 0.895 / 0.775 | 0.878 / 0.779, 0.887 / 0.787 |
+| LUMPI Bicycle | 0.350 / 0.128 (0.406 / 0.155) | 0.431 / 0.163, 0.487 / **0.195** | 0.409 / 0.144, 0.493 / 0.182 |
+| LUMPI Truck | 0.137 / 0.077 (0.162 / 0.113) | 0.136 / 0.089, 0.217 / 0.118 | 0.219 / 0.079, 0.314 / 0.108 |
+
+**Was the hypothesis right?** Partly (AP-loss decomposition on realval-B, same stage 1 without and with refinement):
+- **Vehicles: yes.** The V2X vehicle localization loss falls from 0.140 (CenterPoint) to 0.103 (Voxel R-CNN) and 0.058 (PV-RCNN++); with TTA 0.102 -> 0.069 / 0.056. 3D@0.7 of the portfolio on B rises 0.078 -> 0.146.
+- **Walkers: no.** The V2X pedestrian localization loss stays at 0.27-0.30 (CenterPoint 0.272, Voxel R-CNN 0.300, PV-RCNN++ 0.275) and recall at IoU 0.5 does not move (0.67-0.71); the pedestrian gain (+0.05 AP) comes from **ranking** (loss 0.424 -> 0.343 / 0.367): the IoU-quality score orders the found pedestrians better. LUMPI Person is mixed the same way. The walker near-miss noise survives a second stage trained on synthetic walkers: it is likely in the real labels and points themselves (gait-dependent length, a few points per walker), which synthetic training does not teach.
+
+**Portfolio per class** (realval-A / realval-B, each step through the class gate against S3):
+
+| Track / class | S3 (`routed-g3`) | S4 (`routed-g4`, with score floors) | Change | dB (bootstrap P) |
+|---|---|---|---|---|
+| V2X vehicle | 0.757 / 0.819 | **0.806 / 0.843** | fused `pv_tta` + `vr_tta` (IoU 0.7) | +0.024 (1.00) |
+| V2X pedestrian | 0.350 / 0.361 | 0.350 / 0.361 | the S3 fusion stays the best candidate | 0 |
+| V2X truck | 0.876 / 0.812 | **0.896 / 0.834** | fused `g1v3_tta` + `g1v2_tta` + `vr_tta` (IoU 0.7), the first triple | +0.022 (0.99) |
+| LUMPI Bicycle | 0.444 / 0.173 | **0.525 / 0.202** | fused `vr_tta` + `pv_tta` (IoU 0.7) | +0.029 (1.00) |
+| LUMPI Car | 0.898 / 0.792 | 0.898 / 0.792 | `pv_tta` + `g1v3_tta` reaches B +0.0097: just below the gate | 0 |
+| LUMPI Truck | 0.231 / 0.153 | 0.231 / 0.153 | `pv_tta` gains A +0.08 but loses B 0.05: gated out | 0 |
+| LUMPI Person, Motorcycle, Bus, Van | unchanged | unchanged | no candidate passes | 0 |
+
+Selected on realval-A alone, the same sets win for V2X vehicle and LUMPI Bicycle, and the V2X truck triple swaps `g1v3_tta` for `ut_tta` (B 0.827, still above S3).
+
+**Gates.** Strategy success (8.4): **not met for walkers** (no V2X pedestrian or LUMPI Person change passes); the S4 members win through vehicles, trucks and bicycles instead. Upload gate ([`decisions/README.md` 3.2](decisions/README.md#32-gates)):
+
+| Track | A-mAP | B-mAP (90% interval of the gain vs S3) | late-A | BEV-3D gap (B) | 3D@0.7 (B) | R | Estimate (B) | Bar | Server check | Gate |
+|---|---|---|---|---|---|---|---|---|---|---|
+| V2X | 0.661 -> **0.684** | 0.664 -> **0.679** (+0.011 to +0.022) | | 0.062 -> 0.051 | 0.078 -> 0.146 | 0.919 | 0.937 -> **0.950** | 0.942 | 80 s, 13,028 boxes | **passed** |
+| LUMPI | 0.301 -> 0.313 | 0.184 -> 0.188 (+0.003 to +0.005) | 0.298 -> 0.304 | 0.021 | 0.062 -> 0.064 | 0.905 | 0.520 -> 0.523 | 0.525 | 182 s, 17,004 boxes | **failed** (+0.003) |
+
+Leaderboard projection before the uploads (previous leaderboard mAP + 0.8 x the A gain, Section 8.3.1): V2X combined about 0.854, LUMPI about 0.510; measured 0.8485 and 0.5040 (next paragraph). The LUMPI package was below the upload gate; the entrant uploaded it anyway.
+
+**What S4 taught.**
+1. **A second stage is a better scorer than a better localizer on walkers.** Refinement fixes the box geometry where there are enough points (vehicles: localization loss halved), but walker boxes keep their noise; the walker gain comes from IoU-quality ranking. Walker localization needs a different lever: label-convention statistics in the generator (gait, walker size distributions from legal real labels) rather than a detector.
+2. **Score blends are per class.** A class-agnostic IoU head under-serves rare large classes (trucks); one blend for all classes would have cost V2X pedestrians 0.05 AP.
+3. **Three families make better fusions:** the best V2X vehicle and truck boxes now come from fusions with two-stage members; the first triple wins (truck).
+4. **Cumulative portfolios need incumbent-aware selection:** without the fix, a new member could have replaced the S3 pedestrian fusion through a weaker fusion that only beat the single routed member.
+5. **LUMPI stays bounded by transfer and Person:** Bicycle keeps improving (A 0.265 in S1 -> 0.525), but Person and Truck do not move with any detector; R3 (static hard negatives, long trucks) remains the LUMPI lever, next to realism.
+
+**Leaderboard (2026-10-10/11).** V2X 975938: combined **0.8485** (mAP 0.5605, R 0.9203), rank 1 of 19, confirmation passed (+0.010). LUMPI 975871 (uploaded below the upload gate by the entrant's call): combined **0.5040** (mAP 0.1721, R 0.8912), **rank 1 of 18** (Raj Patil 0.4784 second), confirmation passed (+0.0025 over the S3 log). Realism identical on both tracks; on the leaderboard only the gated classes changed (V2X pedestrian identical, LUMPI every class but Bicycle identical), as the merge predicts.
+
+| Track / class | Leaderboard S3 -> S4 | realval-A gain | realval-B gain | Leaderboard gain / A gain | / B gain |
+|---|---|---|---|---|---|
+| V2X vehicle | 0.681 -> 0.707 | +0.049 | +0.024 | 0.54 | 1.11 |
+| V2X truck | 0.619 -> 0.628 | +0.020 | +0.022 | 0.50 | 0.45 |
+| **V2X mAP** | 0.5483 -> **0.5605** | +0.023 | +0.015 | **0.53** | **0.80** |
+| LUMPI Bicycle | 0.224 -> 0.244 | +0.081 | +0.029 | 0.25 | 0.71 |
+| **LUMPI mAP** | 0.1692 -> **0.1721** | +0.012 | +0.004 | **0.25** | **0.72** |
+
+Five uploads with a local change (V2X S1+C1, S3, S4; LUMPI S3, S4) now calibrate the projection: the leaderboard mAP gain was 0.25-1.74 x the A gain (median 0.80), 0.48-1.90 x the B gain (median 0.80) and 0.38-1.52 x the mean of both (median 0.63). No split predicts the size of a gain; all five predicted its sign. The projection of 8.3.1 (0.8 x the A gain, fitted on the two S3 uploads) over-predicted S4 (V2X 0.854 vs 0.8485, LUMPI 0.510 vs 0.504) and is replaced by previous leaderboard mAP + 0.6 x the mean of the A and B gains ([`decisions/README.md` 3.1](decisions/README.md#31-scorecard)); the gates stay on B, and the B-based upload gate judged the LUMPI S4 gain correctly (+0.003 estimated, +0.0025 measured).
+
+Decision record: [`decisions/2026-10-10-s4-two-stage.md`](decisions/2026-10-10-s4-two-stage.md).
 
 ### 8.5 S5 Geometry-Invariant Inputs
 

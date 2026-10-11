@@ -10,7 +10,9 @@ B AP, BEV-3D gap and 3D@0.7 on B, realism R (mean of held-out proxies 4-5), the 
 mAP, the server cost recorded by check_submission.py --official, and the leaderboard record if one exists.
 Inputs are the post-processed validation predictions written by tune_and_eval.sh (routed models: by
 route_predictions.py merge). With --vs, per-class deltas come with a paired frame bootstrap and the class gate.
-Writes <model>/validation/results/scorecard.json and prints a row of the progression tracker.
+Also on B: the AP-loss decomposition per class (localization, ranking, misses; bdc26.diagnostics) and the
+static false-positive share of the walker classes. Writes <model>/validation/results/scorecard.json and prints a row
+of the progression tracker.
 """
 import argparse
 import json
@@ -110,10 +112,11 @@ def main():
         "server_check": man.get("official_local_eval"),
         "leaderboard": lb,
     }
+    from bdc26 import diagnostics as dg
+    predsB = json.loads(validation_predictions(model_dir, card, "valB").read_text())
+    card_out["B_ap_loss"] = {c: dg.ap_loss_decomposition(predsB, gts["valB"], c) for c in cwg}   # S4 review metric
     walkers = track.cfg.get("diagnostics", {}).get("walker_classes", [])
     if walkers:
-        from bdc26 import diagnostics as dg
-        predsB = json.loads(validation_predictions(model_dir, card, "valB").read_text())
         card_out["B_static_fp"] = {c: dg.static_fp_share(predsB, gts["valB"], c) for c in walkers}
         card_out["B_static_fp_ranked"] = {c: dg.static_fp_share(predsB, gts["valB"], c, score_min=None) for c in walkers}
     if lb and b_map:
@@ -138,6 +141,9 @@ def main():
     print(json.dumps({k: card_out[k] for k in ("model", "A_mAP", "B_mAP", "lateA_mAP", "B_over_A", "B_bev_3d_gap", "B_3d07_mAP",
                                                "estimate_B")}, indent=2))
     print("per class (A / B / late-A):", {c: (f(v["A"]), f(v["B"]), f(v["lateA"])) for c, v in card_out["per_class"].items()})
+    for c, v in (card_out.get("B_ap_loss") or {}).items():
+        if v:
+            print(f"AP loss ({c}, realval-B): AP3d@0.5 {v['AP_3d50']:.3f}, localization {v['loss_localization']:.3f}, ranking {v['loss_ranking']:.3f}, misses {v['loss_miss']:.3f}")
     for c, v in (card_out.get("B_static_fp") or {}).items():
         print(f"static false positives ({c}, realval-B, score >= 0.5): {v['static_per_frame']:.1f} per frame, share {v['static_share']:.2f} of {v['unmatched_per_frame']:.1f} unmatched")
     for c, v in (card_out.get("B_static_fp_ranked") or {}).items():
