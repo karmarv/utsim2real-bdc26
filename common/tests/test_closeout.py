@@ -281,3 +281,56 @@ def test_ap_loss_decomposition_separates_localization_ranking_and_misses():
     assert r["loss_miss"] == pytest.approx(exact["loss_miss"]) and r["loss_miss"] > 0.05      # 15% of objects never predicted
     official = evalap.evaluate(off, gts, ["pedestrian"])["per_class"]["pedestrian"]["3d@0.5"]["AP_R40"]
     assert r["AP_3d50"] == pytest.approx(official, abs=1e-6)
+
+
+def test_gblobs_voxel_and_cell_match_numpy():
+    """S5: the published voxel covariance and the bdc26 cell covariance against numpy (ddof=1), offsets, width 12."""
+    torch = pytest.importorskip("torch")
+    from bdc26.detect.gblobs_vfe import gblobs_cell, gblobs_voxel
+    vs, pcr = [0.1, 0.1, 0.25], [-40.0, -40.0, -8.0, 40.0, 40.0, 2.0]
+    rng = np.random.default_rng(0)
+    coords = torch.tensor([[0, 30, 400, 400], [0, 30, 400, 401], [0, 31, 401, 403], [0, 30, 404, 400]], dtype=torch.int32)
+    centres = np.array([[(c[3] + 0.5) * vs[0] + pcr[0], (c[2] + 0.5) * vs[1] + pcr[1], (c[1] + 0.5) * vs[2] + pcr[2]] for c in coords.numpy()])
+    counts = [4, 3, 1, 2]
+    vox = np.zeros((4, 5, 3), dtype=np.float32)
+    for k, n in enumerate(counts):
+        vox[k, :n] = centres[k] + rng.uniform(-0.04, 0.04, (n, 3)) * np.array([1, 1, 2.5])
+    V, N = torch.from_numpy(vox), torch.tensor(counts)
+    fv = gblobs_voxel(V, N, coords, vs, pcr).numpy()
+    assert fv.shape == (4, 12)
+    for k, n in enumerate(counts):
+        p = vox[k, :n].astype(np.float64)
+        assert np.allclose(fv[k, :3], p.mean(0) - centres[k], atol=1e-5)
+        assert np.allclose(fv[k, 3:].reshape(3, 3), np.cov(p.T, ddof=1) if n > 1 else 0.0, atol=1e-6)
+    fc = gblobs_cell(V, N, coords, vs, pcr, factor=(4, 4, 2)).numpy()
+    cell = np.concatenate([vox[k, :counts[k]] for k in (0, 1, 2)]).astype(np.float64)   # voxels 0-2 share cell (0,15,100,100)
+    for k in (0, 1, 2):
+        assert np.allclose(fc[k, 3:].reshape(3, 3), np.cov(cell.T, ddof=1), atol=1e-6)
+    assert np.allclose(fc[3, 3:].reshape(3, 3), np.cov(vox[3, :2].astype(np.float64).T, ddof=1), atol=1e-6)  # alone in its cell
+    assert np.allclose(fc[:, :3], fv[:, :3], atol=1e-6)
+
+
+def test_object_scaling_keeps_points_in_box_and_bottom_on_ground():
+    """S5 ROS: points stay inside the scaled box, the box bottom stays put, overlapping scales are skipped."""
+    pytest.importorskip("pcdet")
+    from bdc26.detect.augment import _points_in_box, object_scaling
+    rng = np.random.RandomState(0)
+    truck = np.array([10.0, 5.0, -0.5, 6.0, 2.5, 3.0, 0.6])
+    car = np.array([30.0, -5.0, -1.0, 4.5, 2.0, 1.5, -1.2])
+    pts = np.concatenate([truck[:3] + (rng.uniform(-0.5, 0.5, (300, 3)) * truck[3:6]) @ np.diag([1, 1, 1]),
+                          rng.uniform(-40, 40, (200, 3))])
+    # rotate the truck points into its heading
+    c, s = np.cos(truck[6]), np.sin(truck[6]); d = pts[:300, :2] - truck[:2]
+    pts[:300, :2] = truck[:2] + d @ np.array([[c, s], [-s, c]])
+    inside = _points_in_box(pts, truck)
+    cfg = {"PROB": 1.0, "DEFAULT": {"l": [1.0, 1.0], "w": [1.0, 1.0], "h": [1.0, 1.0]},
+           "CLASS_RANGES": {"truck": {"l": [1.6, 1.6], "w": [1.2, 1.2], "h": [1.1, 1.1]}}}
+    boxes, out = object_scaling(np.stack([truck, car]), ["truck", "vehicle"], pts, cfg, rng=np.random.RandomState(1))
+    assert np.allclose(boxes[0, 3:6], truck[3:6] * [1.6, 1.2, 1.1])
+    assert np.isclose(boxes[0, 2] - boxes[0, 5] / 2, truck[2] - truck[5] / 2)           # bottom unchanged
+    assert _points_in_box(out[inside], boxes[0] + np.r_[0, 0, 0, 1e-6, 1e-6, 1e-6, 0]).all()
+    assert np.allclose(out[~inside], pts[~inside]) and np.allclose(boxes[1], car)
+    near = np.array([10.0, 9.0, -1.0, 4.5, 2.0, 1.5, 0.6])                              # a growing truck would hit it
+    b2, _ = object_scaling(np.stack([truck, near]), ["truck", "vehicle"], pts, {**cfg, "CLASS_RANGES": {"truck": {"l": [3.0, 3.0], "w": [3.0, 3.0], "h": [1.0, 1.0]}}},
+                           rng=np.random.RandomState(1))
+    assert np.allclose(b2[0], truck)

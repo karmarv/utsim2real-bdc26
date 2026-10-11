@@ -1,0 +1,83 @@
+"""Training augmentations of bdc26, registered into OpenPCDet's DataAugmentor by register() (strategy S5).
+
+bdc_object_scaling: class-wise random object scaling (ROS, as in ST3D, R40). Each object's points and box are scaled
+independently along the box's length, width and height in the box frame, about the box BOTTOM, so objects stay on
+the ground (OpenPCDet's random_local_scaling is isotropic, class-blind and scales about the centre, which pushes
+enlarged objects through the ground). A scale is skipped when the scaled box would overlap another box in BEV.
+Per-class ranges cover the real label sizes the twin lacks (S5 review, docs/02-STRATEGY.md Section 8.5: LUMPI
+Bicycle synthetic 1.66 x 0.58 x 1.62 m vs real 2.00 x 0.85 x 1.90 m; trucks at most 8.47 m vs real up to 13-17 m);
+the box size must then be read from the points instead of memorized from the twin's few asset sizes.
+
+    - NAME: bdc_object_scaling          # after gt_sampling, so pasted objects are scaled too
+      PROB: 0.7                         # per object; the rest keep their native size
+      DEFAULT: {l: [0.9, 1.1], w: [0.9, 1.1], h: [0.95, 1.05]}
+      CLASS_RANGES: {truck: {l: [0.9, 1.8], w: [1.0, 1.3], h: [1.0, 1.3]}}
+"""
+from __future__ import annotations
+
+from functools import partial
+
+import numpy as np
+
+
+def _points_in_box(points: np.ndarray, box: np.ndarray) -> np.ndarray:
+    """Boolean mask of the points inside one (7,) box (same convention as OpenPCDet: centre, dims, heading)."""
+    c, s = np.cos(-box[6]), np.sin(-box[6])
+    dx, dy = points[:, 0] - box[0], points[:, 1] - box[1]
+    lx, ly = dx * c - dy * s, dx * s + dy * c
+    dz = points[:, 2] - box[2]
+    return (np.abs(lx) <= box[3] / 2) & (np.abs(ly) <= box[4] / 2) & (np.abs(dz) <= box[5] / 2)
+
+
+def _bev_overlap(box: np.ndarray, others: np.ndarray) -> bool:
+    if not len(others):
+        return False
+    import torch
+    from pcdet.ops.iou3d_nms import iou3d_nms_utils
+    iou = iou3d_nms_utils.boxes_bev_iou_cpu(torch.from_numpy(box[None, :7].astype(np.float32)),
+                                            torch.from_numpy(others[:, :7].astype(np.float32)))
+    return bool((iou.numpy() > 0).any())
+
+
+def object_scaling(gt_boxes: np.ndarray, gt_names, points: np.ndarray, config, rng=np.random) -> tuple:
+    """Returns scaled copies of (gt_boxes, points). gt_boxes (N, 7+), points (M, 3+C)."""
+    boxes, pts = gt_boxes.copy(), points.copy()
+    ranges = {str(k).lower(): v for k, v in (config.get("CLASS_RANGES") or {}).items()}
+    default = config.get("DEFAULT", {"l": [1.0, 1.0], "w": [1.0, 1.0], "h": [1.0, 1.0]})
+    prob = float(config.get("PROB", 1.0))
+    for i in rng.permutation(len(boxes)):
+        if rng.rand() >= prob:
+            continue
+        r = ranges.get(str(gt_names[i]).lower(), default)
+        sl, sw, sh = (rng.uniform(*r[k]) for k in ("l", "w", "h"))
+        b = boxes[i].copy()
+        bottom = b[2] - b[5] / 2
+        nb = b.copy()
+        nb[3:6] = b[3:6] * np.array([sl, sw, sh])
+        nb[2] = bottom + nb[5] / 2
+        if _bev_overlap(nb, np.delete(boxes, i, axis=0)):
+            continue
+        m = _points_in_box(pts, b)
+        if m.any():
+            c, s = np.cos(b[6]), np.sin(b[6])
+            dx, dy, dz = pts[m, 0] - b[0], pts[m, 1] - b[1], pts[m, 2] - bottom
+            lx, ly = dx * c + dy * s, -dx * s + dy * c                    # into the box frame
+            lx, ly, dz = lx * sl, ly * sw, dz * sh
+            pts[m, 0] = b[0] + lx * c - ly * s                             # back to the frame
+            pts[m, 1] = b[1] + lx * s + ly * c
+            pts[m, 2] = bottom + dz
+        boxes[i] = nb
+    return boxes, pts
+
+
+def register() -> None:
+    from pcdet.datasets.augmentor.data_augmentor import DataAugmentor
+
+    def bdc_object_scaling(self, data_dict=None, config=None):
+        if data_dict is None:
+            return partial(self.bdc_object_scaling, config=config)
+        data_dict["gt_boxes"], data_dict["points"] = object_scaling(data_dict["gt_boxes"], data_dict["gt_names"],
+                                                                    data_dict["points"], config)
+        return data_dict
+
+    DataAugmentor.bdc_object_scaling = bdc_object_scaling

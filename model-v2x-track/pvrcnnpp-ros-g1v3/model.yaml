@@ -1,0 +1,21 @@
+name: pvrcnnpp-ros-g1v3
+strategy: S5
+track: v2x-track
+module: M10 (detector routing by class)
+derived_from: pvrcnnpp-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++ (as pvrcnnpp-g1v3) trained with class-wise random object scaling
+  (ROS)
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'S5 extension: trained 40 epochs, per-class score blend, tuned plain (A 0.589
+  / B 0.596) and TTA (0.642 / 0.650); TTA truck B +0.059 over pvrcnnpp-g1v3, vehicle
+  and pedestrian slightly down'
+expected: the run-b gain of ROS on another family of the S4 portfolio (pvrcnnpp-g1v3)
+notes: 'S5 extension (docs/02-STRATEGY.md Section 8.5): ROS passed as run b on Voxel
+  R-CNN; the same augmentation on pvrcnnpp-g1v3, nothing else changes.
+
+  '

@@ -74,8 +74,8 @@ data:
   train: pcdet/g1-v3
   realval: pcdet/realval-v1
 realism_frames: pcdet/g1-v3
-status: 'S4 submitted 2026-10-11: 975938 combined 0.8485 (mAP 0.5605, R 0.9203), rank
-  1 of 19; realval-A 0.684, realval-B 0.679, estimate (B) 0.950'
+status: 'S4 submitted 2026-10-11: 975938 combined 0.8485 (mAP 0.5605); superseded
+  by routed-g5 (978945)'
 notes: 'S4 Two-Stage Refinement (docs/02-STRATEGY.md Section 8.4): the routed-g3 portfolio
   (its route, fusion and score floors are the incumbents) plus the two-stage members
   voxelrcnn-g1v3 and pvrcnnpp-g1v3 and their TTA variants; every change passes the

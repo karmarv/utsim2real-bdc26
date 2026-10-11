@@ -25,8 +25,12 @@
 | Two-stage members (Voxel R-CNN, PV-RCNN++) in the fusion (S4) | V2X | B-mAP 0.664 -> 0.679 (vehicle +0.024, truck +0.022); vehicle localization loss 0.140 -> 0.058; walker localization unchanged | Section 8.4.1 |
 | Two-stage members in the fusion (S4) | LUMPI | Bicycle B 0.173 -> 0.202; mAP B 0.184 -> 0.188: below the upload gate | Section 8.4.1 |
 | S4 on the leaderboard (2026-10-10/11) | both | V2X 0.8381 -> **0.8485** (975938; vehicle +0.027, truck +0.010); LUMPI 0.5015 -> **0.5040** (975871; Bicycle 0.224 -> 0.244): **rank 1 on both tracks** | Section 8.4.1 |
+| Class-wise random object scaling (S5 ROS, real size ranges) | both | V2X Voxel R-CNN TTA B 0.632 -> 0.667 (truck +0.082, pedestrian +0.034); LUMPI 0.170 -> 0.189 (Bicycle, Truck, Bus) | Section 8.5.1 |
+| GBlobs inputs (S5 run a) | both | below the parent as a member (LUMPI Person 0.189 -> 0.098 on A); useful only inside fusions | Section 8.5.1 |
+| S5 portfolio (`routed-g5`) | both | V2X B 0.679 -> 0.699 (estimate 0.967); LUMPI B 0.188 -> 0.209 (Truck 0.153 -> 0.200, Bus, Bicycle, Car) | Section 8.5.1 |
+| S5 on the leaderboard (2026-10-11) | both | V2X 0.8485 -> **0.8730** (978945; pedestrian +0.046, truck +0.029); LUMPI flat 0.5040 -> 0.5039 (978931; Truck +0.038, Bicycle -0.030, Car -0.010), S4 stays the LUMPI entry | Section 8.5.1 |
 
-**First leaderboard results (2026-10-06, strategy S1):** LUMPI 965614 combined 0.4728 (mAP 0.1357, R 0.8912), V2X 965633 combined 0.7665 (mAP 0.4648, R 0.9203), both rank 1. Realism transferred (V2X +0.001, LUMPI -0.014 vs held-out proxies); detection transferred at 0.82-0.89 x realval-B but only 0.52 x realval-A on LUMPI (Person 0.117, Bicycle 0.053, Truck 0.028 on the test frames). Per-class tables: `model-<track>/README.md` Section 9. **2026-10-09:** V2X S1+C1 (972563) 0.7855, mAP 0.4869, rank 1; LUMPI S1 is rank 2 since Oct 7 behind an entry with lower mAP (0.1185) but realism R 0.942, so LUMPI realism is now the most valuable LUMPI lever (Section 8.7). **2026-10-10:** S3 uploaded on both tracks: V2X 974400 combined **0.8381** (mAP 0.5483, rank 1 of 19); LUMPI scored **0.5015** by the scorer log (mAP 0.1692), above the LUMPI leader (0.4784), but the submission was still Running at the server after scoring. The S3 gains transferred at 0.8 x the realval-A gain on both tracks, while the realval-B gain over-predicted V2X (0.48 x) and under-predicted LUMPI (1.89 x). **2026-10-10/11:** S4 uploaded on both tracks: V2X 975938 combined **0.8485** (mAP 0.5605), LUMPI 975871 **0.5040** (mAP 0.1721, uploaded below its upload gate by the entrant's call): rank 1 on both tracks. Over the five uploads with a local change, the leaderboard gain had the right sign every time but was 0.25-1.74 x the realval-A gain and 0.48-1.90 x the realval-B gain; projections now use 0.6 x the mean of both (Section 8.4.1). Register: [`decisions/README.md` Section 2](decisions/README.md#2-submission-register).
+**First leaderboard results (2026-10-06, strategy S1):** LUMPI 965614 combined 0.4728 (mAP 0.1357, R 0.8912), V2X 965633 combined 0.7665 (mAP 0.4648, R 0.9203), both rank 1. Realism transferred (V2X +0.001, LUMPI -0.014 vs held-out proxies); detection transferred at 0.82-0.89 x realval-B but only 0.52 x realval-A on LUMPI (Person 0.117, Bicycle 0.053, Truck 0.028 on the test frames). Per-class tables: `model-<track>/README.md` Section 9. **2026-10-09:** V2X S1+C1 (972563) 0.7855, mAP 0.4869, rank 1; LUMPI S1 is rank 2 since Oct 7 behind an entry with lower mAP (0.1185) but realism R 0.942, so LUMPI realism is now the most valuable LUMPI lever (Section 8.7). **2026-10-10:** S3 uploaded on both tracks: V2X 974400 combined **0.8381** (mAP 0.5483, rank 1 of 19); LUMPI scored **0.5015** by the scorer log (mAP 0.1692), above the LUMPI leader (0.4784), but the submission was still Running at the server after scoring. The S3 gains transferred at 0.8 x the realval-A gain on both tracks, while the realval-B gain over-predicted V2X (0.48 x) and under-predicted LUMPI (1.89 x). **2026-10-10/11:** S4 uploaded on both tracks: V2X 975938 combined **0.8485** (mAP 0.5605), LUMPI 975871 **0.5040** (mAP 0.1721, uploaded below its upload gate by the entrant's call): rank 1 on both tracks. Over the five uploads with a local change, the leaderboard gain had the right sign every time but was 0.25-1.74 x the realval-A gain and 0.48-1.90 x the realval-B gain; projections now use 0.6 x the mean of both (Section 8.4.1). **2026-10-11:** S5 uploaded: V2X 978945 combined **0.8730** (mAP 0.5890, rank 1); LUMPI 978931 0.5039, 0.00007 below the S4 entry (not confirmed; diagnosed in Section 8.5.1: the LUMPI test window answers the size-augmented Bicycle members with false positives no local split shows). Register: [`decisions/README.md` Section 2](decisions/README.md#2-submission-register).
 
 The thesis below holds: detection decides, the open points are per class, and the real train split lets us measure the target. The leaderboard adds one correction: **select on realval-A and realval-B jointly**, because realval-A alone over-predicted LUMPI. Planning estimates marked "est." remain for the levers not yet built.
 
@@ -175,7 +179,7 @@ Every strategy below uses the same template: **hypothesis** (what it should fix,
 | **S2** | Center-Routed Small Objects | **done 2026-10-09**: no upload-ready version; LUMPI Bicycle route and CenterPoint members carried to S3 (8.2.1) | CenterPoint specialists for small classes, routed with the S1 pillars; routes chosen on realval-A and B jointly | LUMPI Person, Bicycle, Motorcycle; V2X pedestrian, including its height loss | 4 days; about 32 GPU-hours | low | [R22](07-LITERATURE.md#r22-centerpoint), [R24](07-LITERATURE.md#r24-inscope), [R41](07-LITERATURE.md#r41-pillarnet), [R42](07-LITERATURE.md#r42-mmdetection3d-model-comparison-secondary-source) |
 | **S3** | Fused Portfolio with TTA | **submitted 2026-10-10**: V2X 974400 combined 0.8381 (rank 1); LUMPI scored 0.5015 by the scorer log, status Running at the server (8.3.1) | test-time augmentation as routable member variants; per-class box fusion of members; per-class score floors | run-to-run variance; V2X height | 1 day; about 3 GPU-hours | low | [R23](07-LITERATURE.md#r23-weighted-boxes-fusion), [R37](07-LITERATURE.md#r37-ms3d-kde-box-fusion), [R38](07-LITERATURE.md#r38-horizonlidar3d), [R39](07-LITERATURE.md#r39-robosense-2025-report), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
 | **S4** | Two-Stage Refinement | **submitted 2026-10-10/11**: V2X 975938 0.8485, LUMPI 975871 0.5040, rank 1 on both (8.4.1) | Voxel R-CNN and PV-RCNN++ members (plain and TTA, per-class score blend) in fusions of up to three members | walker localization (revised after the S3 review); in effect vehicle, truck and bicycle | 1 day; about 50 GPU-hours (4 runs at once) | medium | [R29](07-LITERATURE.md#r29-pv-rcnn), [R30](07-LITERATURE.md#r30-voxel-r-cnn), [R25](07-LITERATURE.md#r25-robo3d), [R24](07-LITERATURE.md#r24-inscope) |
-| S5 | Geometry-Invariant Inputs | planned | GBlobs voxel features plus dropout and object-scale augmentation on the best voxel member | the realval-to-test transfer gap itself | 5 days; about 96 GPU-hours (3 runs per track) | medium | [R27](07-LITERATURE.md#r27-gblobs), [R28](07-LITERATURE.md#r28-gblobs-for-sensor-placement), [R26](07-LITERATURE.md#r26-lidar-domain-generalization-study), [R36](07-LITERATURE.md#r36-dts-random-beam-re-sampling), [R40](07-LITERATURE.md#r40-st3d) |
+| **S5** | Geometry-Invariant Inputs | **submitted 2026-10-11**: V2X 978945 0.8730 (rank 1); LUMPI 978931 0.5039, flat, not confirmed (S4 stays the entry) (8.5.1) | GBlobs (cell covariance) and class-wise object scaling (ROS) on Voxel R-CNN; ROS extended to PV-RCNN++ and the pillars; fused | the transfer gap; in effect the twin's size gap (trucks, bicycles, buses) | 1 day; about 100 GPU-hours (8 runs) | medium | [R27](07-LITERATURE.md#r27-gblobs), [R28](07-LITERATURE.md#r28-gblobs-for-sensor-placement), [R26](07-LITERATURE.md#r26-lidar-domain-generalization-study), [R36](07-LITERATURE.md#r36-dts-random-beam-re-sampling), [R40](07-LITERATURE.md#r40-st3d) |
 | S6 | Sparse Transformer Experts | after the freeze, unless a route is dropped | DSVT (or LION, SAFDNet) members | capacity and long range | 7-10 days; 100+ GPU-hours | high | [R31](07-LITERATURE.md#r31-dsvt), [R32](07-LITERATURE.md#r32-lion), [R33](07-LITERATURE.md#r33-hednet-and-safdnet), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
 
 GPU-hours are on the A6000s, from the measured PointPillars runs (LUMPI 40 epochs in 1 h 46 min on 4 GPUs, about 7 GPU-hours; V2X about 4) times the usual cost ratio of each family (center-head voxel models 2-3x, two-stage 4-5x, sparse transformers 5x or more). Each is replaced by the measured smoke-run speed before the full run. Dependencies checked on 2026-10-09: CenterPoint, PV-RCNN++ (its `vector_pool` ops are compiled) and Voxel R-CNN with `MeanVFE` run on the installed stack; DSVT and every dynamic-voxel encoder need `torch_scatter`, which is not installed.
@@ -526,27 +530,113 @@ Decision record: [`decisions/2026-10-10-s4-two-stage.md`](decisions/2026-10-10-s
 
 ### 8.5 S5 Geometry-Invariant Inputs
 
-**Hypothesis.** Part of the realval-to-test gap comes from the detector relying on absolute point positions and the twin's exact point patterns. GBlobs [R27](07-LITERATURE.md#r27-gblobs) replaces the per-voxel mean xyz with the voxel's point covariance (9 values) and the mean's offset from the voxel centre (3 values), a parameter-free drop-in for `MeanVFE` (the authors' `GBlobsVFE`, BSD-3, also used with CenterPoint in their code [R28](07-LITERATURE.md#r28-gblobs-for-sensor-placement)); source-only dropout and object scaling [R36](07-LITERATURE.md#r36-dts-random-beam-re-sampling), [R40](07-LITERATURE.md#r40-st3d) widen the training distribution. Signature of success: B-mAP and the B/A ratio rise together.
+**Hypothesis (revised 2026-10-11 after the review below).** Two source-only changes make the detector read geometry from the points instead of memorizing the twin: (a) GBlobs [R27](07-LITERATURE.md#r27-gblobs) replaces absolute point coordinates with local shape (the covariance of the points around each voxel) and the position inside the voxel, so the network cannot shortcut through absolute position and the twin's point patterns; (b) class-wise random object scaling (ROS, [R40](07-LITERATURE.md#r40-st3d)) stretches each object's points and box independently along length, width and height, so box size must be read from the points, with ranges that cover the real label sizes the twin lacks. Signature of success: B-mAP and the B/A ratio rise together, and the classes with a size gap (LUMPI Bicycle, trucks) move.
 
-**Prerequisites.** The best voxel member from S2 or S4. The authors also provide a PointPillars config, but the covariance carries most information in small voxels, so the voxel member is the first target.
+**Prerequisites.** S4 decided (`routed-g4` is the starting portfolio); `voxelrcnn-g1v3` is the parent (the S4 voxel two-stage member: best cost per AP, same voxel grid as GBlobs needs).
+
+**Review (2026-10-11): what S1-S4 leave, and what the data says about S5.**
+1. **Remaining loss** (S4 portfolio, AP-loss decomposition on B): V2X pedestrian localization 0.274 and ranking 0.339; LUMPI Person localization 0.286, ranking 0.418, misses 0.150; LUMPI Bicycle ranking 0.668; LUMPI Truck ranking 0.421 and misses 0.275. Refinement (S4) did not fix walker localization; static structures still cause most walker false positives (R3).
+2. **GBlobs as published degenerates on our data.** The authors' encoder ([malicd/GBlobs](https://github.com/malicd/GBlobs), BSD-3: `GBlobsVFE`, relative distance on, 12 values per voxel: the mean's offset from the voxel centre and the 3 x 3 sample covariance of the voxel's points) computes the covariance inside each voxel. On our frames at the S2-S4 grid (0.1 x 0.1 x 0.25 m), **80-83% of the voxels hold one point and 13-15% two** (synthetic `g1-v3` and real realval-A alike, both tracks), so the covariance is undefined for about 95% of the voxels: the paper's own failure case (nuScenes, 94% of voxels with 1-2 points, small gains). With cells of 0.4 x 0.4 x 0.5 m, 65-74% of the points sit in cells with at least 3 points. **Adaptation:** keep the 0.1 m voxel grid for the backbone and the fine position offset per voxel, but compute the covariance over the aligned 4 x 4 x 2-voxel cell that contains the voxel (`GBlobsCellVFE`); the published voxel-level form stays available as an ablation.
+3. **Size statistics (legal real labels vs the synthetic corpus, an allowed use as in the S1 walker calibration).** Walker sizes already match (V2X pedestrian and LUMPI Person length, width and height quantiles within 0.03 m at the median). Gaps: LUMPI Bicycle synthetic 1.66 x 0.58 x 1.62 m with almost no spread (length sd 0.09 m) against real 2.00 x 0.85 x 1.90 m (length 1.79-2.50 m); trucks at most 8.47 m against real V2X 5.7-13.1 m and LUMPI 5.6-17.1 m (5-95%); V2X vehicle height 1.38-1.85 m against 1.42-2.28 m. ROS ranges per class are set to cover these real ranges.
+4. **Dropout augmentations dropped from the plan:** the synthetic frames are ray-cast with occlusion and density-calibrated to the real sensors (S1), so there is no measured density gap for frustum or range dropout to close.
 
 **Steps.**
-1. `common/bdc26/detect/gblobs_vfe.py`: the GBlobs encoder with its BSD-3 notice, registered into OpenPCDet's VFE registry by `pcdet_train.py` and `pcdet_predict.py` at start-up (as `BDCDataset` is), so `third_party/OpenPCDet` stays unmodified. Unit test: covariance and offsets of a toy voxel; output width 12.
-2. Model `centerpoint-gblobs-g1v3` (from the S2 winner): VFE `GBlobsVFE` with relative distance on, 10 points per voxel, same grid (0.25 m z keeps the 256-feature BEV; the authors use 0.2 m).
-3. Run a: GBlobs only. Run b: a + `random_world_frustum_dropout` and `random_local_frustum_dropout` (OpenPCDet augmentors) plus a range-dependent point dropout (frames carry xyz only, so per-sensor beam dropout would need a generator change). Run c: b + `random_local_scaling` (random object scaling). One change per run, both tracks, the same seed.
-4. `tune_and_eval.sh` and scorecard for each run against the parent member; compare A, B, late-A and the B/A ratio.
-5. The best run joins `routed-g5` (from the S4 portfolio) as a member, plain and TTA variant; joint routing and fusion decide per class.
-6. Scorecard vs S4, upload gate, upload, record.
+1. `common/bdc26/detect/gblobs_vfe.py`: `GBlobsVFE` (the published voxel form, BSD-3 notice) and `GBlobsCellVFE` (cell covariance, coordinates centred on the cell before the sums so float32 keeps precision), registered into OpenPCDet's VFE registry by `register()`. Unit tests: covariance and offsets of toy voxels and cells against numpy, output width 12.
+2. `common/bdc26/detect/augment.py`: `bdc_object_scaling`, class-wise anisotropic scaling of each object's points and box in its own frame, about the box bottom (objects stay on the ground; OpenPCDet's `random_local_scaling` is isotropic and scales about the centre), skipped when the scaled box would overlap another object; after `gt_sampling`. Unit tests: points stay inside the scaled box, the bottom stays in place, overlaps are skipped.
+3. Runs on both tracks from `voxelrcnn-g1v3`, 40 epochs, the same seed: **a** `voxelrcnn-gblobs-g1v3` (GBlobsCellVFE); **b** `voxelrcnn-ros-g1v3` (ROS); **c** a + b, if a and b both help on their own. a and b run at the same time (8 GPUs), c afterwards.
+4. Score blend per class, `tune_and_eval.sh` plain and TTA, scorecard with the AP-loss decomposition against the parent; compare A, B, late-A, the B/A ratio and the classes with a size gap.
+5. Kept runs join `routed-g5` (from `routed-g4`) as plain and TTA members; `select --rule joint --calibrated`, `fuse --max-members 3` (incumbent-aware), `budget`.
+6. Scorecard vs S4, upload gate (bars LUMPI 0.523, V2X 0.950), package, kit check, record; leaderboard projection: previous leaderboard mAP + 0.6 x the mean of the A and B gains.
 
-**Evaluation.** B-mAP, B/A ratio and late-A for each run; per-class B AP; V2X pedestrian and LUMPI Person (the most convention-sensitive classes).
+**Evaluation.** Per run: B-mAP, B/A ratio, late-A, per-class B AP (LUMPI Bicycle and Truck, V2X truck for ROS; all classes for GBlobs), localization and ranking loss of each class against the parent.
 
-**Gate.** Class gate; strategy success when the best run raises B-mAP and the B/A ratio over its parent and the upload gate holds.
+**Gate.** Class gate per member, route and fusion; strategy success when a run raises B-mAP and the B/A ratio over its parent, or ROS moves a size-gap class through the class gate, and the upload gate holds.
 
-**Deliverables.** GBlobs encoder with tests, 3 runs per track, `routed-g5`, scorecards, tracker row, upload.
+**Deliverables.** GBlobs encoders and ROS with tests, runs a-c on both tracks, `routed-g5`, scorecards, tracker rows, upload.
 
-**Risks and fallbacks.** Gains were measured real-to-real; in-domain AP may drop because the twin is the same intersection as the test (absolute position is partly legitimate signal): run a vs its parent shows this directly; sparse voxels with 1-2 points give degenerate covariances (expected to hurt far objects: check with the T4 breakdown); if no run passes, S5 ends without a member and the S4 portfolio stays.
+**Risks and fallbacks.** GBlobs gains were measured real-to-real; here the twin is the same intersection as the test, so absolute position (ground height, where objects stand) is partly legitimate signal, and in-domain AP may drop (run a against its parent shows it); cell covariance smooths over object boundaries; stretched trucks are sparser along their length than real long trucks (ray-cast long trucks remain R3); ROS ranges set from real label statistics are a hyperparameter fitted on the real train split, recorded as such.
 
-**Time box.** Port Sat Oct 17 - Mon Oct 19, runs Tue Oct 20 - Wed Oct 21, tuning and upload Thu Oct 22 - Fri Oct 23; about 96 GPU-hours.
+**Time box.** Port and smoke Sun Oct 11; runs a and b Sun Oct 11 (about 6 h), c Mon Oct 12; tuning, routing and upload Mon Oct 12 - Tue Oct 13; about 80 GPU-hours.
+
+#### 8.5.1 Results (2026-10-11)
+
+**Implementation.** [`gblobs_vfe.py`](../common/bdc26/detect/gblobs_vfe.py) (`GBlobsVFE` ported from the authors' code with its BSD-3 notice; `GBlobsCellVFE` with the cell covariance) and [`augment.py`](../common/bdc26/detect/augment.py) (`bdc_object_scaling`), both registered by `register()`; unit tests against numpy and for the scaling invariants. ROS checked on the training stream before the runs: LUMPI Bicycle median size 1.66 x 0.58 x 1.62 -> 1.86 x 0.84 x 1.80 m (real 2.00 x 0.85 x 1.90), LUMPI Truck length 95th percentile 8.47 -> 14.1 m (real 17.1), V2X truck 8.47 -> 10.1 m (real 13.1). Runs a and b from `voxelrcnn-g1v3`, four at once (wall time 5.2 h V2X, 7.0 h LUMPI on shared GPUs).
+
+**Runs a and b against the parent** (official 3D AP@0.5, tuned with the per-class score blend; TTA variants; realval-A / realval-B):
+
+| Track / class | `voxelrcnn-g1v3` | a: GBlobs (cell) | b: ROS |
+|---|---|---|---|
+| V2X vehicle | 0.796 / 0.820 | **0.809 / 0.830** | 0.787 / 0.811 |
+| V2X pedestrian | 0.323 / 0.359 | 0.310 / 0.357 | **0.349 / 0.393** |
+| V2X truck | 0.822 / 0.715 | 0.788 / 0.674 | **0.856 / 0.797** |
+| V2X mAP (B/A) | 0.647 / 0.632 (0.98) | 0.635 / 0.621 (0.98); plain 0.595 / 0.586 (0.99, parent 0.93) | **0.664 / 0.667** (1.00) |
+| LUMPI Person | 0.289 / 0.069 | 0.177 / 0.058 | 0.287 / **0.084** |
+| LUMPI Bicycle | 0.487 / 0.195 | 0.459 / 0.178 | **0.540 / 0.220** |
+| LUMPI Truck | 0.217 / 0.118 | 0.218 / 0.086 | **0.362 / 0.142** |
+| LUMPI Bus | 0.010 / 0.010 | 0.010 / 0.010 | **0.018 / 0.077** |
+| LUMPI mAP | 0.295 / 0.170 | 0.276 / 0.162 | **0.322 / 0.189** |
+
+- **ROS works on both tracks**, and where the decomposition predicts: V2X truck localization loss on B 0.050 -> 0.009 (real truck extents learned from stretched ones), LUMPI Bus recall at IoU 0.5 0.20 -> 0.42 (Bus shares the head with Truck), and V2X pedestrian ranking loss 0.316 -> 0.289 with only mild walker scaling: randomized sizes make walkers easier to tell from look-alikes. A single `voxelrcnn-ros-g1v3` with TTA (B 0.667) equals the whole S3 portfolio.
+- **GBlobs does not**, as a member on its own: LUMPI Person ranking loss 0.529 -> 0.604, V2X truck localization loss 0.050 -> 0.109. The twin is the same intersection as the test, so absolute position (ground height, where objects stand) is legitimate signal, and removing it costs more than the local shape gives. Its plain V2X variant shows the predicted signature (B +0.031, B/A 0.93 -> 0.99) but its TTA variant loses. Run c (a + b) was therefore not run (its precondition, both runs helping on their own, failed).
+
+**Extension: ROS on the portfolio's other families** (not in the plan; motivated by run b): `pvrcnnpp-ros-g1v3` and `pointpillars-ros-g1v3` on both tracks (TTA variants, A / B against their parents):
+
+| Member | V2X | LUMPI |
+|---|---|---|
+| PV-RCNN++ + ROS | 0.642 / 0.650 (parent 0.641 / 0.644); truck B 0.727 -> 0.786 | 0.312 / **0.186** (0.312 / 0.167); Truck 0.314 / 0.108 -> 0.397 / 0.162 |
+| PointPillars g1v3 + ROS | 0.531 / 0.482 (0.568 / 0.522); **truck 0.839 / 0.704 -> 0.672 / 0.546** | 0.287 / **0.187** (0.271 / 0.170); Truck 0.232 / 0.154 -> 0.366 / 0.190 |
+
+The anchor-based PointPillars head has one truck anchor (7.94 x 2.89 x 3.46 m on V2X), and stretched trucks no longer match it; the anchor-free and two-stage heads have no such limit.
+
+**Portfolio** (`routed-g5`, 24 V2X and 20 LUMPI members; each change through the class gate against S4; realval-A / realval-B with the score floors):
+
+| Track / class | S4 (`routed-g4`) | S5 (`routed-g5`) | Source | dB vs S4 (P) |
+|---|---|---|---|---|
+| V2X vehicle | 0.806 / 0.843 | **0.828 / 0.852** | `vrgb_tta` + `pv_tta` + `pvros_tta` (IoU 0.7) | +0.009 (0.99; +0.011 in `fuse`, before the floors) |
+| V2X pedestrian | 0.350 / 0.361 | **0.350 / 0.397** | `vrros_tta` + `pv_tta` (IoU 0.5) | +0.036 (1.00) |
+| V2X truck | 0.896 / 0.834 | **0.905 / 0.848** | `ut_tta` + `vrros_tta` + `pvros_tta` (IoU 0.5) | +0.014 (0.98) |
+| LUMPI Car | 0.898 / 0.792 | **0.909 / 0.806** | `pvros_tta` + `vrgb_tta` + `ppros_tta` (IoU 0.7) | +0.014 (0.91) |
+| LUMPI Bicycle | 0.525 / 0.202 | **0.565 / 0.225** | `vrros_tta` + `pvros_tta` + `pv_tta` (IoU 0.7) | +0.023 (1.00) |
+| LUMPI Bus | 0.011 / 0.011 | **0.016 / 0.075** | `vrros_tta` | +0.064 (1.00) |
+| LUMPI Truck | 0.231 / 0.153 | **0.433 / 0.200** | `pvros_tta` + `ppros_tta` (IoU 0.3) | +0.047 (1.00) |
+| LUMPI Person, Motorcycle, Van | unchanged | unchanged | best Person candidate B +0.006 | 0 |
+
+GBlobs enters through fusions (V2X vehicle, LUMPI Car): as a member it adds the diversity of a different input, which the fusion rewards even though the member alone is weaker. Selected on realval-A alone, every switched class keeps the same set or one that still gains on B.
+
+**Gates.** Strategy success (8.5): met (run b raises B-mAP and the B/A ratio; ROS moves the size-gap classes through the class gate). Upload gate:
+
+| Track | A-mAP | B-mAP (90% interval of the gain vs S4) | late-A | BEV-3D gap (B) | 3D@0.7 (B) | R | Estimate (B) | Bar | Server check | Gate |
+|---|---|---|---|---|---|---|---|---|---|---|
+| V2X | 0.684 -> **0.694** | 0.679 -> **0.699** (+0.012 to +0.024) | | 0.051 -> 0.048 | 0.146 -> 0.178 | 0.919 | 0.950 -> **0.967** | 0.955 | 58 s, 8,896 boxes | **passed** |
+| LUMPI | 0.313 -> **0.350** | 0.188 -> **0.209** (+0.017 to +0.024) | 0.304 -> 0.335 | 0.021 -> 0.018 | 0.064 -> 0.085 | 0.905 | 0.523 -> **0.541** | 0.528 | 146 s, 13,831 boxes | **passed** |
+
+Leaderboard projection (previous leaderboard mAP + 0.6 x the mean of the A and B gains; spread 0.4-1.5 x): V2X combined about 0.856 (0.852-0.868), LUMPI about 0.519 (0.514-0.541).
+
+**What S5 taught.**
+1. **Size realism beats input invariance here.** The twin's few asset sizes were a larger gap than its point patterns: scaling objects to the real size range (from legal label statistics) helps every anchor-free and two-stage member, while removing absolute coordinates (GBlobs) hurts in a fixed-intersection domain where position is real signal.
+2. **Published input encoders need their density assumptions checked:** GBlobs assumes voxels with several points; at our density 95% of voxels hold one or two, which the cell covariance repairs only partly.
+3. **Anchors cap augmentation:** the anchor-based pillars lose trucks under ROS because the single truck anchor no longer matches; class-wise anchors or anchor-free heads are needed to profit from size augmentation.
+4. **Weak members can be good fusion members:** the GBlobs runs lose alone but win inside the V2X vehicle and LUMPI Car fusions.
+5. **LUMPI Person is still unmoved** (B 0.145 since S3): no detector or augmentation has changed it; R3's static hard negatives (ranking loss 0.418) and realism stay the LUMPI levers.
+
+**Leaderboard (2026-10-11).** V2X 978945: combined **0.8730** (mAP 0.5890, R 0.9203), rank 1 of 19, confirmation passed (+0.024): pedestrian 0.346 -> 0.391, truck 0.628 -> 0.657, vehicle 0.707 -> 0.718, 3D@0.7 0.112 -> 0.196; above the projected range (0.852-0.868). LUMPI 978931: 0.5039 (mAP 0.1720) against the S4 entry's 0.5040: **confirmation failed by 0.00007**, so the leaderboard keeps S4 (975871, rank 1 of 18); Truck 0.033 -> 0.072, but Bicycle 0.244 -> 0.215 and Car 0.652 -> 0.642 (Person, Van, Motorcycle identical).
+
+**LUMPI diagnosis** (stop-and-diagnose rule; no test labels used):
+
+| Check | Bicycle | Car | Truck |
+|---|---|---|---|
+| Local change S5 - S4, pooled A+B (paired bootstrap P) | +0.031 (1.00) | +0.001 (0.64) | +0.124 (1.00) |
+| 90% range at test size (frames resampled to the test window's GT count: 80 / 1,260 / 190) | -0.018 to +0.054 | -0.006 to +0.016 | +0.066 to +0.149 |
+| Leaderboard change (probability at test size) | -0.030 (0.02) | -0.010 (0.00) | +0.038 (0.01) |
+| Our own predictions on the 50 test frames, confident boxes per frame S4 -> S5 (realval-A) | 3.16 -> 3.72, same size (3.06 -> 3.18) | 13.1 -> 11.3 (15.1 -> 14.1) | 4.46 -> 1.38, 7.8 -> 9.7 m long (2.95 -> 0.97) |
+
+1. **Not sampling noise:** the three leaderboard changes lie outside the 90% range of what the test window's small samples would produce; the test window answers differently from every local split.
+2. **Bicycle:** the size-augmented members fire 18% more often on the test frames (realval +4%), against 1.6 real bicycles per test frame; motorcycle confusion (23x more motorcycles in the test window) is present in both portfolios (0.56 vs 0.63 confident Bicycle boxes per realval-B motorcycle) and explains only about 0.04 of the 0.56 extra boxes per frame. The rest are false positives on test-window content the realval frames lack, as for the static walker false positives (S2) and the realism reference (R1-R2).
+3. **Car:** the change was weak locally (pooled +0.001, P 0.64), and the B gate passed it at P 0.91 only.
+4. **Truck** transferred (+0.038, the largest LUMPI leaderboard gain after S3's Bicycle), at a third of the local gain.
+5. **Rule from R3 on:** the class gate also requires a gain on the pooled A+B frames with P(gain) >= 0.9 ([`decisions/README.md` 3.2](decisions/README.md#32-gates)). Checked on all 17 class changes of S3-S5, it agrees in sign with the leaderboard 16 times, rejects only S5 LUMPI Car and blocks no change that transferred (V2X S5 pedestrian P 0.97, leaderboard +0.046). The LUMPI entry stays S4: picking LUMPI classes from these leaderboard numbers would tune on the test set.
+
+Decision record: [`decisions/2026-10-11-s5-object-scaling.md`](decisions/2026-10-11-s5-object-scaling.md).
 
 ### 8.6 S6 Sparse Transformer Experts
 
@@ -571,6 +661,7 @@ Decision record: [`decisions/2026-10-10-s4-two-stage.md`](decisions/2026-10-10-s
 1. **R1 diagnosis:** per-term realism on proxies 1-5; a BEV mass-difference map (pooled selected frames vs fit proxies 1-3), range and height histograms; where the EMD comes from. Written into [`data-lumpi-track/README.md`](../data-lumpi-track/README.md).
 2. **R2 selection objective:** `select_realism_frames.py --objective r`: the current FPD greedy search, then a refinement pass that scores candidate swaps with the full official R against the fit proxies (a few hundred evaluations). Gate: held-out R (proxies 4-5) up by at least 0.003.
 3. **R3 engine G2-lite static clutter and long trucks (M9; promoted after S2 as the largest walker lever, Section 8.2.1):** trucks and trailers of 12-20 m (29% of real realval-A trucks; the synthetic trucks stop at 8.47 m, close-out D5), which also serve Truck detection after retraining; parked-vehicle rows at positions where legal Measurement4 Car labels stay stationary (label statistics, an allowed use), plus poles and vegetation primitives; ray-cast with the five G1 sensors and inserted ray-consistently; corpus `g1-v4`. Gate: held-out R >= 0.915 with FPD below 4, and no drop in detection when evaluated as realism frames only.
+   **Refined 2026-10-11 by S4-S5:** walker sizes already match the real labels, so the walker part of R3 is static hard negatives only (S4: walker localization is not a detector problem; the static share of unmatched walker boxes is still 0.41-0.59); long trucks stay in R3 even if S5's object scaling helps, because stretched trucks are sparser than ray-cast ones; R3 is the next strategy after S5 and its corpus `g1-v4` retrains the kept members, two-stage included.
 4. **R4 adoption (decide Mon Oct 19):** if `g1-v4` passes, either retrain the kept LUMPI members on `g1-v4` (about one day of GPUs 0-3, scheduled into the S5 slot) so frames and training share one generator (the S1 rule, `decisions/2026-09-30-s1-g1-generator.md`), or submit `g1-v4` frames with the current detectors and record the deviation in a decision record.
 - **V2X realism:** background density calibration as on LUMPI (E8 in the V2X model README); low priority (R 0.920 against the ECCV winner's 0.925).
 

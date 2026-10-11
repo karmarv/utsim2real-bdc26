@@ -282,7 +282,7 @@ Shi et al., *PillarNet*, ECCV 2022, [arXiv:2205.07403](https://arxiv.org/abs/220
 ### Domain generalization and augmentation
 
 #### R27 GBlobs
-Malic et al., *GBlobs: Explicit Local Structure via Gaussian Blobs for Improved Cross-Domain LiDAR-based 3D Object Detection*, CVPR 2025, [arXiv:2503.08639](https://arxiv.org/abs/2503.08639) (BSD-3, OpenPCDet). **Used for:** S5. **Evidence:** parameter-free local covariance input features in place of absolute xyz; beats the single-source DG state of the art by over 21 mAP (Waymo to KITTI), 13 (KITTI to Waymo) and 12 (nuScenes to KITTI); multi-source +17 / +12 / +5 on Waymo / KITTI / ONCE.
+Malic et al., *GBlobs: Explicit Local Structure via Gaussian Blobs for Improved Cross-Domain LiDAR-based 3D Object Detection*, CVPR 2025, [arXiv:2503.08639](https://arxiv.org/abs/2503.08639) (BSD-3, OpenPCDet). **Used for:** S5. **Evidence:** parameter-free local covariance input features in place of absolute xyz; beats the single-source DG state of the art by over 21 mAP (Waymo to KITTI), 13 (KITTI to Waymo) and 12 (nuScenes to KITTI); multi-source +17 / +12 / +5 on Waymo / KITTI / ONCE. **Code:** [github.com/malicd/GBlobs](https://github.com/malicd/GBlobs) (BSD-3): `GBlobsVFE`, 12 values per voxel (offset of the mean from the voxel centre, 3 x 3 sample covariance); ported as `common/bdc26/detect/gblobs_vfe.py`. **S5 outcome (2026-10-11):** at our density 80-83% of the 0.1 m voxels hold one point, so the covariance was taken over 0.4 m cells; as a member it lost (absolute position is real signal at a fixed intersection), inside fusions it helped ([`02-STRATEGY.md` 8.5.1](02-STRATEGY.md#851-results-2026-10-11)).
 
 #### R28 GBlobs for sensor placement
 *GBlobs: Local LiDAR Geometry for Improved Sensor Placement Generalization*, [arXiv:2510.18539](https://arxiv.org/abs/2510.18539). **Used for:** S5. **Evidence:** top of RoboSense 2025 Track 3 (detection under different sensor placements).
@@ -291,7 +291,7 @@ Malic et al., *GBlobs: Explicit Local Structure via Gaussian Blobs for Improved 
 [arXiv:2304.09446](https://arxiv.org/abs/2304.09446), CVPR 2023. **Used for:** S5 augmentation. **Evidence:** closes 88-94% of the nuScenes to KITTI gap together with self-training (beam re-sampling alone is source-only and allowed).
 
 #### R40 ST3D
-Yang et al., *ST3D*, CVPR 2021, [arXiv:2103.05346](https://arxiv.org/abs/2103.05346). **Used for:** random object scaling (S5 augmentation); its self-training part is rule-gated (`01` Section 10, question 1).
+Yang et al., *ST3D*, CVPR 2021, [arXiv:2103.05346](https://arxiv.org/abs/2103.05346). **Used for:** random object scaling (S5 augmentation); its self-training part is rule-gated (`01` Section 10, question 1). **S5 outcome (2026-10-11):** class-wise anisotropic object scaling about the box bottom with ranges from legal real label sizes (`common/bdc26/detect/augment.py`) lifted every anchor-free and two-stage member (V2X Voxel R-CNN B 0.632 -> 0.667) and the size-gap classes (LUMPI Truck, Bus, Bicycle) ([`02-STRATEGY.md` 8.5.1](02-STRATEGY.md#851-results-2026-10-11)).
 
 ### Fusion and test-time augmentation
 

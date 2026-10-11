@@ -1,0 +1,13 @@
+# Per-class post-processing (bdc26.detect.postprocess). Starting values; select on the real validation set
+# (docs/04 M11). Never threshold aggressively: AP cannot drop by adding lower-scored boxes.
+default: {score_floor: 0.01, nms_iou: 0.2, max_boxes: 500, recenter: 0.0}
+classes:
+  Person:     {nms_iou: 0.6, recenter: 0.25}
+  Bicycle:    {nms_iou: 0.4, recenter: 0.2}
+  Motorcycle: {nms_iou: 0.4}
+  Car:        {nms_iou: 0.1}
+  Van:        {nms_iou: 0.1}
+  Truck:      {nms_iou: 0.1}
+  Bus:        {nms_iou: 0.1}
+# Per-class AP is independent: discounted copies can only help the receiving class (select factors on real val).
+hedge: {Car: [Van, 0.3], Truck: [Bus, 0.3]}

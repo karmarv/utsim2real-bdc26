@@ -60,8 +60,11 @@ class BDCDataset(CustomDataset):
 
 
 def register() -> None:
-    """Register BDCDataset with OpenPCDet and apply the runtime fixes of bdc26.detect.pcdet_patches."""
+    """Register BDCDataset, the bdc26 VFEs (GBlobs, S5) and augmentations (object scaling, S5) with OpenPCDet, and
+    apply the runtime fixes of bdc26.detect.pcdet_patches."""
     import pcdet.datasets as D
     D.__all__["BDCDataset"] = BDCDataset
-    from . import pcdet_patches
+    from . import augment, gblobs_vfe, pcdet_patches
     pcdet_patches.apply()
+    gblobs_vfe.register()
+    augment.register()

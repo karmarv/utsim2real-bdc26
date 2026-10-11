@@ -1,0 +1,167 @@
+name: routed-g5
+strategy: S5
+track: lumpi-track
+module: M11 (TTA and fusion) with two-stage members
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing and box fusion (up to 3 members) of PointPillars,
+  CenterPoint and two-stage members, including the S5 GBlobs and object-scaling Voxel
+  R-CNN runs, with test-time augmentation
+members:
+  g1:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1_tta:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  g1v3:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v3_tta:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp_tta:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp4:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp4_tta:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vr:
+    model: voxelrcnn-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vr_tta:
+    model: voxelrcnn-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pv:
+    model: pvrcnnpp-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pv_tta:
+    model: pvrcnnpp-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrgb:
+    model: voxelrcnn-gblobs-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrgb_tta:
+    model: voxelrcnn-gblobs-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrros:
+    model: voxelrcnn-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrros_tta:
+    model: voxelrcnn-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros:
+    model: pvrcnnpp-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvros_tta:
+    model: pvrcnnpp-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  ppros:
+    model: pointpillars-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  ppros_tta:
+    model: pointpillars-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+data:
+  train: pcdet/g1-v2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v2
+status: 'S5 submitted 2026-10-11: 978931 combined 0.5039 (mAP 0.1720), 0.00007 below
+  the S4 entry (not listed, confirmation failed, diagnosed); realval-A 0.350, realval-B
+  0.209, estimate (B) 0.541'
+notes: 'S5 Geometry-Invariant Inputs (docs/02-STRATEGY.md Section 8.5): the routed-g4
+  portfolio (route, fusion and score floors are the incumbents) plus the kept S5 runs
+  as plain and TTA members; every change passes the class gate against the S4 choice.
+
+  '
+route:
+  Person: g1v3
+  Car: pv_tta
+  Bicycle: vrros_tta
+  Motorcycle: g1v3
+  Bus: vrros_tta
+  Truck: g1v3_tta
+  Van: g1
+  Unknown: g1
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); members compared with their gated z calibration'
+  estimate_mAP_A: 0.3067
+  estimate_mAP_B: 0.1982
+calibration: {}
+fusion:
+  Person:
+    members:
+    - g1v3_tta
+    - g1_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  Car:
+    members:
+    - pvros_tta
+    - vrgb_tta
+    - ppros_tta
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Bicycle:
+    members:
+    - vrros_tta
+    - pvros_tta
+    - pv_tta
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Truck:
+    members:
+    - pvros_tta
+    - ppros_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.3
+    calibration: {}
+budget:
+  Person: 0.02
+  Car: 0.05
+  Bicycle: 0.03
+  Motorcycle: 0.3
+  Bus: 0.2
+  Truck: 0.01
+  Van: 0.075
+  Unknown: 0.075

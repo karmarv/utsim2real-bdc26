@@ -1,0 +1,62 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S5 (Geometry-Invariant Inputs: object scaling, GBlobs)",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 978931,
+  "uploaded_file": "lumpi_s5_submission.zip of this folder, unchanged (md5 9f2c925c3976679b5b2038bfde5f7566, as in manifest.json)",
+  "submitted": "2026-10-11 15:12 CDT (20:12 UTC; time shown to the entrant)",
+  "leaderboard_rank_at_submission": null,
+  "leaderboard_note": "not listed: it scored 0.503926, below the KarmaRV S4 entry 975871 (0.504000), which stays listed at rank 1 of 18 (Raj Patil 977527, 0.4794, second)",
+  "confirmation": "failed by 0.00007 (Truck +0.038, Bicycle -0.030, Car -0.010); diagnosis in docs/decisions/2026-10-11-s5-object-scaling.md",
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005392081351404081
+  },
+  "scores": {
+    "score_combined": 0.503926,
+    "score_detection": 0.245724,
+    "score_realism": 0.891229,
+    "mAP_3d_0.5_R40": 0.172007,
+    "mAP_3d_0.5_R11": 0.178069,
+    "mAP_3d_0.7_R40": 0.07344,
+    "mAP_bev_0.5_R40": 0.182956,
+    "CD": 1.689947,
+    "MMD": 0.00187433,
+    "EMD": 1.647213,
+    "FPD": 5.094576,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.156613,
+    "AP_3d_0.5_R40_Car": 0.642164,
+    "AP_3d_0.5_R40_Bicycle": 0.214803,
+    "AP_3d_0.5_R40_Motorcycle": 0.000909,
+    "AP_3d_0.5_R40_Bus": 0.000926,
+    "AP_3d_0.5_R40_Truck": 0.071529,
+    "AP_3d_0.5_R40_Van": 0.117103,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] installing dependencies...",
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 1.6899468973324652, 'MMD': 0.001874328298857364, 'EMD': 1.647212781718087, 'FPD': 5.094575508584967, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.0005392081351404081}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.1720067849902422",
+    "[scoring] DONE: scores={'score_combined': 0.503926, 'score_detection': 0.245724, 'score_realism': 0.891229, 'mAP_3d_0.5_R40': 0.172007, 'mAP_3d_0.5_R11': 0.178069, 'mAP_3d_0.7_R40': 0.07344, 'mAP_bev_0.5_R40': 0.182956, 'CD': 1.689947, 'MMD': 0.00187433, 'EMD': 1.647213, 'FPD': 5.094576, 'valid_submission': 1, 'AP_3d_0.5_R40_Person': 0.156613, 'AP_3d_0.5_R40_Car': 0.642164, 'AP_3d_0.5_R40_Bicycle': 0.214803, 'AP_3d_0.5_R40_Motorcycle': 0.000909, 'AP_3d_0.5_R40_Bus': 0.000926, 'AP_3d_0.5_R40_Truck': 0.071529, 'AP_3d_0.5_R40_Van': 0.117103, 'AP_3d_0.5_R40_Unknown': None}"
+  ],
+  "vs_previous": {
+    "id": 975871,
+    "combined": 0.504,
+    "mAP_3d_0.5_R40": 0.172093,
+    "AP_Person": 0.156613,
+    "AP_Car": 0.652404,
+    "AP_Bicycle": 0.244487,
+    "AP_Motorcycle": 0.000909,
+    "AP_Bus": 0.0,
+    "AP_Truck": 0.033136,
+    "AP_Van": 0.117103,
+    "realism_identical": true
+  }
+}

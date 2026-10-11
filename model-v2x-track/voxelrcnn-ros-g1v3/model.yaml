@@ -1,0 +1,20 @@
+name: voxelrcnn-ros-g1v3
+strategy: S5
+track: v2x-track
+module: M10 (detector routing by class)
+derived_from: voxelrcnn-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN (as voxelrcnn-g1v3) trained with class-wise random object
+  scaling (ROS)
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'S5 run b: trained 40 epochs, tuned plain (A 0.626 / B 0.615) and TTA (0.664
+  / 0.667); above voxelrcnn-g1v3 (TTA B +0.035: pedestrian +0.034, truck +0.082)'
+expected: higher realval-B AP and B/A ratio than voxelrcnn-g1v3
+notes: 'S5 run b (docs/02-STRATEGY.md Section 8.5): only the augmentation changes
+  against voxelrcnn-g1v3.
+
+  '
