@@ -20,6 +20,11 @@ come from the member that is best for it on real validation.
     # {0.3, 0.5, 0.7}, class gate vs the route); needs a prior `select --rule joint --calibrated` (route_table.json);
     # writes model.yaml `fusion`, then validates; --max-members 3 (S4) also tries triples
     python common/tools/route_predictions.py fuse model-v2x-track/routed-g3
+    # R3 on: --pooled adds the pooled A+B condition to every gate of select, fuse and calibrate
+    python common/tools/route_predictions.py fuse model-lumpi-track/routed-g6 --max-members 3 --pooled
+    # R3 final gate after budget: class gate + pooled condition on the final predictions against the confirmed entry;
+    # failing classes revert to the entry's configuration, then validates
+    python common/tools/route_predictions.py gate model-lumpi-track/routed-g6 --vs model-lumpi-track/routed-g4
     # S3 server-cost budget: per class the highest score floor costing <= 0.002 AP on realval-A and on realval-B;
     # writes model.yaml `budget` (applied last by merge), then validates
     python common/tools/route_predictions.py budget model-v2x-track/routed-g3
@@ -72,13 +77,15 @@ def select(model_dir: Path, card: dict, track, tie: float) -> dict:
     return route, table, est
 
 
-def select_joint(model_dir: Path, card: dict, track, n_boot: int, seed: int, calibrated: bool = False) -> tuple:
+def select_joint(model_dir: Path, card: dict, track, n_boot: int, seed: int, calibrated: bool = False,
+                 pooled: bool = False) -> tuple:
     """Joint rule: candidate = best mean(A, B) AP (A alone where B has no GT); the incumbent (current route in
     model.yaml) is replaced only when the candidate passes the class gate on realval-B.
 
     calibrated=True compares every member at its own gated z calibration (bdc26.detect.zcalib: selected on A, kept
     only if B passes the class gate), the same rule `calibrate` applies after routing. Without it, a member whose z
-    bias the calibration would remove could lose a class it should win. Returns (route, table, estimate,
+    bias the calibration would remove could lose a class it should win. pooled=True (R3 on): every switch and every
+    calibration also needs a gain on the pooled A+B frames (scorecard.pooled_gate). Returns (route, table, estimate,
     calibration of the routed members)."""
     names = list(card["members"])
     root = data_path(track, card["data"]["realval"])
@@ -107,7 +114,8 @@ def select_joint(model_dir: Path, card: dict, track, n_boot: int, seed: int, cal
         fb_c = sc.frame_flags(zcalib.apply({i: preds(n, "valB").get(i, []) for i in gts["valB"]}, cc), gts["valB"], [c])[c]
         boot = sc.paired_bootstrap({c: fb}, {c: fb_c}, [c], n_boot, seed)[c]
         dA = sc.ap_from_flags(fa_c, "3d@0.5") - sc.ap_from_flags(fa, "3d@0.5")
-        if sc.class_gate(boot["delta"], boot["p_gain"], dA):
+        if sc.class_gate(boot["delta"], boot["p_gain"], dA) and (
+                not pooled or sc.pooled_gate({"val": fa, "valB": fb}, {"val": fa_c, "valB": fb_c}, c, n_boot, seed)["ok"]):
             return cc[c], fa_c, fb_c, res
         return None, fa, fb, res
 
@@ -138,9 +146,14 @@ def select_joint(model_dir: Path, card: dict, track, n_boot: int, seed: int, cal
             boot = sc.paired_bootstrap({c: V[inc][2]}, {c: V[best][2]}, [c], n_boot, seed)[c]
             dA = a_[best] - a_[inc]
             ok = sc.class_gate(boot["delta"], boot["p_gain"], dA)
+            if pooled:
+                pg = sc.pooled_gate({"val": V[inc][1], "valB": V[inc][2]}, {"val": V[best][1], "valB": V[best][2]}, c, n_boot, seed)
+                row["pooled"] = {"delta": pg["delta"], "p_gain": pg["p_gain"]}
+                ok_b, ok = ok, ok and pg["ok"]
             route[c] = best if ok else inc
             row.update({"dB": boot["delta"], "p_gain": boot["p_gain"], "ci90": boot["ci90"], "dA": dA,
-                        "decision": "switched (class gate passed)" if ok else "kept (class gate failed)"})
+                        "decision": "switched (class gate passed)" if ok else
+                        "kept (pooled A+B condition failed)" if pooled and ok_b else "kept (class gate failed)"})
         if V[route[c]][0]:
             calib[c] = V[route[c]][0]
         table[c] = row
@@ -149,7 +162,7 @@ def select_joint(model_dir: Path, card: dict, track, n_boot: int, seed: int, cal
     return route, table, est, calib
 
 
-def calibrate(model_dir: Path, card: dict, track, classes, n_boot: int, seed: int) -> None:
+def calibrate(model_dir: Path, card: dict, track, classes, n_boot: int, seed: int, pooled: bool = False) -> None:
     """Select a range-dependent z calibration per class on realval-A; keep it where realval-B passes the class
     gate. Input: the uncalibrated merged validation predictions (validation/output/<data>_<split>_merged.json;
     created from the current _routed.json on first use). Output: model.yaml `calibration`, the calibrated
@@ -187,6 +200,10 @@ def calibrate(model_dir: Path, card: dict, track, classes, n_boot: int, seed: in
                 entry["decision"] = "kept off: no realval-B GT"
             else:
                 ok = sc.class_gate(bb["delta"], bb["p_gain"], ba["delta"])
+                if pooled:
+                    pg = sc.pooled_gate({"val": fa_base[c], "valB": fb_base[c]}, {"val": fa_cal[c], "valB": fb_cal[c]}, c, n_boot, seed)
+                    entry["pooled"] = {"delta": pg["delta"], "p_gain": pg["p_gain"]}
+                    ok = ok and pg["ok"]
                 entry.update({"A_exact_delta": ba["delta"], "B_delta": bb["delta"], "B_p_gain": bb["p_gain"], "B_ci90": bb["ci90"],
                               "decision": "kept (class gate passed)" if ok else "dropped (class gate failed)"})
                 if ok:
@@ -302,7 +319,7 @@ def _fuse_eval(job):
 
 
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
-                top: int = 4, workers: int = 32, max_members: int = 2) -> dict:
+                top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
     (joint realval-A/B AP after their gated z calibration, from route_table.json of `select --calibrated`) with equal
     weights at each IoU of iou_grid; the best joint candidate replaces the routed member only through the class gate
@@ -311,7 +328,8 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     max_members=3 (S4) also tries the triples among the top members, so three architecture families can be fused.
     Cumulative strategies: a class that already has a `fusion` in model.yaml keeps it as the incumbent (its set is
     always a candidate, with its stored calibrations), so a new member can replace an earlier fusion only through the
-    class gate against that fusion, never against the single routed member."""
+    class gate against that fusion, never against the single routed member. pooled=True (R3 on): a fusion also
+    needs a gain on the pooled A+B frames (scorecard.pooled_gate)."""
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -376,12 +394,17 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         dA = sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5") - sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5")
         same = bool(pz) and tuple(pz["members"]) == tuple(pair) and pz["iou"] == thr
         ok = not same and boot["p_gain"] is not None and sc.class_gate(boot["delta"], boot["p_gain"], dA)
+        pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")},
+                            {s_: fl[("fused", s_)][c] for s_ in ("val", "valB")}, c, n_boot, seed) if pooled else None
+        ok_b, ok = ok, ok and (pg is None or pg["ok"])
         report[c] = {"incumbent": inc, "incumbent_A": sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5"),
                      "incumbent_B": sc.ap_from_flags(fl[("inc", "valB")][c], "3d@0.5"),
                      "best": {"members": list(pair), "iou": thr, "A": sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5"),
                               "B": sc.ap_from_flags(fl[("fused", "valB")][c], "3d@0.5")},
                      "dB": boot["delta"], "p_gain": boot["p_gain"], "ci90": boot["ci90"], "dA": dA,
+                     "pooled": {"delta": pg["delta"], "p_gain": pg["p_gain"]} if pg else None,
                      "decision": ("fused (class gate passed)" if ok else "incumbent fusion kept (it is the best candidate)" if same
+                                  else "kept (pooled A+B condition failed)" if ok_b
                                   else "incumbent fusion kept (class gate failed)" if pz else "routed member kept (class gate failed)"),
                      "search_fast_iou": {f"{'+'.join(j[1])}@{j[2]}": r for j, r in cand.items()}}
         a_best = max(cand, key=lambda j: cand[j]["val"])      # selection-bias check: the pick of realval-A alone
@@ -456,9 +479,73 @@ def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002) -
     return budget
 
 
+def _class_config(card: dict, c: str) -> tuple:
+    return (card.get("route", {}).get(c), (card.get("calibration") or {}).get(c), (card.get("fusion") or {}).get(c),
+            (card.get("budget") or {}).get(c))
+
+
+def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int) -> dict:
+    """R3 final gate: every class whose configuration (route, calibration, fusion, score floor) differs from the
+    confirmed portfolio `vs_dir` must pass the class gate on B and the pooled A+B condition on the FINAL validation
+    predictions of both (validation/output/<data>_<split>_routed.json), where the pooled rule was validated (S3-S5:
+    16 of 17 leaderboard signs). The per-step checks of select and fuse run before the score floors; a fusion can gain
+    on A and on B there and still be flat once both splits are ranked together (R3: LUMPI Car, pooled +0.010 at P 1.00
+    in fuse, +0.0006 at P 0.64 final). A failing class is reverted to the incumbent's configuration, then the model is
+    validated again. Writes validation/results/final_gate.json."""
+    _, vs_card, _ = model_info(vs_dir)
+    root = data_path(track, card["data"]["realval"])
+    D = card["data"]["realval"].replace("/", "_")
+    gts = {s_: sc.load_split(root, s_) for s_ in ("val", "valB")}
+    path = lambda m, s_: m / "validation" / "output" / f"{D}_{s_}_routed.json"
+    fl = {(k, s_): sc.flags_for(path(m, s_), gts[s_], list(track.classes)) for k, m in (("inc", vs_dir), ("new", model_dir))
+          for s_ in ("val", "valB")}
+    report, reverted = {}, []
+    for c in track["classes_with_test_gt"]:
+        if _class_config(card, c) == _class_config(vs_card, c):
+            report[c] = {"decision": "same configuration as the incumbent"}
+            continue
+        ap = {(k, s_): sc.ap_from_flags(fl[(k, s_)][c], "3d@0.5") for k in ("inc", "new") for s_ in ("val", "valB")}
+        if ap[("inc", "valB")] is None:
+            ok, row = False, {"decision": "reverted: no realval-B GT"}
+        else:
+            boot = sc.paired_bootstrap({c: fl[("inc", "valB")][c]}, {c: fl[("new", "valB")][c]}, [c], n_boot, seed)[c]
+            dA = ap[("new", "val")] - ap[("inc", "val")]
+            pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")}, {s_: fl[("new", s_)][c] for s_ in ("val", "valB")},
+                                c, n_boot, seed)
+            gate_b = sc.class_gate(boot["delta"], boot["p_gain"], dA)
+            ok = gate_b and pg["ok"]
+            row = {"A": [ap[("inc", "val")], ap[("new", "val")]], "B": [ap[("inc", "valB")], ap[("new", "valB")]],
+                   "dB": boot["delta"], "p_gain": boot["p_gain"], "dA": dA, "pooled": {"delta": pg["delta"], "p_gain": pg["p_gain"]},
+                   "decision": "kept (class gate and pooled condition passed)" if ok else
+                   ("reverted (pooled A+B condition failed)" if gate_b else "reverted (class gate failed)")}
+        if not ok:
+            route, cal, fus, bud = _class_config(vs_card, c)
+            need = set(fus["members"]) if fus else {route}
+            missing = [n for n in need if n not in card["members"] or card["members"][n] != vs_card["members"][n]]
+            if missing:
+                raise SystemExit(f"{c}: incumbent members {missing} are not the same in {model_dir.name}")
+            card["route"][c] = route
+            for key, val in (("calibration", cal), ("fusion", fus), ("budget", bud)):
+                d = card.get(key) or {}
+                if val is None:
+                    d.pop(c, None)
+                else:
+                    d[c] = val
+                card[key] = d
+            reverted.append(c)
+        report[c] = row
+        print(c, json.dumps(row), flush=True)
+    if reverted:
+        (model_dir / "model.yaml").write_text(yaml.safe_dump(card, sort_keys=False))
+    (model_dir / "validation" / "results" / "final_gate.json").write_text(json.dumps({"vs": vs_dir.name, "classes": report,
+                                                                                       "reverted": reverted}, indent=2))
+    print("reverted:", reverted or "none")
+    return {"reverted": reverted, "classes": report}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget"])
+    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "gate"])
     ap.add_argument("model_dir")
     ap.add_argument("--pred", action="append", default=[], help="member=predictions.json (merge)")
     ap.add_argument("--out", default=None)
@@ -469,14 +556,18 @@ def main():
     ap.add_argument("--classes", nargs="*", default=None, help="calibrate: classes to try (default: all with test GT)")
     ap.add_argument("--calibrated", action="store_true", help="select --rule joint: compare members with their gated z calibration")
     ap.add_argument("--max-members", type=int, default=2, help="fuse: largest member set (2: pairs, as in S3; 3: also triples)")
+    ap.add_argument("--vs", default=None, help="gate: the confirmed portfolio to compare the final predictions with")
+    ap.add_argument("--pooled", action="store_true", help="select/fuse/calibrate: the class gate also needs a gain on the pooled "
+                                                          "A+B frames with P(gain) >= 0.9 (docs/decisions/README.md Section 3.2, R3 on)")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
     if a.mode == "select":
         if a.rule == "joint":
-            route, table, est, calib = select_joint(model_dir, card, track, a.bootstrap, a.seed, a.calibrated)
+            route, table, est, calib = select_joint(model_dir, card, track, a.bootstrap, a.seed, a.calibrated, a.pooled)
             rule = ("joint: rank members by the mean of realval-A and realval-B AP; a class leaves its current member only "
                     f"through the class gate (dB >= 0.01, paired bootstrap x{a.bootstrap} P(gain) >= 0.9, dA >= -0.005)"
-                    + ("; members compared with their gated z calibration" if a.calibrated else ""))
+                    + ("; members compared with their gated z calibration" if a.calibrated else "")
+                    + ("; also a gain on the pooled A+B frames (P(gain) >= 0.9)" if a.pooled else ""))
             if a.calibrated:
                 card["calibration"] = calib
         else:
@@ -498,7 +589,7 @@ def main():
         print(json.dumps({"route": route, **card["route_selection"]}, indent=2))
         return
     if a.mode == "calibrate":
-        calibrate(model_dir, card, track, a.classes, a.bootstrap, a.seed)
+        calibrate(model_dir, card, track, a.classes, a.bootstrap, a.seed, a.pooled)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + calibration")
         return
@@ -510,8 +601,16 @@ def main():
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion + budget")
         return
+    if a.mode == "gate":
+        if not a.vs:
+            raise SystemExit("gate needs --vs <confirmed routed model>")
+        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed)
+        if res["reverted"]:
+            _, card, _ = model_info(model_dir)
+            validate(model_dir, card, track, registry_run="routed + fusion + budget + final gate")
+        return
     if a.mode == "fuse":
-        fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members)
+        fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members, pooled=a.pooled)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion")
         return

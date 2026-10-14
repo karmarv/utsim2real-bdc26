@@ -182,6 +182,8 @@ V2X forbidden IDs: all 26 scenario indices that occur among the test IDs resolve
 
 **ECCV V2X final (same scorer and data as IEEE):** amanupg 0.7457 (mAP 0.438, R 0.925); luopuu 0.7421 (mAP 0.452, R 0.887); loopy 0.6512.
 **ECCV LUMPI final:** amanupg 0.4793 (mAP 0.133, R 0.913); y1nnng 0.4782; best realism R 0.937 (deleted user).
+**IEEE live (2026-10-14, public leaderboard API):** V2X: KarmaRV **0.8789** (986496, R3: mAP 0.593, R 0.927), linyongchun 0.6616 (972310), IAsystems 0.5375; 19 entries. LUMPI: KarmaRV **0.5169** (986489, R3: mAP 0.168, R 0.932), **Raj Patil 0.4914** (980383, Oct 12: mAP 0.1337, 3D@0.7 0.016, CD 0.877, MMD 0.0001, EMD 1.108, FPD 0.498, so R about 0.942, unchanged since Oct 7; the gain is detection), tesla2026 0.2769; 21 entries. The two leaders differ in kind: ours wins on detection (mAP 0.168 vs 0.134), theirs on realism (0.942 vs 0.932).
+
 **IEEE live (2026-10-09, public leaderboard API):** V2X: KarmaRV 0.7855 (972563, mAP 0.487, R 0.920), linyongchun 0.6616 (972310, mAP 0.354, CD 2.72, EMD 1.72, FPD 2.07), IAsystems 0.5375; 19 entries. LUMPI: **Raj Patil 0.4784** (966997, Oct 7: mAP 0.1185, 3D@0.7 0.016, CD 0.877, MMD 0.0001, EMD 1.108, FPD 0.498, so R about 0.942, above the best ECCV realism 0.937 and near the real-vs-real ceiling 0.933-0.947), KarmaRV 0.4728 (965614), tesla2026 0.2769; 18 entries. Earlier (2026-10-02): V2X leader 0.6114, LUMPI leader 0.2769; sixteen accounts shared one template (dummy LUMPI frames, raw UT-V2X frames, exactly 100 boxes per frame). Expect the ECCV teams to enter late.
 
 ### 7.2 Per class (test GT counts are shown publicly on every detailed-results page)

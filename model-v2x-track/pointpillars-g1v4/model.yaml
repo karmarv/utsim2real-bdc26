@@ -1,0 +1,24 @@
+name: pointpillars-g1v4
+strategy: R3
+track: v2x-track
+module: M9 (engine G2-lite)
+derived_from: pointpillars-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (as pointpillars-g1v3), truck anchors at the g1-v4 label
+  sizes
+data:
+  train: pcdet/g1-v4
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'R3 wave 0: trained 40 epochs, tuned plain (A 0.578 / B 0.529) and TTA (0.612
+  / 0.567); every class passes against pointpillars-g1v3'
+expected: pedestrian above pointpillars-g1v3 (static hard negatives), truck above
+  (real truck sizes)
+notes: 'R3 (docs/02-STRATEGY.md Section 8.7.1): trained on pcdet/g1-v4 = the g1-v3
+  recipe plus engine G2-lite (actors re-cast at real size and density, real-sized
+  trucks, buses and two-wheelers with riders, unlabeled static clutter as hard negatives).
+  Data-only ablation against pointpillars-g1v3 (same detector; the truck anchors follow
+  the new label sizes).
+
+  '

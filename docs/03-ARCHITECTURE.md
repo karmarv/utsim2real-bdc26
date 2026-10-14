@@ -141,7 +141,7 @@ utsim2real-bdc26/
 ├── common/                        # the only shared code folder
 │   ├── bdc26/                     # python package (pip install -e common)
 │   ├── tools/                     # CLIs used by every track and model
-│   ├── env/                       # bdc26.env, activate.sh, setup_venv_ut.sh (venv), setup_bdc_train.sh (conda), setup_bdc_sim.sh
+│   ├── env/                       # bdc26.env, activate.sh, setup_venv_ut.sh (venv, the one environment), setup_bdc_train.sh (conda fallback)
 │   ├── tests/                     # pytest: synthetic fixtures; parity with the official scorer
 │   └── kit/                       # downloaded starting kits (git-ignored)
 ├── data-lumpi-track/              # Track 1 data: track.yaml (all track facts), scripts, README.md (data guide)
@@ -191,7 +191,7 @@ flowchart LR
 
 | Module | Where | Status | Next step |
 |---|---|---|---|
-| M0 environment | `requirements.txt`, `common/env/` (`setup_venv_ut.sh`, `activate.sh`, `bdc26.env`; conda alternative `setup_bdc_train.sh`) | **Done**: `.venv_ut` and `bdc-train` both built and verified (36 tests, 1-epoch smoke training from the venv) | Build `bdc-sim` when G2 starts |
+| M0 environment | `requirements.txt`, `common/env/` (`setup_venv_ut.sh`, `activate.sh`, `bdc26.env`; conda alternative `setup_bdc_train.sh`) | **Done**: `.venv_ut` is the one environment (generation with Open3D, training, evaluation; `requirements.txt` direct pins, `requirements-lock.txt` full lock, `common/tests/test_environment.py` checks both); `bdc-train` is the conda fallback | keep both pin files in step with every install |
 | M1 data + guard | `common/bdc26/{config,guard}.py`, `common/bdc26/io/{fetch,ut,lumpi,v2x,kit}.py`; `data-<track>/{track.yaml,fetch_ut,ingest_kit,fetch_real,resolve_test_ids}.py` | **Done**: UT, real data and both kits on disk; V2X forbidden IDs resolved (26 indices exact, 6 bounded to candidate scenes) | - |
 | M2 frames | `common/bdc26/{frames,boxes}.py` | **Partial**: masking, null handling, organizer resampling, box geometry | Frame/density checks against the kit report (`04` M2 acceptance) |
 | M3 scorers | `common/bdc26/{evalap,realism,submit,registry}.py`; `common/tools/{eval_predictions,score_realism,package_submission}.py` | **Done**: the official detection metric (VOC-style matching, R40) and realism metric reproduced bit-for-bit against the kit's `scoring_program` (`common/tests/test_official_parity.py`); validator with every server check | - |

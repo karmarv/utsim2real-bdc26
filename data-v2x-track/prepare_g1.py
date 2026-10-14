@@ -17,8 +17,14 @@ What it adds on top of prepare_ut.py (ut-v1):
   - Annotation box: KITTI-like convention (no legal V2X statistics before the kit): l ~ N(0.80, 0.10),
     w ~ N(0.66, 0.06), h = body height + 4 cm, body height ~ N(1.72, 0.08).
 Then the ut-v1 steps (classes -> super-classes, resample to --n-valid points, min points).
+With --g2 (engine G2-lite, strategy R3, common/bdc26/render/g2.py): trucks are re-cast at real label sizes (synthetic
+median 5.2 x 2.07 m, at most 8.47 m long; real 8.2 x 2.89 m, up to 13 m) from their own convex hull, completed by
+exemplar hulls of well-sampled UT trucks when sparse, with the OS1-64, and Poisson(--clutter) unlabeled poles, trees,
+bollards, bins and boxes are added (60% of them 1-4 m from real walker positions) as hard negatives for walkers. The
+object sampling rate stays the G1 one (bdc26.density.resample_calibrated n_ref).
 
     python prepare_g1.py --name g1-v1
+    python prepare_g1.py --name g1-v4 --walkers 16 --walker v2 --placement prior --fov-mask --density-gain 2.5 --g2   # needs open3d (in .venv_ut)
 """
 import argparse
 import json
@@ -40,6 +46,28 @@ from bdc26.render.pedsim import InsertParams, Sensor  # noqa: E402
 
 T = load_track("v2x-track")
 PRIOR = T.gen / "walker_prior_v1.npz"
+SIZE_PRIOR = T.gen / "size_prior_g2.npz"
+HULL_BANK = T.gen / "hull_bank_g2.npz"
+BANK_CLASSES = ("truck",)
+DROP = {"clutter": 0.10}   # per-ray drop of re-cast objects (R3 calibration, docs/02-STRATEGY.md Section 8.7.1)
+SIZE_FILTERS = {"truck": (5.0, 22.0)}
+
+
+def build_hull_bank(params, val_from: int, stride: int = 90) -> Path:
+    """Exemplar hulls of well-sampled re-cast actors from training-range UT frames (G2 completion of sparse actors); cached."""
+    if HULL_BANK.exists():
+        return HULL_BANK
+    from bdc26.render.g2 import HullBank
+    bank = HullBank(BANK_CLASSES, min_points=800)
+    for i in range(0, min(val_from, T["ut"]["n_frames"]), stride):
+        convert_ut_frame(T, i, params, post_inserter=bank)
+    bank.save(HULL_BANK)
+    print("hull bank", bank.summary())
+    return HULL_BANK
+
+
+def g2_drop_table(override_json=None) -> dict:
+    return dict(DROP, **(json.loads(override_json) if override_json else {}))
 WALKER_TYPES = ("Pedestrian", "Child", "RoadWorker")      # riders already exist in UT-V2X
 
 
@@ -150,10 +178,22 @@ WALKERS = {
 }
 
 _INS = None
+_G2 = None
 
 
-def init(walkers, cols, gain, walker="v1", placement="free", fov=False):
-    global _INS
+def make_g2(sensor, ins_params, clutter: float, truck_size: str, drop: dict):
+    from bdc26.render.g2 import G2Config, G2Pass, HullBank, size_prior_from_labels
+    sizes = size_prior_from_labels(T.pcdet / "realval-v1", ["val", "valB"], SIZE_FILTERS, cache=SIZE_PRIOR)
+    cfg = G2Config(recast={"truck": "box"}, resize={"truck": sizes["truck"]} if truck_size == "real" else {},
+                   stretch={"truck": {"prob": 0.5, "lengths": sizes["truck"][:, 0]}} if truck_size == "stretch" else {},
+                   clutter_mean=clutter, clutter_anchor_xy=np.load(PRIOR)["xy"], drop=drop, params=ins_params,
+                   bank=HullBank.load(HULL_BANK) if HULL_BANK.exists() else None)
+    return G2Pass([sensor], cfg, ground=LocalGround(1.5, 8), pc_range=T.pc_range)
+
+
+def init(walkers, cols, gain, walker="v1", placement="free", fov=False, g2=False, clutter=30.0, truck_size="real",
+         g2_drop=None):
+    global _INS, _G2
     w = WALKERS[walker]
     if placement == "prior":
         pose, body, ground = PriorPose(PRIOR), body_from_box_prior, LocalGround(1.5, 8)
@@ -167,11 +207,14 @@ def init(walkers, cols, gain, walker="v1", placement="free", fov=False):
                           body_yaw_sigma=w["body_yaw_sigma"])
     if fov:
         _INS = FovThenWalkers(_INS, sensor.elev_deg)
+    if g2:
+        ins = {k: tuple(v) if isinstance(v, list) else v for k, v in w["insert"].items()}
+        _G2 = make_g2(sensor, InsertParams(**ins), clutter, truck_size, g2_drop_table(g2_drop))
 
 
 def work(args):
     idx, out, params = args
-    pts, boxes, names, st = convert_ut_frame(T, idx, params, inserter=_INS)
+    pts, boxes, names, st = convert_ut_frame(T, idx, params, inserter=_INS, post_inserter=_G2)
     write_frame(out, f"{idx:06d}", pts, boxes, names)
     return st
 
@@ -194,6 +237,12 @@ if __name__ == "__main__":
     ap.add_argument("--density-prior", default=None, help="bdc26.density prior relative to $BDC_DATA/<track> (calibrated background)")
     ap.add_argument("--val-from", type=int, default=9000)
     ap.add_argument("--workers", type=int, default=48)
+    ap.add_argument("--g2", action="store_true", help="engine G2-lite pass (R3): re-cast and lengthen trucks, clutter")
+    ap.add_argument("--clutter", type=float, default=30.0, help="G2: mean unlabeled static objects per frame")
+    ap.add_argument("--truck-size", default="real", choices=["real", "stretch"],
+                    help="G2: trucks take real label sizes (real: also the real width, 2.89 vs 2.07 m), or half of them are "
+                         "lengthened to a real length (stretch)")
+    ap.add_argument("--g2-drop", default=None, help='G2: JSON overrides of DROP, e.g. {"Car": 0.2}')
     a = ap.parse_args()
     out = T.pcdet / a.name
     if a.placement == "prior":
@@ -201,7 +250,10 @@ if __name__ == "__main__":
     params = UTConvertParams(n_points=a.n_valid, scale_fix=T["ut"]["actor_scale_fix"], min_points=a.min_points,
                              density_prior=str(T.root / a.density_prior) if a.density_prior else None)
     frames = list(range(0, T["ut"]["n_frames"], a.stride))[: a.frames]
-    with Pool(a.workers, initializer=init, initargs=(a.walkers, a.cols, a.density_gain, a.walker, a.placement, a.fov_mask)) as pool:
+    if a.g2:
+        build_hull_bank(params, a.val_from)
+    with Pool(a.workers, initializer=init, initargs=(a.walkers, a.cols, a.density_gain, a.walker, a.placement, a.fov_mask,
+                                                     a.g2, a.clutter, a.truck_size, a.g2_drop)) as pool:
         stats = pool.map(work, [(i, out, params) for i in frames], chunksize=4)
     ids = [f"{i:06d}" for i in frames]
     write_splits(out, {"train": [i for i in ids if int(i) < a.val_from], "val": [i for i in ids if int(i) >= a.val_from]})
@@ -211,13 +263,16 @@ if __name__ == "__main__":
             if k.startswith("n_") and k not in ("n_boxes", "n_dropped_empty", "n_walkers"):
                 counts[k[2:]] = counts.get(k[2:], 0) + v
     write_card(out, {"track": T.name, "source": "UT-V2X-Real-IC (doi:10.7910/DVN/N6N4UR, CC0) + G1 procedural walkers",
-                     "engine": "G1 (UT + ray-cast walkers, OS1-64 spec at the frame origin)",
+                     "engine": "G1 (UT + ray-cast walkers, OS1-64 spec at the frame origin)" + (" + G2-lite (trucks re-cast and lengthened, static clutter)" if a.g2 else ""),
                      "params": {**{k: v for k, v in vars(params).items() if k != "class_map"}, "walkers": a.walkers,
                                 "cols": a.cols, "density_gain": a.density_gain, "walker": a.walker, "placement": a.placement,
-                                "fov_mask": a.fov_mask},
+                                "fov_mask": a.fov_mask, "g2": a.g2, "clutter": a.clutter if a.g2 else 0.0,
+                                "truck_size": a.truck_size if a.g2 else None,
+                                "g2_drop": g2_drop_table(a.g2_drop) if a.g2 else None},
                      "class_map": T["ut"]["class_map"],
                      "real_data_use": ("legal V2X-Real walker label rows (placement, box sizes; gen/walker_prior_v1.npz)"
                                        if a.placement == "prior" else "none (sensor spec and KITTI-like box convention)"),
+                     "g2_stats": {k: float(np.mean([s.get(k, 0) for s in stats])) for k in ("g2_recast", "g2_resized", "g2_grown", "g2_completed", "g2_clutter", "g2_hits_median", "g2_occluded_removed")} if a.g2 else None,
                      "mean_boxes_per_frame": sum(s["n_boxes"] for s in stats) / max(len(stats), 1),
                      "mean_walkers_per_frame": sum(s.get("n_walkers", 0) for s in stats) / max(len(stats), 1),
                      "walker_hits_median_raw": float(np.median([s.get("walker_hits_median", 0) for s in stats])),

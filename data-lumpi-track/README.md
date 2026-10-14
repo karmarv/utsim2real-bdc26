@@ -183,6 +183,23 @@ Checks against legal real data:
 | Person torso-band std along / across heading (v1 -> v2) | 0.068 / 0.132 -> 0.121 / 0.122 m | 0.125 / 0.123 m |
 | Realism R on held-out proxies 4-5 (raw UT -> calibrated -> + frame selection) | 0.59 -> 0.88 -> 0.90 | real vs real: about 0.93-0.95 |
 
+### 8.7a Engine G2-lite corpus `g1-v4` (strategy R3)
+```bash
+source common/env/activate.sh; export OMP_NUM_THREADS=1      # .venv_ut has Open3D (requirements.txt)
+python data-lumpi-track/prepare_g1.py --name g1-v4 --walker v2 --density-prior gen/density_prior_v1.npz --g2 --workers 96
+```
+The `g1-v3` recipe plus a pass after the scale fix ([`common/bdc26/render/g2.py`](../common/bdc26/render/g2.py), [`docs/02-STRATEGY.md` Section 8.7.1](../docs/02-STRATEGY.md#871-r3-engine-g2-lite-review-and-plan-2026-10-11)); 5.2 min for 10,000 frames. The first `--g2` build writes `gen/size_prior_g2.npz` (legal realval label sizes of Truck, Bus, Bicycle, Motorcycle) and `gen/hull_bank_g2.npz` (hull exemplars of well-sampled UT Car, Van, Truck and Bus actors from training frames).
+1. **Re-cast actors** (Car, Van, Truck, Bus): the convex hull of the actor's own points, mirrored about its long axis, joined with a bank exemplar when the actor has under 400 points, ray-cast with the five Measurement4 lidars (Open3D / Embree) at the full size. Real sizes for Truck and Bus (shortened to the free road in a queue, never below the UT length).
+2. **Two-wheelers with riders** (Bicycle, Motorcycle) at real label sizes.
+3. **Static clutter**: Poisson(30) unlabeled poles, trees, bollards, utility boxes, bins and barriers, 60% within 1-4 m of real walker positions: hard negatives, and the above-ground structure the realism proxies lacked.
+4. **Occlusion** against every sensor whose beam table fits a point (the merged frame does not record its sensor); **per-class ray dropout** (`DROP` in `prepare_g1.py`) calibrated against real points per box in the same place; the object sampling rate stays the G1 one.
+
+| Check (position-matched, synthetic / real points per box) | `g1-v3` | `g1-v4` |
+|---|---|---|
+| Car / Van / Truck / Bus | 0.44 / 0.99 / 0.83 / 2.2 | 0.83 / 1.07 / 0.91 / 1.06 |
+| Bicycle / Motorcycle / Person | 0.25 / 0.52 / 0.86 | 0.90 / 1.04 / 0.80 |
+| Realism R of 50 selected val frames, held-out proxies 4 / 5 / late 1-3 | 0.906 / 0.905 / 0.901-0.908 (`g1-v2` frames) | 0.934 / 0.933 / 0.932-0.934 |
+
 ### 8.8 OpenPCDet infos and GT database
 Built automatically by the model's `train/train.sh` (or by hand: `python common/tools/pcdet_build_infos.py model-lumpi-track/<model> --data pcdet/<version>`). Output inside the dataset folder: `custom_infos_{train,val}.pkl`, `custom_dbinfos_train.pkl`, `gt_database/`.
 
@@ -199,6 +216,7 @@ Layout (`common/bdc26/pcdet_export.py`): `points/<id>.npy` (float32 N x 3), `lab
 | `g1-v1` | `prepare_g1.py --name g1-v1` | `ut-v1` + walkers v1 + UT Van -> Van (160k Person, 44k Van boxes), uniform resampling | input of the density prior; ablation |
 | `g1-v2` | `prepare_g1.py --name g1-v2 --density-prior gen/density_prior_v1.npz` | `g1-v1` with the calibrated background density | `pointpillars-g1`; realism frames (val split) |
 | `g1-v3` | `prepare_g1.py --name g1-v3 --walker v2 --density-prior gen/density_prior_v1.npz` | `g1-v2` with walker v2 | `pointpillars-g1v3` |
+| `g1-v4` | `prepare_g1.py --name g1-v4 --walker v2 --density-prior gen/density_prior_v1.npz --g2` | `g1-v3` with engine G2-lite (Section 8.7a) | R3 members `*-g1v4` |
 
 ## 10. What we measured (all on synthetic data, unlabeled frames or legal label statistics)
 
@@ -211,6 +229,9 @@ Layout (`common/bdc26/pcdet_export.py`): `points/<id>.npy` (float32 N x 3), `lab
 | Inserted Persons match real point counts | Section 8.7 table | walker model accepted |
 | v1 walkers are flat; a G1 checkpoint at epoch 11 found 97% of synthetic but 28% of real Persons (score >= 0.1, BEV IoU 0.25) | torso-band spread | walker v2 (`g1-v3`); after full training, recall on real Persons rose to 81% even with v1 |
 | Raw UT frames score R 0.596 on the legal proxy (the ECCV winner reported about 0.59) | FPD 61 (term pinned at 1), EMD 2.8 m | calibrated background density + frame selection: held-out R 0.90 |
+| UT Cars and two-wheelers are much sparser than real ones in the same place; trucks and buses have asset sizes | position-matched points per box (Section 8.7a) | engine G2-lite (`g1-v4`) |
+| A merged frame's points do not identify their sensor: 45% fit two sensors within 0.08 deg (Pandar64 beams 0.17 deg apart) | beam residuals of UT frames | G2 occlusion needs every candidate sensor |
+| Two lidars stand 1.5-2.4 m above the ground | meta.json poses | full-size cars near them hide the ground to the horizon (43k points per frame) |
 | M4 and M5-6 use different Person box conventions | median length 0.77 m (M4) vs 0.96-0.99 m (M5-6) | box-convention knobs are tuned on realval-A only |
 
 ## 11. Pitfalls
@@ -224,7 +245,6 @@ Layout (`common/bdc26/pcdet_export.py`): `points/<id>.npy` (float32 N x 3), `lab
 ## 12. Next steps (data side)
 
 Tracked in [`docs/04-IMPLEMENTATION-GUIDE.md`](../docs/04-IMPLEMENTATION-GUIDE.md) (modules M7-M9):
-1. Re-render UT actors at true scale (instead of scaling their points) so occlusion and beam density on vehicles are exact.
-2. Static clutter that the twin lacks (parked-car rows from legal label positions, vegetation), which would lift realism toward the real-vs-real ceiling and add realistic hard negatives.
-3. Riders and id-6 "Van" objects from real conventions; truck size modes.
+1. Done in `g1-v4` (engine G2-lite, R3): actors re-cast at true scale, static clutter, riders, real truck and bus sizes. Open: Cars 25 m or more from the nearest sensor stay at about 0.6x the real density; long trucks need free road the UT traffic rarely leaves.
+2. Parked-car rows from legal label positions (not yet: UT traffic already covers the Car positions).
 4. Engine G2 (full re-simulation of the static scene with the five real sensors).

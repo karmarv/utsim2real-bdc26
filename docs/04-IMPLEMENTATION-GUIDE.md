@@ -28,14 +28,14 @@
 ## M0. Environment, storage, GPU plan
 
 **Goal.** Reproducible environments, a data root with enough space, and an agreed share of the GPUs.
-**Where.** `common/env/bdc26.env`, `common/env/setup_bdc_train.sh`, `common/env/setup_bdc_sim.sh`, `common/pyproject.toml`.
+**Where.** `common/env/bdc26.env`, `common/env/setup_venv_ut.sh`, `common/env/setup_bdc_train.sh` (conda fallback), `requirements.txt` and `requirements-lock.txt`, `common/pyproject.toml`.
 
 **Steps.**
 1. **Data root.** `common/env/bdc26.env` sets `BDC_DATA=$BDC_REPO/../bdc26-data` (the workspace drive, `/`, 1.3 TB free on Sep 30) and `PCDET_ROOT=$BDC_DATA/third_party/OpenPCDet`. `/data` (607 GB, 96% full) is only for archives. Free space on `/` is shared and has swung by more than 1 TB in a day: check `df -h /` before large jobs.
 2. **Training env** `bash common/env/setup_bdc_train.sh` (idempotent). Recipe, verified on this server: Python 3.10, `setuptools<70` (torch 2.1's extension builder imports `pkg_resources`), torch 2.1.2 (cu121 wheel), spconv-cu121 2.3.8, numpy 1.23.5, OpenPCDet at commit 233f849 with the optional-Argo2 import patch, built with `CUDA_HOME=/usr/local/cuda-12.8` and `TORCH_CUDA_ARCH_LIST=8.6`, then `pip install -e common`.
    - numpy >= 1.24 breaks OpenPCDet (`np.int`, `np.float`, `np.bool`); `/usr/local/cuda-11.8` must not be used with the cu121 torch.
    - Two OpenPCDet bugs are patched from our side without editing OpenPCDet: `custom_dataset.py` imports `Path` only under `__main__` (patched in `bdc26/detect/pcdet_dataset.py`), and the GT sampler crashes on classes with no database entry (handled by `common/tools/pcdet_build_infos.py`).
-3. **Simulation env** `bash common/env/setup_bdc_sim.sh` (Open3D 0.19, POT, trimesh) when M6 starts.
+3. **Simulation packages** (Open3D 0.19 for engine G2-lite, POT) are part of `.venv_ut` since 2026-10-13 (a separate conda environment, `bdc-sim`, held Open3D until then).
 4. **Optional `bdc-lion` env** for LION/DSVT/SAFDNet/HEDNet (`happinesslz/LION`): torch 2.1.0 cu118 + spconv-cu118 + `CUDA_HOME=/usr/local/cuda-11.8`.
 5. **GPU plan.** Another user runs jobs on all eight GPUs (about 4-6 GB each, often 100% utilization); about 42 GB per GPU stays free, so co-location works but is slower. Ask for a reservation. Placement: V2X on GPUs 4-7 (NUMA 1), LUMPI on 0-3 (NUMA 0), generation on CPU.
 

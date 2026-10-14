@@ -152,6 +152,8 @@ activemq-data/
 .envrc
 .venv
 env/
+# the project's environment scripts (common/env/) are source, not a virtualenv
+!common/env/
 venv/
 ENV/
 env.bak/

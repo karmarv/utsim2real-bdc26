@@ -1,0 +1,195 @@
+name: routed-g6
+strategy: R3
+track: v2x-track
+module: M11 (TTA and fusion) with two-stage members
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: per-class routing and box fusion (up to 3 members) of PointPillars,
+  CenterPoint and two-stage members trained on g1-v3 and on the R3 corpus g1-v4 (engine
+  G2-lite), with test-time augmentation
+members:
+  ut:
+    model: pointpillars-ut
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  ut_tta:
+    model: pointpillars-ut
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  g1:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1_tta:
+    model: pointpillars-g1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  g1v2:
+    model: pointpillars-g1v2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v2_tta:
+    model: pointpillars-g1v2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  g1v3:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  g1v3_tta:
+    model: pointpillars-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp_tta:
+    model: centerpoint-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  cp4:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  cp4_tta:
+    model: centerpoint-s4-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vr:
+    model: voxelrcnn-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vr_tta:
+    model: voxelrcnn-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pv:
+    model: pvrcnnpp-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pv_tta:
+    model: pvrcnnpp-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrgb:
+    model: voxelrcnn-gblobs-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrgb_tta:
+    model: voxelrcnn-gblobs-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrros:
+    model: voxelrcnn-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrros_tta:
+    model: voxelrcnn-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros:
+    model: pvrcnnpp-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvros_tta:
+    model: pvrcnnpp-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  ppros:
+    model: pointpillars-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  ppros_tta:
+    model: pointpillars-ros-g1v3
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pp4:
+    model: pointpillars-g1v4
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pp4_tta:
+    model: pointpillars-g1v4
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrros4:
+    model: voxelrcnn-ros-g1v4
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrros4_tta:
+    model: voxelrcnn-ros-g1v4
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros4:
+    model: pvrcnnpp-ros-g1v4
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvros4_tta:
+    model: pvrcnnpp-ros-g1v4
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+data:
+  train: pcdet/g1-v3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v4
+status: 'R3 submitted 2026-10-13 (scored 2026-10-14 UTC): 986496 combined 0.8789 (mAP
+  0.5929, R 0.9268), rank 1 of 19, confirmed; realval-A 0.701, realval-B 0.703, estimate
+  (B, unclipped) 0.973'
+notes: 'R3 Engine G2-lite (docs/02-STRATEGY.md Section 8.7.1): the confirmed S5 portfolio
+  routed-g5 (route, fusion and score floors are the incumbents) plus the R3 g1-v4
+  members; every change passes the class gate with the pooled A+B condition.
+
+  '
+route:
+  vehicle: pv_tta
+  pedestrian: vrros_tta
+  truck: ut_tta
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); members compared with their gated z calibration;
+    also a gain on the pooled A+B frames (P(gain) >= 0.9)'
+  estimate_mAP_A: 0.6697
+  estimate_mAP_B: 0.6706
+calibration:
+  truck:
+    z0: 0.0
+    z_per_m: 0.0075
+fusion:
+  vehicle:
+    members:
+    - vrgb_tta
+    - pv_tta
+    - pvros_tta
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  pedestrian:
+    members:
+    - vrros_tta
+    - vrros4_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  truck:
+    members:
+    - ut_tta
+    - vrros_tta
+    - pvros_tta
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration:
+      ut_tta:
+        z0: 0.0
+        z_per_m: 0.0075
+budget:
+  vehicle: 0.01
+  pedestrian: 0.1
+  truck: 0.1

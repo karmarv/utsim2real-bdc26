@@ -133,8 +133,27 @@ def class_gate(delta_b: float, p_gain: float | None, delta_a: float | None,
             and (delta_a is None or delta_a >= -max_a_drop))
 
 
-def combined_estimate(m_ap: float, r: float) -> float:
-    return 0.6 * min(max(m_ap / 0.7, 0.0), 1.0) + 0.4 * r
+def pooled_gate(inc: dict, new: dict, c: str, n: int = 200, seed: int = 0, min_p: float = 0.9,
+                k: str = "3d@0.5") -> dict:
+    """Pooled condition of the class gate (docs/decisions/README.md Section 3.2, from R3 on): the change must also gain
+    on the realval-A and realval-B frames pooled into one set, with paired bootstrap P(gain) >= min_p. inc and new:
+    {split: per-frame flags of class c} over the same splits and frames. Checked on the 17 class changes of S3-S5:
+    agrees with the leaderboard sign 16 times; rejects S5 LUMPI Car (pooled P 0.64, leaderboard -0.010)."""
+    splits = [s_ for s_ in ("val", "valB") if s_ in inc and s_ in new]
+    fa = [r for s_ in splits for r in inc[s_]]
+    fb = [r for s_ in splits for r in new[s_]]
+    b = paired_bootstrap({c: fa}, {c: fb}, [c], n, seed, k).get(c)
+    if b is None:
+        return {"delta": None, "p_gain": None, "ok": False}
+    return {"delta": b["delta"], "p_gain": b["p_gain"],
+            "ok": b["p_gain"] is not None and b["delta"] > 0 and b["p_gain"] >= min_p}
+
+
+def combined_estimate(m_ap: float, r: float, clip: bool = True) -> float:
+    """0.6 * clip(mAP / 0.7) + 0.4 * R, the official combination. The upload gate uses clip=False from R3 on: a local
+    B-mAP can pass 0.7 (V2X 0.709) while the leaderboard mAP stays far below (0.589), and the clip would freeze the gate."""
+    m = max(m_ap / 0.7, 0.0)
+    return 0.6 * (min(m, 1.0) if clip else m) + 0.4 * r
 
 
 def late_a_ids(track, ids: list[str]) -> list[str]:

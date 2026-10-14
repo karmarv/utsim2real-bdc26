@@ -5,9 +5,11 @@
   2. optionally insert synthetic objects ray-consistently (engine G1, `inserter`; before the scale fix, while
      every UT point still lies on its sensor's beam),
   3. optionally scale every actor about its bottom centre (UT-LUMPI actors are 0.78x real size),
-  4. mask to the range and resample to the real density (optionally with a calibrated background density,
+  4. optionally re-render objects after the scale fix (engine G2-lite, `post_inserter`, strategy R3: actors re-cast
+     at their real size with the real rig, two-wheelers with riders, unlabeled static clutter),
+  5. mask to the range and resample to the real density (optionally with a calibrated background density,
      bdc26.density; object points always keep the uniform rate),
-  5. keep boxes whose centre is in range and that still contain >= min_points points.
+  6. keep boxes whose centre is in range and that still contain >= min_points points.
 """
 from __future__ import annotations
 
@@ -20,7 +22,7 @@ import numpy as np
 from .boxes import boxes_center_in_range, count_points_in_boxes, points_in_boxes, scale_actors
 from .classmap import map_ut
 from .config import Track
-from .frames import resample
+from .frames import in_range_mask, resample
 from .io import ut
 
 
@@ -54,9 +56,12 @@ def scaled_boxes(boxes: np.ndarray, scale: float) -> np.ndarray:
     return b
 
 
-def convert_ut_frame(track: Track, idx: int, p: UTConvertParams, inserter: Callable | None = None):
+def convert_ut_frame(track: Track, idx: int, p: UTConvertParams, inserter: Callable | None = None,
+                     post_inserter: Callable | None = None):
     """inserter(points, boxes_after_scale_fix, names, rng) -> (points_out, keep_mask, extra_boxes, extra_names, stats),
-    where points_out = points[keep_mask] followed by the inserted points."""
+    where points_out = points[keep_mask] followed by the inserted points.
+    post_inserter(points, boxes, names, point_owner, rng) -> (points, boxes, names, stats), after the scale fix and
+    the inserted boxes (point_owner: index of the UT box owning each point, -1 otherwise; bdc26.render.g2.G2Pass)."""
     pts = ut.read_points(track, idx)
     lab = ut.read_labels(track, idx)
     names = map_ut(lab.names, track, p.class_map)
@@ -66,7 +71,7 @@ def convert_ut_frame(track: Track, idx: int, p: UTConvertParams, inserter: Calla
     boxes, names, actor_ids = lab.boxes[keep], names[keep], lab.actor_ids[keep]
     stats = {"scaled": 0}
     owner = None
-    if (p.scale_fix != 1.0 and len(boxes)) or inserter is not None:
+    if (p.scale_fix != 1.0 and len(boxes)) or inserter is not None or post_inserter is not None:
         ins = ut.read_instance_ids(track, idx)
         if ins is not None and len(ins) == len(pts):
             lut = {int(a): i for i, a in enumerate(actor_ids)}
@@ -81,16 +86,27 @@ def convert_ut_frame(track: Track, idx: int, p: UTConvertParams, inserter: Calla
         pts = out.astype(np.float32)
         stats.update(st)
     if p.scale_fix != 1.0 and len(boxes):
-        pts, boxes, _ = scale_actors(pts, boxes, p.scale_fix, owner)
+        pts, boxes, kept_s = scale_actors(pts, boxes, p.scale_fix, owner)
+        owner = owner[kept_s]
         stats["scaled"] = len(boxes)
     if len(extra_b):
         boxes = np.concatenate([boxes.reshape(-1, 7), np.asarray(extra_b, dtype=np.float64).reshape(-1, 7)])
         names = np.concatenate([names, np.asarray(extra_n, dtype=object)])
+    n_ref = None
+    if post_inserter is not None:
+        n_ref = int(in_range_mask(pts, track.pc_range).sum())      # G2 keeps the G1 object sampling rate (R3)
+        rng_post = np.random.default_rng([p.seed, idx, 104729])
+        pts, boxes, names, st = post_inserter(pts, boxes, names, owner, rng_post)
+        stats.update(st)
     rng = np.random.default_rng(p.seed + idx)
     if p.density_prior:
         from .density import resample_calibrated
         is_obj = points_in_boxes(pts, boxes, margin=0.1) >= 0 if len(boxes) else np.zeros(len(pts), dtype=bool)
-        pts = resample_calibrated(pts, p.n_points, rng, track.pc_range, _prior(p.density_prior), is_obj)
+        pts = resample_calibrated(pts, p.n_points, rng, track.pc_range, _prior(p.density_prior), is_obj, n_ref)
+    elif n_ref is not None:
+        from .density import resample_calibrated
+        is_obj = points_in_boxes(pts, boxes, margin=0.1) >= 0 if len(boxes) else np.zeros(len(pts), dtype=bool)
+        pts = resample_calibrated(pts, p.n_points, rng, track.pc_range, None, is_obj, n_ref)
     else:
         pts = resample(pts, p.n_points, rng, track.pc_range)
     inr = boxes_center_in_range(boxes, track.pc_range)

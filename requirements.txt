@@ -1,8 +1,15 @@
-# Python requirements for the whole project (train, evaluate, generate, package).
+# Python requirements for the whole project (generate, train, evaluate, package): ONE environment, .venv_ut.
 # Target: Python 3.10, Linux x86_64, NVIDIA driver >= 530 (CUDA 12.1 wheels). Tested on bdasl-gpu-server.
 #
 #   python3.10 -m venv .venv_ut
-#   bash common/env/setup_venv_ut.sh        # installs this file, builds OpenPCDet, installs bdc26, verifies
+#   bash common/env/setup_venv_ut.sh        # installs this file with requirements-lock.txt as constraints, builds
+#                                           # OpenPCDet, installs bdc26, verifies
+#
+# This file lists every package the code imports directly, pinned to the version in .venv_ut; requirements-lock.txt
+# pins the full set (transitive dependencies included). Both must change together: after installing or upgrading a
+# package, update its pin here and regenerate the lock with
+#   pip freeze --exclude-editable | sed '1i --extra-index-url https://download.pytorch.org/whl/cu121' > requirements-lock.txt
+# common/tests/test_environment.py fails when an installed version drifts from either file.
 #
 # Notes
 # - numpy must stay < 1.24: OpenPCDet 233f849 still uses np.int / np.float / np.bool. The official scorer asks for
@@ -10,12 +17,14 @@
 # - setuptools < 70: torch 2.1's cpp_extension imports pkg_resources (needed to build OpenPCDet's CUDA ops).
 # - OpenPCDet itself is not on PyPI: setup_venv_ut.sh clones commit 233f849 into $BDC_THIRD_PARTY and builds it.
 # - The bdc26 package (common/) is installed in editable mode by setup_venv_ut.sh (pip install -e common).
+# - open3d (engine G2-lite, R3) lives here too since 2026-10-13 (it was in a separate conda env, bdc-sim): installing it
+#   changes no other pin; it brings its visualization stack (dash, plotly, pandas, scikit-learn, ...), pinned in the lock.
 
 --extra-index-url https://download.pytorch.org/whl/cu121
 
-# build tooling
-setuptools<70
-wheel
+# build tooling (setuptools must stay < 70)
+setuptools==65.5.0
+wheel==0.48.0
 ninja==1.13.2
 pybind11==3.1.0
 
@@ -38,6 +47,9 @@ PyYAML==6.0.3
 tqdm==4.70.1
 SharedArray==3.2.4
 pyquaternion==0.9.9
+
+# synthetic data generation: engine G2-lite mesh ray casting (Open3D / Embree), common/bdc26/render/g2.py
+open3d==0.19.0
 
 # metrics and the official CodaBench scorer (scoring_program/requirements.txt asks for shapely and POT)
 POT==0.9.7.post1

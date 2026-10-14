@@ -60,7 +60,8 @@ data:
 realism_frames: pcdet/g1-v2
 status: 'S4 submitted 2026-10-10 (below its upload gate, the entrant''s call): 975871
   combined 0.5040 (mAP 0.1721, R 0.8912), rank 1 of 18; realval-A 0.313, realval-B
-  0.188, late-A 0.304, estimate (B) 0.523'
+  0.188, late-A 0.304, estimate (B) 0.523; superseded as the entry by R3 (986489,
+  0.5169) on 2026-10-14'
 notes: 'S4 Two-Stage Refinement (docs/02-STRATEGY.md Section 8.4): the routed-g3 portfolio
   (its route, fusion and score floors are the incumbents) plus the two-stage members
   voxelrcnn-g1v3 and pvrcnnpp-g1v3 and their TTA variants; every change passes the

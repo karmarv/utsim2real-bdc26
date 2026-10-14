@@ -2,7 +2,7 @@
 
 > Built on `01-CHALLENGE-FACTS.md`. "est." marks planning estimates to be replaced by real-validation measurements. Strategy codes (S1, S2, ...) name complete submission recipes; the routes after S1 are in [Section 8](#8-strategy-routes-after-s1), and citations [Rn] link to [`07-LITERATURE.md` Section 6](07-LITERATURE.md#6-named-references-r1-r42).
 
-## 0. Measured so far (official metric on legal real validation; updated 2026-10-09)
+## 0. Measured so far (official metric on legal real validation; updated 2026-10-14)
 
 | Lever | Track | Measured effect | Where |
 |---|---|---|---|
@@ -29,6 +29,10 @@
 | GBlobs inputs (S5 run a) | both | below the parent as a member (LUMPI Person 0.189 -> 0.098 on A); useful only inside fusions | Section 8.5.1 |
 | S5 portfolio (`routed-g5`) | both | V2X B 0.679 -> 0.699 (estimate 0.967); LUMPI B 0.188 -> 0.209 (Truck 0.153 -> 0.200, Bus, Bicycle, Car) | Section 8.5.1 |
 | S5 on the leaderboard (2026-10-11) | both | V2X 0.8485 -> **0.8730** (978945; pedestrian +0.046, truck +0.029); LUMPI flat 0.5040 -> 0.5039 (978931; Truck +0.038, Bicycle -0.030, Car -0.010), S4 stays the LUMPI entry | Section 8.5.1 |
+| Engine G2-lite corpus `g1-v4` (R3): re-cast real-size objects, riders, static clutter | both | position-matched density LUMPI Car 0.44 -> 0.83, two-wheelers 0.25-0.52 -> 0.90-1.04 of real; static walker false positives halved in every LUMPI two-stage member; members gain on V2X (pillars B 0.522 -> 0.567) and on LUMPI Bicycle, Bus, Person | Section 8.7.2 |
+| Realism frames from `g1-v4` (R3) | both | LUMPI 0.905 -> 0.934 (held-out), V2X 0.919 -> 0.925 | Section 8.7.2 |
+| R3 portfolio (`routed-g6`) with the final pooled gate | both | LUMPI B 0.188 -> 0.221 (Bicycle, Bus, Truck; the S5 Car change reverted), V2X B 0.699 -> 0.703 (pedestrian) | Section 8.7.2 |
+| R3 on the leaderboard (2026-10-14) | both | LUMPI 0.5040 -> **0.5169** (986489; realism 0.891 -> 0.932, mAP 0.172 -> 0.168: Bicycle -0.056), V2X 0.8730 -> **0.8789** (986496; pedestrian +0.012, realism +0.0065): **rank 1 on both tracks** | Section 8.7.2 |
 
 **First leaderboard results (2026-10-06, strategy S1):** LUMPI 965614 combined 0.4728 (mAP 0.1357, R 0.8912), V2X 965633 combined 0.7665 (mAP 0.4648, R 0.9203), both rank 1. Realism transferred (V2X +0.001, LUMPI -0.014 vs held-out proxies); detection transferred at 0.82-0.89 x realval-B but only 0.52 x realval-A on LUMPI (Person 0.117, Bicycle 0.053, Truck 0.028 on the test frames). Per-class tables: `model-<track>/README.md` Section 9. **2026-10-09:** V2X S1+C1 (972563) 0.7855, mAP 0.4869, rank 1; LUMPI S1 is rank 2 since Oct 7 behind an entry with lower mAP (0.1185) but realism R 0.942, so LUMPI realism is now the most valuable LUMPI lever (Section 8.7). **2026-10-10:** S3 uploaded on both tracks: V2X 974400 combined **0.8381** (mAP 0.5483, rank 1 of 19); LUMPI scored **0.5015** by the scorer log (mAP 0.1692), above the LUMPI leader (0.4784), but the submission was still Running at the server after scoring. The S3 gains transferred at 0.8 x the realval-A gain on both tracks, while the realval-B gain over-predicted V2X (0.48 x) and under-predicted LUMPI (1.89 x). **2026-10-10/11:** S4 uploaded on both tracks: V2X 975938 combined **0.8485** (mAP 0.5605), LUMPI 975871 **0.5040** (mAP 0.1721, uploaded below its upload gate by the entrant's call): rank 1 on both tracks. Over the five uploads with a local change, the leaderboard gain had the right sign every time but was 0.25-1.74 x the realval-A gain and 0.48-1.90 x the realval-B gain; projections now use 0.6 x the mean of both (Section 8.4.1). **2026-10-11:** S5 uploaded: V2X 978945 combined **0.8730** (mAP 0.5890, rank 1); LUMPI 978931 0.5039, 0.00007 below the S4 entry (not confirmed; diagnosed in Section 8.5.1: the LUMPI test window answers the size-augmented Bicycle members with false positives no local split shows). Register: [`decisions/README.md` Section 2](decisions/README.md#2-submission-register).
 
@@ -180,6 +184,7 @@ Every strategy below uses the same template: **hypothesis** (what it should fix,
 | **S3** | Fused Portfolio with TTA | **submitted 2026-10-10**: V2X 974400 combined 0.8381 (rank 1); LUMPI scored 0.5015 by the scorer log, status Running at the server (8.3.1) | test-time augmentation as routable member variants; per-class box fusion of members; per-class score floors | run-to-run variance; V2X height | 1 day; about 3 GPU-hours | low | [R23](07-LITERATURE.md#r23-weighted-boxes-fusion), [R37](07-LITERATURE.md#r37-ms3d-kde-box-fusion), [R38](07-LITERATURE.md#r38-horizonlidar3d), [R39](07-LITERATURE.md#r39-robosense-2025-report), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
 | **S4** | Two-Stage Refinement | **submitted 2026-10-10/11**: V2X 975938 0.8485, LUMPI 975871 0.5040, rank 1 on both (8.4.1) | Voxel R-CNN and PV-RCNN++ members (plain and TTA, per-class score blend) in fusions of up to three members | walker localization (revised after the S3 review); in effect vehicle, truck and bicycle | 1 day; about 50 GPU-hours (4 runs at once) | medium | [R29](07-LITERATURE.md#r29-pv-rcnn), [R30](07-LITERATURE.md#r30-voxel-r-cnn), [R25](07-LITERATURE.md#r25-robo3d), [R24](07-LITERATURE.md#r24-inscope) |
 | **S5** | Geometry-Invariant Inputs | **submitted 2026-10-11**: V2X 978945 0.8730 (rank 1); LUMPI 978931 0.5039, flat, not confirmed (S4 stays the entry) (8.5.1) | GBlobs (cell covariance) and class-wise object scaling (ROS) on Voxel R-CNN; ROS extended to PV-RCNN++ and the pillars; fused | the transfer gap; in effect the twin's size gap (trucks, bicycles, buses) | 1 day; about 100 GPU-hours (8 runs) | medium | [R27](07-LITERATURE.md#r27-gblobs), [R28](07-LITERATURE.md#r28-gblobs-for-sensor-placement), [R26](07-LITERATURE.md#r26-lidar-domain-generalization-study), [R36](07-LITERATURE.md#r36-dts-random-beam-re-sampling), [R40](07-LITERATURE.md#r40-st3d) |
+| **R3** | Engine G2-lite (extended step after S5) | **submitted 2026-10-14, the current entry on both tracks**: LUMPI 986489 **0.5169** (rank 1; realism 0.891 -> 0.932, mAP -0.004), V2X 986496 **0.8789** (rank 1) (8.7.1-8.7.2) | corpus `g1-v4`: actors re-cast at real size and density with the real rig, real-sized trucks, buses and two-wheelers with riders, unlabeled static clutter; retrained S5 members; pooled A+B class-gate condition | the twin's object geometry: Car and two-wheeler density, size-gap classes, static walker false positives | 2 days; about 60 GPU-hours | medium | [R9](07-LITERATURE.md#r9-lidar-aug), [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports), [R40](07-LITERATURE.md#r40-st3d) |
 | S6 | Sparse Transformer Experts | after the freeze, unless a route is dropped | DSVT (or LION, SAFDNet) members | capacity and long range | 7-10 days; 100+ GPU-hours | high | [R31](07-LITERATURE.md#r31-dsvt), [R32](07-LITERATURE.md#r32-lion), [R33](07-LITERATURE.md#r33-hednet-and-safdnet), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
 
 GPU-hours are on the A6000s, from the measured PointPillars runs (LUMPI 40 epochs in 1 h 46 min on 4 GPUs, about 7 GPU-hours; V2X about 4) times the usual cost ratio of each family (center-head voxel models 2-3x, two-stage 4-5x, sparse transformers 5x or more). Each is replaced by the measured smoke-run speed before the full run. Dependencies checked on 2026-10-09: CenterPoint, PV-RCNN++ (its `vector_pool` ops are compiled) and Voxel R-CNN with `MeanVFE` run on the installed stack; DSVT and every dynamic-voxel encoder need `torch_scatter`, which is not installed.
@@ -657,17 +662,183 @@ Decision record: [`decisions/2026-10-11-s5-object-scaling.md`](decisions/2026-10
 
 ### 8.7 Parallel and gated work
 
-**R track: LUMPI realism** (CPU, Sat Oct 10 - Mon Oct 19; joins the current strategy when it passes). **Priority raised 2026-10-09:** LUMPI is rank 2 behind an entry with realism R 0.942 (CD 0.877, EMD 1.108, FPD 0.498) and a lower mAP (0.1185); at our mAP, about +0.015 leaderboard R regains rank 1. Hypothesis: the LUMPI frames lack the static structure of the test window (35% of the reference mass lies where the twin has no geometry [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports)); +0.022 R is worth +0.009 combined, enough to pass the ECCV LUMPI winner.
+**R track: LUMPI realism** (CPU, Sat Oct 10 - Mon Oct 19; joins the current strategy when it passes). **Status 2026-10-14: done through R3** (leaderboard R 0.891 -> 0.932, rank 1 regained by 0.026; Section 8.7.2). **Priority raised 2026-10-09:** LUMPI is rank 2 behind an entry with realism R 0.942 (CD 0.877, EMD 1.108, FPD 0.498) and a lower mAP (0.1185); at our mAP, about +0.015 leaderboard R regains rank 1. Hypothesis: the LUMPI frames lack the static structure of the test window (35% of the reference mass lies where the twin has no geometry [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports)); +0.022 R is worth +0.009 combined, enough to pass the ECCV LUMPI winner.
 1. **R1 diagnosis:** per-term realism on proxies 1-5; a BEV mass-difference map (pooled selected frames vs fit proxies 1-3), range and height histograms; where the EMD comes from. Written into [`data-lumpi-track/README.md`](../data-lumpi-track/README.md).
 2. **R2 selection objective:** `select_realism_frames.py --objective r`: the current FPD greedy search, then a refinement pass that scores candidate swaps with the full official R against the fit proxies (a few hundred evaluations). Gate: held-out R (proxies 4-5) up by at least 0.003.
 3. **R3 engine G2-lite static clutter and long trucks (M9; promoted after S2 as the largest walker lever, Section 8.2.1):** trucks and trailers of 12-20 m (29% of real realval-A trucks; the synthetic trucks stop at 8.47 m, close-out D5), which also serve Truck detection after retraining; parked-vehicle rows at positions where legal Measurement4 Car labels stay stationary (label statistics, an allowed use), plus poles and vegetation primitives; ray-cast with the five G1 sensors and inserted ray-consistently; corpus `g1-v4`. Gate: held-out R >= 0.915 with FPD below 4, and no drop in detection when evaluated as realism frames only.
+   **Planned in detail 2026-10-11 (after S5): Section 8.7.1** (review, engine G2-lite, steps, gates, trade-offs); results in 8.7.2.
    **Refined 2026-10-11 by S4-S5:** walker sizes already match the real labels, so the walker part of R3 is static hard negatives only (S4: walker localization is not a detector problem; the static share of unmatched walker boxes is still 0.41-0.59); long trucks stay in R3 even if S5's object scaling helps, because stretched trucks are sparser than ray-cast ones; R3 is the next strategy after S5 and its corpus `g1-v4` retrains the kept members, two-stage included.
-4. **R4 adoption (decide Mon Oct 19):** if `g1-v4` passes, either retrain the kept LUMPI members on `g1-v4` (about one day of GPUs 0-3, scheduled into the S5 slot) so frames and training share one generator (the S1 rule, `decisions/2026-09-30-s1-g1-generator.md`), or submit `g1-v4` frames with the current detectors and record the deviation in a decision record.
+4. **R4 adoption (decided 2026-10-12, R3):** the kept members were retrained on `g1-v4` and the frames come from `g1-v4` too, so frames and training share one generator. The original options were: if `g1-v4` passes, either retrain the kept LUMPI members on `g1-v4` (about one day of GPUs 0-3, scheduled into the S5 slot) so frames and training share one generator (the S1 rule, `decisions/2026-09-30-s1-g1-generator.md`), or submit `g1-v4` frames with the current detectors and record the deviation in a decision record.
 - **V2X realism:** background density calibration as on LUMPI (E8 in the V2X model README); low priority (R 0.920 against the ECCV winner's 0.925).
 
 **R1-R2 results (2026-10-09).** New legal proxies `pcdet/realism-proxy-late-{1,2,3}`: 50 realval-A frames each from Measurement4 4800-6399 (closest to the excluded test window), disjoint from proxies 1-5 and from the density-prior frames. The S1 LUMPI frames score R 0.908 / 0.901 / 0.906 against them (0.906 against proxy 4), so the late frames do **not** reproduce the leaderboard's 0.891 (EMD 1.65, FPD 5.1): the hidden reference differs in content from every legal frame, not by time alone. R2 (re-selecting the 50 frames on proxies 1-3 plus late-1/2) scores R 0.901-0.902 on the held-out proxies 4, 5 and late-3, below the S1 frames: **failed, S1 frames kept**. Frame selection is near its limit on legal proxies; the gap needs generator content (R3), which S2 showed is also the main walker lever (static hard negatives, Section 8.2.1).
 
 **Gated: self-training on unlabeled legal real frames** [R40](07-LITERATURE.md#r40-st3d) (only after a written organizer yes to question 1): pseudo-label legal unlabeled train-split frames with the frozen portfolio, keep per-class high-confidence boxes, mix 1:1 with synthetic frames, retrain the best member, evaluate on B (never on frames that were pseudo-labeled), and disclose it in the report.
+
+#### 8.7.1 R3 Engine G2-lite: review and plan (2026-10-11)
+
+**Position.** R3 runs as an extended step after S5 and before S6, with the full S5 machinery (members with plain and TTA variants, per-class score blend, joint routing, fusion of up to three members, score floors). It changes the training data (corpus `g1-v4`) and keeps every detector; the 50 realism frames change only through the realism gate below.
+
+**Hypothesis (revised by the review).** After S5 the largest remaining gap is the twin's object geometry, not the detectors: UT Cars and two-wheelers are far sparser than real ones in the same place, trucks and buses have the twin's few asset sizes, and the scene has none of the static structures behind most walker false positives. Re-rendering the objects with the real rig at real size and density, and adding unlabeled static clutter as hard negatives, should (a) give the size-gap classes ray-cast real-size examples instead of ROS-stretched ones, (b) let Car and two-wheeler members learn from real-like density, and (c) lower the static share of walker false positives (LUMPI Person ranking loss 0.418, V2X pedestrian 0.289 on B). Signature: a member trained on `g1-v4` beats its `g1-v3` parent on B and on the pooled A+B frames for these classes, with the same detector.
+
+**Review (2026-10-11): what the data says.**
+1. **Point density must be compared in the same place.** A range-binned comparison (median points per box by distance to the frame origin) first suggested that every UT actor class on LUMPI has 0.33-0.6x the real density. It misleads: the five LUMPI lidars stand around the intersection, so the frame-origin range is not the sensing range, and synthetic and real objects stand in different places. Position-matched (points per box inside the same 8 m BEV cell for LUMPI, 4 m for V2X, so the sensor coverage is the same; count-weighted geometric mean of the per-cell synthetic/real ratios over realval-A+B), `g1-v3` against real: LUMPI **Car 0.44**, Van 0.99, Truck 0.83, Bus 2.2, **Bicycle 0.25**, **Motorcycle 0.52**, Person 0.86; V2X vehicle 0.96, **truck 0.42**, pedestrian 0.98. The scale fix (UT renders actors at 0.78x and the points are stretched by 1/0.78) explains the Cars; UT two-wheelers have 8-11 points without a rider.
+2. **Sizes** (legal realval label statistics, as in S5): LUMPI Truck real length median 8.35 m, 90th percentile 16.3 m, synthetic at most 8.47 m; LUMPI Bus real 12.0 x 3.3 x 3.3 m, synthetic one asset of 10.27 x 3.94 x 4.25 m; LUMPI Bicycle and Motorcycle real 2.0 x 0.85 x 1.9 m and 2.0 x 0.85 x 1.8 m (riders included); V2X truck real 8.2 x 2.89 m, synthetic 5.2 x 2.07 m.
+3. **Walker false positives** stay 41-59% static (S2-S5); the twin has no poles, signs, trees, bins or boxes. LUMPI S5 added Bicycle false positives on test-window content (S5 record).
+
+**Engine G2-lite** ([`render/g2.py`](../common/bdc26/render/g2.py), the `post_inserter` of `convert_ut_frame` after the scale fix; Open3D (Embree) ray casting with the real rig; Open3D is part of `.venv_ut`):
+1. **Re-cast actors** (LUMPI Car, Van, Truck, Bus; V2X truck) from the convex hull of their own points, mirrored about the long axis (single-view actors otherwise become wedges). Sparse actors (under 400 points, 79% of the LUMPI actors) get a hull exemplar of a well-sampled UT actor of the class joined, from a bank built once from training frames (`gen/hull_bank_g2.npz`): hulls of 40-100 points covered 0.44 of their box against 0.65 for well-sampled UT cars.
+2. **Real sizes** (Truck, Bus, Bicycle, Motorcycle on LUMPI; truck on V2X) from the legal size prior (`gen/size_prior_g2.npz`): one sample per actor, placed centred, front-kept or rear-kept, shortened in 0.5 m steps (never below the UT length) when the traffic leaves no room. A first version lengthened half of the trucks only (8% grew), a second resampled until one fit (buses came out 8.9 m long against the real 12.0 m).
+3. **Two-wheelers with riders**: wheels, frame or motorcycle body, a seated rider (lean, arms to the bar, helmet on motorcycles) filling the real box.
+4. **Static clutter**: Poisson(30) unlabeled poles (with a sign plate or a street-light arm), trees, bollards, utility boxes, bins and barriers per frame, 60% of them 1-4 m from real walker positions (legal label statistics), on the ground and clear of labeled boxes: hard negatives in the walker height band.
+5. **Ray-consistent insertion** per sensor: new returns behind existing geometry are dropped (range image), and a frame point that a new object hides is removed only if it is hidden from every sensor whose beam table fits it. A merged frame does not record its sensor: 45% of the UT-LUMPI points fit two sensors within 0.08 deg (mostly the Pandar64, whose beams are 0.17 deg apart), and the best-fit rule removed 49% of one frame from wrong origins. Physical shadows are still larger than UT's: two LUMPI lidars stand only 1.5-2.4 m above the ground, so a full-size car near the Pandar64 hides the ground to the horizon where UT's 0.78x cars left it visible (42,800 points removed per LUMPI frame on average, 3,400 per V2X frame).
+6. **Sampling rate**: objects keep the G1 sampling rate (the in-range point count before the pass, `resample_calibrated(n_ref=...)`). Otherwise the added clutter returns and the larger shadows move it (V2X vehicles 0.96 -> 0.79 with clutter, LUMPI up to 1.18x), and the dropout calibration would depend on the amount of clutter.
+7. **Per-class ray dropout**, calibrated position-matched against real (glass and dark paint return less than a closed hull): LUMPI Car 0.14 up to 15 m falling to 0.02 at 25 m, Van 0.43, Truck 0.20, Bus 0.70 (thin evidence: 9 matched boxes), clutter 0.10; other classes 0.02.
+
+**Steps.**
+1. G2-lite with unit tests (mesh insertion and occlusion, candidate-sensor occlusion, hull bank, dropout ramp, rider and hull fit, shrink-to-fit sizes, the pass, the reference sampling rate) and the pooled class-gate condition in `route_predictions.py --pooled` (`scorecard.pooled_gate`).
+2. Corpora `g1-v4` on both tracks: the `g1-v3` recipes plus `--g2` (7 min LUMPI, 1-2 min V2X on 96 CPU workers); dataset card with the G2 statistics; position-matched density and size checks against the real labels (Section 8.7.2).
+3. **Wave 0, the data-only ablation** (about 2 h): `pointpillars-g1v4` on both tracks against `pointpillars-g1v3`, the same detector; anchors follow the new label sizes (class-wise: LUMPI Truck short and long, V2X truck by length terciles; the S5 lesson that one anchor caps size realism). Continue only if the targeted classes gain on B and pooled; otherwise diagnose before 60 GPU-hours.
+4. **Waves 1-2**: `voxelrcnn-ros-g1v4` and `pvrcnnpp-ros-g1v4` on both tracks, `pointpillars-ros-g1v4` on LUMPI; 40 epochs, the S5 seeds and schedules. ROS keeps the generic jitter, the Car and vehicle ranges, and a truck length tail (l up to 1.5x LUMPI, 1.4x V2X), now capped per class at the real 99th-percentile sizes (`CLASS_MAX`, legal realval label statistics; added after the first V2X run, see 8.7.2); the S5 Bicycle and full truck ranges go, because they would scale real-sized objects a second time.
+5. Plain and TTA tuning with the per-class score blend; scorecards against the `g1-v3` parents with the AP-loss decomposition and the static share of walker false positives.
+6. Portfolio `routed-g6`: V2X from `routed-g5` (the confirmed entry), LUMPI from `routed-g4` (the confirmed entry) with every S5 and R3 member, so each S5 LUMPI class change is decided again under the pooled condition; `select --rule joint --calibrated --pooled`, `fuse --max-members 3 --pooled`, `budget`, then the **final gate** `gate --vs <confirmed entry>`: the class gate and the pooled condition on the final predictions (score floors applied), where the pooled rule was validated; a failing class reverts to the entry's configuration (added after the first LUMPI portfolio: the S5 Car fusion passed the pooled check inside `fuse`, +0.010 at P 1.00, but not on the final predictions, +0.0006 at P 0.64, the S5 diagnosis value).
+7. Realism: 50 `g1-v4` validation frames chosen as in S1 (FPD greedy on proxies 1-3), scored on the held-out proxies against the current frames (LUMPI `g1-v2` frames 0.905, V2X `g1-v3` 0.919).
+8. Upload gate, package, kit check, record.
+
+**Gates.** Class gate with the pooled A+B condition (from R3 on) for every member, route, fusion and calibration. Realism gate: held-out R up by at least 0.003 against the current frames (R2's rule; the earlier R3 target of 0.915 stays the goal), otherwise the frames stay. Upload gate: estimate (B) at least 0.005 above the best upload (LUMPI 0.541, V2X 0.967), and on LUMPI a projection above the 0.5040 entry. Strategy success: a `g1-v4` member passes the class gate against its `g1-v3` parent for a targeted class (LUMPI Car, Bicycle, Motorcycle, Truck, Bus, Person; V2X truck, pedestrian), and `routed-g6` passes the upload gate.
+
+**Trade-offs and risks.**
+- **Real data in the generator:** sizes, walker positions and five dropout values come from legal realval-A+B labels and points per box (allowed, as the S1 density prior and walker calibration); B is therefore not fully untouched for these few scalars, and the leaderboard confirmation stays the check.
+- **Convex hulls** fill concavities (wheel arches, the gap between cab and trailer); exemplars give sparse actors another UT car's shape.
+- **Hard negatives trade recall for precision:** walker-like clutter next to walkers may suppress real walkers near poles; Person recall at IoU 0.25 is watched in the scorecard.
+- **Procedural riders** are a new synthetic signature for Bicycle and Motorcycle.
+- **Remaining density gaps:** LUMPI Cars 25 m or more from the nearest sensor stay at about 0.6x; walkers drop from 0.86 to 0.80 (clutter and full-size cars occlude them, as in reality).
+- **Long trucks:** queues leave room for 12-16 m in 36-42% of the LUMPI trucks, so the tail keeps coming partly from ROS.
+- **Realism:** clutter at walker-anchored positions may raise CD and EMD of the realism frames (the hidden reference has its structures elsewhere); the frames change only through the realism gate.
+
+**Time box.** Oct 11-12: engine, corpora, wave 0; Oct 12-13: waves 1-2 (about 60 GPU-hours on 8 GPUs); Oct 13-14: portfolio, gates, upload; inside the calendar's R3 slot (Oct 12-18).
+
+#### 8.7.2 R3 results (2026-10-11 to 2026-10-13)
+
+**Corpora `g1-v4`** (10,000 frames per track; LUMPI 5.2 min, V2X 1.2 min on 96 CPU workers; cards in `pcdet/g1-v4/dataset.yaml`). Per LUMPI frame: 43.9 actors re-cast (34.7 completed from the hull bank), 13.4 at a real size, 9.9 two-wheelers with riders, 30.0 clutter objects, 43,000 frame points removed as occluded; per V2X frame: 3.3 trucks re-cast at a real size, 30.0 clutter objects, 4,200 points removed. Boxes per frame 55.6 -> 55.1 (LUMPI) and 25.2 -> 23.9 (V2X): more boxes end empty behind full-size actors and clutter.
+
+Position-matched point density, synthetic / real (realval-A+B, same BEV cell; Section 8.7.1 review item 1):
+
+| Track | Class | `g1-v3` | `g1-v4` | Change |
+|---|---|---|---|---|
+| LUMPI | Car | 0.44 | **0.83** (0-15 m 1.03, 15-25 m 0.94, 25+ m 0.57) | re-cast at full size, glass dropout |
+| LUMPI | Bicycle | 0.25 | **0.90** | riders |
+| LUMPI | Motorcycle | 0.52 | **1.04** | riders |
+| LUMPI | Truck | 0.83 | 0.91 | re-cast, real sizes |
+| LUMPI | Bus | 2.2 | **1.06** (9 matched boxes) | real size, glass dropout |
+| LUMPI | Van | 0.99 | 1.07 | re-cast (the stretched UT points were sparse, but UT's small cars occluded too little) |
+| LUMPI | Person | 0.86 | 0.80 | unchanged walkers, now occluded by clutter and full-size cars |
+| V2X | truck | 0.42 | **0.77** | real sizes, completed hulls |
+| V2X | vehicle | 0.96 | 0.93 | unchanged |
+| V2X | pedestrian | 0.98 | 0.95 | unchanged |
+
+Sizes (medians, l x w x h in m; real from the legal size prior):
+
+| Track / class | `g1-v3` | `g1-v4` | Real |
+|---|---|---|---|
+| LUMPI Truck | 7.94 x 2.89 x 3.46 (length 90th percentile 8.47) | 6.47 x 2.63 x 2.82 (10.2) | 8.35 x 2.93 x 3.15 (16.3) |
+| LUMPI Bus | 10.27 x 3.94 x 4.25 (one asset) | 10.48 x 3.25 x 3.26 (12.1) | 12.04 x 3.29 x 3.25 (12.5) |
+| LUMPI Bicycle | 1.66 x 0.58 x 1.62 | 2.00 x 0.85 x 1.92 | 2.00 x 0.84 x 1.90 |
+| LUMPI Motorcycle | 2.19 x 0.87 x 1.53 | 1.96 x 0.85 x 1.77 | 1.96 x 0.85 x 1.77 |
+| V2X truck | 5.20 x 2.07 x 2.10 (8.47) | **7.97 x 2.88 x 2.59** (11.3) | 8.20 x 2.89 x 2.59 (13.0) |
+
+Real sizes need free road: UT trucks stand in queues, so a sample longer than the gap is shortened (never below the UT length). V2X trucks now match the real sizes; LUMPI Trucks keep a short-biased length (63% take a real size, 36-42% have room for 12-16 m), which the members' ROS length tail covers.
+
+**Realism** (step 7; 50 frames of the `g1-v4` validation split chosen by the S1 selector on proxies 1-3; exact official R against every held-out legal proxy, both sets scored the same way):
+
+| Track | Frames | Proxy 4 | Proxy 5 | Late 1 | Late 2 | Late 3 | EMD | FPD |
+|---|---|---|---|---|---|---|---|---|
+| LUMPI | current (`g1-v2`, S1) | 0.906 | 0.905 | 0.908 | 0.901 | 0.906 | 1.53-1.58 | 2.9-3.9 |
+| LUMPI | **`g1-v4`** | **0.934** | **0.933** | **0.932** | **0.932** | **0.934** | 1.28-1.34 | 0.1-0.4 |
+| V2X | current (`g1-v3`) | 0.916 | 0.916 | | | | 1.45-1.47 | 1.5-1.7 |
+| V2X | **`g1-v4`** | **0.921** | **0.922** | | | | 1.38-1.39 | 1.3-1.4 |
+
+On LUMPI the selector now reaches a pooled FPD of 0.02 against the fit proxies (random `g1-v4` frames 3.41; the S1 frames keep 2.9-3.9 against the held-out ones): the clutter supplies the above-ground static structure that R1 found missing, and the gain holds on the three late proxies closest to the test window (+0.024 to +0.031), so it is not a property of the selection proxies. The realism gate (+0.003) passes on both tracks, and LUMPI also meets the original R3 target (R >= 0.915 with FPD below 4). Caveat from R1-R2: the hidden reference differs from every legal frame (the S1 frames scored 0.905 locally and 0.891 on the leaderboard), so the leaderboard gain may be smaller; V2X R moves by about 0.003 with the draw of the (0,0,0) nulls, so the gate is re-checked as packaged (the packager's null draw, held-out proxies 4-5): **V2X 0.919 (S5 zip) -> 0.925, LUMPI 0.905 (S4 zip) -> 0.934: passed on both tracks**; `routed-g6` takes the `g1-v4` frames (`realism_frames: pcdet/g1-v4`, `test/synthetic_ids.txt`). Swapping the 50 frames changes only R: detection is scored on the kit's test frames.
+
+**Wave 0: the data-only ablation** (`pointpillars-g1v4` against `pointpillars-g1v3`: same detector, anchors moved to the new label sizes; 40 epochs; official 3D AP@0.5 R40, realval-A / realval-B; gate = class gate on B with the pooled A+B condition):
+
+| Track / class | plain `g1-v3` | plain `g1-v4` | TTA `g1-v3` | TTA `g1-v4` | gate (plain, TTA) |
+|---|---|---|---|---|---|
+| V2X vehicle | 0.563 / 0.607 | **0.646 / 0.627** | 0.598 / 0.604 | **0.690 / 0.667** | pass, pass |
+| V2X pedestrian | 0.266 / 0.226 | **0.285 / 0.262** | 0.267 / 0.257 | **0.288 / 0.278** | pass, pass |
+| V2X truck | 0.703 / 0.565 | **0.803 / 0.697** | 0.839 / 0.704 | **0.859 / 0.758** | pass, pass |
+| V2X mAP | 0.511 / 0.466 | **0.578 / 0.529** | 0.568 / 0.522 | **0.612 / 0.567** | |
+
+| LUMPI Person | 0.340 / 0.134 | 0.351 / 0.130 | 0.381 / 0.128 | **0.410 / 0.137** | fail, fail (TTA: dB +0.0098 at P 1.00, pooled +0.025 at P 1.00) |
+| LUMPI Car | 0.873 / 0.768 | 0.859 / 0.755 | 0.890 / 0.778 | 0.883 / 0.775 | fail, fail |
+| LUMPI Bicycle | 0.186 / 0.081 | **0.458 / 0.196** | 0.228 / 0.100 | **0.506 / 0.222** | pass, pass |
+| LUMPI Motorcycle | 0.008 / 0.015 | 0.008 / 0.013 | 0.015 / 0.020 | 0.015 / 0.021 | fail, fail |
+| LUMPI Bus | 0.011 / 0.012 | **0.023 / 0.079** | 0.011 / 0.009 | **0.047 / 0.096** | pass, pass |
+| LUMPI Truck | 0.200 / 0.131 | 0.231 / 0.105 | 0.232 / 0.154 | 0.260 / 0.113 | fail, fail (B -0.041) |
+| LUMPI mAP (late-A) | 0.248 / 0.163 (0.244) | **0.289 / 0.183** (0.269) | 0.271 / 0.170 (0.267) | **0.317 / 0.195** (0.296) | |
+
+On V2X every class passes, plain and TTA (pooled P(gain) 1.00 throughout). The static hard negatives work as intended: confident static pedestrian false positives on B fall from 6.2 to 3.6 per frame (plain; TTA 1.67 -> 1.04), their share of the unmatched pedestrian boxes from 0.65 to 0.50, and the pedestrian ranking loss from 0.445 to 0.408. Truck localization loss falls from 0.204 to 0.004 (real sizes and class-wise anchors), with more truck ranking loss (0.181 -> 0.274) as the real-size trucks now compete with vehicles.
+
+On LUMPI the member gains 0.025-0.029 mAP on A, B and late-A, through two classes: **Bicycle** (B 0.100 -> 0.222; recall at IoU 0.25 0.88 -> 0.96: the riders) and **Bus** (0.009 -> 0.096: real sizes); Person rises on A, B and pooled but stays 0.0002 under the 0.01 B threshold; static Person false positives fall in the plain variant (9.7 -> 7.0 per frame on B). **Truck regresses on B** (0.154 -> 0.113): confident unmatched trucks of 11 m or more appear (1.7-1.9 per real frame, none before), 70% of them static and most at two places of the real intersection (around (18, -28) and (-12, 36), in Measurements 4, 5 and 6), 4.9 m tall with about 470 points. There the real frames have about twice the synthetic returns between 1.5 and 5 m: a tall static structure the twin under-represents, which the real-size long trucks and the new long anchor (12.1 m) now call a truck. The portfolio takes LUMPI Truck from whichever member passes the gate; long tall static hard negatives (walls, hedges, tree rows) are a follow-up corpus (`g1-v5`) if the two-stage members show the same failure. Motorcycle stays near zero (ranking loss 0.84: found but outranked, mostly by Bicycle boxes of the same size now).
+
+**Wave 1, first V2X run: a size tail beyond reality.** `voxelrcnn-ros-g1v4` (TTA) gained on vehicle (B 0.811 -> 0.830, gate passed) but lost trucks (0.797 -> 0.418) with recall at IoU 0.25 still 0.998: about one confident truck of 19.4-20.0 m per real frame overlapping no labeled object, at a long static structure. The truck length range of ROS (up to 1.4x) on top of real sizes produced training trucks up to 19 m (real V2X trucks: 99th percentile 13.4 m), and the anchor-free head fitted the longest of them onto the structure; the anchor-based pillars (longest anchor 12.2 m) do not. Fix: `bdc_object_scaling` caps every scaled size at the real 99th percentile of its class (`CLASS_MAX`, unit test), in all five R3 two-stage and ROS configs; the run is kept as the ablation `run0_rostail` (registry rows annotated) and both V2X two-stage members are retrained (the PV-RCNN++ run was stopped after one hour). LUMPI `voxelrcnn-ros-g1v4` was already at epoch 30 with the uncapped config and is evaluated as is.
+
+**Wave 1, V2X `voxelrcnn-ros-g1v4` with the cap** (TTA, A / B against `voxelrcnn-ros-g1v3`): vehicle **0.787 / 0.811 -> 0.831 / 0.832** (gate passed, pooled +0.037), truck 0.856 / 0.797 -> 0.849 / 0.803 (the collapse is gone: confident unmatched trucks 1.02 -> 0.04 per B frame, lengths 5.4-6.3 m; plain truck B +0.063), pedestrian 0.349 / 0.393 -> 0.340 / 0.376 (-0.017).
+
+**Wave 2, `pvrcnnpp-ros-g1v4`** (with the cap; A / B against `pvrcnnpp-ros-g1v3`): LUMPI (TTA) **Person 0.243 / 0.070 -> 0.402 / 0.101** (pooled +0.104; static Person false positives on B 12.3 -> 5.0 per frame), **Bicycle 0.499 / 0.201 -> 0.524 / 0.230**, **Motorcycle 0.013 / 0.010 -> 0.046 / 0.029** (all three pass), Car -0.014, Truck -0.021 and Bus -0.010 on B; V2X (plain) **vehicle 0.770 -> 0.790, pedestrian 0.308 -> 0.336, truck 0.710 -> 0.773 on B**, all three passing (its TTA tuning ran out of GPU memory next to a training job and was rerun).
+
+**Wave 1, LUMPI `voxelrcnn-ros-g1v4`** (uncapped ROS config; TTA, A / B against `voxelrcnn-ros-g1v3`): **Person 0.287 / 0.084 -> 0.435 / 0.104** (gate passed, pooled +0.088), with confident static Person false positives on B down from 14.5 to 6.1 per frame and the ranking loss from 0.516 to 0.436: the clutter hard negatives work on the two-stage member too, the first detector-level change to move LUMPI Person since S3. Motorcycle 0.015 / 0.013 -> 0.042 / 0.025 (passed; still small). Losses: **Bus 0.077 -> 0.008 on B** (recall at IoU 0.25 0.62 -> 0.23) and **Truck 0.142 -> 0.104**, Car -0.010. Unlike V2X there are no long false trucks; with real sizes, buses (10-12 x 3.3 m) and short trucks (5-6 m) resemble trucks and cars (confident false trucks on real cars on B: 678 -> 1,208), while the UT bus asset (3.94 m wide, 4.25 m tall) had been easy to tell apart. The per-class portfolio keeps those classes with the members that pass.
+
+**Engine findings on the way** (each fixed before the full build): the merged multi-lidar frame needs the all-candidate-sensor occlusion rule; the object sampling rate has to stay the G1 one; sparse hulls need exemplar completion; lengthening by a coin flip grew only 8% of the trucks, and resampling until a size fits biased buses to 8.9 m.
+
+**Wave 2, LUMPI `pointpillars-ros-g1v4`** (TTA, against `pointpillars-ros-g1v3`): Bicycle B 0.118 -> 0.225 (passed), Person A 0.332 -> 0.402 and B +0.004, Truck B 0.190 -> 0.127 (the long-anchor failure of wave 0); V2X `pvrcnnpp-ros-g1v4` TTA: pedestrian B 0.354 -> 0.369 and truck 0.786 -> 0.813 (both passed), vehicle +0.005.
+
+**Portfolio `routed-g6`** (LUMPI from the confirmed `routed-g4` with the S5 and R3 members, 28 members; V2X from the confirmed `routed-g5` with the R3 members, 30; `select --calibrated --pooled`, `fuse --max-members 3 --pooled`, `budget`, then the final gate against the entry; realval-A / realval-B):
+
+| Track / class | Entry | `routed-g6` | Source | dB (P), pooled (P) |
+|---|---|---|---|---|
+| LUMPI Bicycle | 0.525 / 0.202 | **0.600 / 0.264** | `vrros_tta` + `pvros4_tta` + `pp4_tta` (IoU 0.7) | +0.062 (1.00), +0.069 (1.00) |
+| LUMPI Bus | 0.011 / 0.011 | **0.079 / 0.134** | `ppros4_tta` + `vrros_tta` (IoU 0.3) | +0.123 (1.00), +0.094 (1.00) |
+| LUMPI Truck | 0.231 / 0.153 | **0.466 / 0.200** | `pvros_tta` + `ppros_tta` + `pvros4_tta` (IoU 0.3) | +0.047 (1.00), +0.138 (1.00) |
+| LUMPI Car | 0.898 / 0.792 | S4 kept | the S5 fusion passed `fuse` but **not the final gate** (pooled +0.0006, P 0.64) | reverted |
+| LUMPI Person | 0.396 / 0.146 | S4 kept | best joint fusion (A 0.473, B 0.150) under the B bar (+0.004) | 0 |
+| LUMPI mAP (late-A) | 0.313 / 0.188 (0.304) | **0.367 / 0.221 (0.341)** | | +0.033 (+0.028 to +0.039) |
+| V2X pedestrian | 0.350 / 0.397 | **0.370 / 0.408** | `vrros_tta` + `vrros4_tta` (IoU 0.5) | +0.011 (0.99), +0.022 (1.00) |
+| V2X vehicle, truck | S5 | S5 kept | best candidates +0.009 on B (P 0.995) | 0 |
+| V2X mAP | 0.694 / 0.699 | **0.701 / 0.703** | | +0.004 (+0.001 to +0.007) |
+
+Two classes that passed in the early portfolios (LUMPI Person B +0.015 with the wave-0 member, V2X vehicle +0.012 with the first two-stage member) did not pass in the final ones: `fuse` tests only the best joint candidate, and with more members a set with a higher A and a smaller B gain won the ranking. Picking the earlier winners now would select on B across runs, so the final result stands.
+
+**Gates.** Upload gate (unclipped estimate from R3 on, [`decisions/README.md` 3.2](decisions/README.md#32-gates)):
+
+| Track | A-mAP | B-mAP (90% interval of the gain) | late-A | BEV-3D gap (B) | 3D@0.7 (B) | R (as packaged) | Estimate (B) | Bar | Server check | Gate |
+|---|---|---|---|---|---|---|---|---|---|---|
+| LUMPI | 0.313 -> **0.367** | 0.188 -> **0.221** (+0.028 to +0.039) | 0.304 -> 0.341 | 0.021 -> 0.021 | 0.064 -> 0.086 | 0.905 -> **0.934** | 0.523 (S4) / 0.541 (S5) -> **0.563** | 0.546 | 180 s, 16,262 boxes | **passed** |
+| V2X | 0.694 -> **0.701** | 0.699 -> **0.703** (+0.001 to +0.007) | | 0.048 -> 0.049 | 0.178 -> 0.180 | 0.919 -> **0.925** | 0.967 -> **0.9726** (0.970 clipped) | 0.972 | 56 s, 8,682 boxes | **passed** (by 0.0006) |
+
+Leaderboard projection (previous leaderboard mAP + 0.6 x the mean of the A and B gains; R without and with the S1 local-to-leaderboard realism offset): LUMPI **0.526-0.538** against 0.5040 (two thirds of the gain is realism if it transfers), V2X **0.876-0.878** against 0.8730. Decision record: [`decisions/2026-10-12-r3-g2-lite.md`](decisions/2026-10-12-r3-g2-lite.md).
+
+**Leaderboard (2026-10-14 UTC).** V2X 986496: combined **0.8789** (mAP 0.5929, R 0.9268), rank 1 of 19, confirmation passed (+0.0059, projected 0.876-0.878): pedestrian 0.391 -> 0.403, vehicle and truck identical. LUMPI 986489: combined **0.5169** (mAP 0.1680, R 0.9323), rank 1 of 21 (Raj Patil 0.4914 second), confirmation passed (+0.0129, projected 0.526-0.538) **through realism**: R 0.891 -> 0.932 (EMD 1.647 -> 1.302, FPD 5.10 -> 0.52), while the mAP fell by 0.004 (Truck +0.025, Bus +0.003, **Bicycle 0.244 -> 0.188**; Person, Car, Motorcycle, Van identical).
+
+| Transfer | Local gain | Leaderboard gain | Ratio |
+|---|---|---|---|
+| V2X pedestrian (B) | +0.011 | +0.012 | 1.1 |
+| V2X realism (as packaged) | +0.0064 | +0.0065 | 1.0 |
+| LUMPI realism (as packaged) | +0.028 | +0.041 | 1.5 |
+| LUMPI Truck (B) | +0.047 | +0.025 | 0.5 |
+| LUMPI Bus (B) | +0.123 | +0.003 | 0.02 |
+| LUMPI Bicycle (B) | +0.062 | -0.056 | sign wrong (S5: +0.023 -> -0.030) |
+
+**LUMPI diagnosis** (no test labels used). At test size (realval frames resampled to the test window's 80 bicycles, 190 trucks, 25 buses) the R3 - S4 changes would lie in Bicycle -0.011 to +0.102, Truck +0.084 to +0.165, Bus +0.029 to +0.252 (90%): the leaderboard values are not sampling noise. On the 50 test frames the R3 portfolio emits 3.68 confident Bicycle boxes per frame (S4 3.16) against about 1.6 real bicycles per test frame (realval-A 4.84); every Bicycle member fires 1-19% more on the test frames than on realval-A, and Bicycle boxes on real motorcycles are unchanged (0.47 -> 0.49 per motorcycle). As in S5, a more sensitive Bicycle detector meets a test window with a third of the bicycle density and false positives on content the realval frames lack. Reverting LUMPI Bicycle because of these numbers would tune on the test set and is not done.
+
+**What R3 taught.**
+1. **Compare synthetic and real data in the same place.** Range bins from the frame origin called every LUMPI actor class too sparse; matched by BEV cell only Cars and two-wheelers were, and Vans were already right.
+2. **Ray-consistent insertion into merged multi-lidar frames needs the candidate-sensor rule**, and the object sampling rate must stay fixed when the background changes, or every calibration depends on the amount of clutter.
+3. **Static hard negatives halve the static walker false positives** in every LUMPI two-stage member (14.5 -> 6.1, 12.3 -> 5.0 per frame) and lift LUMPI Person by 0.02-0.03 on B per member; ranking among the new members is the next walker step.
+4. **Real sizes need a ceiling and context:** augmentation beyond the real size range produced 19.7 m false trucks (V2X), a long anchor fired on a tall static structure (LUMPI), and real-size buses and short trucks blur into trucks and cars; per-class routing keeps each class with the members that handle it.
+5. **Generator content moves realism where frame selection could not** (R2 failed at the selection limit): LUMPI 0.905 -> 0.934 on every held-out proxy including the late ones, and **0.891 -> 0.932 on the leaderboard**: the gap between the legal proxies and the hidden reference (0.015 with the S1 frames) shrank to 0.002.
+6. **Gate on what is submitted:** the pooled condition on the final predictions (score floors applied) reverts the S5 Car change that the per-step check passed; the upload estimate is unclipped once B-mAP passes 0.7.
+7. **LUMPI Bicycle does not follow any local split** (S5 and R3, both pooled P 1.00 locally, both lost on the leaderboard): a further LUMPI Bicycle change needs a test-window-like proxy (realval frames re-weighted to the test window's class counts) before it is trusted.
 
 ### 8.8 Final phase plan (Nov 1-14)
 

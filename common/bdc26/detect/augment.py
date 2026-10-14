@@ -7,11 +7,15 @@ enlarged objects through the ground). A scale is skipped when the scaled box wou
 Per-class ranges cover the real label sizes the twin lacks (S5 review, docs/02-STRATEGY.md Section 8.5: LUMPI
 Bicycle synthetic 1.66 x 0.58 x 1.62 m vs real 2.00 x 0.85 x 1.90 m; trucks at most 8.47 m vs real up to 13-17 m);
 the box size must then be read from the points instead of memorized from the twin's few asset sizes.
+CLASS_MAX (R3) caps the scaled box per class at the real label size (99th percentile of l, w, h): on a corpus with
+real sizes already (g1-v4), a length range alone created 19-20 m trucks that no real frame has, and the detector then
+fitted them onto long static structures (V2X: about one 19.7 m false truck per real frame).
 
     - NAME: bdc_object_scaling          # after gt_sampling, so pasted objects are scaled too
       PROB: 0.7                         # per object; the rest keep their native size
       DEFAULT: {l: [0.9, 1.1], w: [0.9, 1.1], h: [0.95, 1.05]}
       CLASS_RANGES: {truck: {l: [0.9, 1.8], w: [1.0, 1.3], h: [1.0, 1.3]}}
+      CLASS_MAX: {truck: [13.4, 3.2, 3.9]}   # optional: l, w, h never scaled beyond these (a box already larger keeps its size)
 """
 from __future__ import annotations
 
@@ -45,12 +49,16 @@ def object_scaling(gt_boxes: np.ndarray, gt_names, points: np.ndarray, config, r
     ranges = {str(k).lower(): v for k, v in (config.get("CLASS_RANGES") or {}).items()}
     default = config.get("DEFAULT", {"l": [1.0, 1.0], "w": [1.0, 1.0], "h": [1.0, 1.0]})
     prob = float(config.get("PROB", 1.0))
+    cmax = {str(k).lower(): np.asarray(v, dtype=np.float64) for k, v in (config.get("CLASS_MAX") or {}).items()}
     for i in rng.permutation(len(boxes)):
         if rng.rand() >= prob:
             continue
         r = ranges.get(str(gt_names[i]).lower(), default)
         sl, sw, sh = (rng.uniform(*r[k]) for k in ("l", "w", "h"))
         b = boxes[i].copy()
+        mx = cmax.get(str(gt_names[i]).lower())
+        if mx is not None:                                           # no scaled size beyond the real maximum
+            sl, sw, sh = (min(f, max(1.0, m / max(d, 1e-6))) for f, m, d in zip((sl, sw, sh), mx, b[3:6]))
         bottom = b[2] - b[5] / 2
         nb = b.copy()
         nb[3:6] = b[3:6] * np.array([sl, sw, sh])

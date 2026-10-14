@@ -102,7 +102,11 @@ python data-v2x-track/fetch_real.py --accept-licence --labels --workers 16     #
 python data-v2x-track/prepare_realval.py --name realval-v1 --stride 5          # realval A/B + realism proxies
 OMP_NUM_THREADS=1 python data-v2x-track/prepare_g1.py --name g1-v3 --workers 48 \
     --walker v2 --placement prior --walkers 16 --density-gain 2.5 --fov-mask    # selected corpus (Section 8)
+# R3: g1-v4 = g1-v3 + engine G2-lite (Open3D, in .venv_ut; 1.2 min on 96 workers)
+source common/env/activate.sh; export OMP_NUM_THREADS=1
+python data-v2x-track/prepare_g1.py --name g1-v4 --walkers 16 --walker v2 --placement prior --fov-mask --density-gain 2.5 --g2 --workers 96
 ```
+- `pcdet/g1-v4` (R3, [`docs/02-STRATEGY.md` Section 8.7.1](../docs/02-STRATEGY.md#871-r3-engine-g2-lite-review-and-plan-2026-10-11)): trucks re-cast with the OS1-64 at real label sizes (`gen/size_prior_g2.npz`; median 5.2 x 2.07 m -> 7.97 x 2.88 m, real 8.2 x 2.89 m) from their own hull, completed by exemplars of well-sampled UT trucks (`gen/hull_bank_g2.npz`), and Poisson(30) unlabeled poles, trees, bollards, bins and boxes near real walker positions as hard negatives. Position-matched truck density 0.42 -> 0.77 of real; vehicles 0.96 -> 0.93 and pedestrians 0.98 -> 0.95 (now also occluded by clutter and wider trucks); realism of 50 selected val frames 0.916 -> 0.921-0.922 on held-out proxies 4-5.
 
 - `pcdet/realval-v1`: every 5th guard-allowed labeled frame, masked and resampled to 50,000 points **keeping the nulls** (null fraction 0.309, like the test frames); split by scenario (md5 of the name): `val` = **realval-A** (688 frames, selection), `valB` = **realval-B** (298 frames, check). Never used for training.
 - `pcdet/realism-proxy-{1..5}`: 5 x 50 disjoint realval frames for local realism scoring.
@@ -139,6 +143,7 @@ The near-field excess in the middle rows came from where walkers could be placed
 | `g1-v1` | `prepare_g1.py --name g1-v1` | `ut-v1` + Poisson(12) walkers v1, free placement, KITTI-like boxes, gain 1.5 | `pointpillars-g1` |
 | `g1-v2` | `prepare_g1.py --name g1-v2 --walker v2` | `g1-v1` with the v2 body | `pointpillars-g1v2` |
 | `g1-v3` | `prepare_g1.py --name g1-v3 --walker v2 --placement prior --walkers 16 --density-gain 2.5 --fov-mask` | calibrated walkers (Section 8), FOV-masked UT | `pointpillars-g1v3` |
+| `g1-v4` | `g1-v3` command + `--g2` | `g1-v3` with engine G2-lite: real-size re-cast trucks, static clutter (Section 7) | R3 members `*-g1v4` |
 
 ## 10. What we measured
 
@@ -152,6 +157,7 @@ The near-field excess in the middle rows came from where walkers could be placed
 | v1 walkers are too sparse beyond 10 m and look too dense near the pole | Section 8 table | `g1-v3` calibration |
 | Real pedestrian boxes follow the KITTI-like convention closely | 0.71 x 0.72 x 1.73 m | prior placement copies real boxes in `g1-v3` |
 | Masking UT points to the OS1-64 field of view improves realism | held-out proxies (31% nulls, official scorer): R 0.901 (`g1-v1`) -> 0.916 (`g1-v3`), 0.922 after frame selection | realism frames from `g1-v3` |
+| UT trucks are 5.2 x 2.07 m (real 8.2 x 2.89 m) and 0.42x as dense as real ones in the same place | legal label sizes; position-matched points per box | real-size re-cast trucks in `g1-v4` |
 | Calibrated walkers detect real pedestrians much better | realval-A pedestrian AP 0.118 (`g1-v1`) -> 0.173 (`g1-v2`) -> 0.266 (`g1-v3`) | `pointpillars-g1v3` is the pedestrian member of `routed-g1` |
 
 ## 11. Pitfalls
@@ -166,4 +172,4 @@ The near-field excess in the middle rows came from where walkers could be placed
 
 1. Background density calibration for V2X realism (as Track 1), now that legal proxies exist.
 2. Riders and scooter riders in the real conventions; containers and other truck-class objects from legal truck statistics.
-3. Engine G2: re-simulate the static scene with the OS1-64 model including the null grid.
+3. Engine G2: re-simulate the static scene with the OS1-64 model including the null grid (G2-lite in `g1-v4` re-casts trucks and adds static clutter; R3).

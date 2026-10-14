@@ -108,6 +108,7 @@ def main():
                           "n_gt_A": A["per_class"][c]["n_gt"], "n_gt_B": B["per_class"][c]["n_gt"]} for c in track.classes},
         "realism": realism,
         "estimate_B": sc.combined_estimate(b_map, realism["R"]) if realism else None,
+        "estimate_B_unclipped": sc.combined_estimate(b_map, realism["R"], clip=False) if realism else None,   # the upload gate (R3 on)
         "estimate_A": sc.combined_estimate(a_map, realism["R"]) if realism else None,
         "server_check": man.get("official_local_eval"),
         "leaderboard": lb,
@@ -135,11 +136,11 @@ def main():
     f = lambda v, d=3: "-" if v is None else f"{v:.{d}f}"
     chk = card_out["server_check"] or {}
     row = (f"| {card_out['strategy'] or '?'} | {track.name.split('-')[0].upper()} | {f(a_map)} | {f(b_map)} | {f(card_out['B_over_A'], 2)} | "
-           f"{f(B['bev_3d_gap'])} | {f(B['mAP']['3d@0.7'])} | {f(realism['R'] if realism else None)} | {f(card_out['estimate_B'])} | "
+           f"{f(B['bev_3d_gap'])} | {f(B['mAP']['3d@0.7'])} | {f(realism['R'] if realism else None)} | {f(card_out['estimate_B_unclipped'])} | "
            f"{(str(round(chk['wall_s'])) + ' s') if chk.get('wall_s') else '-'} | {f(lb['combined'], 4) if lb else '-'} | "
            f"{f(lb['mAP'], 4) if lb else '-'} | {f(lb['R'], 4) if lb else '-'} | {f(card_out['leaderboard'].get('LB_over_B') if lb else None, 2)} |")
     print(json.dumps({k: card_out[k] for k in ("model", "A_mAP", "B_mAP", "lateA_mAP", "B_over_A", "B_bev_3d_gap", "B_3d07_mAP",
-                                               "estimate_B")}, indent=2))
+                                               "estimate_B", "estimate_B_unclipped")}, indent=2))
     print("per class (A / B / late-A):", {c: (f(v["A"]), f(v["B"]), f(v["lateA"])) for c, v in card_out["per_class"].items()})
     for c, v in (card_out.get("B_ap_loss") or {}).items():
         if v:

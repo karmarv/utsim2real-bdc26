@@ -77,22 +77,25 @@ def inclusion_probs(w: np.ndarray, m: int) -> np.ndarray:
     return np.minimum(1.0, lo * w)
 
 
-def resample_calibrated(points: np.ndarray, n: int, rng: np.random.Generator, pc_range, prior: DensityPrior,
-                        is_object: np.ndarray) -> np.ndarray:
+def resample_calibrated(points: np.ndarray, n: int, rng: np.random.Generator, pc_range, prior: DensityPrior | None,
+                        is_object: np.ndarray, n_ref: int | None = None) -> np.ndarray:
     """Mask to range; object points kept at the uniform rate n / N; background points kept with probability
-    proportional to the prior ratio of their cell (exact Bernoulli inclusion probabilities), then the frame is
-    trimmed or padded to exactly n points."""
+    proportional to the prior ratio of their cell (exact Bernoulli inclusion probabilities; uniform without a
+    prior), then the frame is trimmed or padded to exactly n points.
+    n_ref: take N from a reference frame instead (engine G2: the in-range count before the G2 pass, so added
+    clutter returns and the larger shadows of re-cast actors do not move the object sampling rate that the G1
+    calibration matched; R3)."""
     from .frames import resample
     inr = in_range_mask(points, pc_range)
     p, obj = points[inr], np.asarray(is_object, dtype=bool)[inr]
-    N = len(p)
-    if N <= n:
+    N = len(p) if n_ref is None else max(int(n_ref), 1)
+    if len(p) <= n:
         return resample(p, n, rng, None, mask_first=False)
-    q = n / N
-    keep = obj & (rng.random(N) < q)
+    q = min(1.0, n / N)
+    keep = obj & (rng.random(len(p)) < q)
     bg = np.nonzero(~obj)[0]
     m = n - int(keep.sum())
     if m > 0 and len(bg):
-        pr = inclusion_probs(prior.cell_ratio(p[bg]), m)
+        pr = inclusion_probs(prior.cell_ratio(p[bg]) if prior is not None else np.ones(len(bg)), m)
         keep[bg[rng.random(len(bg)) < pr]] = True
     return resample(p[keep], n, rng, None, mask_first=False)

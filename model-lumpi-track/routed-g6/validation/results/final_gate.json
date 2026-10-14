@@ -1,0 +1,105 @@
+{
+  "vs": "routed-g4",
+  "classes": {
+    "Person": {
+      "A": [
+        0.39621176701471983,
+        0.39621176701471983
+      ],
+      "B": [
+        0.14537203298347284,
+        0.14537203298347284
+      ],
+      "dB": 0.0,
+      "p_gain": 0.0,
+      "dA": 0.0,
+      "pooled": {
+        "delta": 0.0,
+        "p_gain": 0.0
+      },
+      "decision": "reverted (class gate failed)"
+    },
+    "Car": {
+      "A": [
+        0.8984498365623097,
+        0.9087822956547079
+      ],
+      "B": [
+        0.7920584869275791,
+        0.805603124955893
+      ],
+      "dB": 0.01354463802831396,
+      "p_gain": 0.91,
+      "dA": 0.010332459092398216,
+      "pooled": {
+        "delta": 0.0005522298355802313,
+        "p_gain": 0.635
+      },
+      "decision": "reverted (pooled A+B condition failed)"
+    },
+    "Bicycle": {
+      "A": [
+        0.5246626381684268,
+        0.5995479912343447
+      ],
+      "B": [
+        0.20186714994448404,
+        0.26350791723586375
+      ],
+      "dB": 0.06164076729137971,
+      "p_gain": 1.0,
+      "dA": 0.07488535306591781,
+      "pooled": {
+        "delta": 0.06862921793707039,
+        "p_gain": 1.0
+      },
+      "decision": "kept (class gate and pooled condition passed)"
+    },
+    "Motorcycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Bus": {
+      "A": [
+        0.010948125727264953,
+        0.07909044211793038
+      ],
+      "B": [
+        0.010690567501932322,
+        0.1340344918507738
+      ],
+      "dB": 0.12334392434884146,
+      "p_gain": 1.0,
+      "dA": 0.06814231639066543,
+      "pooled": {
+        "delta": 0.0941752960436174,
+        "p_gain": 1.0
+      },
+      "decision": "kept (class gate and pooled condition passed)"
+    },
+    "Truck": {
+      "A": [
+        0.2307958689891784,
+        0.46632827350623385
+      ],
+      "B": [
+        0.15315541626823367,
+        0.19965964991975602
+      ],
+      "dB": 0.04650423365152234,
+      "p_gain": 1.0,
+      "dA": 0.23553240451705545,
+      "pooled": {
+        "delta": 0.13838347490382677,
+        "p_gain": 1.0
+      },
+      "decision": "kept (class gate and pooled condition passed)"
+    },
+    "Van": {
+      "decision": "same configuration as the incumbent"
+    }
+  },
+  "reverted": [
+    "Person",
+    "Car"
+  ]
+}

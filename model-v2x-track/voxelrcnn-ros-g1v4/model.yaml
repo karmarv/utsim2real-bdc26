@@ -1,0 +1,24 @@
+name: voxelrcnn-ros-g1v4
+strategy: R3
+track: v2x-track
+module: M9 (engine G2-lite)
+derived_from: voxelrcnn-ros-g1v3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN (as voxelrcnn-ros-g1v3) with ROS (truck length range removed)
+data:
+  train: pcdet/g1-v4
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'R3: trained 40 epochs with ROS capped at real sizes (run1; the uncapped run0_rostail
+  lost trucks), tuned plain (0.637 / 0.638) and TTA (0.673 / 0.670); vehicle passes;
+  pedestrian fusion of routed-g6'
+expected: pedestrian and truck above voxelrcnn-ros-g1v3 on realval-B and pooled
+notes: 'R3 (docs/02-STRATEGY.md Section 8.7.1): trained on pcdet/g1-v4 = the g1-v3
+  recipe plus engine G2-lite (actors re-cast at real size and density, real-sized
+  trucks, buses and two-wheelers with riders, unlabeled static clutter as hard negatives).
+  The ROS ranges keep only the generic jitter (and the V2X truck width/height range)
+  because the corpus now has real label sizes: the S5 Bicycle and Truck length ranges
+  would scale real-sized objects a second time.
+
+  '

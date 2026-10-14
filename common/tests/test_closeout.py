@@ -67,6 +67,7 @@ def test_paired_bootstrap_and_class_gate():
     assert sc.class_gate(boot["pedestrian"]["delta"], boot["pedestrian"]["p_gain"], 0.0)
     assert not sc.class_gate(0.02, 0.5, 0.0) and not sc.class_gate(0.02, 0.95, -0.01) and not sc.class_gate(0.005, 1.0, 0.0)
     assert sc.combined_estimate(0.35, 0.9) == pytest.approx(0.6 * 0.5 + 0.36)
+    assert sc.combined_estimate(0.77, 0.9) == pytest.approx(0.96) and sc.combined_estimate(0.77, 0.9, clip=False) == pytest.approx(0.6 * 1.1 + 0.36)
 
 
 def test_late_a_ids():
@@ -334,3 +335,171 @@ def test_object_scaling_keeps_points_in_box_and_bottom_on_ground():
     b2, _ = object_scaling(np.stack([truck, near]), ["truck", "vehicle"], pts, {**cfg, "CLASS_RANGES": {"truck": {"l": [3.0, 3.0], "w": [3.0, 3.0], "h": [1.0, 1.0]}}},
                            rng=np.random.RandomState(1))
     assert np.allclose(b2[0], truck)
+
+
+def _toy_sensor():
+    from bdc26.render.pedsim import Sensor
+    return Sensor(np.eye(4), np.linspace(-15, 15, 31), 0.5, min_range=0.5, max_range=100.0)
+
+
+def test_g2_mesh_insertion_occludes_and_hits_at_the_right_range():
+    """R3: a box mesh in front of a wall removes the wall points behind it and returns points on its front face."""
+    pytest.importorskip("open3d")
+    from bdc26.render.g2 import MeshObj, box_mesh, insert_meshes, place_mesh
+    from bdc26.render.pedsim import InsertParams
+    s = _toy_sensor()
+    yy, zz = np.meshgrid(np.linspace(-6, 6, 121), np.linspace(-2, 2, 41))
+    wall = np.c_[np.full(yy.size, 10.0), yy.ravel(), zz.ravel()]
+    V, F = box_mesh(1.0, 2.0, 2.0)
+    ob = MeshObj(place_mesh(V, 5.0, 0.0, -1.0, 0.0), F, 0)
+    p = InsertParams(drop_prob=0.0, range_noise=0.0)
+    out, keep, oid, hits = insert_meshes(wall, np.zeros(len(wall), dtype=np.int64), [s], [ob], np.random.default_rng(0), p)
+    behind = (np.abs(wall[:, 1]) < 0.9 * 2.0) & (np.abs(wall[:, 2]) < 0.9)           # well inside the shadow
+    assert not keep[behind].any() and keep[np.abs(wall[:, 1]) > 3.0].all()
+    new = out[oid == 0]
+    assert hits[0] == len(new) > 20 and np.allclose(new[:, 0], 4.5, atol=0.02)          # the front face at x = 4.5
+
+
+def test_g2_rider_and_hull_fit_their_boxes():
+    from bdc26.render.g2 import hull_mesh, rider_mesh
+    rng = np.random.default_rng(1)
+    for kind, (l, w, h) in (("bicycle", (2.0, 0.85, 1.9)), ("motorcycle", (2.2, 0.9, 1.75))):
+        V, F = rider_mesh(l, w, h, kind, rng)
+        assert V[:, 2].min() >= -0.01 and V[:, 2].max() <= h + 0.01 and np.abs(V[:, 0]).max() <= l / 2 + 0.02
+        assert np.abs(V[:, 1]).max() <= w / 2 + 0.05 and len(F) > 100
+    pts = np.c_[rng.uniform(-2, 2, 300), rng.uniform(-0.8, 0.8, 300), rng.uniform(0, 1.5, 300)]
+    V, F = hull_mesh(pts, (4.0, 1.6, 1.5), (12.0, 2.9, 3.3))
+    assert np.allclose(V.max(0) - V.min(0), [12.0, 2.9, 3.3], atol=0.4)
+    V2, _ = hull_mesh(pts[:5], (4.0, 1.6, 1.5), (4.5, 1.9, 1.6))                            # too few points: template
+    assert np.allclose(V2.max(0) - V2.min(0), [4.5, 1.9, 1.6 * 0.84], atol=0.05)
+
+
+def test_g2_pass_recasts_actors_and_keeps_clutter_off_labels():
+    pytest.importorskip("open3d")
+    from bdc26.render.g2 import G2Config, G2Pass
+    from bdc26.render.pedsim import InsertParams
+    rng = np.random.default_rng(2)
+    ground = np.c_[rng.uniform(-30, 30, 20000), rng.uniform(-30, 30, 20000), np.full(20000, -2.0)]
+    car = np.array([12.0, 0.0, -1.25, 4.5, 1.9, 1.5, 0.0])
+    sparse = car[:3] + rng.uniform(-0.5, 0.5, (60, 3)) * car[3:6]                          # a sparse UT actor
+    pts = np.concatenate([ground, sparse]); owner = np.r_[np.full(len(ground), -1), np.zeros(len(sparse), dtype=int)]
+    cfg = G2Config(recast={"Car": "car"}, clutter_mean=15, params=InsertParams(drop_prob=0.0))
+    g2 = G2Pass([_toy_sensor()], cfg, ground=lambda p, x, y: -2.0, pc_range=[-30, -30, -5, 30, 30, 5])
+    out, boxes, names, st = g2(pts, car[None], np.array(["Car"], dtype=object), owner, np.random.default_rng(3))
+    assert st["g2_recast"] == 1 and st["g2_clutter"] > 5 and np.allclose(boxes[0], car)
+    from bdc26.boxes import count_points_in_boxes
+    assert count_points_in_boxes(out, boxes)[0] > 0
+
+
+def test_g2_occlusion_needs_every_candidate_sensor():
+    """R3: a merged multi-lidar frame does not say which sensor saw a point; a point is removed only if the new
+    object hides it from every sensor whose beam table fits it, and sensor_candidates falls back to all sensors."""
+    pytest.importorskip("open3d")
+    from bdc26.render.g2 import MeshObj, box_mesh, insert_meshes, place_mesh, sensor_candidates
+    from bdc26.render.pedsim import InsertParams, Sensor
+    a = _toy_sensor()
+    T = np.eye(4); T[:3, 3] = [0.0, 8.0, 0.0]
+    b = Sensor(T, np.linspace(-15, 15, 31), 0.5, min_range=0.5, max_range=100.0)
+    yy, zz = np.meshgrid(np.linspace(-1.5, 1.5, 31), np.linspace(-0.8, 0.8, 17))
+    wall = np.c_[np.full(yy.size, 10.0), yy.ravel(), zz.ravel()]                       # behind the box as seen from a
+    V, F = box_mesh(1.0, 4.0, 3.0)
+    ob = MeshObj(place_mesh(V, 5.0, 0.0, -1.5, 0.0), F, 0)
+    p, rng = InsertParams(drop_prob=0.0, range_noise=0.0), np.random.default_rng(0)
+    only_a = np.c_[np.ones(len(wall), bool), np.zeros(len(wall), bool)]
+    _, keep_a, _, _ = insert_meshes(wall, only_a, [a, b], [ob], rng, p)
+    _, keep_ab, _, _ = insert_meshes(wall, np.ones((len(wall), 2), bool), [a, b], [ob], rng, p)
+    assert not keep_a.any() and keep_ab.all()                                           # b sees the wall past the box
+    c = sensor_candidates(np.array([[10.0, 0.0, np.tan(np.radians(3.0)) * 10.0], [10.0, 0.0, np.tan(np.radians(3.5)) * 10.0]]), [a, b], 0.08)
+    assert c[0, 0] and c[1].all()                                                      # on a's beam; fits none: all
+
+
+def test_g2_hull_bank_completes_sparse_actors(tmp_path):
+    from bdc26.render.g2 import HullBank, hull_mesh
+    rng = np.random.default_rng(4)
+    box = np.array([10.0, 2.0, -1.25, 4.5, 1.9, 1.5, 0.3])
+    loc = np.c_[rng.uniform(-2.25, 2.25, 1500), rng.uniform(-0.95, 0.95, 1500), rng.uniform(0.0, 1.5, 1500)]
+    c, s = np.cos(box[6]), np.sin(box[6])
+    pts = np.c_[box[0] + c * loc[:, 0] - s * loc[:, 1], box[1] + s * loc[:, 0] + c * loc[:, 1], box[2] - box[5] / 2 + loc[:, 2]]
+    bank = HullBank(["Car"], min_points=800)
+    bank(pts, box[None], np.array(["Car"], dtype=object), np.zeros(len(pts), dtype=int), rng)
+    bank.save(tmp_path / "bank.npz")
+    bank = HullBank.load(tmp_path / "bank.npz")
+    assert bank.summary() == {"Car": 1}
+    ex = bank.sample("Car", (4.0, 1.8, 1.4), rng)
+    assert np.allclose(ex.max(0) - ex.min(0), [4.0, 1.8, 1.4], atol=0.05)
+    side = np.c_[rng.uniform(-2, 2, 60), rng.uniform(0.5, 0.9, 60), rng.uniform(0.2, 1.4, 60)]  # one side seen only
+    Vs, _ = hull_mesh(side, (4.0, 1.8, 1.4), (4.0, 1.8, 1.4), mirror=False)
+    Vc, _ = hull_mesh(side, (4.0, 1.8, 1.4), (4.0, 1.8, 1.4), exemplar=ex)
+    assert np.ptp(Vs[:, 1]) < 0.5 and np.ptp(Vc[:, 1]) > 1.7
+
+
+def test_g2_drop_ramp_follows_hit_range():
+    pytest.importorskip("open3d")
+    from bdc26.render.g2 import MeshObj, _drop_ramp, box_mesh, insert_meshes, place_mesh
+    from bdc26.render.pedsim import InsertParams
+    assert _drop_ramp(0.1) == (0.1, 0.1, 0.0, 1.0) and _drop_ramp([0.2, 0.0, 15, 25]) == (0.2, 0.0, 15.0, 25.0)
+    V, F = box_mesh(1.0, 1.2, 1.2)
+    p = InsertParams(drop_prob=0.0, range_noise=0.0)
+    full = insert_meshes(np.zeros((0, 3)), np.zeros(0, np.int64), [_toy_sensor()], [MeshObj(place_mesh(V, 5.0, 0, -0.6, 0), F, 0)], np.random.default_rng(0), p)[3][0]
+    ramp = insert_meshes(np.zeros((0, 3)), np.zeros(0, np.int64), [_toy_sensor()],
+                         [MeshObj(place_mesh(V, 5.0, 0, -0.6, 0), F, 0, (1.0, 0.0, 4.0, 6.0))], np.random.default_rng(0), p)[3][0]
+    assert full > 100 and 0.18 < ramp / full < 0.36                  # front face at 4.5-4.6 m: drop about 0.72
+
+
+def test_resample_calibrated_keeps_the_reference_object_rate():
+    from bdc26.density import resample_calibrated
+    rng = np.random.default_rng(5)
+    pts = rng.uniform(-10, 10, (10000, 3)).astype(np.float32)
+    obj = np.zeros(len(pts), bool); obj[:1000] = True
+    rng_range = [-20, -20, -20, 20, 20, 20]
+    out_n = resample_calibrated(pts, 1000, np.random.default_rng(6), rng_range, None, obj)
+    out_r = resample_calibrated(pts, 1000, np.random.default_rng(6), rng_range, None, obj, n_ref=20000)
+    k = lambda o: (o[:, None, :] == pts[None, :1000, :]).all(2).any(1).sum()
+    assert len(out_n) == len(out_r) == 1000 and 80 < k(out_n) < 120 and 35 < k(out_r) < 65
+
+
+def test_pooled_gate_needs_a_gain_on_both_splits_together():
+    """R3 class-gate condition: a B-only gain that A loses back does not pass on the pooled A+B frames."""
+    def spurious(preds, gts, f):
+        return {fid: [dict(d, score=min(1.0, d["score"] * f)) if d["box"][3] < 1 and
+                      not any(np.hypot(d["box"][0] - g[0], d["box"][1] - g[1]) < 0.5 for g in gts[fid][0]) else d
+                      for d in dets] for fid, dets in preds.items()}
+    c = "pedestrian"
+    (pa, ga), (pb, gb) = _toy(1, n_frames=60, spurious=8), _toy(2, n_frames=60, spurious=8)
+    base = {"val": sc.frame_flags(pa, ga, [c])[c], "valB": sc.frame_flags(pb, gb, [c])[c]}
+    both = {"val": sc.frame_flags(spurious(pa, ga, 0.1), ga, [c])[c], "valB": sc.frame_flags(spurious(pb, gb, 0.1), gb, [c])[c]}
+    b_only = {"val": sc.frame_flags(spurious(pa, ga, 3.0), ga, [c])[c], "valB": both["valB"]}
+    g1 = sc.pooled_gate(base, both, c, n=100)
+    g2 = sc.pooled_gate(base, b_only, c, n=100)
+    assert g1["ok"] and g1["delta"] > 0.01 and g1["p_gain"] >= 0.9
+    assert not g2["ok"] and g2["delta"] < 0
+
+
+def test_g2_fit_box_shortens_real_sizes_to_the_free_road():
+    """R3: a real-size sample longer than the room in a queue is shortened (never below the UT length) and placed
+    clear of the neighbours; with room it keeps the full sample."""
+    from bdc26.render.g2 import G2Config, G2Pass
+    from bdc26.render.pedsim import bev_overlaps
+    truck = np.array([0.0, 0.0, -0.5, 8.0, 2.5, 3.0, 0.0])
+    ahead = np.array([10.0, 0.0, -1.2, 4.5, 1.9, 1.5, 0.0])                  # 5.75 m of road ahead of the truck's front
+    behind = np.array([-9.0, 0.0, -1.2, 4.5, 1.9, 1.5, 0.0])                 # 2.75 m behind its rear
+    g2 = G2Pass([], G2Config(resize={"Truck": np.array([[16.0, 2.5, 3.0]])}), ground=None, pc_range=[-50, -50, -5, 50, 50, 5])
+    boxes = np.stack([truck, ahead, behind])
+    rng = np.random.default_rng(0)
+    nb, t, grown = g2._fit_box(0, truck, "Truck", boxes, rng)
+    assert grown and 8.0 < nb[3] < 14.5 and not bev_overlaps(nb, boxes[1:], 0.1)
+    assert np.isclose(nb[2] - nb[5] / 2, truck[2] - truck[5] / 2, atol=0.2)  # still on the ground
+    nb2, _, _ = g2._fit_box(0, truck, "Truck", truck[None], rng)              # free road: the whole sample
+    assert 15.0 < nb2[3] < 16.6
+
+
+def test_object_scaling_never_exceeds_the_class_maximum():
+    """R3: CLASS_MAX caps scaled sizes at the real maximum; a box already beyond it keeps its size (never shrunk by the cap)."""
+    pytest.importorskip("pcdet")
+    from bdc26.detect.augment import object_scaling
+    rng = np.random.RandomState(0)
+    boxes = np.array([[0.0, 0.0, -0.5, 12.0, 2.5, 3.0, 0.0], [30.0, 0.0, -0.5, 15.0, 2.5, 3.0, 0.0], [0.0, 20.0, -0.5, 6.0, 2.5, 3.0, 0.0]])
+    pts = np.zeros((1, 3))
+    cfg = {"PROB": 1.0, "CLASS_RANGES": {"truck": {"l": [1.4, 1.4], "w": [1.0, 1.0], "h": [1.0, 1.0]}}, "CLASS_MAX": {"truck": [13.4, 3.2, 3.9]}}
+    nb, _ = object_scaling(boxes, np.array(["truck"] * 3), pts, cfg, rng)
+    assert np.isclose(nb[0, 3], 13.4) and np.isclose(nb[1, 3], 15.0) and np.isclose(nb[2, 3], 8.4)

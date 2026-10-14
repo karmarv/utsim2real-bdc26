@@ -1,0 +1,30 @@
+{
+  "vs": "routed-g5",
+  "classes": {
+    "vehicle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "pedestrian": {
+      "A": [
+        0.34989495164134676,
+        0.37028597319738193
+      ],
+      "B": [
+        0.3969143168971782,
+        0.4081384224365614
+      ],
+      "dB": 0.011224105539383189,
+      "p_gain": 0.995,
+      "dA": 0.02039102155603517,
+      "pooled": {
+        "delta": 0.022116050206539395,
+        "p_gain": 1.0
+      },
+      "decision": "kept (class gate and pooled condition passed)"
+    },
+    "truck": {
+      "decision": "same configuration as the incumbent"
+    }
+  },
+  "reverted": []
+}

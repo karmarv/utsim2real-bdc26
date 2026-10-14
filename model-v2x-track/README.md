@@ -6,15 +6,15 @@
 
 | | |
 |---|---|
-| Selected model | [`routed-g5`](routed-g5) (S5): pedestrian from the object-scaled Voxel R-CNN with PV-RCNN++, truck and vehicle from triples with the object-scaled and GBlobs members; per-class score floors (Section 7.8); S1 baseline [`routed-g1`](routed-g1) |
-| Real validation (official metric, tuned) | **realval-A mAP 0.694**, realval-B 0.699 (S5); S4 0.684 / 0.679; S1 0.572 / 0.520 |
-| Local combined estimate | 0.967 (B) for S5; leaderboard 0.8730 (Section 9.4); ECCV winner 0.746 |
-| CodaBench (current entry) | **978945: combined 0.8730** (mAP 0.5890, R 0.9203), S5 ([`routed-g5`](routed-g5)), rank 1 of 19 on 2026-10-11 (Section 9) |
-| CodaBench (previous) | 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
-| Submitted zip | current entry: [`routed-g5/submissions/2026-10-11_s5/v2x_s5_submission.zip`](routed-g5/submissions/2026-10-11_s5/v2x_s5_submission.zip) (tag 5.0); S4: [`v2x_s4_submission.zip`](routed-g4/submissions/2026-10-10_s4/v2x_s4_submission.zip) (tag 4.0); S3 (tag 3.0), S1+C1 (tag 1.0), S1 (release 0.1) |
-| Realism of the submitted frames | R = 0.919 on held-out legal proxies, official scorer (frames from the FOV-masked `g1-v3` val split with 31% nulls) |
+| Selected model | [`routed-g6`](routed-g6) (R3, the entry): the S5 portfolio with pedestrian fused with the R3 Voxel R-CNN trained on the engine G2-lite corpus `g1-v4`, realism frames from `g1-v4` (Section 7.9); before: [`routed-g5`](routed-g5) (S5); S1 baseline [`routed-g1`](routed-g1) |
+| Real validation (official metric, tuned) | **realval-A mAP 0.701**, realval-B 0.703 (R3); S5 0.694 / 0.699; S1 0.572 / 0.520 |
+| Local combined estimate | 0.973 (B, unclipped) for R3; leaderboard 0.8789 (Section 9); ECCV winner 0.746 |
+| CodaBench (current entry) | **986496: combined 0.8789** (mAP 0.5929, R 0.9268), R3 ([`routed-g6`](routed-g6)), rank 1 of 19 on 2026-10-14 (Section 9) |
+| CodaBench (previous) | 978945: 0.8730 (S5); 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
+| Submitted zip | current entry: [`routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1); S5: [`v2x_s5_submission.zip`](routed-g5/submissions/2026-10-11_s5/v2x_s5_submission.zip) (tag 5.0); S4 (tag 4.0), S3 (tag 3.0), S1+C1 (tag 1.0), S1 (release 0.1) |
+| Realism of the submitted frames | **R = 0.927 on the server** (R3 frames from the FOV-masked `g1-v4` val split with 31% nulls; 0.925 on held-out legal proxies); S1-S5 frames 0.920 (`g1-v3`) |
 | Submit | Section 6.7 |
-| Strategy | S1, S1+C1, S3 and **S4 submitted** (Sections 7.4, 7.6, 7.7); S2 done without a new V2X version (Section 7.5); **S5 submitted** (Section 7.8); next R3 (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8) |
+| Strategy | S1, S1+C1, S3, S4, S5 and **R3 submitted**; **R3 is the entry** (Section 7.9); S2 done without a new V2X version (Section 7.5); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8 |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
@@ -40,7 +40,11 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`voxelrcnn-ros-g1v3`](voxelrcnn-ros-g1v3) | `pcdet/g1-v3` | S5 run b: Voxel R-CNN with class-wise object scaling | trained, tuned plain and TTA; in the pedestrian and truck fusions (Section 7.8) |
 | [`pvrcnnpp-ros-g1v3`](pvrcnnpp-ros-g1v3) | `pcdet/g1-v3` | S5 extension: PV-RCNN++ with object scaling | trained, tuned plain and TTA; in the vehicle and truck fusions |
 | [`pointpillars-ros-g1v3`](pointpillars-ros-g1v3) | `pcdet/g1-v3` | S5 extension: PointPillars g1v3 with object scaling | trained, tuned; below its parent (one truck anchor) |
-| [`routed-g5`](routed-g5) | `routed-g4` members + the four S5 runs (plain and TTA) | **selected** (S5) | submitted (978945, **0.8730**, rank 1; Section 7.8) |
+| [`routed-g5`](routed-g5) | `routed-g4` members + the four S5 runs (plain and TTA) | S5 | submitted (978945, 0.8730, the entry until R3; Section 7.8) |
+| [`pointpillars-g1v4`](pointpillars-g1v4) | `pcdet/g1-v4` (engine G2-lite) | R3 wave 0: `pointpillars-g1v3` on the new corpus, truck anchors at the new label sizes | trained, tuned plain and TTA; every class above its parent (Section 7.9) |
+| [`voxelrcnn-ros-g1v4`](voxelrcnn-ros-g1v4) | `pcdet/g1-v4` | R3: `voxelrcnn-ros-g1v3` on the new corpus (ROS capped at real sizes; the uncapped run is kept as `run0_rostail`) | trained, tuned plain and TTA; pedestrian fusion |
+| [`pvrcnnpp-ros-g1v4`](pvrcnnpp-ros-g1v4) | `pcdet/g1-v4` | R3: `pvrcnnpp-ros-g1v3` on the new corpus (ROS capped) | trained, tuned plain and TTA |
+| [`routed-g6`](routed-g6) | `routed-g5` (incumbent) + R3 members (plain and TTA) | **selected** (R3) | submitted (986496, **0.8789**, rank 1 of 19; Section 7.9) |
 
 ## 2. Modeling approaches considered
 
@@ -252,6 +256,26 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 - **Upload gate:** combined estimate (B) 0.950 -> **0.967** (bar 0.955), R 0.919; kit scorer 58 s with 8,896 boxes. **Passed.** Projection: combined about 0.856 (0.852-0.868).
 - **Leaderboard (978945, 2026-10-11):** combined **0.8730**, mAP 0.5890 (vehicle 0.718, pedestrian **0.391**, truck 0.657), 3D@0.7 0.196, rank 1 of 19; confirmation passed (+0.024), above the projected range: the pedestrian gain (+0.046) followed realval-B (+0.036), not A (0.000).
 
+### 7.9 R3 results: engine G2-lite corpus `g1-v4` (2026-10-12)
+
+Official metric, realval-A / realval-B, TTA members. Review, plan, results and lessons: [`docs/02-STRATEGY.md` Sections 8.7.1 and 8.7.2](../docs/02-STRATEGY.md#872-r3-results-2026-10-11-to-2026-10-13); [decision record](../docs/decisions/2026-10-12-r3-g2-lite.md).
+
+| Member or step | vehicle | pedestrian | truck | mAP |
+|---|---|---|---|---|
+| `pointpillars-g1v3` (parent of wave 0) | 0.598 / 0.604 | 0.267 / 0.257 | 0.839 / 0.704 | 0.568 / 0.522 |
+| `pointpillars-g1v4` (data only) | **0.690 / 0.667** | **0.288 / 0.278** | **0.859 / 0.758** | **0.612 / 0.567** |
+| `voxelrcnn-ros-g1v4` (ROS capped) | **0.831 / 0.832** | 0.340 / 0.376 | 0.849 / 0.803 | 0.673 / 0.670 |
+| `voxelrcnn-ros-g1v4` `run0_rostail` (uncapped ROS) | 0.825 / 0.830 | 0.336 / 0.371 | 0.509 / 0.418 | 0.557 / 0.540 |
+| `pvrcnnpp-ros-g1v4` (ROS capped) | 0.826 / 0.816 | 0.328 / 0.369 | 0.834 / 0.813 | 0.663 / 0.666 |
+| S5 portfolio (`routed-g5`, the entry) | 0.828 / 0.852 | 0.350 / 0.397 | 0.905 / 0.848 | 0.694 / 0.699 |
+| **R3 portfolio (`routed-g6`)** | 0.828 / 0.852 | **0.370 / 0.408** | 0.905 / 0.848 | **0.701 / 0.703** |
+
+- **Routing and fusion** (built on the S5 entry): pedestrian from `vrros_tta` + `vrros4_tta` (B +0.011, pooled +0.022); vehicle and truck keep the S5 fusions (best candidates +0.009 on B, under the 0.01 bar).
+- **What the corpus changes:** real truck sizes (5.20 x 2.07 m -> 7.97 x 2.88 m, real 8.20 x 2.89 m) take the pillars' truck localization loss from 0.20 to 0.004 with class-wise anchors; static clutter cuts confident static pedestrian false positives (pillars 6.2 -> 3.6 per frame on B). The first two-stage run, with an uncapped ROS length range on top of the real sizes, fitted about one 19.7 m false truck per frame onto a long static structure; ROS is now capped at the real 99th-percentile sizes.
+- **Realism:** the 50 frames from `g1-v4` score 0.925 as packaged (S5 zip 0.919).
+- **Upload gate:** combined estimate (B, unclipped from R3 on) 0.967 -> **0.973** (bar 0.972; 0.970 clipped), kit scorer 56 s with 8,682 boxes: **passed, by 0.0006**. Projection: combined 0.876-0.878 against the 0.8730 entry.
+- **Leaderboard (986496, 2026-10-14):** combined **0.8789**, mAP 0.5929 (vehicle 0.719 and truck 0.657 identical, pedestrian 0.391 -> **0.403**), R 0.9203 -> **0.9268**, rank 1 of 19; confirmation passed (+0.0059, at the top of the projected range). Both gains followed the local numbers: pedestrian +0.012 against +0.011 on B, realism +0.0065 against +0.0064 as packaged.
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -263,7 +287,8 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 | E5 | Pedestrian NMS and re-centering | tuned per class (Section 6.3) |
 | E6 | Ground-plane canonicalization of the sloped scene | part of the S4 diagnosis (`docs/02` Section 8.1.2 D2 and Section 8.4 step 0) |
 | E7 | Architecture routing for pedestrians (CenterPoint) | done (S2): no class passes the class gate; static false positives are the main pedestrian error (Section 7.5) |
-| E8 | Background density calibration for realism (as Track 1) | next (data guide Section 12) |
+| E8 | Background density calibration for realism (as Track 1) | next (data guide Section 12); R3 frames from `g1-v4` raise realism 0.919 -> 0.925 without it (Section 7.9) |
+| E13 | Engine G2-lite (real-size re-cast trucks, static clutter) | done (R3): pillars up on every class; pedestrian static false positives down; portfolio pedestrian +0.011 on B (Section 7.9) |
 | E9 | TTA and weighted box fusion, height TTA | done (S3): every class up on B; mAP B 0.537 -> 0.664; BEV-3D gap 0.129 -> 0.062 (Section 7.6) |
 | E11 | Two-stage refinement (Voxel R-CNN, PV-RCNN++) | done (S4): vehicle and truck up on B; pedestrian localization unchanged (Section 7.7) |
 | E12 | GBlobs inputs and class-wise object scaling | done (S5): object scaling helps every anchor-free and two-stage member; GBlobs only inside fusions (Section 7.8) |
@@ -278,12 +303,15 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 | 2026-10-10 | `routed-g3` / `s3` (strategy S3), uploaded unchanged as `v2x_s3_submission.zip` | 974400 | 0.661 / 0.664 | 0.919 | **0.5483** | **0.9203** | **0.8381** | strategy S3; rank 1 of 19 (next 0.6616); kit scorer 74 s, 10,671 boxes; server record [`codabench_974400.json`](routed-g3/submissions/2026-10-09_s3/codabench_974400.json); [decision record](../docs/decisions/2026-10-09-s3-fused-portfolio.md) |
 | 2026-10-10 | `routed-g4` / `s4` (strategy S4), uploaded unchanged as `v2x_s4_submission.zip` | 975938 | 0.684 / 0.679 | 0.919 | **0.5605** | **0.9203** | **0.8485** | strategy S4; rank 1 of 19 (next 0.6616); kit scorer 80 s, 13,028 boxes; server record [`codabench_975938.json`](routed-g4/submissions/2026-10-10_s4/codabench_975938.json); [decision record](../docs/decisions/2026-10-10-s4-two-stage.md) |
 | 2026-10-11 | `routed-g5` / `s5` (strategy S5), uploaded unchanged as `v2x_s5_submission.zip` | 978945 | 0.694 / 0.699 | 0.919 | **0.5890** | **0.9203** | **0.8730** | strategy S5; rank 1 of 19 (next 0.6616); kit scorer 58 s, 8,896 boxes; server record [`codabench_978945.json`](routed-g5/submissions/2026-10-11_s5/codabench_978945.json); [decision record](../docs/decisions/2026-10-11-s5-object-scaling.md) |
+| 2026-10-13 | `routed-g6` / `r3` (strategy R3), uploaded unchanged as `v2x_r3_submission.zip` | 986496 | 0.701 / 0.703 | 0.925 | **0.5929** | **0.9268** | **0.8789** | strategy R3; rank 1 of 19 (next 0.6616); kit scorer 56 s, 8,682 boxes; server record [`codabench_986496.json`](routed-g6/submissions/2026-10-12_r3/codabench_986496.json); [decision record](../docs/decisions/2026-10-12-r3-g2-lite.md) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | vehicle | pedestrian | truck | BEV mAP@0.5 |
 |---|---|---|---|---|---|
-| **978945 leaderboard (S5)** | **0.5890** | 0.718 | 0.391 | 0.657 | 0.6389 |
+| **986496 leaderboard (R3)** | **0.5929** | 0.719 | 0.403 | 0.657 | 0.6428 |
+| R3 realval-A / realval-B | 0.701 / 0.703 | 0.828 / 0.852 | 0.370 / 0.408 | 0.905 / 0.848 | |
+| 978945 leaderboard (S5) | 0.5890 | 0.718 | 0.391 | 0.657 | 0.6389 |
 | S5 realval-A / realval-B | 0.694 / 0.699 | 0.828 / 0.852 | 0.350 / 0.397 | 0.905 / 0.848 | |
 | 975938 leaderboard (S4) | 0.5605 | 0.707 | 0.346 | 0.628 | 0.6219 |
 | S4 realval-A / realval-B | 0.684 / 0.679 | 0.806 / 0.843 | 0.350 / 0.361 | 0.896 / 0.834 | |
@@ -299,11 +327,14 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 | leaderboard / realval-B (S4) | 0.82 | 0.84 | 0.96 | 0.75 | |
 | leaderboard gain / realval-A gain, / realval-B gain (S3 -> S4) | 0.53, 0.80 | 0.54, 1.11 | (unchanged) | 0.50, 0.45 | |
 | leaderboard gain / realval-A gain, / realval-B gain (S4 -> S5) | 2.83, 1.46 | 0.50, 1.23 | (A 0.000), 1.27 | 3.28, 2.04 | |
+| leaderboard gain / realval-A gain, / realval-B gain (S5 -> R3) | 0.57, 1.05 | (unchanged) | 0.60, 1.07 | (unchanged) | |
 S3 changed only the detections (same 50 frames, identical realism): the leaderboard BEV-3D gap fell from 0.083 to 0.070 (realval-B: 0.129 to 0.062), 3D@0.7 rose from 0.0555 to 0.0755. The S1+C1 z calibration changed only z, so BEV AP and realism are identical; it gained more on the test frames than on realval-B for pedestrians (+0.046 vs +0.026) and about the same for vehicles (+0.020 vs +0.023), and the leaderboard BEV-3D gap fell from 0.105 to 0.083.
 
 Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
 
 ### 9.2 Artifacts
+
+986496 (R3): model [`routed-g6`](routed-g6) ([`model.yaml`](routed-g6/model.yaml)); the upload copy [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (md5 `510eb8f9a775539c87ce323f9b13bc1b`, in its [`manifest.json`](routed-g6/submissions/2026-10-12_r3/manifest.json)); server record [`codabench_986496.json`](routed-g6/submissions/2026-10-12_r3/codabench_986496.json); realism frames from `pcdet/g1-v4`; server realism CD 2.181, MMD 0.00146, EMD 1.345, FPD 0.733, R 0.9268 (S1-S5 frames: 2.215, 0.00329, 1.414, 1.092, 0.9203).
 
 978945 (S5): model [`routed-g5`](routed-g5) ([`model.yaml`](routed-g5/model.yaml)); the upload copy [`v2x_s5_submission.zip`](routed-g5/submissions/2026-10-11_s5/v2x_s5_submission.zip) (md5 `e5b258652c9aa0f783f3cdfbd614d687`, in its [`manifest.json`](routed-g5/submissions/2026-10-11_s5/manifest.json)); server record [`codabench_978945.json`](routed-g5/submissions/2026-10-11_s5/codabench_978945.json); reproducible from the committed `model.yaml`.
 
