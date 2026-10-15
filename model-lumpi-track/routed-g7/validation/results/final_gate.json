@@ -1,0 +1,42 @@
+{
+  "vs": "routed-g6",
+  "classes": {
+    "Person": {
+      "A": [
+        0.39621176701471983,
+        0.46523867896124543
+      ],
+      "B": [
+        0.14537203298347284,
+        0.16029123610914717
+      ],
+      "dB": 0.014919203125674324,
+      "p_gain": 1.0,
+      "dA": 0.0690269119465256,
+      "pooled": {
+        "delta": 0.05251544475720876,
+        "p_gain": 1.0
+      },
+      "decision": "kept (class gate and pooled condition passed)"
+    },
+    "Car": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Bicycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Motorcycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Bus": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Truck": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Van": {
+      "decision": "same configuration as the incumbent"
+    }
+  },
+  "reverted": []
+}

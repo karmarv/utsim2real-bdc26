@@ -7,7 +7,10 @@
 
 Objective: the Frechet distance between the pooled xyz Gaussian of the chosen frames and that of the fit
 proxies (the FPD term), computed exactly from per-frame sufficient statistics, minimized by greedy swaps from a
-random start. The held-out proxies give the honest R estimate (full realism score, before and after).
+random start. --objective fpd+emd (R5) then refines the selection by greedy swaps on the realism terms that matter,
+EMD / 5 + FPD / 50 (CD and MMD are about zero), with EMD approximated by the sliced Wasserstein-1 distance between a
+fixed 400-point sample of every frame and a fixed sample of the fit proxies (64 directions), scaled once to the
+exact EMD of the FPD selection. The held-out proxies give the honest R estimate (full realism score, before and after).
 Frames are only chosen, never modified (V2X frames are scored with the (0,0,0) nulls the packager adds);
 the 50 test frames are never involved.
 """
@@ -39,6 +42,39 @@ def frechet(a, b):
     return float(((m1 - m2) ** 2).sum() + np.trace(C1 + C2 - 2 * sqrtm(C1 @ C2).real))
 
 
+def refine_emd(t, frames, S, chosen, pool, target, fit_frames, a, k=400, n_dir=64):
+    """Greedy swaps on EMD/5 + FPD/50 (R5), EMD from the sliced W1 of fixed per-frame samples (see the docstring)."""
+    rng = np.random.default_rng([a.seed, 7])
+    D = rng.normal(size=(3, n_dir))
+    D /= np.linalg.norm(D, axis=0)
+    def samp(p, n):
+        q = p[in_range_mask(p, t.pc_range)]
+        return q[rng.choice(len(q), n, replace=len(q) < n)].astype(np.float64)
+    proj = {i: samp(frames[i], k) @ D for i in pool}                      # (k, n_dir) per frame, fixed
+    ref = np.sort(np.concatenate([samp(f, max(1, (50 * k) // len(fit_frames) + 1)) for f in fit_frames])[: 50 * k] @ D, axis=0)
+    def sw(ids):
+        x = np.sort(np.concatenate([proj[i] for i in ids]), axis=0)
+        return float(np.abs(x - ref[: len(x)]).mean())
+    sw0 = sw(chosen)
+    exact = realism.score([frames[i] for i in chosen], fit_frames[:50], t.name, exact_emd=True)
+    scale = exact["EMD"] ** 2 / max(sw0, 1e-12)                            # W1 = scale x SW1 near the FPD selection
+    J = lambda ids: np.sqrt(scale * sw(ids)) / 5 + frechet(gauss([S[i] for i in ids]), target) / 50
+    rest = [i for i in pool if i not in set(chosen)]
+    cur = J(chosen)
+    j0 = cur
+    for _ in range(a.refine_iters):
+        kk, jj = rng.integers(50), rng.integers(len(rest))
+        trial = chosen.copy()
+        trial[kk] = rest[jj]
+        v = J(trial)
+        if v < cur:
+            rest[jj] = chosen[kk]
+            chosen, cur = trial, v
+    print(f"EMD refinement: EMD/5 + FPD/50 (sliced-W1 estimate) {j0:.4f} -> {cur:.4f} (exact EMD of the FPD selection "
+          f"vs a fit proxy {exact['EMD']:.3f})")
+    return chosen
+
+
 def load_dir(t, spec):
     root = data_path(t, spec)
     return [np.load(f)[:, :3] for f in sorted((root / "points").glob("*.npy"))]
@@ -53,6 +89,8 @@ def main():
     ap.add_argument("--test-ref", action="append", default=[])
     ap.add_argument("--iters", type=int, default=20000)
     ap.add_argument("--seed", type=int, default=1234)
+    ap.add_argument("--objective", choices=["fpd", "fpd+emd"], default="fpd")
+    ap.add_argument("--refine-iters", type=int, default=3000)
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     t = load_track(a.track)
@@ -82,8 +120,12 @@ def main():
             rest[j] = chosen[k]
             chosen, cur = trial, v
     print(f"pooled FPD to fit proxies: random start {start:.2f} -> selected {cur:.2f}")
+    fpd_only = list(chosen)
+    if a.objective == "fpd+emd":
+        chosen = refine_emd(t, frames, S, chosen, pool, target, [f for r in a.fit_ref for f in load_dir(t, r)], a)
     rand = list(np.random.default_rng(a.seed).choice(pool, 50, replace=False))
-    for name, ids in (("random", rand), ("selected", chosen)):
+    sets = (("random", rand), ("selected", chosen)) if a.objective == "fpd" else (("random", rand), ("fpd only", fpd_only), ("selected", chosen))
+    for name, ids in sets:
         syn = [frames[i] for i in ids]
         for r in a.test_ref:
             res = realism.score(syn, load_dir(t, r), t.name, exact_emd=True)     # converged EMD, as the server

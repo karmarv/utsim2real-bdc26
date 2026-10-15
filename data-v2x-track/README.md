@@ -144,6 +144,10 @@ The near-field excess in the middle rows came from where walkers could be placed
 | `g1-v2` | `prepare_g1.py --name g1-v2 --walker v2` | `g1-v1` with the v2 body | `pointpillars-g1v2` |
 | `g1-v3` | `prepare_g1.py --name g1-v3 --walker v2 --placement prior --walkers 16 --density-gain 2.5 --fov-mask` | calibrated walkers (Section 8), FOV-masked UT | `pointpillars-g1v3` |
 | `g1-v4` | `g1-v3` command + `--g2` | `g1-v3` with engine G2-lite: real-size re-cast trucks, static clutter (Section 7) | R3 members `*-g1v4` |
+| `g1-v5` | `g1-v4` command + `--density-prior gen/density_prior_v1.npz` | `g1-v4` with the first V2X background density prior (R5; objects unchanged, background resampled toward the real spatial density) | R5 members `*-g1v5`; realism frames of `routed-g7` |
+| `g1-v5c8`, `g1-v5c4`, `g1-v5ic1-2` | as `g1-v5` with `--stride 5` and candidate priors | evaluation corpora of the R5 prior choice (2,000 frames) | R5 prior selection only |
+
+**Background density prior (R5, 2026-10-14).** V2X never had one (item E8). Attributing the exact EMD of the R3 frames point by point against a real-vs-real baseline put 43% of the excess transport in the ground band: the synthetic frames lack ground mass near the sensor. `gen/density_prior_v1.npz` is the S1 method (`fit_density_prior.py`: 8 x 8 x 2.5 m cells, 400 legal realval-A frames disjoint from the proxies, the uniform `g1-v4` output as the synthetic side). Random 50-frame draws on the fit proxies: R 0.912 -> 0.934 (EMD 1.44 -> 1.19); 4 m cells were equal (0.9335) and a second fitting step did not help (0.932). Selected frames on the held-out proxies 4-5: 0.9336 against 0.9254 for the R3 frames. **On the leaderboard (R5, 990255): R 0.927 -> 0.933**: EMD 1.345 -> 1.182 transferred, but FPD rose 0.733 -> 1.468 (it fell on the local proxies), so the proxies do not hold the hidden reference's mean and covariance.
 
 ## 10. What we measured
 

@@ -4,6 +4,7 @@
     python common/tools/pcdet_train.py model-v2x-track/pointpillars-ut --extra_tag run1
     torchrun --nproc_per_node=4 common/tools/pcdet_train.py model-v2x-track/pointpillars-ut --launcher pytorch --extra_tag run1
     ... --data pcdet/smoke-v2x --epochs 1                 # override the dataset from model.yaml; any train.py flag passes through
+    ... --fix_random_seed --seed 1666                     # another fixed seed (OpenPCDet hard-codes 666; seed runs, R5)
 
 Registers BDCDataset, points OpenPCDet's ROOT_DIR at <model>/train so outputs land in
 <model>/train/output/pcdet_model/<extra_tag>/ (ckpt/, train_*.log, tensorboard/, eval/), injects the
@@ -26,6 +27,13 @@ if __name__ == "__main__":
         i = rest.index("--data")
         data_rel = rest[i + 1]
         rest = rest[:i] + rest[i + 2:]
+    seed = None
+    if "--seed" in rest:
+        i = rest.index("--seed")
+        seed = int(rest[i + 1])
+        rest = rest[:i] + rest[i + 2:]
+        if "--fix_random_seed" not in rest:
+            sys.exit("--seed needs --fix_random_seed")
     data = data_path(track, data_rel)
     if not (data / "custom_infos_train.pkl").exists():
         sys.exit(f"{data} has no infos: run common/tools/pcdet_build_infos.py {model_dir} --data {data_rel}")
@@ -36,6 +44,21 @@ if __name__ == "__main__":
 
     register()
     from pcdet.config import cfg
+
+    if seed is not None:
+        # OpenPCDet's train.py seeds with 666 (+ rank) and its dataloader workers with 666 (+ worker id); shift both
+        from pcdet.utils import common_utils
+
+        base_set, base_worker, shift = common_utils.set_random_seed, common_utils.worker_init_fn, seed - 666
+
+        def set_random_seed(s):
+            base_set(int(s) + shift)
+
+        def worker_init_fn(worker_id, seed=666):          # the dataloader binds seed= by keyword
+            base_worker(worker_id, None if seed is None else int(seed) + shift)
+
+        common_utils.set_random_seed, common_utils.worker_init_fn = set_random_seed, worker_init_fn
+        print(f"pcdet_train: fixed seed {seed} (instead of 666)", flush=True)
 
     cfg.ROOT_DIR = model_dir / "train"
     os.chdir(model_dir / "train")

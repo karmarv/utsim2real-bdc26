@@ -244,7 +244,82 @@ def merge_card(card: dict, preds: dict) -> dict:
             srcs.append(zcalib.apply(pc, {c: cal}) if cal else pc)
         for f in ids:
             out.setdefault(f, []).extend(fuse_dets([s_[f] for s_ in srcs], fz["iou"], fz.get("weights")))
-    return apply_budget(out, card.get("budget"))
+    return apply_tail_copies(apply_budget(out, card.get("budget")), card.get("tail_copies"))
+
+
+def apply_tail_copies(preds: dict, spec: dict | None) -> dict:
+    """R5 walker tail copies (model.yaml `tail_copies: {class: {r: metres, n: copies}}`): every box of the class gets
+    n copies shifted by r in BEV (directions k * 2 pi / n), scored s * f with f = 0.99 * (smallest score of the class
+    in this prediction set) / (largest), so every copy ranks below every original box of its class. The scorer
+    matches in score order inside a frame and pools all frames by score, so the originals keep their matches and
+    their place on the precision-recall curve; a copy can only match a GT box that no original matched at IoU 0.5.
+    Adding boxes below all existing scores cannot lower an interpolated AP (R40 takes the maximum precision at
+    recall >= r), so the knob can only help the class on any frame set; it is still gated like any other."""
+    if not spec:
+        return preds
+    out = {f: list(v) for f, v in preds.items()}
+    for c, sp in spec.items():
+        s = [d["score"] for v in preds.values() for d in v if d["class"] == c]
+        if not s or max(s) <= 0:
+            continue
+        f = 0.99 * min(s) / max(s)
+        r, n = float(sp["r"]), int(sp.get("n", 4))
+        offs = [(r * np.cos(2 * np.pi * k / n), r * np.sin(2 * np.pi * k / n)) for k in range(n)]
+        for fid, v in preds.items():
+            for d in v:
+                if d["class"] != c:
+                    continue
+                for dx, dy in offs:
+                    b = list(d["box"])
+                    b[0] += dx
+                    b[1] += dy
+                    out[fid].append({"box": b, "score": d["score"] * f, "class": c})
+    return out
+
+
+def tail_select(model_dir: Path, card: dict, track, classes, radii=(0.1, 0.15, 0.2), n_copies: int = 4,
+                n_boot: int = 200, seed: int = 0) -> dict:
+    """R5: per walker class, the copy radius with the best realval-A AP; kept only through the class gate on B and the
+    pooled A+B condition against the same predictions without copies. Writes model.yaml `tail_copies`."""
+    root = data_path(track, card["data"]["realval"])
+    base_card = {**card, "tail_copies": None}
+    merged, gts = {}, {}
+    for split in ("val", "valB"):
+        gts[split] = sc.load_split(root, split)
+        merged[split] = merge_card(base_card, {n: json.loads(validation_predictions(
+            model_dir.parent / card["members"][n]["model"], card, split, tag=member_tag(card["members"][n])).read_text())
+            for n in used_members(card)})
+    spec, report = {}, {}
+    for c in classes:
+        fl0 = {s_: sc.frame_flags({i: merged[s_].get(i, []) for i in gts[s_]}, gts[s_], [c])[c] for s_ in gts}
+        if sc.ap_from_flags(fl0["valB"], "3d@0.5") is None:
+            continue
+        rows, cand = [], {}
+        for r in radii:
+            cp = {s_: apply_tail_copies(merged[s_], {c: {"r": r, "n": n_copies}}) for s_ in gts}
+            fl = {s_: sc.frame_flags({i: cp[s_].get(i, []) for i in gts[s_]}, gts[s_], [c])[c] for s_ in gts}
+            cand[r] = fl
+            rows.append({"r": r, "A": sc.ap_from_flags(fl["val"], "3d@0.5"), "B": sc.ap_from_flags(fl["valB"], "3d@0.5")})
+        best = max(rows, key=lambda x: x["A"])
+        fl = cand[best["r"]]
+        boot = sc.paired_bootstrap({c: fl0["valB"]}, {c: fl["valB"]}, [c], n_boot, seed)[c]
+        dA = best["A"] - sc.ap_from_flags(fl0["val"], "3d@0.5")
+        pg = sc.pooled_gate(fl0, fl, c, n_boot, seed)
+        # copies cannot lower AP on any frame set (apply_tail_copies), so the 0.01 noise bar of the class gate, which
+        # guards changes that can go either way, is waived; a gain on B and on the pooled frames (P >= 0.9) is still
+        # required (R5; decided after the first V2X run measured dB +0.0098, recorded in docs/02-STRATEGY.md 8.9)
+        ok = sc.class_gate(boot["delta"], boot["p_gain"], dA, min_gain=1e-9) and pg["ok"]
+        report[c] = {"base": {"A": sc.ap_from_flags(fl0["val"], "3d@0.5"), "B": sc.ap_from_flags(fl0["valB"], "3d@0.5")},
+                     "grid": rows, "chosen_r": best["r"], "dB": boot["delta"], "p_gain": boot["p_gain"], "dA": dA,
+                     "pooled": {"delta": pg["delta"], "p_gain": pg["p_gain"]}, "kept": ok}
+        print(c, json.dumps(report[c]), flush=True)
+        if ok:
+            spec[c] = {"r": best["r"], "n": n_copies}
+    card["tail_copies"] = spec or None
+    (model_dir / "model.yaml").write_text(yaml.safe_dump({k: v for k, v in card.items() if v is not None or k != "tail_copies"},
+                                                         sort_keys=False))
+    (model_dir / "validation" / "results" / "tail_table.json").write_text(json.dumps(report, indent=2))
+    return spec
 
 
 def apply_budget(preds: dict, budget: dict | None) -> dict:
@@ -315,11 +390,15 @@ def _fuse_eval(job):
         gts = _FUSE["gts"][split]
         F = {f: fuse_dets([p_[f] for p_ in P], thr) for f in gts}
         out[split] = evalap.evaluate(F, gts, [c])["per_class"][c]["3d@0.5"]["AP_R40"]
+        if split == "val" and _FUSE.get("late"):          # R5 late-A rank (the late realval-A frames only)
+            lg = {f: gts[f] for f in _FUSE["late"] if f in gts}
+            out["lateA"] = evalap.evaluate({f: F[f] for f in lg}, lg, [c])["per_class"][c]["3d@0.5"]["AP_R40"]
     return job, out
 
 
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
-                top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False) -> dict:
+                top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False,
+                late_rank=(), gate_top: int = 1) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
     (joint realval-A/B AP after their gated z calibration, from route_table.json of `select --calibrated`) with equal
     weights at each IoU of iou_grid; the best joint candidate replaces the routed member only through the class gate
@@ -329,7 +408,11 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     Cumulative strategies: a class that already has a `fusion` in model.yaml keeps it as the incumbent (its set is
     always a candidate, with its stored calibrations), so a new member can replace an earlier fusion only through the
     class gate against that fusion, never against the single routed member. pooled=True (R3 on): a fusion also
-    needs a gain on the pooled A+B frames (scorecard.pooled_gate)."""
+    needs a gain on the pooled A+B frames (scorecard.pooled_gate).
+    late_rank (R5, pre-registered for LUMPI Person): those classes rank their candidates by late-A AP (track.yaml
+    `late_a`) instead of the joint A/B mean, and the top `gate_top` candidates go through the same gates in that order;
+    the first that passes is kept. Reason: the early realval-A Person labels are almost all manually corrected (0.97-0.99)
+    with 24-34 persons per frame, the late ones 0.69 corrected with 10.8 per frame, like the test window's 10.2."""
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -363,11 +446,13 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
             jobs.append((c, tuple(fz["members"]), fz["iou"]))
     _FUSE.clear()
     _FUSE["gts"] = gts
+    late_rank = [c for c in (late_rank or ()) if c in classes]
     results = {}
     for c in classes:                                   # one pool per class: the workers see that class's predictions
         need = set(ranked[c]) | set(prior.get(c, {}).get("members", []))
         _FUSE["preds"] = {(n, split): class_preds(n, split, c) for n in need for split in ("val", "valB")}
         cj = [j for j in jobs if j[0] == c]
+        _FUSE["late"] = sc.late_a_ids(track, list(gts["val"])) if c in late_rank else None
         with ProcessPoolExecutor(max_workers=min(workers, len(cj)), mp_context=mp.get_context("fork")) as ex:
             for job, out in ex.map(_fuse_eval, cj):
                 results[job] = out
@@ -377,8 +462,10 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         cand = {j: r for j, r in results.items() if j[0] == c}
         if not cand:
             continue
-        best = max(cand, key=lambda j: (cand[j]["val"] + cand[j]["valB"]) / 2)
-        _, pair, thr = best
+        if c in late_rank:
+            order = sorted(cand, key=lambda j: -(cand[j].get("lateA") or 0.0))[:max(1, gate_top)]
+        else:
+            order = [max(cand, key=lambda j: (cand[j]["val"] + cand[j]["valB"]) / 2)]
         mem = table[c]["members"]
         pz = prior.get(c)
         if pz:                                          # incumbent: the earlier fusion, with its stored calibrations
@@ -388,15 +475,23 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         else:
             inc = card["route"][c]
             I = {s_: class_preds(inc, s_, c) for s_ in ("val", "valB")}
-        F = {s_: {f: fuse_dets([class_preds(n, s_, c)[f] for n in pair], thr) for f in gts[s_]} for s_ in ("val", "valB")}
-        fl = {(k, s_): sc.frame_flags(X[s_], gts[s_], [c]) for k, X in (("fused", F), ("inc", I)) for s_ in ("val", "valB")}
-        boot = sc.paired_bootstrap(fl[("inc", "valB")], fl[("fused", "valB")], [c], n_boot, seed)[c]
-        dA = sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5") - sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5")
-        same = bool(pz) and tuple(pz["members"]) == tuple(pair) and pz["iou"] == thr
-        ok = not same and boot["p_gain"] is not None and sc.class_gate(boot["delta"], boot["p_gain"], dA)
-        pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")},
-                            {s_: fl[("fused", s_)][c] for s_ in ("val", "valB")}, c, n_boot, seed) if pooled else None
-        ok_b, ok = ok, ok and (pg is None or pg["ok"])
+        tested = []
+        for best in order:
+            _, pair, thr = best
+            F = {s_: {f: fuse_dets([class_preds(n, s_, c)[f] for n in pair], thr) for f in gts[s_]} for s_ in ("val", "valB")}
+            fl = {(k, s_): sc.frame_flags(X[s_], gts[s_], [c]) for k, X in (("fused", F), ("inc", I)) for s_ in ("val", "valB")}
+            boot = sc.paired_bootstrap(fl[("inc", "valB")], fl[("fused", "valB")], [c], n_boot, seed)[c]
+            dA = sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5") - sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5")
+            same = bool(pz) and tuple(pz["members"]) == tuple(pair) and pz["iou"] == thr
+            ok = not same and boot["p_gain"] is not None and sc.class_gate(boot["delta"], boot["p_gain"], dA)
+            pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")},
+                                {s_: fl[("fused", s_)][c] for s_ in ("val", "valB")}, c, n_boot, seed) if pooled else None
+            ok_b, ok = ok, ok and (pg is None or pg["ok"])
+            tested.append({"members": list(pair), "iou": thr, "lateA": cand[best].get("lateA"), "dB": boot["delta"],
+                           "p_gain": boot["p_gain"], "dA": dA, "pooled": pg and {"delta": pg["delta"], "p_gain": pg["p_gain"]},
+                           "passed": ok})
+            if ok or same:
+                break
         report[c] = {"incumbent": inc, "incumbent_A": sc.ap_from_flags(fl[("inc", "val")][c], "3d@0.5"),
                      "incumbent_B": sc.ap_from_flags(fl[("inc", "valB")][c], "3d@0.5"),
                      "best": {"members": list(pair), "iou": thr, "A": sc.ap_from_flags(fl[("fused", "val")][c], "3d@0.5"),
@@ -406,7 +501,9 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
                      "decision": ("fused (class gate passed)" if ok else "incumbent fusion kept (it is the best candidate)" if same
                                   else "kept (pooled A+B condition failed)" if ok_b
                                   else "incumbent fusion kept (class gate failed)" if pz else "routed member kept (class gate failed)"),
-                     "search_fast_iou": {f"{'+'.join(j[1])}@{j[2]}": r for j, r in cand.items()}}
+                     "search_fast_iou": {f"{'+'.join(j[1])}@{j[2]}": r for j, r in cand.items()},
+                     "rank": "late-A, top %d through the gates" % max(1, gate_top) if c in late_rank else "joint A/B, best only",
+                     "tested": tested}
         a_best = max(cand, key=lambda j: cand[j]["val"])      # selection-bias check: the pick of realval-A alone
         report[c]["a_only_pick"] = {"members": list(a_best[1]), "iou": a_best[2], "A": cand[a_best]["val"], "B": cand[a_best]["valB"]}
         if ok:
@@ -481,7 +578,7 @@ def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002) -
 
 def _class_config(card: dict, c: str) -> tuple:
     return (card.get("route", {}).get(c), (card.get("calibration") or {}).get(c), (card.get("fusion") or {}).get(c),
-            (card.get("budget") or {}).get(c))
+            (card.get("budget") or {}).get(c), (card.get("tail_copies") or {}).get(c))
 
 
 def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int) -> dict:
@@ -512,20 +609,21 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
             dA = ap[("new", "val")] - ap[("inc", "val")]
             pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")}, {s_: fl[("new", s_)][c] for s_ in ("val", "valB")},
                                 c, n_boot, seed)
-            gate_b = sc.class_gate(boot["delta"], boot["p_gain"], dA)
+            only_tail = _class_config(card, c)[:4] == _class_config(vs_card, c)[:4]   # R5: copies are the only change
+            gate_b = sc.class_gate(boot["delta"], boot["p_gain"], dA, min_gain=1e-9 if only_tail else 0.01)
             ok = gate_b and pg["ok"]
             row = {"A": [ap[("inc", "val")], ap[("new", "val")]], "B": [ap[("inc", "valB")], ap[("new", "valB")]],
                    "dB": boot["delta"], "p_gain": boot["p_gain"], "dA": dA, "pooled": {"delta": pg["delta"], "p_gain": pg["p_gain"]},
                    "decision": "kept (class gate and pooled condition passed)" if ok else
                    ("reverted (pooled A+B condition failed)" if gate_b else "reverted (class gate failed)")}
         if not ok:
-            route, cal, fus, bud = _class_config(vs_card, c)
+            route, cal, fus, bud, tail = _class_config(vs_card, c)
             need = set(fus["members"]) if fus else {route}
             missing = [n for n in need if n not in card["members"] or card["members"][n] != vs_card["members"][n]]
             if missing:
                 raise SystemExit(f"{c}: incumbent members {missing} are not the same in {model_dir.name}")
             card["route"][c] = route
-            for key, val in (("calibration", cal), ("fusion", fus), ("budget", bud)):
+            for key, val in (("calibration", cal), ("fusion", fus), ("budget", bud), ("tail_copies", tail)):
                 d = card.get(key) or {}
                 if val is None:
                     d.pop(c, None)
@@ -545,7 +643,7 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "gate"])
+    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "tail", "gate"])
     ap.add_argument("model_dir")
     ap.add_argument("--pred", action="append", default=[], help="member=predictions.json (merge)")
     ap.add_argument("--out", default=None)
@@ -556,6 +654,8 @@ def main():
     ap.add_argument("--classes", nargs="*", default=None, help="calibrate: classes to try (default: all with test GT)")
     ap.add_argument("--calibrated", action="store_true", help="select --rule joint: compare members with their gated z calibration")
     ap.add_argument("--max-members", type=int, default=2, help="fuse: largest member set (2: pairs, as in S3; 3: also triples)")
+    ap.add_argument("--late-rank", nargs="*", default=[], help="fuse (R5): classes ranked by late-A AP (LUMPI Person)")
+    ap.add_argument("--gate-top", type=int, default=1, help="fuse (R5): candidates of a --late-rank class tested through the gates")
     ap.add_argument("--vs", default=None, help="gate: the confirmed portfolio to compare the final predictions with")
     ap.add_argument("--pooled", action="store_true", help="select/fuse/calibrate: the class gate also needs a gain on the pooled "
                                                           "A+B frames with P(gain) >= 0.9 (docs/decisions/README.md Section 3.2, R3 on)")
@@ -601,6 +701,12 @@ def main():
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion + budget")
         return
+    if a.mode == "tail":
+        walkers = [c for c in track["classes_with_test_gt"] if c.lower() in ("person", "pedestrian")]
+        tail_select(model_dir, card, track, a.classes or walkers, n_boot=a.bootstrap, seed=a.seed)
+        _, card, _ = model_info(model_dir)
+        validate(model_dir, card, track, registry_run="routed + fusion + budget + tail copies")
+        return
     if a.mode == "gate":
         if not a.vs:
             raise SystemExit("gate needs --vs <confirmed routed model>")
@@ -610,7 +716,8 @@ def main():
             validate(model_dir, card, track, registry_run="routed + fusion + budget + final gate")
         return
     if a.mode == "fuse":
-        fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members, pooled=a.pooled)
+        fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members, pooled=a.pooled,
+                    late_rank=a.late_rank, gate_top=a.gate_top)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion")
         return

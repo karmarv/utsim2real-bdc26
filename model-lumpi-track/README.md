@@ -6,15 +6,15 @@
 
 | | |
 |---|---|
-| Selected model | [`routed-g6`](routed-g6) (R3, the entry): the S4 portfolio with Bicycle, Bus and Truck fused from S5 and R3 members trained on the engine G2-lite corpus `g1-v4`, realism frames from `g1-v4` (Section 7.9); before: [`routed-g4`](routed-g4) (S4); S1 baseline [`routed-g1`](routed-g1) |
-| Real validation (official metric, tuned) | **realval-A mAP 0.367**, realval-B 0.221, late-A 0.341 (R3); S4 0.313 / 0.188; S1 0.260 / 0.166 (Section 7) |
+| Selected model | [`routed-g7`](routed-g7) (R5, the entry): the R3 portfolio with Person fused from the R3 pillars and a seed of the R3 Voxel R-CNN (late-A rule), realism frames from `g1-v4` (Section 7.10); before: [`routed-g6`](routed-g6) (R3) |
+| Real validation (official metric, tuned) | **realval-A mAP 0.377**, realval-B 0.223, late-A 0.351 (R5); R3 0.367 / 0.221; S4 0.313 / 0.188; S1 0.260 / 0.166 (Section 7) |
 | Realism of the submitted frames | **R = 0.932 on the server** (R3 frames from `g1-v4`, engine G2-lite; 0.934 on held-out legal proxies); S1-S5 frames 0.891 (0.906 locally); raw UT frames 0.59 |
-| Local combined estimate | 0.563 (B) for R3; leaderboard 0.5169 (Section 9); ECCV winner 0.479 |
-| Competition | **rank 1 of 21** (R3, 0.5169); second Raj Patil 0.4914 (980383, Oct 12) with mAP 0.1337 and realism R about 0.942 (ours 0.932) |
-| CodaBench | **986489 (R3): combined 0.5169** (mAP 0.1680, R 0.9323), rank 1 of 21 on 2026-10-14; before: 975871 (S4, 0.5040), 978931 (S5, 0.5039, not listed), 974348 (S3, 0.5015 by its log), 965614 (S1, 0.4728) (Section 9; root README Section 9) |
-| Submitted zip | current entry R3: [`routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (tag 5.1); S5 (not listed): [`lumpi_s5_submission.zip`](routed-g5/submissions/2026-10-11_s5/lumpi_s5_submission.zip) (tag 5.0); S4: [`lumpi_s4_submission.zip`](routed-g4/submissions/2026-10-10_s4/lumpi_s4_submission.zip) (tag 4.0); S3: [`lumpi_s3_submission.zip`](routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip) (tag 3.0); S1: [`submission_lumpi.zip`](routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (tag 1.0; uploaded as `submission_lumpi_karmarv.zip`, release 0.1) |
-| Submit | `bash model-lumpi-track/routed-g6/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
-| Strategy | S1, S3, S4, S5 and **R3 submitted**; **R3 is the entry** (Section 7.9: confirmed through realism, mAP -0.004 from Bicycle); S2 done, below the upload gate (Section 7.5); S5 not confirmed (Section 7.8); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8 |
+| Local combined estimate | 0.565 (B) for R5; leaderboard 0.5198 (Section 9); ECCV winner 0.479 |
+| Competition | **rank 1 of 21** (R5, 0.5198); second Raj Patil 0.4914 (980383, Oct 12) with mAP 0.1337 and realism R about 0.942 (ours 0.932) |
+| CodaBench | **990245 (R5): combined 0.5198** (mAP 0.1714, R 0.9323), rank 1 of 21 on 2026-10-15; before: 986489 (R3, 0.5169), 975871 (S4, 0.5040), 978931 (S5, 0.5039, not listed), 974348 (S3, 0.5015 by its log), 965614 (S1, 0.4728) (Section 9; root README Section 9) |
+| Submitted zip | current entry R5: [`routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (tag 5.2); R3: [`lumpi_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (tag 5.1) |
+| Submit | `bash model-lumpi-track/routed-g7/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
+| Strategy | S1, S3, S4, S5, R3 and **R5 submitted**; **R5 is the entry** (Section 7.10: Person 0.157 -> 0.180 on the leaderboard); S2 done, below the upload gate (Section 7.5); S5 not confirmed (Section 7.8); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8 |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
 ## 1. Folder conventions
@@ -306,6 +306,20 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 - **Upload gate:** combined estimate (B) 0.541 -> **0.563** (bar 0.546), late-A 0.304 -> 0.341; kit scorer 180 s with 16,262 boxes. **Passed.** Projection: combined 0.526-0.538 against the 0.5040 entry (with and without the S1 realism offset).
 - **Leaderboard (986489, 2026-10-14):** combined **0.5169**, rank 1 of 21; confirmation passed (+0.0129) **through realism** (R 0.891 -> **0.932**: EMD 1.647 -> 1.302, FPD 5.10 -> 0.52; the local-to-server gap shrank from 0.015 to 0.002), while the mAP fell 0.1721 -> 0.1680: Truck 0.033 -> 0.058, Bus 0.000 -> 0.003, **Bicycle 0.244 -> 0.188** (the other four classes identical). Diagnosis ([`docs/02` 8.7.2](../docs/02-STRATEGY.md#872-r3-results-2026-10-11-to-2026-10-13)): outside the test-size sampling range; 3.68 confident Bicycle boxes per test frame (S4 3.16) against about 1.6 real ones; no motorcycle confusion. LUMPI Bicycle has now failed to transfer twice (S5, R3) and is a known exception to the local gates.
 
+### 7.10 R5 results: seeds, refined density prior, late-A Person rule (2026-10-14)
+
+Full tables: [`docs/02-STRATEGY.md` Section 8.9.1](../docs/02-STRATEGY.md#891-r5-results-2026-10-14); record [`2026-10-14-r5-realism-led.md`](../docs/decisions/2026-10-14-r5-realism-led.md).
+
+| Item | realval-A / realval-B |
+|---|---|
+| `voxelrcnn-ros-g1v4-s2` (seed 1666, with the size cap), TTA | 0.336 / 0.188 (R3 member 0.343 / 0.178); Person B 0.104 -> 0.137 |
+| `pvrcnnpp-ros-g1v4-s2` (seed 1666), TTA | 0.343 / 0.196 (0.342 / 0.191); Person B 0.101 -> 0.124 |
+| `routed-g7` Person (late-A rule: `pp4_tta` + `vrros4s2_tta`, IoU 0.5) | 0.396 / 0.145 -> **0.465 / 0.160**, pooled +0.053 |
+| `routed-g7` Car (new triple) | passed `fuse` (+0.011 on B), reverted by the final gate (pooled -0.0003) |
+| `routed-g7` mAP (late-A) | 0.367 / 0.221 (0.341) -> **0.377 / 0.223 (0.351)**; estimate 0.563 -> 0.565, below the upload bar 0.568 |
+| Realism | prior v2 (v1 refined once on the G2-lite output) lifts random frames, but the selected `g1-v5` frames gain only +0.0028 on the held-out proxies: R3 frames kept, no `g1-v5` retrain |
+| **Leaderboard (2026-10-15)** | 990245: **0.5198** (mAP 0.1714): **Person 0.157 -> 0.180** (1.6 x the B gain), every other class and the realism identical; rank 1 of 21 |
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -322,7 +336,9 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 | E11 | Two-stage refinement (Voxel R-CNN, PV-RCNN++) | done (S4): Bicycle B 0.173 -> 0.202; Person and Truck unchanged; below the upload gate (Section 7.7) |
 | E12 | GBlobs inputs and class-wise object scaling | done (S5): object scaling helps every anchor-free and two-stage member; GBlobs only inside fusions (Section 7.8) |
 | E10 | Static clutter and G2 for realism and hard negatives | done (R3): realism 0.905 -> 0.934; static Person false positives halved in every two-stage member; Bicycle, Bus, Truck up in the portfolio (Section 7.9) |
-| E13 | Long tall static negatives (walls, hedges, tree rows) | candidate (`g1-v5`): long false trucks at a tall real structure around (18, -28) (Section 7.9) |
+| E13 | Long tall static negatives (walls, hedges, tree rows) | not built (R5): the residual realism EMD is background (44% ground, 11% above 3 m), so the R5 lever was the density prior (E14); the long false trucks at the tall real structure remain open |
+| E14 | Residual realism after R3 | done (R5): the EMD excess is background (44% ground, 11% above 3 m), not tall structure; refined density prior v2: realism gate missed by 0.0002 (Section 7.10) |
+| E15 | Seeds of the two-stage members | done (R5): Person B +0.02-0.03 per seed member; the late-A Person rule moved Person for the first time since S3 (Section 7.10) |
 
 ## 9. Submission log
 
@@ -334,12 +350,15 @@ Official metric, realval-A / realval-B, TTA members. Review, plan, results and l
 | 2026-10-10 | `routed-g4` / `s4` (strategy S4), uploaded unchanged as `lumpi_s4_submission.zip` (below the upload gate, the entrant's call) | 975871 | 0.313 / 0.188 | 0.905 | **0.1721** | **0.8912** | **0.5040** | strategy S4; **rank 1 of 18** (next 0.4784); kit scorer 182 s, 17,004 boxes; server record [`codabench_975871.json`](routed-g4/submissions/2026-10-10_s4/codabench_975871.json); [decision record](../docs/decisions/2026-10-10-s4-two-stage.md) |
 | 2026-10-11 | `routed-g5` / `s5` (strategy S5), uploaded unchanged as `lumpi_s5_submission.zip` | 978931 | 0.350 / 0.209 | 0.905 | 0.1720 | 0.8912 | 0.5039 | strategy S5; 0.00007 below the S4 entry, not listed; **confirmation failed**, diagnosed; kit scorer 146 s, 13,831 boxes; server record [`codabench_978931.json`](routed-g5/submissions/2026-10-11_s5/codabench_978931.json); [decision record](../docs/decisions/2026-10-11-s5-object-scaling.md) |
 | 2026-10-13 | `routed-g6` / `r3` (strategy R3), uploaded unchanged as `lumpi_r3_submission.zip` | 986489 | 0.367 / 0.221 | 0.934 | 0.1680 | **0.9323** | **0.5169** | strategy R3; **rank 1 of 21** (next 0.4914); confirmed through realism (mAP -0.004: Bicycle -0.056, diagnosed); kit scorer 180 s, 16,262 boxes; server record [`codabench_986489.json`](routed-g6/submissions/2026-10-12_r3/codabench_986489.json); [decision record](../docs/decisions/2026-10-12-r3-g2-lite.md) |
+| 2026-10-15 | `routed-g7` / `r5` (strategy R5), uploaded unchanged as `lumpi_r5_submission.zip` (below the upload gate, the entrant's call) | 990245 | 0.377 / 0.223 | 0.934 | **0.1714** | 0.9323 | **0.5198** | strategy R5; **rank 1 of 21** (next 0.4914); confirmed (+0.0029: Person 0.157 -> 0.180, every other class and the realism identical); kit scorer 157 s, 15,009 boxes; server record [`codabench_990245.json`](routed-g7/submissions/2026-10-14_r5/codabench_990245.json); [decision record](../docs/decisions/2026-10-14-r5-realism-led.md) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | Person | Car | Bicycle | Motorcycle | Bus | Truck | Van |
 |---|---|---|---|---|---|---|---|---|
-| **R3 leaderboard (986489, the entry)** | **0.1680** | 0.157 | 0.652 | 0.188 | 0.001 | 0.003 | 0.058 | 0.117 |
+| **R5 leaderboard (990245, the entry)** | **0.1714** | 0.180 | 0.652 | 0.188 | 0.001 | 0.003 | 0.058 | 0.117 |
+| R5 realval-A / realval-B | 0.377 / 0.223 | 0.465 / 0.160 | 0.898 / 0.792 | 0.600 / 0.264 | 0.008 / 0.013 | 0.079 / 0.134 | 0.466 / 0.200 | 0.120 / 0.001 |
+| R3 leaderboard (986489) | **0.1680** | 0.157 | 0.652 | 0.188 | 0.001 | 0.003 | 0.058 | 0.117 |
 | R3 realval-A / realval-B | 0.367 / 0.221 | 0.396 / 0.145 | 0.898 / 0.792 | 0.600 / 0.264 | 0.008 / 0.013 | 0.079 / 0.134 | 0.466 / 0.200 | 0.120 / 0.001 |
 | S5 leaderboard (978931, not listed) | 0.1720 | 0.157 | 0.642 | 0.215 | 0.001 | 0.001 | 0.072 | 0.117 |
 | S5 realval-A / realval-B | 0.350 / 0.209 | 0.396 / 0.145 | 0.909 / 0.806 | 0.565 / 0.225 | 0.008 / 0.013 | 0.016 / 0.075 | 0.433 / 0.200 | 0.120 / 0.001 |
@@ -358,7 +377,9 @@ Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (lo
 
 ### 9.2 Artifacts
 
-R3 (986489, the entry): model [`routed-g6`](routed-g6) ([`model.yaml`](routed-g6/model.yaml)); the upload copy [`lumpi_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (md5 `8dbce7a9356ae490c5b948218588f86b`, in its [`manifest.json`](routed-g6/submissions/2026-10-12_r3/manifest.json)); server record [`codabench_986489.json`](routed-g6/submissions/2026-10-12_r3/codabench_986489.json); realism frames from `pcdet/g1-v4` ([`synthetic_ids.txt`](routed-g6/submissions/2026-10-12_r3/synthetic_ids.txt)).
+R5 (990245, the entry): model [`routed-g7`](routed-g7) ([`model.yaml`](routed-g7/model.yaml)); the upload copy [`lumpi_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (md5 `ae3612bfa0607f3f0773702acd985fd0`, in its [`manifest.json`](routed-g7/submissions/2026-10-14_r5/manifest.json)); server record [`codabench_990245.json`](routed-g7/submissions/2026-10-14_r5/codabench_990245.json); realism frames from `pcdet/g1-v4`, the R3 frames.
+
+R3 (986489): model [`routed-g6`](routed-g6) ([`model.yaml`](routed-g6/model.yaml)); the upload copy [`lumpi_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (md5 `8dbce7a9356ae490c5b948218588f86b`, in its [`manifest.json`](routed-g6/submissions/2026-10-12_r3/manifest.json)); server record [`codabench_986489.json`](routed-g6/submissions/2026-10-12_r3/codabench_986489.json); realism frames from `pcdet/g1-v4` ([`synthetic_ids.txt`](routed-g6/submissions/2026-10-12_r3/synthetic_ids.txt)).
 
 S5 (978931, not listed): model [`routed-g5`](routed-g5) ([`model.yaml`](routed-g5/model.yaml)); the upload copy [`lumpi_s5_submission.zip`](routed-g5/submissions/2026-10-11_s5/lumpi_s5_submission.zip) (md5 `9f2c925c3976679b5b2038bfde5f7566`, in its [`manifest.json`](routed-g5/submissions/2026-10-11_s5/manifest.json)); server record [`codabench_978931.json`](routed-g5/submissions/2026-10-11_s5/codabench_978931.json).
 
@@ -380,7 +401,8 @@ S3 (974348): model [`routed-g3`](routed-g3) ([`model.yaml`](routed-g3/model.yaml
 
 | | CD | MMD | EMD | FPD | R |
 |---|---|---|---|---|---|
-| **leaderboard R3 (986489, frames from `g1-v4`)** | 1.594 | 0.00003 | 1.302 | 0.519 | **0.9323** |
+| leaderboard R5 (990245, the R3 frames) | 1.594 | 0.00003 | 1.302 | 0.519 | 0.9323 (identical) |
+| leaderboard R3 (986489, frames from `g1-v4`) | 1.594 | 0.00003 | 1.302 | 0.519 | **0.9323** |
 | local R3, held-out proxy 4 | 1.52 | 0.0000 | 1.282 | 0.29 | 0.9344 |
 | leaderboard (965614 to 978931, identical S1 frames) | 1.690 | 0.00187 | 1.647 | 5.095 | 0.8912 |
 | local, held-out proxy 4 | 1.629 | 0.00117 | 1.530 | 3.447 | 0.9057 |
@@ -400,9 +422,11 @@ Both sides pooled 2,500,000 points before subsampling (50 x 50,000), so the pack
 | Local estimate was optimistic | estimate A / B / leaderboard: 0.585 / 0.505 / 0.473; S3 0.620 / 0.520 / 0.501 | report the realval-B estimate; treat realval-A as an upper bound for levels |
 | S3 gains transferred more than realval-B predicted | mAP +0.034 on the leaderboard vs +0.018 on B (1.89 x), but 0.81 x the realval-A gain (V2X: 0.80 x) | levels follow B, gains follow A: project the leaderboard from the A gain |
 | Bicycle is the first weak class that moved | 0.053 -> 0.224 (B 0.102 -> 0.173, A 0.265 -> 0.444) | CenterPoint plus TTA and fusion fit the bikes of the test window; keep both CenterPoint members |
-| S4 changed only Bicycle, as gated | 0.224 -> 0.244 (A +0.081, B +0.029); the other six classes identical on the leaderboard | the merge changes exactly the gated classes; the gain was 0.25 x A and 0.72 x B (S3: 0.81 x A, 1.89 x B): project with 0.6 x the mean of both || Truck still does not transfer | 0.028 -> 0.033 (B +0.022) | the synthetic trucks stop at 8.47 m (close-out D5): long trucks in the generator (R3) |
+| S4 changed only Bicycle, as gated | 0.224 -> 0.244 (A +0.081, B +0.029); the other six classes identical on the leaderboard | the merge changes exactly the gated classes; the gain was 0.25 x A and 0.72 x B (S3: 0.81 x A, 1.89 x B): project with 0.6 x the mean of both |
+| Truck still does not transfer | 0.028 -> 0.033 (B +0.022) | the synthetic trucks stop at 8.47 m (close-out D5): long trucks in the generator (R3) |
 | R3 realism transferred, its detection did not | R 0.891 -> 0.932 (local +0.028, server +0.041); mAP -0.004: Truck +0.025, Bus +0.003, Bicycle -0.056 (outside the test-size ranges) | generator content closes the hidden-reference gap (0.015 -> 0.002); LUMPI Bicycle changes need a test-window-like proxy before they are trusted |
 | S5 did not transfer on LUMPI | Truck +0.038 but Bicycle -0.030 and Car -0.010, each outside the test-size sampling range (P <= 0.02) | the test window answers the size-augmented Bicycle members with false positives no local split shows; the class gate adds a pooled A+B condition from R3 on |
+| R5 Person transferred at 1.6 x B | Person 0.157 -> 0.180 (B +0.015, A +0.069, late-A +0.069); the first Person change since S3 | the late-A rule (the late Measurement4 labels share the test window's label provenance) picks Person fusions that fit the test window; the seed members of the clutter-trained two-stage models supply them |
 
 ## 10. Local evaluation and packaging
 

@@ -200,6 +200,10 @@ The `g1-v3` recipe plus a pass after the scale fix ([`common/bdc26/render/g2.py`
 | Bicycle / Motorcycle / Person | 0.25 / 0.52 / 0.86 | 0.90 / 1.04 / 0.80 |
 | Realism R of 50 selected val frames, held-out proxies 4 / 5 / late 1-3 | 0.906 / 0.905 / 0.901-0.908 (`g1-v2` frames) | 0.934 / 0.933 / 0.932-0.934 |
 
+### 8.7b Background density prior for G2-lite (R5, 2026-10-14)
+
+The v1 prior was fitted against the G1 output (`g1-v1`). Point-by-point attribution of the exact EMD of the R3 frames against a real-vs-real baseline puts 44% of the excess transport in the ground band and 26% at 0.5-1.5 m (11% above 3 m), so the R5 lever is the prior, not more static structure. A one-step refit against the uniform G2-lite output (`g1-v4u`) was worse (random-draw R on the fit proxies 0.918 -> 0.892): the G2-lite output lies far from real in y (mean -4.2 m against 0.0, sd 16.1 against 18.9), cells that need more mass saturate once all their points are kept, and object points keep their rate, so one step leaves the mean at -1.7 m. Iterative proportional fitting (`fit_density_prior.py --base`) one step from v1 on the `g1-v4` output gives `gen/density_prior_v2.npz`: random draws 0.918 -> 0.929 on the fit proxies, 0.912 -> 0.920 on the held-out ones; further steps and 4 m cells were worse. After frame selection the gain shrinks to +0.0028 on the held-out proxies (0.9360 against 0.9332 for the R3 frames), under the +0.003 rule, so `g1-v5` was not adopted on LUMPI.
+
 ### 8.8 OpenPCDet infos and GT database
 Built automatically by the model's `train/train.sh` (or by hand: `python common/tools/pcdet_build_infos.py model-lumpi-track/<model> --data pcdet/<version>`). Output inside the dataset folder: `custom_infos_{train,val}.pkl`, `custom_dbinfos_train.pkl`, `gt_database/`.
 
@@ -217,6 +221,9 @@ Layout (`common/bdc26/pcdet_export.py`): `points/<id>.npy` (float32 N x 3), `lab
 | `g1-v2` | `prepare_g1.py --name g1-v2 --density-prior gen/density_prior_v1.npz` | `g1-v1` with the calibrated background density | `pointpillars-g1`; realism frames (val split) |
 | `g1-v3` | `prepare_g1.py --name g1-v3 --walker v2 --density-prior gen/density_prior_v1.npz` | `g1-v2` with walker v2 | `pointpillars-g1v3` |
 | `g1-v4` | `prepare_g1.py --name g1-v4 --walker v2 --density-prior gen/density_prior_v1.npz --g2` | `g1-v3` with engine G2-lite (Section 8.7a) | R3 members `*-g1v4` |
+| `g1-v4u` | `prepare_g1.py --name g1-v4u --walker v2 --g2 --stride 10` | the `g1-v4` recipe without a density prior (1,000 frames) | input of the R5 one-step refit |
+| `g1-v5` | `g1-v4` command with `--density-prior gen/density_prior_v2.npz` | `g1-v4` with the refined density prior (R5); objects unchanged | built, **not adopted**: its frames missed the realism gate by 0.0002 (Section 8.7b) |
+| `g1-v5c8`, `g1-v5c4`, `g1-v5ia1-3`, `g1-v5ib1-3` | as `g1-v5` with `--stride 5` and candidate priors | evaluation corpora of the R5 prior choice | R5 prior selection only |
 
 ## 10. What we measured (all on synthetic data, unlabeled frames or legal label statistics)
 

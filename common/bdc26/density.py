@@ -51,16 +51,24 @@ def histogram(frames, edges) -> np.ndarray:
     return h
 
 
-def fit(real_frames, syn_frames, pc_range, cell=(2.0, 2.0, 0.5), alpha=0.5, clip=(0.05, 20.0), meta=None) -> DensityPrior:
+def fit(real_frames, syn_frames, pc_range, cell=(2.0, 2.0, 0.5), alpha=0.5, clip=(0.05, 20.0), meta=None,
+        base: "DensityPrior | None" = None) -> DensityPrior:
+    """ratio = real / synthetic density per cell. With `base`, syn_frames must be the generator's output made WITH
+    that prior, and the result is base.ratio x (real / synthetic): one step of iterative proportional fitting (R5).
+    One step from the uniform output under-corrects when a cell needs more mass than its synthetic points can give
+    (inclusion probabilities saturate at 1, and object points keep their rate): engine G2-lite left the LUMPI
+    mean y at -1.7 m (real 0.0) after one step."""
     x0, y0, z0, x1, y1, z1 = pc_range
     edges = (np.arange(x0, x1 + 1e-6, cell[0]), np.arange(y0, y1 + 1e-6, cell[1]), np.arange(z0, z1 + 1e-6, cell[2]))
+    if base is not None and not all(len(a) == len(b) and np.allclose(a, b) for a, b in zip(edges, base.edges)):
+        raise ValueError("base prior has a different grid")
     hr, hs = histogram(real_frames, edges), histogram(syn_frames, edges)
     K = hr.size
     pr = (hr + alpha) / (hr.sum() + alpha * K)
     ps = (hs + alpha) / (hs.sum() + alpha * K)
-    ratio = np.clip(pr / ps, *clip)
+    ratio = np.clip((base.ratio if base is not None else 1.0) * pr / ps, *clip)
     return DensityPrior(edges, ratio, dict(meta or {}, n_real=len(real_frames), n_syn=len(syn_frames), cell=cell,
-                                           alpha=alpha, clip=clip))
+                                           alpha=alpha, clip=clip, base=None if base is None else base.meta.get("source")))
 
 
 def inclusion_probs(w: np.ndarray, m: int) -> np.ndarray:

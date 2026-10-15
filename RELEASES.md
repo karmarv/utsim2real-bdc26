@@ -2,6 +2,28 @@
 
 Each release tag fixes the code, the documentation and the submission files of the leaderboard entries at that point. The zip of every leaderboard entry is committed next to its manifest, byte for byte the file that was scored (md5 below and in the folder's `manifest.json`): in 1.0 as `submission_<track>.zip`; from S2 on under its upload name `<track>_<strategy>_submission.zip`, written by the packager (the upload copies of leaderboard entries are committed; the ignore rule for upload copies was lifted on 2026-10-10). The full submission register, with the gate result of every version, is [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register).
 
+## 5.2 (pre-release, 2026-10-15)
+
+**Leaderboard** (development phase; public leaderboards checked 2026-10-15): both tracks have a new entry, strategy R5.
+
+| Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | R5 | 990245 | 2026-10-15 13:50 | **0.5198** | 0.1714 | 0.9323 | **1 of 21** | [`lumpi_r5_submission.zip`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (`ae3612bfa0607f3f0773702acd985fd0`) | [r5 realism-led](docs/decisions/2026-10-14-r5-realism-led.md) |
+| 2 V2X-Real (16685) | R5 | 990255 | 2026-10-15 13:53 | **0.8852** | 0.5972 | **0.9332** | **1 of 20** | [`v2x_r5_submission.zip`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (`0d339f79a21059a8c97211d4d7c15533`) | same |
+
+Server records: [`codabench_990245.json`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/codabench_990245.json), [`codabench_990255.json`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/codabench_990255.json). LUMPI against R3: Person 0.157 -> 0.180, every other class and the realism identical (uploaded below the upload gate by the entrant's call). V2X against R3: pedestrian +0.011 (walker tail copies), vehicle +0.002, realism +0.0065 (EMD 1.345 -> 1.182, FPD 0.733 -> 1.468).
+
+**Fallback for the first final-phase submission:** the R3 zips of release 5.1, re-verified on 2026-10-14 (re-merged from the saved member predictions with the committed `routed-g6/model.yaml` and repackaged: `predictions.json` and all 50 frames byte-identical on both tracks; only the declaration date differs).
+
+**What 5.2 contains**
+- Rules: [`docs/decisions/2026-10-14-rules-compliance-review.md`](docs/decisions/2026-10-14-rules-compliance-review.md) (every method against the Rules, Terms and declaration as published on 2026-10-14) and the updated operating interpretation in `docs/01-CHALLENGE-FACTS.md` Section 3.1.
+- Strategy R5 ([`docs/02-STRATEGY.md` Sections 8.9 and 8.9.1](docs/02-STRATEGY.md#89-r5-realism-led-refinement-after-r3-review-and-plan-2026-10-14)): iterative density-prior fitting (`fit_density_prior.py --base`, `density.fit(base=...)`); EMD-targeted frame selection (`select_realism_frames.py --objective fpd+emd`); walker tail copies (`route_predictions.py tail`, `apply_tail_copies`; the final gate treats them as class configuration); the late-A rank for LUMPI Person (`fuse --late-rank Person --gate-top 3`); seeded training (`pcdet_train.py --seed`).
+- Data: V2X `gen/density_prior_v1.npz` and corpus `g1-v5`; LUMPI `gen/density_prior_v2.npz` and corpus `g1-v5` (built, not adopted).
+- Members: `voxelrcnn-ros-g1v4-s2`, `pvrcnnpp-ros-g1v4-s2` on both tracks; V2X `pointpillars-g1v5`, `voxelrcnn-ros-g1v5`, `pvrcnnpp-ros-g1v5`; models `routed-g7`.
+- Findings: residual realism is background (EMD attributed point by point), a density prior must be fitted to the generator it corrects (iteratively when cells saturate), seed variance is as large as many strategy steps, walker tail copies transfer as constructed (V2X pedestrian 1.07 x), the late-A Person rule transferred at 1.6 x, the V2X vehicle fusion of new members at 0.2 x, and V2X realism at 0.58 x (EMD transferred, FPD rose on the server); a test-window-like proxy (class-count reweighting) fails its backtest; LUMPI Measurement4 Person labels drift from manual to automatic boxes toward the test window.
+- Files: `lumpi_r5_submission.zip` and `v2x_r5_submission.zip` (the scored upload copies) with `manifest.json`, `synthetic_ids.txt` and `codabench_<id>.json` under `model-<track>/routed-g7/submissions/2026-10-14_r5/`.
+- Tests: 74 (`python -m pytest -q common/tests`).
+
 ## 5.1 (pre-release, 2026-10-13)
 
 **Leaderboard** (development phase; public leaderboards checked 2026-10-14): both tracks have a new entry, strategy R3.

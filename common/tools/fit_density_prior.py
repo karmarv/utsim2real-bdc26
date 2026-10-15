@@ -30,6 +30,8 @@ def main():
                     help="cell size in metres (LUMPI sweep on legal proxies: 8 x 8 x 2.5 best among cells dividing the range)")
     ap.add_argument("--alpha", type=float, default=0.1)
     ap.add_argument("--clip", type=float, nargs=2, default=[0.01, 100.0])
+    ap.add_argument("--base", default=None,
+                    help="iterative refinement (R5): a prior relative to $BDC_DATA/<track>; --syn must be built WITH it")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     t = load_track(a.track)
@@ -50,8 +52,10 @@ def main():
     sids = sids[:: max(1, len(sids) // a.n_syn)][: a.n_syn]
     real = [np.load(rroot / "points" / f"{i}.npy") for i in rids]
     syn = [np.load(sroot / "points" / f"{i}.npy") for i in sids]
+    base = density.DensityPrior.load(t.root / a.base) if a.base else None
     prior = density.fit(real, syn, t.pc_range, cell=tuple(a.cell), alpha=a.alpha, clip=tuple(a.clip),
-                        meta={"real": f"{a.real}:{a.real_split} minus realism proxies", "syn": f"{a.syn}:{a.syn_split}"})
+                        meta={"real": f"{a.real}:{a.real_split} minus realism proxies", "syn": f"{a.syn}:{a.syn_split}"},
+                        base=base)
     out = t.root / a.out
     prior.save(out)
     r = prior.ratio

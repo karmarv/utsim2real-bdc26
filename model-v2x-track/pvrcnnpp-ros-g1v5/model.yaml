@@ -1,0 +1,21 @@
+name: pvrcnnpp-ros-g1v5
+strategy: R5
+track: v2x-track
+module: M9 (engine G2-lite)
+derived_from: pvrcnnpp-ros-g1v4
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++ (as pvrcnnpp-ros-g1v3) with ROS (truck length range removed)
+data:
+  train: pcdet/g1-v5
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v5
+postprocess: test/postprocess.yaml
+status: 'R5: trained 40 epochs on g1-v5, tuned plain and TTA (TTA 0.684 / 0.669)'
+expected: equal to pvrcnnpp-ros-g1v4 on objects (same objects; only background sampling
+  changed); a fusion member trained on the generator of the submitted frames
+notes: 'R5 (docs/02-STRATEGY.md Section 8.9): the pvrcnnpp-ros-g1v4 config on pcdet/g1-v5
+  = the g1-v4 recipe with the background density prior gen/density_prior_v1.npz (first
+  V2X background density prior). Object points keep their sampling rate, so the change
+  is in the background only.
+
+  '

@@ -1,0 +1,20 @@
+name: pvrcnnpp-ros-g1v4-s2
+strategy: R5
+track: v2x-track
+module: M9 (engine G2-lite)
+derived_from: pvrcnnpp-ros-g1v4
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++ (as pvrcnnpp-ros-g1v3) with ROS (truck length range removed)
+data:
+  train: pcdet/g1-v4
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: 'R5: trained 40 epochs (seed 1666), tuned plain and TTA (TTA 0.671 / 0.671);
+  in routed-g7 vehicle fusion'
+expected: 'a second seed of pvrcnnpp-ros-g1v4 (same corpus and config, seed 1666 instead
+  of 666): fusion diversity and variance reduction'
+notes: 'R5 (docs/02-STRATEGY.md Section 8.9): pvrcnnpp-ros-g1v4 retrained with --fix_random_seed
+  --seed 1666; otherwise identical config and corpus pcdet/g1-v4.
+
+  '
