@@ -1,0 +1,94 @@
+{
+  "model": "routed-g8b",
+  "ckpt": "routed: {'vehicle': 'pv_tta', 'pedestrian': 'vrros_tta', 'truck': 'ut_tta'}",
+  "predictions": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/routed-g8b/test/output/predictions.json",
+  "synthetic_source": "pcdet/g1-v5",
+  "synthetic_selection": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/routed-g8b/test/synthetic_ids.txt",
+  "null_fraction": 0.31,
+  "local_scores": {
+    "run": "routed (official metric) + calibration + fusion (pedestrian, truck, vehicle) + budget",
+    "realval_A_mAP_3d_0.5_R40": 0.7271793450102164,
+    "realval_A_per_class": {
+      "vehicle": 0.8654479516582698,
+      "pedestrian": 0.38049863493283637,
+      "truck": 0.9355914484395431
+    },
+    "realval_B_mAP_3d_0.5_R40": 0.7117988567168064,
+    "realval_B_per_class": {
+      "vehicle": 0.8693467434481645,
+      "pedestrian": 0.41793706852683526,
+      "truck": 0.8481127581754194
+    }
+  },
+  "track": "v2x-track",
+  "created": "2026-10-16 16:36",
+  "git_sha": "ef6d9d8",
+  "zip_md5": "00a80bb32c5019b6d9913555efebc6b6",
+  "validation_errors": [],
+  "info": {
+    "uncompressed_bytes": 34922760,
+    "points_per_frame": [
+      50000,
+      50000
+    ],
+    "null_fraction": 0.31000000000000005,
+    "in_range_fraction": 1.0,
+    "n_boxes": 24284,
+    "boxes_per_class": {
+      "vehicle": 6547,
+      "pedestrian": 16550,
+      "truck": 1187
+    },
+    "team": "KarmaRV",
+    "zip_roots": [
+      "declaration.txt",
+      "predictions.json",
+      "synthetic/"
+    ]
+  },
+  "codabench_submission_id": "995877",
+  "leaderboard": {
+    "score_combined": 0.893111,
+    "score_detection": 0.86636,
+    "score_realism": 0.933237,
+    "mAP_3d_0.5_R40": 0.606452,
+    "mAP_3d_0.5_R11": 0.612201,
+    "mAP_3d_0.7_R40": 0.164517,
+    "mAP_bev_0.5_R40": 0.658298,
+    "CD": 1.985873,
+    "MMD": 0.00063035,
+    "EMD": 1.182178,
+    "FPD": 1.467728,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.734896,
+    "AP_3d_0.5_R40_pedestrian": 0.41344,
+    "AP_3d_0.5_R40_truck": 0.671021
+  },
+  "upload_file": {
+    "name": "v2x_s6b_submission.zip",
+    "md5": "00a80bb32c5019b6d9913555efebc6b6"
+  },
+  "history": [
+    {
+      "time": "2026-10-16 16:37",
+      "action": "check_submission (team=None)"
+    }
+  ],
+  "official_local_eval": {
+    "valid": true,
+    "error": null,
+    "stand_in_gt_boxes": 1134,
+    "score_realism": 0.935395,
+    "CD": 1.930078,
+    "MMD": 0.00059805,
+    "EMD": 1.173886,
+    "FPD": 1.122331,
+    "wall_s": 136.9,
+    "peak_rss_mb": 5942,
+    "budget_s": 1200,
+    "returncode": 0,
+    "stderr_tail": "",
+    "time": "2026-10-16 16:39",
+    "n_boxes": 24284
+  }
+}

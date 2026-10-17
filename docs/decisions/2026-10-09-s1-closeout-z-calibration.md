@@ -22,3 +22,19 @@
 **Outcome (2026-10-09).** **972563: V2X combined 0.7855** (965633: 0.7665), mAP 0.4869 (+0.022), vehicle 0.605 (+0.020), pedestrian 0.281 (+0.046), truck 0.574 (unchanged), BEV@0.5 0.5696 (unchanged, as expected for a z-only change), so the leaderboard BEV-3D gap fell from 0.105 to 0.083; realism identical (R 0.9203). Leaderboard / realval-B mAP 0.91 (S1: 0.89). Rank 1 (runner-up 0.6616). **Confirmation rule passed**; the calibration stays in every later V2X routed model.
 
 **Consequences.** S2 and later re-select the calibration after routing (`route_predictions.py calibrate`); the V2X upload bar is now the S1+C1 estimate (B) 0.828; the remaining BEV-3D gap (0.129 on realval-B) is the S2-S4 height target.
+
+**Reproduce (weights and test run).** Generated on 2026-10-15 by `common/tools/reproduce_submission.py`, which also wrote each `test/reproduce_<tag>.sh`. The script runs the test-frame inference of every used member from the checkpoint listed (checkpoints are not in git; their md5s are in `validation/results/reproduce_<tag>.json`), merges with the committed `model.yaml`, compares with the scored zip, repackages the same 50 frames and runs the official kit scorer. It uses the members' current post-processing files: for the exact files of the time, check out release tag 1.0 first; the compare step reports any difference. Checked on 2026-10-15: the saved member predictions re-merge to the scored predictions exactly for every upload, and S1 LUMPI re-run from its checkpoints gives identical boxes and frames.
+
+**Reproduce (V2X, `model-v2x-track/routed-g1z`, tag `zcal`).** Scored zip `model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip` (md5 `7fbb973e2c1715dea66d7850b8bde11f`, CodaBench 972563); realism frames `pcdet/g1-v3` listed in `model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (18728 boxes).
+
+| Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
+|---|---|---|---|---|---|---|
+| `g1v2` | `model-v2x-track/pointpillars-g1v2` | `model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `7c3e9a1c074a` | - | - | `model-v2x-track/pointpillars-g1v2/test/postprocess.yaml` |
+| `g1v3` | `model-v2x-track/pointpillars-g1v3` | `model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `b330667c2981` | - | - | `model-v2x-track/pointpillars-g1v3/test/postprocess.yaml` |
+| `ut` | `model-v2x-track/pointpillars-ut` | `model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `2081ca05e332` | - | - | `model-v2x-track/pointpillars-ut/test/postprocess.yaml` |
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g1z/test/reproduce_zcal.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g1z/test/reproduce_zcal_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-v2x-track/routed-g1z --tag zcal   # quick check: re-merge the saved member predictions
+```

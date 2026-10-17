@@ -1,0 +1,19 @@
+name: pvrcnnpp-ros-g1v4-s4
+strategy: S6
+track: lumpi-track
+module: M9 (engine G2-lite)
+derived_from: pvrcnnpp-ros-g1v4
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++ (as pvrcnnpp-ros-g1v3) with generic ROS
+data:
+  train: pcdet/g1-v4
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v3
+postprocess: test/postprocess.yaml
+status: planned (S6 seed run, seed 3666)
+expected: a seed of pvrcnnpp-ros-g1v4 (seed 3666 instead of 666; same corpus and config)
+  for the S6 seed bag
+notes: 'S6 (docs/02-STRATEGY.md Section 8.6): pvrcnnpp-ros-g1v4 retrained with --fix_random_seed
+  --seed 3666; member of the seed bag bag-pvrcnnpp-ros-g1v4.
+
+  '

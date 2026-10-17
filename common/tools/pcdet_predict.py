@@ -46,6 +46,7 @@ def main():
     ap.add_argument("--postprocess", default=None)
     ap.add_argument("--raw", action="store_true", help="skip bdc26 post-processing (write OpenPCDet outputs)")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--stride", type=int, default=1, help="keep every k-th frame of the split (learning curves on a fixed subset)")
     ap.add_argument("--tta", default=None, help="views: flip4, flip4+yaw, flip4+yaw+z (bdc26.detect.tta.parse)")
     ap.add_argument("--tta-iou", default=None, help="per-class view-fusion IoU, e.g. pedestrian=0.3,vehicle=0.5 (default: 0.3 small classes, 0.5 others)")
     ap.add_argument("--score-blend", type=float, default=None,
@@ -94,6 +95,8 @@ def main():
         for k, (fid, pts) in enumerate(frames_iter(track, a.frames, a.split)):
             if a.limit is not None and k >= a.limit:
                 break
+            if k % max(a.stride, 1):
+                continue
             p = strip_nulls(pts)[:, :3]
             if views is None:
                 batch = ds.collate_batch([ds.prepare_data({"points": p, "frame_id": fid})])

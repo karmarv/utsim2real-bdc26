@@ -1,0 +1,33 @@
+{
+  "vs": "routed-g7",
+  "classes": {
+    "Person": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Car": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Bicycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Motorcycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Bus": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Truck": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Van": {
+      "A": [
+        0.12035335910805164,
+        0.17314666957699548
+      ],
+      "late_A_delta": 0.054630967954717835,
+      "p_gain": 1.0,
+      "decision": "kept (judge: late-A gain passed)"
+    }
+  },
+  "reverted": []
+}

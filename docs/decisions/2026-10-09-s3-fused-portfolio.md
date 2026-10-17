@@ -35,3 +35,38 @@ Selection on realval-A alone keeps B-mAP at 0.653 (V2X) and 0.181 (LUMPI): the g
 Transfer: the leaderboard mAP gain was 0.48 x the realval-B gain on V2X (truck 0.32) but 1.89 x on LUMPI (Bicycle 2.4, Person 3.6), while it was 0.80 x (V2X) and 0.81 x (LUMPI) the realval-A gain. Leaderboard levels still track B (leaderboard / B: V2X 0.83, LUMPI 0.92).
 
 **Consequences.** Leaderboard projection for later uploads: previous leaderboard mAP + 0.8 x the realval-A mAP gain (fitted on these two uploads; checked again on the next one); the gates stay on realval-B. S4 starts from `routed-g3`; its V2X height target is already met, so it is judged on 3D@0.7 and LUMPI Truck and Car. Every new member joins as plain and TTA variants, and `fuse` and `budget` are re-run. Static false positives ranked above the median true-positive score fall 6.2 -> 1.8 per frame (V2X pedestrian) and 9.7 -> 4.1 (LUMPI Person), but most remaining unmatched walker boxes are still static: R3 stays the next walker lever. Process: raw files for tuning come only from `pcdet_predict.py --raw` (a reused pilot output was post-processed twice and was caught by the tuner-versus-evaluation mismatch).
+
+**Reproduce (weights and test run).** Generated on 2026-10-15 by `common/tools/reproduce_submission.py`, which also wrote each `test/reproduce_<tag>.sh`. The script runs the test-frame inference of every used member from the checkpoint listed (checkpoints are not in git; their md5s are in `validation/results/reproduce_<tag>.json`), merges with the committed `model.yaml`, compares with the scored zip, repackages the same 50 frames and runs the official kit scorer. It uses the members' current post-processing files: for the exact files of the time, check out release tag 3.0 first; the compare step reports any difference. Checked on 2026-10-15: the saved member predictions re-merge to the scored predictions exactly for every upload, and S1 LUMPI re-run from its checkpoints gives identical boxes and frames.
+
+**Reproduce (LUMPI, `model-lumpi-track/routed-g3`, tag `s3`).** Scored zip `model-lumpi-track/routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip` (md5 `9133dd7d9d8b377ec9228b79b75065a0`, CodaBench 974348); realism frames `pcdet/g1-v2` listed in `model-lumpi-track/routed-g3/submissions/2026-10-09_s3/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (17193 boxes).
+
+| Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
+|---|---|---|---|---|---|---|
+| `cp4_tta` | `model-lumpi-track/centerpoint-s4-g1v3` | `model-lumpi-track/centerpoint-s4-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `740f83d5cea0` | - | flip4+yaw+z | `model-lumpi-track/centerpoint-s4-g1v3/test/postprocess_tta.yaml` |
+| `cp_tta` | `model-lumpi-track/centerpoint-g1v3` | `model-lumpi-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `25e4c0acf63d` | 6.0: `lumpi.centerpoint-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/centerpoint-g1v3/test/postprocess_tta.yaml` |
+| `g1` | `model-lumpi-track/pointpillars-g1` | `model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `16e68b8b9142` | 6.0: `lumpi.pointpillars-g1.epoch40.pth` | - | `model-lumpi-track/pointpillars-g1/test/postprocess.yaml` |
+| `g1_tta` | `model-lumpi-track/pointpillars-g1` | `model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `16e68b8b9142` | 6.0: `lumpi.pointpillars-g1.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pointpillars-g1/test/postprocess_tta.yaml` |
+| `g1v3` | `model-lumpi-track/pointpillars-g1v3` | `model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `e403acdc3ae3` | 6.0: `lumpi.pointpillars-g1v3.epoch40.pth` | - | `model-lumpi-track/pointpillars-g1v3/test/postprocess.yaml` |
+| `g1v3_tta` | `model-lumpi-track/pointpillars-g1v3` | `model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `e403acdc3ae3` | 6.0: `lumpi.pointpillars-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pointpillars-g1v3/test/postprocess_tta.yaml` |
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g3/test/reproduce_s3.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g3/test/reproduce_s3_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-lumpi-track/routed-g3 --tag s3   # quick check: re-merge the saved member predictions
+```
+
+**Reproduce (V2X, `model-v2x-track/routed-g3`, tag `s3`).** Scored zip `model-v2x-track/routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip` (md5 `5e46f9450feb7846455c4b8428483641`, CodaBench 974400); realism frames `pcdet/g1-v3` listed in `model-v2x-track/routed-g3/submissions/2026-10-09_s3/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (10671 boxes).
+
+| Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
+|---|---|---|---|---|---|---|
+| `cp4_tta` | `model-v2x-track/centerpoint-s4-g1v3` | `model-v2x-track/centerpoint-s4-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `0440576e97ae` | - | flip4+yaw+z | `model-v2x-track/centerpoint-s4-g1v3/test/postprocess_tta.yaml` |
+| `cp_tta` | `model-v2x-track/centerpoint-g1v3` | `model-v2x-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `2ffc3ad60f99` | - | flip4+yaw+z | `model-v2x-track/centerpoint-g1v3/test/postprocess_tta.yaml` |
+| `g1v2_tta` | `model-v2x-track/pointpillars-g1v2` | `model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `7c3e9a1c074a` | - | flip4+yaw+z | `model-v2x-track/pointpillars-g1v2/test/postprocess_tta.yaml` |
+| `g1v3_tta` | `model-v2x-track/pointpillars-g1v3` | `model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `b330667c2981` | - | flip4+yaw+z | `model-v2x-track/pointpillars-g1v3/test/postprocess_tta.yaml` |
+| `ut_tta` | `model-v2x-track/pointpillars-ut` | `model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `2081ca05e332` | - | flip4+yaw+z | `model-v2x-track/pointpillars-ut/test/postprocess_tta.yaml` |
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g3/test/reproduce_s3.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g3/test/reproduce_s3_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-v2x-track/routed-g3 --tag s3   # quick check: re-merge the saved member predictions
+```

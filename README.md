@@ -116,6 +116,7 @@ utsim2real-bdc26/
 ├── common/                      the only shared code folder
 │   ├── bdc26/                   Python package (code map: model-lumpi-track/README.md Section 12.1)
 │   ├── tools/                   command-line tools (train, predict, evaluate, tune, route, select, package, check)
+│   ├── pipeline/                detached job queues, status, TensorBoard (Section 6.10)
 │   ├── env/                     bdc26.env (paths), activate.sh, setup_venv_ut.sh, setup_bdc_train.sh (conda alternative)
 │   ├── tests/                   pytest suite (synthetic fixtures; parity with the official scorer)
 │   └── kit/                     place the downloaded starting kits here (git-ignored)
@@ -124,7 +125,8 @@ utsim2real-bdc26/
 ├── model-lumpi-track/           Track 1 models: README.md (approaches, selected model, lifecycle), registry.csv,
 │   └── <model>/                 model.yaml, README.md, train/, validation/, test/, submissions/<date>_<tag>/
 ├── model-v2x-track/             Track 2 models: same structure
-└── docs/                        plan of record (01-07), decisions/, reference/papers/
+├── docs/                        plan of record (01-07), decisions/, reference/papers/
+└── releases/<tag>/weights.json  the release's weights: GitHub asset name, repository path, md5, versions (Section 6.11)
 ```
 
 Large data lives outside git under `$BDC_DATA` (default `<repo>/../bdc26-data`); checkpoints, predictions and working zips are in git-ignored `output/` and `submissions/*/submission.zip`; the upload copy of every packaged version (`<track>_<strategy>_submission.zip`; the 1.0 entries as `submission_<track>.zip`) is committed next to its manifest, and the leaderboard entries are listed in [`RELEASES.md`](RELEASES.md).
@@ -253,6 +255,47 @@ python common/tools/package_submission.py model-lumpi-track/routed-g1 --tag firs
 ```
 This stores the CodaBench id and the leaderboard numbers in the submission's `manifest.json` and appends a `leaderboard` row (combined, mAP, R, per-class AP) to `registry.csv`. Then add the row to the submission log in the track's model README (Section 9 there), attach the zip to the GitHub release of the tag, and list the submission under its strategy in [Section 9](#9-codabench-submissions).
 
+### 6.10 Long runs in the background and monitoring
+Every multi-hour job (training queues, post-processing, portfolios) runs detached from the terminal, so it survives an SSH disconnect, and leaves a plain-text trail that can be read at any time. The scripts are in [`common/pipeline/`](common/pipeline/README.md):
+```bash
+RUN=$BDC_DATA/logs/s6                                    # one run directory per campaign
+bash common/pipeline/launch.sh $RUN trainA common/pipeline/train_queue.sh $RUN trainA 0,1,2,3 29621
+bash common/pipeline/status.sh $RUN                      # STATUS.md, queues, last events, epoch progress, live processes, GPUs
+```
+`launch.sh <run> <name> <script> [args]` starts `<script>` with `setsid nohup` from a snapshot copy in `<run>/bin/` (editing the repository never breaks a running job), logs to `<run>/<name>.log` and records the PID in `<run>/pids.txt`. Jobs talk through files: `train_queue.txt` and `post_queue.txt` (one `track:member[:seed]` per line, popped under `flock`), and `events.txt` (one timestamped line per event: `TRAIN_START/DONE/FAIL`, `POST_STEP_DONE/FAIL`, `POST_DONE/FAIL`, `PORTFOLIO <track>: ...`). Follow it live with `tail -f $RUN/events.txt`; stop a job by its PID from `pids.txt` (`kill <pid>`), never by pattern.
+
+**TensorBoard.** Every OpenPCDet run writes its training losses and learning rate to `train/output/pcdet_model/<run>/tensorboard/`; the post-processing step adds the official-metric AP on strided realval-A/B subsets every 5 epochs to `tensorboard_realval/` (`common/tools/tb_realval.py`, monitoring only: the epoch-40 checkpoint is always the one used). One server covers all models (run names `<track>/<model>/<run>`), bound to localhost:
+```bash
+bash common/pipeline/launch.sh $BDC_DATA/logs/tensorboard tensorboard common/pipeline/tensorboard.sh 6006
+```
+View it from your own machine through SSH port forwarding, then open http://localhost:6006 (the script restarts TensorBoard by itself when a new run folder appears, within 10 minutes):
+```bash
+ssh -N -L 6006:localhost:6006 <user>@<server>
+```
+
+### 6.11 Reproducing a submission
+Every scored version can be rebuilt from its checkpoints and the committed files. Its decision record ends with a **Reproduce** section (members, weight paths with md5, TTA, post-processing files, commands), indexed in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission). Each version has two generated scripts in its model folder: `test/reproduce_<tag>.sh` (test-frame inference with the recorded weights, merge with the committed `model.yaml`, comparison with the scored zip, repackaging of the same 50 frames into `test/output/repro-<tag>/`, the official kit scorer, a final comparison of predictions and frames) and `test/reproduce_<tag>_validation.sh` (realval-A/B inference of every member, merge, official metric, comparison with `validation/results/scorecard.json`).
+
+From a fresh clone (the weights of the leaderboard entries are assets of their GitHub release; the repository is private, so the fetch asks for a token with read access, or reads `$GITHUB_TOKEN`):
+```bash
+git clone https://github.com/karmarv/utsim2real-bdc26.git && cd utsim2real-bdc26 && git checkout 6.0
+```
+```bash
+bash common/env/setup_venv_ut.sh                                                        # Section 5.1; then place the starting kits (Section 5.3)
+```
+```bash
+python common/tools/release_weights.py fetch --tag 6.0 --version lumpi:s6               # 11 checkpoints, md5-verified (v2x:s6b: 10)
+```
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6.sh             # expect: reproduction: IDENTICAL, frames identical
+```
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6_validation.sh  # needs the prepared real data (Section 6.2); expect EQUIVALENT or IDENTICAL
+```
+Without the synthetic corpus (not in git) the test-frame script takes the 50 frames from the scored zip, which is committed; with it, it re-reads them from the corpus, which also checks the frame selection. The validation script needs the real datasets, which are licensed and not redistributed. On this server the saved predictions allow a quick check in seconds: `python common/tools/reproduce_submission.py model-lumpi-track/routed-g8 --tag s6` (re-merge, compare with the scored zip).
+
+Run reproductions on an idle GPU: inference is then bit-identical (both 6.0 entries on the test frames, Section 8.6.2 of the strategy). A run sharing its GPU with another job can differ in the last digits; the test-frame comparison then matches boxes per frame and reports EQUIVALENT (no box above score 0.3 unmatched, 99% within 0.1 m and 0.01 in score). The validation check reports IDENTICAL (every class within 1e-4 AP) or EQUIVALENT (within 1e-3 per class and 5e-4 per split): some recorded validation predictions were written on GPUs shared with training, so the 6.0 entries reproduce their realval mAP to four decimals with 41 of 48 member files bit-identical. `release_weights.py verify --tag 6.0` checks the md5 of the files in place; `releases/6.0/weights.json` maps every asset to its path, md5 and the versions that use it. Older versions: their checkpoints are on this server (`train/output/`, git-ignored); check out their release tag for the files of the time.
+
 ## 7. Tracks
 
 ### 7.1 Track 1: LUMPI
@@ -280,11 +323,11 @@ A strategy is the complete recipe behind one submission per track: synthetic dat
 | **S5** | [Geometry-Invariant Inputs](docs/02-STRATEGY.md#85-s5-geometry-invariant-inputs) | submitted: V2X 978945 0.8730; LUMPI 978931 0.5039, not confirmed ([8.5.1](docs/02-STRATEGY.md#851-results-2026-10-11)) | class-wise object scaling to the real size ranges (helps every anchor-free and two-stage member) and GBlobs inputs (only inside fusions) | the twin's size gap (trucks, bicycles, buses); input invariance | medium / medium | [R27](docs/07-LITERATURE.md#r27-gblobs) [R28](docs/07-LITERATURE.md#r28-gblobs-for-sensor-placement) [R26](docs/07-LITERATURE.md#r26-lidar-domain-generalization-study) [R36](docs/07-LITERATURE.md#r36-dts-random-beam-re-sampling) |
 | **R3** | [Engine G2-lite](docs/02-STRATEGY.md#871-r3-engine-g2-lite-review-and-plan-2026-10-11) (extended step after S5) | submitted 2026-10-14, the entry until R5: LUMPI 986489 **0.5169** (rank 1; realism 0.891 -> 0.932, mAP -0.004), V2X 986496 **0.8789** (rank 1) ([8.7.2](docs/02-STRATEGY.md#872-r3-results-2026-10-11-to-2026-10-13)) | corpus `g1-v4`: actors re-cast at real size and density with the real rigs, real-sized trucks, buses and two-wheelers with riders, unlabeled static clutter; retrained pillar and two-stage members; pooled final gate | the twin's object geometry; static walker false positives; LUMPI realism | medium / medium | [R9](docs/07-LITERATURE.md#r9-lidar-aug) [R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports) [R40](docs/07-LITERATURE.md#r40-st3d) |
 | **R5** | [Realism-led refinement](docs/02-STRATEGY.md#89-r5-realism-led-refinement-after-r3-review-and-plan-2026-10-14) (after R3) | **current entry on both tracks** (2026-10-15, [8.9.1](docs/02-STRATEGY.md#891-r5-results-2026-10-14)): V2X 990255 **0.8852** (rank 1; pedestrian +0.011 from the walker tail copies, realism +0.0065), LUMPI 990245 **0.5198** (rank 1; Person 0.157 -> 0.180) | background density prior for the G2-lite corpus (`g1-v5`: V2X first prior), seeds of the two-stage members, V2X members on `g1-v5`, walker tail copies, pre-registered late-A Person rule and rare-class freeze | background realism (EMD), seed variance, LUMPI Person | medium / low | [R9](docs/07-LITERATURE.md#r9-lidar-aug) [R40](docs/07-LITERATURE.md#r40-st3d) |
-| S6 | [Sparse Transformer Experts](docs/02-STRATEGY.md#86-s6-sparse-transformer-experts) | only if time remains | DSVT (or LION, SAFDNet) members | capacity, long range | high / high | [R31](docs/07-LITERATURE.md#r31-dsvt) [R32](docs/07-LITERATURE.md#r32-lion) [R33](docs/07-LITERATURE.md#r33-hednet-and-safdnet) [R20](docs/07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
+| S6 | [Variance-Controlled Final Portfolio](docs/02-STRATEGY.md#86-s6-variance-controlled-final-portfolio-re-planned-2026-10-15) (re-planned 2026-10-15; was Sparse Transformer Experts) | **submitted and confirmed** (2026-10-17): **LUMPI 995869 0.5228** (Van through the judge), **V2X 995877 0.8931** (variant b: bag fusions by the pooled condition); rank 1 on both ([record](docs/decisions/2026-10-16-s6-variance-controlled.md)) | seed bags of the strongest two-stage configurations (seeds 1666-3666); LUMPI Van judged on the realval-A frames whose labels are vans (realval-B's class 6 is not vans); final-phase protocol under `Force_Best` | member noise (seed spread up to 0.17 AP per class); LUMPI Van frozen since S1 | medium / low | [R23](docs/07-LITERATURE.md#r23-weighted-boxes-fusion) [R37](docs/07-LITERATURE.md#r37-ms3d-kde-box-fusion) |
 
 **Why this order.** The S1 leaderboard showed that transfer and small-object localization, not detector capacity, limit the score: S1's PointPillars beat the ECCV runner-up's DSVT ensembles on both tracks [R20](docs/07-LITERATURE.md#r20-eccv-2026-runner-up-reports), while LUMPI Person, Bicycle and Truck lost most of their local AP and V2X lost 0.105 mAP to height (0.083 after the S1+C1 z calibration; track model READMEs Section 9.4).
 
-**Next step: review the next strategy; R5 is submitted and the entry on both tracks.** Open levers from R5 (8.9.1): the LUMPI realism step (the refined prior missed the realism gate by 0.0002; the LUMPI leader's realism is still higher, EMD 1.11 against 1.30), V2X realism judged on EMD and FPD separately (FPD rose on the server), more seed members where seed variance is large (V2X truck), and the final phase (R3 and R5 zips both re-verifiable from their saved predictions). Every strategy has the same template in [`docs/02-STRATEGY.md` Section 8](docs/02-STRATEGY.md#8-strategy-routes-after-s1) (hypothesis, prerequisites, steps, evaluation, gate, deliverables, risks, time box); the gates, the progression tracker and the calendar are in [`docs/decisions/README.md`](docs/decisions/README.md) ([gates](docs/decisions/README.md#32-gates), [tracker](docs/decisions/README.md#4-progression-tracker), [calendar](docs/decisions/README.md#5-calendar-and-compute-plan)); the rules review behind every method is [`docs/decisions/2026-10-14-rules-compliance-review.md`](docs/decisions/2026-10-14-rules-compliance-review.md).
+**Next step: the final phase, with S6 as the entry.** S6 ([`docs/02-STRATEGY.md` Sections 8.6.1-8.6.2](docs/02-STRATEGY.md#862-s6-close-out-2026-10-17-leaderboard-transfer-the-pooled-rule-and-the-plan-to-the-final-phase), [decision record](docs/decisions/2026-10-16-s6-variance-controlled.md)) is confirmed on both tracks: LUMPI 995869 **0.5228** (Van 0.117 -> 0.141 through the pre-registered judge) and V2X 995877 **0.8931** (vehicle and truck +0.014 each from seed-bag fusions that only the pooled A+B condition accepted), rank 1 on both. The close-out made the pooled condition the gate from 6.0 on ([`docs/decisions/README.md` Section 3.2](docs/decisions/README.md#32-gates)), applied it to LUMPI, and verified that both entries reproduce bit for bit from the weights attached to release 6.0 (Section 6.11). Remaining: optional bag extensions under the new rule, the final-phase dry run (Oct 24), the freeze (Oct 25), F1 = the 6.0 zips on Nov 1 ([8.8](docs/02-STRATEGY.md#88-final-phase-plan-nov-1-14)), the report (Nov 15).
 0. **S1 close-out and S2: done 2026-10-09** ([8.1.3](docs/02-STRATEGY.md#813-close-out-results-2026-10-09), [8.2.1](docs/02-STRATEGY.md#821-results-2026-10-09)): CenterPoint members (stride 8 and 4) on both tracks and an OpenPCDet label-bug fix; no S2 upload. **Main lesson:** most unmatched walker boxes are static structures the twin lacks.
 1. **S3: submitted 2026-10-10** ([8.3.1](docs/02-STRATEGY.md#831-results-2026-10-09), [decision record](docs/decisions/2026-10-09-s3-fused-portfolio.md)). Every member got an 8-view TTA variant with its own tuned post-processing; routing and fusion of a pillar and a CenterPoint member per class passed the class gate on 3 of 3 V2X and 4 of 7 LUMPI classes; per-class score floors keep the server cost low. Leaderboard: V2X 974400 combined 0.7855 -> **0.8381** (mAP 0.4869 -> 0.5483), rank 1; LUMPI 0.4728 -> **0.5015** by the scorer log (mAP 0.1357 -> 0.1692, Bicycle 0.053 -> 0.224), still Running at the server. **Lesson:** leaderboard levels follow realval-B, but the gains followed 0.8 x the realval-A gain on both tracks (the B gain over-predicted V2X and under-predicted LUMPI).
 2. **S4: submitted 2026-10-10/11** ([8.4](docs/02-STRATEGY.md#84-s4-two-stage-refinement), [8.4.1](docs/02-STRATEGY.md#841-results-2026-10-10), [decision record](docs/decisions/2026-10-10-s4-two-stage.md)). A review of the S3 losses re-scoped S4 to walker localization. Voxel R-CNN and PV-RCNN++ members halve the vehicle localization loss but leave the walker localization loss unchanged (the walker gain is ranking); fused with the S3 members they lift V2X vehicle and truck and LUMPI Bicycle. Leaderboard: V2X 975938 0.8381 -> **0.8485** (vehicle +0.027, truck +0.010); LUMPI 975871 0.5015 -> **0.5040** (Bicycle 0.224 -> 0.244; uploaded below its upload gate by the entrant's call): **rank 1 on both tracks**. **Lesson:** over five uploads the leaderboard gain had the right sign every time but was 0.25-1.9 x any local gain; projections use 0.6 x the mean of the A and B gains.
@@ -298,26 +341,30 @@ In parallel, **promoted** (CPU-bound, joins the next LUMPI upload when it passes
 
 Development phase leaderboards: [Track 1 (16684)](https://www.codabench.org/competitions/16684/#/results-tab), [Track 2 (16685)](https://www.codabench.org/competitions/16685/#/results-tab). Scores are the server's own `scores.json` fields, kept with each submission as `codabench_<id>.json`. Per-class AP, realism detail and the local-vs-leaderboard analysis are in the track model READMEs Section 9.
 
-| Rank (at submission / 2026-10-15) | Version | Track | Id (date, CDT) | Combined | Detection | 3D mAP@0.5 | 3D mAP@0.7 | BEV mAP@0.5 | Realism | CD | MMD | EMD | FPD |
+| Rank (at submission / 2026-10-17) | Version | Track | Id (date, CDT) | Combined | Detection | 3D mAP@0.5 | 3D mAP@0.7 | BEV mAP@0.5 | Realism | CD | MMD | EMD | FPD |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **1 / 1** of 20 (current entry) | R5 | 2 V2X-Real | 990255 (2026-10-15 08:53) | **0.8852** | 0.8531 | 0.5972 | 0.1874 | 0.6482 | 0.9332 | 1.9859 | 0.000630 | 1.1822 | 1.4677 |
+| **1 / 1** of 23 (current entry) | S6 (variant b) | 2 V2X-Real | 995877 (2026-10-17 09:23) | **0.8931** | 0.8664 | 0.6065 | 0.1645 | 0.6583 | 0.9332 | 1.9859 | 0.000630 | 1.1822 | 1.4677 |
+| 1 / superseded | R5 | 2 V2X-Real | 990255 (2026-10-15 08:53) | **0.8852** | 0.8531 | 0.5972 | 0.1874 | 0.6482 | 0.9332 | 1.9859 | 0.000630 | 1.1822 | 1.4677 |
 | 1 / superseded | R3 | 2 V2X-Real | 986496 (2026-10-14 00:44) | 0.8789 | 0.8470 | 0.5929 | 0.1976 | 0.6428 | 0.9268 | 2.1805 | 0.001462 | 1.3447 | 0.7329 |
 | 1 / superseded | S5 | 2 V2X-Real | 978945 (2026-10-11 15:20) | 0.8730 | 0.8415 | 0.5890 | 0.1963 | 0.6389 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
 | 1 / superseded | S4 | 2 V2X-Real | 975938 (2026-10-10 19:16) | 0.8485 | 0.8007 | 0.5605 | 0.1118 | 0.6219 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
 | 1 / superseded | S3 | 2 V2X-Real | 974400 (2026-10-10 06:18) | 0.8381 | 0.7833 | 0.5483 | 0.0755 | 0.6179 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
 | 1 / superseded | S1+C1 | 2 V2X-Real | 972563 (2026-10-09 10:17) | 0.7855 | 0.6956 | 0.4869 | 0.0555 | 0.5696 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
 | 1 / superseded | S1 | 2 V2X-Real | 965633 (2026-10-06 17:07) | 0.7665 | 0.6640 | 0.4648 | 0.0556 | 0.5696 | 0.9203 | 2.2148 | 0.003286 | 1.4143 | 1.0918 |
-| **1 / 1** of 21 (current entry) | R5 | 1 LUMPI | 990245 (2026-10-15 08:50) | **0.5198** | 0.2449 | 0.1714 | 0.0649 | 0.1829 | 0.9323 | 1.5939 | 0.000031 | 1.3020 | 0.5194 |
+| **1 / 1** of 21 (current entry) | S6 | 1 LUMPI | 995869 (2026-10-17 09:17) | **0.5228** | 0.2497 | 0.1748 | 0.0827 | 0.1863 | 0.9323 | 1.5939 | 0.000031 | 1.3020 | 0.5194 |
+| 1 / superseded | R5 | 1 LUMPI | 990245 (2026-10-15 08:50) | **0.5198** | 0.2449 | 0.1714 | 0.0649 | 0.1829 | 0.9323 | 1.5939 | 0.000031 | 1.3020 | 0.5194 |
 | 1 / superseded | R3 | 1 LUMPI | 986489 (2026-10-14 00:38) | 0.5169 | 0.2401 | 0.1680 | 0.0645 | 0.1799 | 0.9323 | 1.5939 | 0.000031 | 1.3020 | 0.5194 |
 | not listed (0.00007 below S4) | S5 | 1 LUMPI | 978931 (2026-10-11 15:12) | 0.5039 | 0.2457 | 0.1720 | 0.0734 | 0.1830 | 0.8912 | 1.6899 | 0.001874 | 1.6472 | 5.0946 |
 | 1 / superseded | S4 | 1 LUMPI | 975871 (2026-10-10 18:50) | 0.5040 | 0.2458 | 0.1721 | 0.0621 | 0.1800 | 0.8912 | 1.6899 | 0.001874 | 1.6472 | 5.0946 |
 | never listed (status Running after scoring) | S3 | 1 LUMPI | 974348 (2026-10-10 05:48), scores from the scorer log | **0.5015** | 0.2416 | 0.1692 | 0.0609 | 0.1781 | 0.8912 | 1.6899 | 0.001874 | 1.6472 | 5.0946 |
 | 1 / superseded | S1 | 1 LUMPI | 965614 (2026-10-06 16:37) | 0.4728 | 0.1938 | 0.1357 | 0.0500 | 0.1533 | 0.8912 | 1.6899 | 0.001874 | 1.6472 | 5.0946 |
 
-Others on 2026-10-15: LUMPI second Raj Patil 0.4914 (980383; mAP 0.1337, R about 0.942), V2X runner-up linyongchun 0.6616, then Raj Patil 0.6261 (989973, new on V2X on Oct 15). ECCV 2026 winners on the same test data ([R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)): LUMPI 0.4793, V2X 0.7457. Every upload with its gate result and decision record: [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register); release log with the files of the current entries: [`RELEASES.md`](RELEASES.md).
+Others on 2026-10-17: LUMPI second Raj Patil 0.4914 (980383, unchanged since Oct 12); V2X second Raj Patil 0.7555 (990507, Oct 15), then linyongchun 0.6616, Peneter ML 0.5738 and KLsys 0.5700. ECCV 2026 winners on the same test data ([R19](docs/07-LITERATURE.md#r19-eccv-2026-winner-reports)): LUMPI 0.4793, V2X 0.7457. Every upload with its gate result and decision record: [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register); release log with the files of the current entries: [`RELEASES.md`](RELEASES.md).
 
 | Id | Model | Submitted file | Server record | Details |
 |---|---|---|---|---|
+| 995877 | [`model-v2x-track/routed-g8b`](model-v2x-track/routed-g8b) | [`v2x_s6b_submission.zip`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0) | [`codabench_995877.json`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md) Section 9; reproduce: [`reproduce_s6b.sh`](model-v2x-track/routed-g8b/test/reproduce_s6b.sh), weights `releases/6.0/weights.json` |
+| 995869 | [`model-lumpi-track/routed-g8`](model-lumpi-track/routed-g8) | [`lumpi_s6_submission.zip`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (tag 6.0) | [`codabench_995869.json`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/codabench_995869.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md) Section 9; reproduce: [`reproduce_s6.sh`](model-lumpi-track/routed-g8/test/reproduce_s6.sh), weights `releases/6.0/weights.json` |
 | 990255 | [`model-v2x-track/routed-g7`](model-v2x-track/routed-g7) | [`v2x_r5_submission.zip`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2) | [`codabench_990255.json`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/codabench_990255.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-14-r5-realism-led.md) |
 | 990245 | [`model-lumpi-track/routed-g7`](model-lumpi-track/routed-g7) | [`lumpi_r5_submission.zip`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (tag 5.2) | [`codabench_990245.json`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/codabench_990245.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-14-r5-realism-led.md) |
 | 986496 | [`model-v2x-track/routed-g6`](model-v2x-track/routed-g6) | [`v2x_r3_submission.zip`](model-v2x-track/routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) | [`codabench_986496.json`](model-v2x-track/routed-g6/submissions/2026-10-12_r3/codabench_986496.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-12-r3-g2-lite.md) |
@@ -346,12 +393,14 @@ Not scored: 957399 and 957439, hand-edited copies of the same zips ([decision re
 | [`docs/05-SCHEDULE-AND-RUNBOOK.md`](docs/05-SCHEDULE-AND-RUNBOOK.md) | calendar to the final phase, daily loop, compute and submission budget |
 | [`docs/06-LEARNING-PATH.md`](docs/06-LEARNING-PATH.md) | beginner-to-state-of-the-art curriculum tied to the modules |
 | [`docs/07-LITERATURE.md`](docs/07-LITERATURE.md) | reading list by module, citation audit, licence register; **Section 6: named references R1-R42; Section 7: detector research for S2-S6** |
+| [`common/pipeline/README.md`](common/pipeline/README.md) | background jobs: queues, events, status, TensorBoard, the S6 orchestration |
 | [`docs/decisions/README.md`](docs/decisions/README.md) | **submission register, evaluation protocol and gates, progression tracker, calendar**, and the index of dated decision records (one per decision-ready version, named for its strategy) |
 | [`docs/reference/papers/`](docs/reference/papers) | the organizers' UrbanTwin and LiGuard papers |
 | [`data-lumpi-track/README.md`](data-lumpi-track/README.md), [`data-v2x-track/README.md`](data-v2x-track/README.md) | per-track data guides |
 | [`model-lumpi-track/README.md`](model-lumpi-track/README.md), [`model-v2x-track/README.md`](model-v2x-track/README.md) | per-track model guides: approaches, lifecycle, results (7), submission log and CodaBench detail (9), local evaluation and packaging (10), integrity (11), contributing (12) |
 | `model-<track>/<model>/submissions/<date>_<tag>/` | `manifest.json`, `synthetic_ids.txt` and the server's `codabench_<id>.json` for every submission; `submission_<track>.zip` for the leaderboard entries |
 | [`RELEASES.md`](RELEASES.md) | release log: per tag, the leaderboard entries, their files and checksums |
+| [`releases/6.0/weights.json`](releases/6.0/weights.json) | the checkpoints of the 6.0 leaderboard entries as release assets: names, paths, md5, the versions using them (`common/tools/release_weights.py`) |
 
 ## Licence
 

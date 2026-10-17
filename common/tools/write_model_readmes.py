@@ -25,12 +25,14 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
     card = yaml.safe_load((mdir / "model.yaml").read_text())
     name, track = card["name"], card["track"]
     rel = f"{track_dir.name}/{mdir.name}"
-    routed = "members" in card
+    bag = card.get("type") == "bag"                     # S6 seed bag: members is a list of model folders
+    routed = "members" in card and not bag
     lines = [f"# `{name}` ({track})", "",
              f"> Model card: [`model.yaml`](model.yaml). Track guide: [`../README.md`](../README.md). Developer guide: [root README](../../README.md).", ""]
     lines += ["| | |", "|---|---|",
               f"| Module | {card.get('module', '-')} |",
               f"| Architecture | {card.get('architecture', '-')} |",
+              f"| Seeds (weighted box fusion, IoU {card.get('iou')}) | " + ", ".join(f"[`{m}`](../{m})" for m in card["members"]) + " |" if bag else
               f"| Training data | `{card.get('data', {}).get('train', '-')}` |" if not routed else
               f"| Members | " + ", ".join(f"`{k}` = [`{v['model']}`](../{v['model']}) (`{v['ckpt']}`" + (f", TTA `{v['tta']}`" if v.get("tta") else "") + ")"
                                           for k, v in card["members"].items()) + " |",
@@ -60,7 +62,10 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
                   "| " + " | ".join(card["budget"]) + " |", "|" + "---|" * len(card["budget"]),
                   "| " + " | ".join(str(v) for v in card["budget"].values()) + " |", ""]
     lines += ["## Commands", "", "From the repository root after `source common/env/activate.sh`:", "", "```bash"]
-    if not routed:
+    if bag:
+        lines += [f"python common/tools/bag_predictions.py {rel}                                 # fuse the seeds' realval-A/B predictions (plain + TTA)",
+                  f"CUDA_VISIBLE_DEVICES=0 python common/tools/bag_predictions.py {rel} --kit --variant tta   # the 50 kit frames"]
+    elif not routed:
         lines += [f"CUDA_VISIBLE_DEVICES=0,1,2,3 bash {rel}/train/train.sh 4 run1 --fix_random_seed --workers 6      # train",
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/validation/tune_and_eval.sh {rel}/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth   # validate + tune",
                   f"CUDA_VISIBLE_DEVICES=0 bash {rel}/validation/tune_and_eval.sh <ckpt> --eval-only                # re-score only",
@@ -98,12 +103,13 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
             lines.append("| hedges | " + "; ".join(f"{s} -> " + ", ".join(f"{t} x{f}" for t, f in (pairs if isinstance(pairs[0], list) else [pairs]))
                                                     for s, pairs in d["hedge"].items()) + " |")
         lines.append("")
-    ls = mdir / "validation/results/local_scores.json"
-    if ls.exists():
+    for ls in [mdir / "validation/results/local_scores.json"] + ([mdir / "validation/results/local_scores_tta.json"] if bag else []):
+        if not ls.exists():
+            continue
         d = json.loads(ls.read_text())
         A, B = d.get("realval_A_per_class", {}), d.get("realval_B_per_class", {})
         cls = [c for c in A if A.get(c) is not None or B.get(c) is not None]
-        lines += ["## Latest real-validation result (official metric, 3D AP@0.5 R40)", "",
+        lines += ["## Latest real-validation result (official metric, 3D AP@0.5 R40" + (", TTA" if ls.stem.endswith("_tta") else "") + ")", "",
                   f"Checkpoint: `{Path(d.get('ckpt', '-')).name if d.get('ckpt') else d.get('run', '-')}`.", "",
                   "| Split | mAP (classes with test GT) | " + " | ".join(cls) + " |", "|---|---|" + "---|" * len(cls),
                   f"| realval-A | **{fmt(d.get('realval_A_mAP_3d_0.5_R40'))}** | " + " | ".join(fmt(A.get(c)) for c in cls) + " |",

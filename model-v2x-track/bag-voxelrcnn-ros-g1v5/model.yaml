@@ -1,0 +1,23 @@
+name: bag-voxelrcnn-ros-g1v5
+type: bag
+strategy: S6
+track: v2x-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-ros-g1v5: weighted box fusion of the seeds''
+  tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v5
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-ros-g1v5
+- voxelrcnn-ros-g1v5-s2
+- voxelrcnn-ros-g1v5-s3
+iou:
+  default: 0.5
+  vehicle: 0.7
+realism_frames: pcdet/g1-v5
+status: planned (S6)
+notes: 'S6 seed bag (docs/02-STRATEGY.md Section 8.6): seeds 666, 1666, 2666. No checkpoint
+  and no tuned knob of its own.
+
+  '

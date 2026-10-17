@@ -2,6 +2,45 @@
 
 Each release tag fixes the code, the documentation and the submission files of the leaderboard entries at that point. The zip of every leaderboard entry is committed next to its manifest, byte for byte the file that was scored (md5 below and in the folder's `manifest.json`): in 1.0 as `submission_<track>.zip`; from S2 on under its upload name `<track>_<strategy>_submission.zip`, written by the packager (the upload copies of leaderboard entries are committed; the ignore rule for upload copies was lifted on 2026-10-10). The full submission register, with the gate result of every version, is [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register).
 
+From 6.0 on, a release also carries **the weights of its leaderboard entries** as GitHub release assets (checkpoints are not in git), listed with their repository paths and md5 in `releases/<tag>/weights.json`, so the entries can be rebuilt from a fresh clone (root README Section 6.11). Making a release (the GitHub steps need the entrant's credentials and run in the entrant's terminal; the tool asks for a token at a hidden prompt):
+```bash
+python common/tools/release_weights.py collect --tag <tag> <model folder>:<submission tag> ...   # writes releases/<tag>/weights.json (commit it)
+git tag -a <tag> -m "<summary>" && git push origin main && git push origin <tag>
+python common/tools/release_weights.py publish --tag <tag>        # creates the pre-release (notes: this file's section) and uploads the assets
+python common/tools/release_weights.py fetch --tag <tag> --version <track>:<submission tag>   # in a fresh clone: download, md5 check
+```
+
+## 6.0 (pre-release, 2026-10-17)
+
+**Leaderboard** (development phase; public leaderboards checked 2026-10-17): both tracks have a new entry, strategy S6.
+
+| Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | S6 | 995869 | 2026-10-17 14:17 | **0.5228** | 0.1748 | 0.9323 | **1 of 21** | [`lumpi_s6_submission.zip`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (`02c731ecbd162a84d6eae5537856bc4a`) | [s6 variance-controlled](docs/decisions/2026-10-16-s6-variance-controlled.md) |
+| 2 V2X-Real (16685) | S6 variant b | 995877 | 2026-10-17 14:23 | **0.8931** | 0.6065 | 0.9332 | **1 of 23** | [`v2x_s6b_submission.zip`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (`00a80bb32c5019b6d9913555efebc6b6`) | same |
+
+Server records: [`codabench_995869.json`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/codabench_995869.json), [`codabench_995877.json`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json). LUMPI against R5: Van 0.117 -> 0.141, every other class and the realism identical. V2X against R5: vehicle 0.721 -> 0.735, truck 0.657 -> 0.671, pedestrian and realism identical.
+
+**Release assets: everything needed to replicate the two entries.** The two submission zips and the 21 checkpoints they use (3.5 GB; LUMPI 11, V2X 10, every file exactly as used, md5 as in the decision record), named `<track>.<model folder>.epoch40.pth` and mapped to their repository paths in [`releases/6.0/weights.json`](releases/6.0/weights.json). From a fresh clone at this tag (root README Section 6.11):
+```bash
+python common/tools/release_weights.py fetch --tag 6.0 --version lumpi:s6      # or v2x:s6b; md5-verified, placed under train/output/
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6.sh    # test frames: predictions and frames against the scored zip
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
+```
+Verified on 2026-10-17 on idle GPUs (`$BDC_DATA/logs/s6close`): the test-frame scripts reproduce both scored zips **IDENTICAL** (predictions, maximum difference 0.0; all 50 frames byte-identical, from the corpus and from the committed zip); the validation scripts reproduce realval-A/B to four decimals on both tracks (every class within 4e-4 AP: EQUIVALENT; 41 of 48 member files bit-identical, the others recorded on GPUs shared with training).
+
+**Fallback for the first final-phase submission:** the R5 zips of release 5.2.
+
+**What 6.0 contains**
+- Strategy S6 ([`docs/02-STRATEGY.md` Sections 8.6-8.6.2](docs/02-STRATEGY.md#86-s6-variance-controlled-final-portfolio-re-planned-2026-10-15)): seed bags (`common/tools/bag_predictions.py`, model folders `bag-*`), the LUMPI Van judge (`route_predictions.py --judge`, `scorecard.py --judge`), class freezing (`freeze_classes.py`), the per-class score blend as a tool (`score_blend.py`), the realism pool from a whole corpus (`select_realism_frames.py --split train+val`, held-out scores in the packaged order).
+- Close-out: the pooled rule as the gate from 6.0 on (`docs/decisions/README.md` Section 3.2; `common/tools/pooled_check.py`, the pooled condition on the final predictions); V2X variant b (`routed-g8b`, the entry) and the LUMPI check of the same rule (`routed-g8b`, Car rejected on the pooled frames); `common/pipeline/finish_portfolio.sh`, `s6b_lumpi.sh`, `gpu_queue.sh` (one reproduction job per GPU).
+- Background pipeline (`common/pipeline/`, root README Section 6.10): detached queues for training and post-processing, per-track portfolio orchestrators, `status.sh`, events log; TensorBoard with realval learning curves (`tb_realval.py`) for every member since S3.
+- Reproduction (root README Section 6.11, `docs/decisions/README.md` Section 6.1): `reproduce_submission.py` (weights inventory with md5 and release-asset names, re-merge check, `test/reproduce_<tag>.sh` per scored version: portable, frames from the corpus or the scored zip, final comparison of predictions and frames, matched-box equivalence check), `reproduce_validation.py` (`test/reproduce_<tag>_validation.sh`: realval-A/B from the weights against the recorded scorecard), `package_submission.py --syn-zip / --reproduction`; `release_weights.py` and `_github.py` (release assets: collect, publish, fetch, verify; GitHub REST, no CLI needed); a Reproduce section in every decision record since S1.
+- Members: LUMPI `voxelrcnn-ros-g1v4-s3/-s4`, `pvrcnnpp-ros-g1v4-s3/-s4`; V2X `voxelrcnn-ros-g1v5-s2/-s3`, `pvrcnnpp-ros-g1v5-s2/-s3`; six bags; models `routed-g8` (both tracks) and `routed-g8b` (V2X variant b, the entry; LUMPI close-out).
+- Findings: every seed bag at or above its best seed, but on realval-B none above R5's three-architecture fusions by +0.01; on the leaderboard the bag fusions gained +0.014 on V2X vehicle and truck (the +0.01-on-B requirement was too strict; the pooled condition had the signs right); the LUMPI Van judge transferred at 0.45 x its realval-A gain; LUMPI Car fusion gains vanish on the pooled frames for the third time; realism frame changes below about 0.004 are inside the scorer's subsample noise; inference is bit-identical on an idle GPU.
+- Environment: `tensorboard==2.17.1` pinned in `requirements.txt` and the lock.
+- Tests: 91 (`python -m pytest -q common/tests`; `test_environment.py` included).
+
 ## 5.2 (pre-release, 2026-10-15)
 
 **Leaderboard** (development phase; public leaderboards checked 2026-10-15): both tracks have a new entry, strategy R5.

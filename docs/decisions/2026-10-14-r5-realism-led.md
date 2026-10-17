@@ -52,3 +52,45 @@
 5. The pre-registered late-A rule for LUMPI Person gave the first Person change since S3; its first two candidates failed the B gate, which is the intended protection.
 6. **Tail copies and the late-A rule are the R5 levers that transferred** (1.07 x and 1.6 x B); fusions of seed members for V2X vehicle did not (0.2 x).
 7. **V2X realism proxies miss the reference's moments:** the next V2X frame change should be judged on EMD and FPD separately, and an FPD rise on the server is a known risk of a density prior.
+
+**Reproduce (weights and test run).** Generated on 2026-10-15 by `common/tools/reproduce_submission.py`, which also wrote each `test/reproduce_<tag>.sh`. The script runs the test-frame inference of every used member from the checkpoint listed (checkpoints are not in git; their md5s are in `validation/results/reproduce_<tag>.json`), merges with the committed `model.yaml`, compares with the scored zip, repackages the same 50 frames and runs the official kit scorer. It uses the members' current post-processing files: for the exact files of the time, check out release tag 5.2 first; the compare step reports any difference. Checked on 2026-10-15: the saved member predictions re-merge to the scored predictions exactly for every upload, and S1 LUMPI re-run from its checkpoints gives identical boxes and frames.
+
+**Reproduce (LUMPI, `model-lumpi-track/routed-g7`, tag `r5`).** Scored zip `model-lumpi-track/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip` (md5 `ae3612bfa0607f3f0773702acd985fd0`, CodaBench 990245); realism frames `pcdet/g1-v4` listed in `model-lumpi-track/routed-g7/submissions/2026-10-14_r5/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (15009 boxes).
+
+| Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
+|---|---|---|---|---|---|---|
+| `cp_tta` | `model-lumpi-track/centerpoint-g1v3` | `model-lumpi-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `25e4c0acf63d` | 6.0: `lumpi.centerpoint-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/centerpoint-g1v3/test/postprocess_tta.yaml` |
+| `g1` | `model-lumpi-track/pointpillars-g1` | `model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `16e68b8b9142` | 6.0: `lumpi.pointpillars-g1.epoch40.pth` | - | `model-lumpi-track/pointpillars-g1/test/postprocess.yaml` |
+| `g1v3` | `model-lumpi-track/pointpillars-g1v3` | `model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `e403acdc3ae3` | 6.0: `lumpi.pointpillars-g1v3.epoch40.pth` | - | `model-lumpi-track/pointpillars-g1v3/test/postprocess.yaml` |
+| `g1v3_tta` | `model-lumpi-track/pointpillars-g1v3` | `model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `e403acdc3ae3` | 6.0: `lumpi.pointpillars-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pointpillars-g1v3/test/postprocess_tta.yaml` |
+| `pp4_tta` | `model-lumpi-track/pointpillars-g1v4` | `model-lumpi-track/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `46e9f504fd05` | 6.0: `lumpi.pointpillars-g1v4.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pointpillars-g1v4/test/postprocess_tta.yaml` |
+| `ppros4_tta` | `model-lumpi-track/pointpillars-ros-g1v4` | `model-lumpi-track/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `97be701cb39c` | 6.0: `lumpi.pointpillars-ros-g1v4.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pointpillars-ros-g1v4/test/postprocess_tta.yaml` |
+| `ppros_tta` | `model-lumpi-track/pointpillars-ros-g1v3` | `model-lumpi-track/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `590e9f16fe22` | 6.0: `lumpi.pointpillars-ros-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pointpillars-ros-g1v3/test/postprocess_tta.yaml` |
+| `pvros4_tta` | `model-lumpi-track/pvrcnnpp-ros-g1v4` | `model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `3fffacf2d0ba` | 6.0: `lumpi.pvrcnnpp-ros-g1v4.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pvrcnnpp-ros-g1v4/test/postprocess_tta.yaml` |
+| `pvros_tta` | `model-lumpi-track/pvrcnnpp-ros-g1v3` | `model-lumpi-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `66c1f05a2e60` | 6.0: `lumpi.pvrcnnpp-ros-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/pvrcnnpp-ros-g1v3/test/postprocess_tta.yaml` |
+| `vrros4s2_tta` | `model-lumpi-track/voxelrcnn-ros-g1v4-s2` | `model-lumpi-track/voxelrcnn-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `4d877e50e453` | 6.0: `lumpi.voxelrcnn-ros-g1v4-s2.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/voxelrcnn-ros-g1v4-s2/test/postprocess_tta.yaml` |
+| `vrros_tta` | `model-lumpi-track/voxelrcnn-ros-g1v3` | `model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `5415c1ceb113` | 6.0: `lumpi.voxelrcnn-ros-g1v3.epoch40.pth` | flip4+yaw+z | `model-lumpi-track/voxelrcnn-ros-g1v3/test/postprocess_tta.yaml` |
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g7/test/reproduce_r5.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g7/test/reproduce_r5_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-lumpi-track/routed-g7 --tag r5   # quick check: re-merge the saved member predictions
+```
+
+**Reproduce (V2X, `model-v2x-track/routed-g7`, tag `r5`).** Scored zip `model-v2x-track/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip` (md5 `0d339f79a21059a8c97211d4d7c15533`, CodaBench 990255); realism frames `pcdet/g1-v5` listed in `model-v2x-track/routed-g7/submissions/2026-10-14_r5/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (24759 boxes).
+
+| Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
+|---|---|---|---|---|---|---|
+| `pvros4s2_tta` | `model-v2x-track/pvrcnnpp-ros-g1v4-s2` | `model-v2x-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `30b8d6036c6f` | 6.0: `v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth` | flip4+yaw+z | `model-v2x-track/pvrcnnpp-ros-g1v4-s2/test/postprocess_tta.yaml` |
+| `pvros_tta` | `model-v2x-track/pvrcnnpp-ros-g1v3` | `model-v2x-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `eea352738f9a` | - | flip4+yaw+z | `model-v2x-track/pvrcnnpp-ros-g1v3/test/postprocess_tta.yaml` |
+| `ut_tta` | `model-v2x-track/pointpillars-ut` | `model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `2081ca05e332` | - | flip4+yaw+z | `model-v2x-track/pointpillars-ut/test/postprocess_tta.yaml` |
+| `vrros4_tta` | `model-v2x-track/voxelrcnn-ros-g1v4` | `model-v2x-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `b85264eaec17` | 6.0: `v2x.voxelrcnn-ros-g1v4.epoch40.pth` | flip4+yaw+z | `model-v2x-track/voxelrcnn-ros-g1v4/test/postprocess_tta.yaml` |
+| `vrros4s2_tta` | `model-v2x-track/voxelrcnn-ros-g1v4-s2` | `model-v2x-track/voxelrcnn-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `501843304886` | - | flip4+yaw+z | `model-v2x-track/voxelrcnn-ros-g1v4-s2/test/postprocess_tta.yaml` |
+| `vrros5_tta` | `model-v2x-track/voxelrcnn-ros-g1v5` | `model-v2x-track/voxelrcnn-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `a90a13b7e297` | 6.0: `v2x.voxelrcnn-ros-g1v5.epoch40.pth` | flip4+yaw+z | `model-v2x-track/voxelrcnn-ros-g1v5/test/postprocess_tta.yaml` |
+| `vrros_tta` | `model-v2x-track/voxelrcnn-ros-g1v3` | `model-v2x-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `5677c039b8cc` | 6.0: `v2x.voxelrcnn-ros-g1v3.epoch40.pth` | flip4+yaw+z | `model-v2x-track/voxelrcnn-ros-g1v3/test/postprocess_tta.yaml` |
+
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g7/test/reproduce_r5.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g7/test/reproduce_r5_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-v2x-track/routed-g7 --tag r5   # quick check: re-merge the saved member predictions
+```

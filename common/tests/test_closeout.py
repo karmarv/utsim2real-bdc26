@@ -149,6 +149,9 @@ def test_upload_copy_is_track_prefixed_and_identical(tmp_path):
     man = json.loads((tmp_path / "manifest.json").read_text())
     assert man["upload_file"] == {"name": up.name, "md5": hashlib.md5(z.read_bytes()).hexdigest()}
     assert ps.upload_copy(z, load_track("lumpi"), {"strategy": "S2"}).name == "lumpi_s2_submission.zip"
+    assert ps.upload_copy(z, V2X, {"strategy": "S6"}, "s6b").name == "v2x_s6b_submission.zip"   # a variant of S6
+    assert ps.upload_copy(z, V2X, {"strategy": "S6"}, "s6").name == "v2x_s6_submission.zip"
+    assert ps.upload_copy(z, V2X, {"strategy": "S1"}, "first").name == "v2x_s1_submission.zip"
 
 
 def test_centerhead_targets_keep_class_labels():

@@ -1,0 +1,51 @@
+{
+  "model": "routed-g1",
+  "tag": "first",
+  "scored_zip": "model-v2x-track/routed-g1/submissions/2026-10-02_first/submission.zip",
+  "zip_md5": "5343da990d5cdd1f34df379433479e2a",
+  "codabench": "965633",
+  "remerge_check": {
+    "frames_equal_keys": true,
+    "boxes": [
+      18728,
+      18728
+    ],
+    "frames_differing": 0,
+    "max_abs_diff": 0.0,
+    "identical_within_tol": true
+  },
+  "members": [
+    {
+      "key": "g1v2",
+      "model": "model-v2x-track/pointpillars-g1v2",
+      "ckpt": "model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "7c3e9a1c074a67c58933791d2d2b2928",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-v2x-track/pointpillars-g1v2/test/postprocess.yaml"
+    },
+    {
+      "key": "g1v3",
+      "model": "model-v2x-track/pointpillars-g1v3",
+      "ckpt": "model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "b330667c29813de83e1f6a355775a83e",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-v2x-track/pointpillars-g1v3/test/postprocess.yaml"
+    },
+    {
+      "key": "ut",
+      "model": "model-v2x-track/pointpillars-ut",
+      "ckpt": "model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "2081ca05e3326bfdbf27794239cdf172",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-v2x-track/pointpillars-ut/test/postprocess.yaml"
+    }
+  ],
+  "md5_cache": {
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "7c3e9a1c074a67c58933791d2d2b2928",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "b330667c29813de83e1f6a355775a83e",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "2081ca05e3326bfdbf27794239cdf172"
+  }
+}

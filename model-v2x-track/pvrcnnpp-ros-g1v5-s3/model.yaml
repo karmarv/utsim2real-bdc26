@@ -1,0 +1,19 @@
+name: pvrcnnpp-ros-g1v5-s3
+strategy: S6
+track: v2x-track
+module: M9 (engine G2-lite)
+derived_from: pvrcnnpp-ros-g1v5
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++ (as pvrcnnpp-ros-g1v3) with ROS (truck length range removed)
+data:
+  train: pcdet/g1-v5
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v5
+postprocess: test/postprocess.yaml
+status: planned (S6 seed run, seed 2666)
+expected: a seed of pvrcnnpp-ros-g1v5 (seed 2666 instead of 666; same corpus and config)
+  for the S6 seed bag
+notes: 'S6 (docs/02-STRATEGY.md Section 8.6): pvrcnnpp-ros-g1v5 retrained with --fix_random_seed
+  --seed 2666; member of the seed bag bag-pvrcnnpp-ros-g1v5.
+
+  '

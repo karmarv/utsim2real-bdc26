@@ -56,6 +56,8 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--realism", action="store_true", help="recompute the exact realism of the latest submission zip")
     ap.add_argument("--fast", action="store_true", help="float32 IoU (OpenPCDet op) instead of the exact polygons")
+    ap.add_argument("--judge", nargs="*", default=[], help="S6: classes whose realval-B AP is replaced by their realval-A AP in "
+                                                          "estimate_B_judged (LUMPI Van: realval-B's class 6 labels are not vans)")
     ap.add_argument("--realism-from", default=None,
                     help="reuse the realism of another model's scorecard (only when both use the same synthetic_ids.txt)")
     a = ap.parse_args()
@@ -110,9 +112,16 @@ def main():
         "estimate_B": sc.combined_estimate(b_map, realism["R"]) if realism else None,
         "estimate_B_unclipped": sc.combined_estimate(b_map, realism["R"], clip=False) if realism else None,   # the upload gate (R3 on)
         "estimate_A": sc.combined_estimate(a_map, realism["R"]) if realism else None,
+        # S6 rule 3: the upload estimate with the judged classes read from realval-A (unclipped, as the upload gate)
+        "judge": list(a.judge) or None,
+        "B_mAP_judged": (float(np.mean([(A if c in a.judge else B)["per_class"][c]["3d@0.5"] for c in cwg
+                                        if (A if c in a.judge else B)["per_class"][c]["3d@0.5"] is not None])) if a.judge else None),
         "server_check": man.get("official_local_eval"),
+        "estimate_B_judged_unclipped": None,
         "leaderboard": lb,
     }
+    if a.judge and realism:
+        card_out["estimate_B_judged_unclipped"] = sc.combined_estimate(card_out["B_mAP_judged"], realism["R"], clip=False)
     from bdc26 import diagnostics as dg
     predsB = json.loads(validation_predictions(model_dir, card, "valB").read_text())
     card_out["B_ap_loss"] = {c: dg.ap_loss_decomposition(predsB, gts["valB"], c) for c in cwg}   # S4 review metric
@@ -140,7 +149,7 @@ def main():
            f"{(str(round(chk['wall_s'])) + ' s') if chk.get('wall_s') else '-'} | {f(lb['combined'], 4) if lb else '-'} | "
            f"{f(lb['mAP'], 4) if lb else '-'} | {f(lb['R'], 4) if lb else '-'} | {f(card_out['leaderboard'].get('LB_over_B') if lb else None, 2)} |")
     print(json.dumps({k: card_out[k] for k in ("model", "A_mAP", "B_mAP", "lateA_mAP", "B_over_A", "B_bev_3d_gap", "B_3d07_mAP",
-                                               "estimate_B", "estimate_B_unclipped")}, indent=2))
+                                               "estimate_B", "estimate_B_unclipped", "estimate_B_judged_unclipped")}, indent=2))
     print("per class (A / B / late-A):", {c: (f(v["A"]), f(v["B"]), f(v["lateA"])) for c, v in card_out["per_class"].items()})
     for c, v in (card_out.get("B_ap_loss") or {}).items():
         if v:

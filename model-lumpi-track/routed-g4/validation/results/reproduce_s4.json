@@ -1,0 +1,89 @@
+{
+  "model": "routed-g4",
+  "tag": "s4",
+  "scored_zip": "model-lumpi-track/routed-g4/submissions/2026-10-10_s4/lumpi_s4_submission.zip",
+  "zip_md5": "ce3dc93c3f7defd7e0ca74bd0efc702a",
+  "codabench": "975871",
+  "remerge_check": {
+    "frames_equal_keys": true,
+    "boxes": [
+      17004,
+      17004
+    ],
+    "frames_differing": 0,
+    "max_abs_diff": 0.0,
+    "identical_within_tol": true
+  },
+  "members": [
+    {
+      "key": "cp_tta",
+      "model": "model-lumpi-track/centerpoint-g1v3",
+      "ckpt": "model-lumpi-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "25e4c0acf63d4b8f3b425fdc37bb3898",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/centerpoint-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "g1",
+      "model": "model-lumpi-track/pointpillars-g1",
+      "ckpt": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/pointpillars-g1/test/postprocess.yaml"
+    },
+    {
+      "key": "g1_tta",
+      "model": "model-lumpi-track/pointpillars-g1",
+      "ckpt": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pointpillars-g1/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "g1v3",
+      "model": "model-lumpi-track/pointpillars-g1v3",
+      "ckpt": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/pointpillars-g1v3/test/postprocess.yaml"
+    },
+    {
+      "key": "g1v3_tta",
+      "model": "model-lumpi-track/pointpillars-g1v3",
+      "ckpt": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pointpillars-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "pv_tta",
+      "model": "model-lumpi-track/pvrcnnpp-g1v3",
+      "ckpt": "model-lumpi-track/pvrcnnpp-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "fd25c22b76cf55863ca66a9ce28bc508",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pvrcnnpp-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "vr_tta",
+      "model": "model-lumpi-track/voxelrcnn-g1v3",
+      "ckpt": "model-lumpi-track/voxelrcnn-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "c2756955e8a260f0ff1573b232d71279",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/voxelrcnn-g1v3/test/postprocess_tta.yaml"
+    }
+  ],
+  "md5_cache": {
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "25e4c0acf63d4b8f3b425fdc37bb3898",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "16e68b8b9142688967e4b3d006ac9d54",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "e403acdc3ae30a84de3989da34619440",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "fd25c22b76cf55863ca66a9ce28bc508",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/voxelrcnn-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "c2756955e8a260f0ff1573b232d71279"
+  }
+}

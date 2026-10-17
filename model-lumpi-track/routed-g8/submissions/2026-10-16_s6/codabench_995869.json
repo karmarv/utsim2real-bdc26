@@ -1,0 +1,62 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S6 (Variance-Controlled Final Portfolio: seed bags, LUMPI Van judged on early/late realval-A; Van-only change)",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 995869,
+  "uploaded_file": "lumpi_s6_submission.zip of this folder, unchanged (md5 02c731ecbd162a84d6eae5537856bc4a, as in manifest.json)",
+  "submitted": "2026-10-17 14:17 UTC (09:17 CDT; leaderboard created_when)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 21,
+  "runner_up_at_check": {
+    "owner": "Raj Patil",
+    "id": 980383,
+    "combined": 0.4914
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005290070873853157
+  },
+  "scores": {
+    "score_combined": 0.522754,
+    "score_detection": 0.249732,
+    "score_realism": 0.932287,
+    "mAP_3d_0.5_R40": 0.174812,
+    "mAP_3d_0.5_R11": 0.178705,
+    "mAP_3d_0.7_R40": 0.082718,
+    "mAP_bev_0.5_R40": 0.186335,
+    "CD": 1.593929,
+    "MMD": 3.071e-05,
+    "EMD": 1.302012,
+    "FPD": 0.519356,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.180231,
+    "AP_3d_0.5_R40_Car": 0.652404,
+    "AP_3d_0.5_R40_Bicycle": 0.188193,
+    "AP_3d_0.5_R40_Motorcycle": 0.000909,
+    "AP_3d_0.5_R40_Bus": 0.002778,
+    "AP_3d_0.5_R40_Truck": 0.058275,
+    "AP_3d_0.5_R40_Van": 0.140894,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] installing dependencies...",
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 1.5939288476319815, 'MMD': 3.070874668242851e-05, 'EMD': 1.3020122538945853, 'FPD': 0.5193563285015443, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.0005290070873853157}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.17481206758080628",
+    "[scoring] DONE: scores={'score_combined': 0.522754, 'score_detection': 0.249732, 'score_realism': 0.932287, 'mAP_3d_0.5_R40': 0.174812, 'mAP_3d_0.5_R11': 0.178705, 'mAP_3d_0.7_R40': 0.082718, 'mAP_bev_0.5_R40': 0.186335, 'CD': 1.593929, 'MMD': 3.071e-05, 'EMD': 1.302012, 'FPD': 0.519356, 'valid_submission': 1, 'AP_3d_0.5_R40_Person': 0.180231, 'AP_3d_0.5_R40_Car': 0.652404, 'AP_3d_0.5_R40_Bicycle': 0.188193, 'AP_3d_0.5_R40_Motorcycle': 0.000909, 'AP_3d_0.5_R40_Bus': 0.002778, 'AP_3d_0.5_R40_Truck': 0.058275, 'AP_3d_0.5_R40_Van': 0.140894, 'AP_3d_0.5_R40_Unknown': None}"
+  ],
+  "vs_previous": {
+    "id": 990245,
+    "note": "R5, the previous LUMPI entry",
+    "combined": 0.519841,
+    "mAP_3d_0.5_R40": 0.171413,
+    "score_realism": 0.932287,
+    "AP_Van": 0.117103,
+    "other_classes_identical": true
+  }
+}

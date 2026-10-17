@@ -307,6 +307,12 @@ Waymo 2020 1st place, [arXiv:2006.15505](https://arxiv.org/abs/2006.15505). **Us
 #### R39 RoboSense 2025 report
 [arXiv:2601.05014](https://arxiv.org/abs/2601.05014). **Used for:** S3 height TTA and the V2X ground-plane experiment. **Evidence:** ground-plane canonicalization +5.1; height TTA {-0.4, 0, +0.4} m for cars and {-0.6, 0, +0.6} m for pedestrians.
 
+#### R43 Deep ensembles under dataset shift
+Ovadia et al., "Can You Trust Your Model's Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift", NeurIPS 2019 ([arXiv 1906.02530](https://arxiv.org/pdf/1906.02530)). Ensembles of independently initialized models were the most robust method under dataset shift across images, text and tabular data, and small ensembles (about five members) sufficed; in-distribution accuracy was a weak proxy for behaviour under shift. Used for S6 (seed bags): sim-to-real is a dataset shift, and our measured seed spread is up to 0.17 AP per class.
+
+#### R44 AFDetV2 (SWA)
+Hu et al., "AFDetV2: Rethinking the Necessity of the Second Stage for Object Detection from Point Clouds" ([arXiv 2107.14342](https://arxiv.org/pdf/2107.14342)). Applies stochastic weight averaging to a LiDAR detector: five extra epochs at a tenth of the learning rate with a cyclic schedule, five checkpoints averaged, batch-norm statistics refitted, for about +0.2 mAPH/L2 on Waymo. Reason S6 does not use weight averaging.
+
 ## 7. Detector research for the next strategies (2026-10-06)
 
 **Question.** Which detector-side routes beat S1 (PointPillars, [R5](#r5-pointpillars)) on this challenge, and where should CenterPoint ([R22](#r22-centerpoint)) be used? The strategies themselves (effort, risk, steps, gates) are in [`02-STRATEGY.md` Section 8](02-STRATEGY.md#8-strategy-routes-after-s1).

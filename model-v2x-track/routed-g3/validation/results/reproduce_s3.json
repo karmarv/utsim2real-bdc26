@@ -1,0 +1,71 @@
+{
+  "model": "routed-g3",
+  "tag": "s3",
+  "scored_zip": "model-v2x-track/routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip",
+  "zip_md5": "5e46f9450feb7846455c4b8428483641",
+  "codabench": "974400",
+  "remerge_check": {
+    "frames_equal_keys": true,
+    "boxes": [
+      10671,
+      10671
+    ],
+    "frames_differing": 0,
+    "max_abs_diff": 0.0,
+    "identical_within_tol": true
+  },
+  "members": [
+    {
+      "key": "cp4_tta",
+      "model": "model-v2x-track/centerpoint-s4-g1v3",
+      "ckpt": "model-v2x-track/centerpoint-s4-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "0440576e97aefb2bb0094f7f1a12bba4",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-v2x-track/centerpoint-s4-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "cp_tta",
+      "model": "model-v2x-track/centerpoint-g1v3",
+      "ckpt": "model-v2x-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "2ffc3ad60f994193c190ce40bbcb6a9a",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-v2x-track/centerpoint-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "g1v2_tta",
+      "model": "model-v2x-track/pointpillars-g1v2",
+      "ckpt": "model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "7c3e9a1c074a67c58933791d2d2b2928",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-v2x-track/pointpillars-g1v2/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "g1v3_tta",
+      "model": "model-v2x-track/pointpillars-g1v3",
+      "ckpt": "model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "b330667c29813de83e1f6a355775a83e",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-v2x-track/pointpillars-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "ut_tta",
+      "model": "model-v2x-track/pointpillars-ut",
+      "ckpt": "model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "2081ca05e3326bfdbf27794239cdf172",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-v2x-track/pointpillars-ut/test/postprocess_tta.yaml"
+    }
+  ],
+  "md5_cache": {
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/centerpoint-s4-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "0440576e97aefb2bb0094f7f1a12bba4",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/centerpoint-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "2ffc3ad60f994193c190ce40bbcb6a9a",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "7c3e9a1c074a67c58933791d2d2b2928",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "b330667c29813de83e1f6a355775a83e",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "2081ca05e3326bfdbf27794239cdf172"
+  }
+}

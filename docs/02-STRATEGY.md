@@ -38,6 +38,9 @@
 | Seeds of the two-stage members (R5) | both | seed variance up to 0.17 AP per class on B (V2X truck); LUMPI Person B +0.02-0.03 per seed member | Section 8.9.1 |
 | R5 portfolio (`routed-g7`) | both | V2X B 0.703 -> 0.710 (vehicle +0.012, pedestrian +0.010 from tail copies), estimate 0.983; LUMPI Person B 0.145 -> 0.160 (late-A rule), estimate 0.565 | Section 8.9.1 |
 | R5 on the leaderboard (2026-10-15) | both | V2X 0.8789 -> **0.8852** (990255; pedestrian +0.011, vehicle +0.002, realism +0.0065), LUMPI 0.5169 -> **0.5198** (990245; Person 0.157 -> 0.180): **rank 1 on both tracks** | Section 8.9.1 |
+| Seed bags (S6): weighted box fusion of 3-4 seeds of one configuration | both | every bag at or above its best seed on both splits (V2X PV-RCNN++ B 0.680 -> 0.694, Voxel R-CNN 0.691 -> 0.697; LUMPI 0.196 -> 0.200 and 0.189 -> 0.192); no bag fusion beat R5's fusions by +0.01 on B | Section 8.6.1 |
+| LUMPI Van judge (S6): early-A rank, late-A gate | LUMPI | Van A 0.120 -> 0.173, late-A 0.118 -> 0.173 (P 1.00); judged estimate 0.5796 -> 0.5860: upload gate passed | Section 8.6.1 |
+| Realism frames from the whole `g1-v4` corpus (S6) | LUMPI | 0.9337 -> 0.9344 / 0.9313 as packaged: R5 frames kept; the scorer's draw varies by sd 0.0012-0.0025 | Section 8.6.1 |
 
 **First leaderboard results (2026-10-06, strategy S1):** LUMPI 965614 combined 0.4728 (mAP 0.1357, R 0.8912), V2X 965633 combined 0.7665 (mAP 0.4648, R 0.9203), both rank 1. Realism transferred (V2X +0.001, LUMPI -0.014 vs held-out proxies); detection transferred at 0.82-0.89 x realval-B but only 0.52 x realval-A on LUMPI (Person 0.117, Bicycle 0.053, Truck 0.028 on the test frames). Per-class tables: `model-<track>/README.md` Section 9. **2026-10-09:** V2X S1+C1 (972563) 0.7855, mAP 0.4869, rank 1; LUMPI S1 is rank 2 since Oct 7 behind an entry with lower mAP (0.1185) but realism R 0.942, so LUMPI realism is now the most valuable LUMPI lever (Section 8.7). **2026-10-10:** S3 uploaded on both tracks: V2X 974400 combined **0.8381** (mAP 0.5483, rank 1 of 19); LUMPI scored **0.5015** by the scorer log (mAP 0.1692), above the LUMPI leader (0.4784), but the submission was still Running at the server after scoring. The S3 gains transferred at 0.8 x the realval-A gain on both tracks, while the realval-B gain over-predicted V2X (0.48 x) and under-predicted LUMPI (1.89 x). **2026-10-10/11:** S4 uploaded on both tracks: V2X 975938 combined **0.8485** (mAP 0.5605), LUMPI 975871 **0.5040** (mAP 0.1721, uploaded below its upload gate by the entrant's call): rank 1 on both tracks. Over the five uploads with a local change, the leaderboard gain had the right sign every time but was 0.25-1.74 x the realval-A gain and 0.48-1.90 x the realval-B gain; projections now use 0.6 x the mean of both (Section 8.4.1). **2026-10-11:** S5 uploaded: V2X 978945 combined **0.8730** (mAP 0.5890, rank 1); LUMPI 978931 0.5039, 0.00007 below the S4 entry (not confirmed; diagnosed in Section 8.5.1: the LUMPI test window answers the size-augmented Bicycle members with false positives no local split shows). **2026-10-14:** R3 uploaded: LUMPI 986489 **0.5169** (realism 0.891 -> 0.932), V2X 986496 **0.8789**, rank 1 on both. **2026-10-15:** R5 uploaded: V2X 990255 **0.8852** (pedestrian +0.011 from the walker tail copies, realism +0.0065), LUMPI 990245 **0.5198** (Person 0.157 -> 0.180 through the late-A rule), rank 1 on both. Register: [`decisions/README.md` Section 2](decisions/README.md#2-submission-register).
 
@@ -191,7 +194,7 @@ Every strategy below uses the same template: **hypothesis** (what it should fix,
 | **S5** | Geometry-Invariant Inputs | **submitted 2026-10-11**: V2X 978945 0.8730 (rank 1); LUMPI 978931 0.5039, flat, not confirmed (S4 stays the entry) (8.5.1) | GBlobs (cell covariance) and class-wise object scaling (ROS) on Voxel R-CNN; ROS extended to PV-RCNN++ and the pillars; fused | the transfer gap; in effect the twin's size gap (trucks, bicycles, buses) | 1 day; about 100 GPU-hours (8 runs) | medium | [R27](07-LITERATURE.md#r27-gblobs), [R28](07-LITERATURE.md#r28-gblobs-for-sensor-placement), [R26](07-LITERATURE.md#r26-lidar-domain-generalization-study), [R36](07-LITERATURE.md#r36-dts-random-beam-re-sampling), [R40](07-LITERATURE.md#r40-st3d) |
 | **R3** | Engine G2-lite (extended step after S5) | **submitted 2026-10-14**, the entry on both tracks until R5: LUMPI 986489 **0.5169** (rank 1; realism 0.891 -> 0.932, mAP -0.004), V2X 986496 **0.8789** (rank 1) (8.7.1-8.7.2) | corpus `g1-v4`: actors re-cast at real size and density with the real rig, real-sized trucks, buses and two-wheelers with riders, unlabeled static clutter; retrained S5 members; pooled A+B class-gate condition | the twin's object geometry: Car and two-wheeler density, size-gap classes, static walker false positives | 2 days; about 60 GPU-hours | medium | [R9](07-LITERATURE.md#r9-lidar-aug), [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports), [R40](07-LITERATURE.md#r40-st3d) |
 | **R5** | Realism-led refinement (after R3) | **submitted 2026-10-15, the current entry on both tracks**: V2X 990255 **0.8852**, LUMPI 990245 **0.5198** (rank 1 on both) (8.9-8.9.1) | background density prior for the G2-lite corpus (`g1-v5`; V2X first prior), seeds of the two-stage members, V2X members on `g1-v5`, walker tail copies, pre-registered late-A Person rule and rare-class freeze | background realism (EMD), seed variance, LUMPI Person | 1 day; about 60 GPU-hours | low | [R9](07-LITERATURE.md#r9-lidar-aug), [R40](07-LITERATURE.md#r40-st3d) |
-| S6 | Sparse Transformer Experts | after the freeze, unless a route is dropped | DSVT (or LION, SAFDNet) members | capacity and long range | 7-10 days; 100+ GPU-hours | high | [R31](07-LITERATURE.md#r31-dsvt), [R32](07-LITERATURE.md#r32-lion), [R33](07-LITERATURE.md#r33-hednet-and-safdnet), [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports) |
+| S6 | Variance-Controlled Final Portfolio (re-planned 2026-10-15; was Sparse Transformer Experts) | **planned** (8.6) | seed bags of the strongest two-stage configurations; LUMPI Van judged on realval-A frames whose labels are vans; final-phase protocol | member noise (seed spread up to 0.17 AP); the frozen LUMPI Van | about 1.5 days; about 120 GPU-hours (16 h on 8 GPUs) | low | [R23](07-LITERATURE.md#r23-weighted-boxes-fusion), [R37](07-LITERATURE.md#r37-ms3d-kde-box-fusion) |
 
 GPU-hours are on the A6000s, from the measured PointPillars runs (LUMPI 40 epochs in 1 h 46 min on 4 GPUs, about 7 GPU-hours; V2X about 4) times the usual cost ratio of each family (center-head voxel models 2-3x, two-stage 4-5x, sparse transformers 5x or more). Each is replaced by the measured smoke-run speed before the full run. Dependencies checked on 2026-10-09: CenterPoint, PV-RCNN++ (its `vector_pool` ops are compiled) and Voxel R-CNN with `MeanVFE` run on the installed stack; DSVT and every dynamic-voxel encoder need `torch_scatter`, which is not installed.
 
@@ -649,22 +652,131 @@ Leaderboard projection (previous leaderboard mAP + 0.6 x the mean of the A and B
 
 Decision record: [`decisions/2026-10-11-s5-object-scaling.md`](decisions/2026-10-11-s5-object-scaling.md).
 
-### 8.6 S6 Sparse Transformer Experts
+### 8.6 S6 Variance-Controlled Final Portfolio (re-planned 2026-10-15)
 
-**Hypothesis.** A sparse transformer backbone (DSVT [R31](07-LITERATURE.md#r31-dsvt); LION [R32](07-LITERATURE.md#r32-lion) or SAFDNet [R33](07-LITERATURE.md#r33-hednet-and-safdnet) as forks) adds capacity and long-range context that the CNN members lack. The only evidence on this challenge is negative (the runner-up's DSVT ensembles scored below S1 [R20](07-LITERATURE.md#r20-eccv-2026-runner-up-reports)), so S6 runs only if an earlier route is dropped, or after the freeze as research.
+**Why the re-plan.** S6 was planned on 2026-10-06 as *Sparse Transformer Experts* (DSVT, LION or SAFDNet members for capacity and long range). The retrospective after R5 (Section 8.10) ranks capacity last among the drivers: S1's pillars beat the ECCV runner-up's DSVT ensembles, S2 and S4 added little that transferred, and no sim-to-real evidence for sparse transformers has appeared since (the ECCV runner-up's LUMPI write-up with DSVT scored 0.4692). The levers that did transfer are content, variance reduction and the right validation judge per class. S6 is therefore re-scoped as the final strategy around the two untried levers of that kind; the transformer members stay an optional research track (end of this section).
+
+**Review (2026-10-15): what the data says for S6** (legal validation data only; probe scripts in the session scratchpad, numbers here).
+1. **Tail hedges are saturated.** Copies below every original box (proven not to lower AP) of every other kind add 0.000-0.003 AP on A, late-A and B: Bus at the automatic-label size, Truck boxes as Bus, Bicycle boxes as Motorcycle, Car boxes as Van, Truck length variants, Bicycle and vehicle jitter, V2X walker and rider size modes, vehicle boxes as truck. Only walker jitter is worth anything (LUMPI Person +0.005-0.008, limited by the server cost; V2X pedestrian already in R5). The remaining errors are ranking errors and misses, which only better members fix.
+2. **realval-B cannot judge LUMPI Van.** In Measurements 5-6 the LUMPI class 6 is a different object population: median 1.88 x 0.95 x 1.74 m (M5) and 1.01 x 0.84 x 1.83 m (M6), person- or two-wheeler-sized; in Measurement4 (realval-A and the test window) it is van-sized, 4.77 x 1.99 x 2.00 m (late frames 4.64 x 2.03 x 2.04). Every member scores about 0.001 on B, so the B gate has frozen Van at the S1 member since S1, while realval-A predicted the Van leaderboard level (A 0.122, leaderboard 0.118). Later members and fusions score higher on A and on late-A: `vrros` + `vrros4_tta` + `g1_tta` (IoU 0.5) A 0.122 -> 0.174, late-A 0.120 -> 0.173 (both P 1.00); `vrros` + `g1_tta` A 0.169, late-A 0.193; triples with `pvros4_tta` gain on A but not on late-A.
+3. **Member noise is large.** One configuration with another seed moves V2X truck by 0.17 and LUMPI Person by 0.02-0.03 on B (R5); single-seed members make every selection partly a draw, and the R5 V2X vehicle fusion of new members transferred at only 0.2 x B. Averaging seeds of one configuration (a seed bag) reduces exactly this noise and is untried.
+4. **LUMPI Truck: annotation gaps, not missing structure.** The confident unmatched trucks of the R5 portfolio are static only in late-A (0.22 per frame, static share 0.70; 0.00 on A as a whole and on B): one 17.1 x 3.2 x 4.3 m object at about (19, 25), detected in 80 consecutive frames 5960-6395 (the last 45 s before the test window), with no label of any class; static unmatched cars are unlabeled stationary vehicles in the same period. A hard negative of that shape would teach the detector to miss real long trucks (real LUMPI trucks reach 16 m and more), and suppressing it by persistence across test frames or by a background map from real frames is outside the rules reading (`decisions/2026-10-14-rules-compliance-review.md`). The planned long-structure negatives are dropped; the finding explains part of the Truck transfer (0.3-0.5 x B) for the report.
+5. **Final phase.** The competition has one leaderboard (`Results`) with the rule `Force_Best`, and the final phase hides scores and allows one submission per day (5 in total per the pages). If `Force_Best` applies to the final phase, as the shared leaderboard suggests, the best final submission counts: the confirmed R5 zips on the first day fix the current scores, and later gated candidates can only add (to be confirmed in the organizer email).
+
+**Hypothesis.** (a) Seed bags of the strongest two-stage configurations lift the classes with the largest seed spread (LUMPI Person; V2X truck and pedestrian) and transfer better than fusions of single new members, because they remove member noise instead of selecting it. (b) Judging LUMPI Van on the frames whose labels are vans unlocks a class frozen since S1: about +0.05 Van AP on A and late-A, worth about +0.006 combined if the A-to-leaderboard relation of S1 holds.
+
+**Pre-registered rules** (written before any S6 run):
+1. **Seed bag:** a member made by fusing k seeds of one configuration (the R3/R5 weighted box fusion, equal weights, IoU 0.5 for walkers and two-wheelers, 0.7 otherwise), in a plain and a TTA variant; it is routed, fused and gated like any member (class gate, pooled condition, final gate). Seeds: 1666 exists; 2666 and 3666 are new.
+2. **LUMPI Van judge:** candidates are ranked on early realval-A (Measurement4 frames 0-4799) and the change must gain at least 0.01 on late-A (4800-6399) with paired-bootstrap P(gain) >= 0.9; realval-B and the pooled condition are not used for Van (its B labels are not vans); the final gate applies the same judge to Van.
+3. **Upload estimate for LUMPI:** the unclipped estimate uses Van's realval-A AP in place of its realval-B AP, for every version compared (otherwise no Van change can show); the bar stays +0.005 over the R5 estimate computed the same way.
+4. **Frozen as in R5:** LUMPI Bicycle, Motorcycle and Bus; realism frames change only through the +0.003 held-out rule; walker tail copies stay (V2X), LUMPI Person copies only if the kit scorer stays under 400 s.
+5. No class or knob is chosen from leaderboard numbers (rules review).
+
+**Refinements fixed on 2026-10-15 before the first S6 run** (review of optimizations and research; part of the pre-registration):
+6. **Bag composition:** LUMPI `bag-voxelrcnn-ros-g1v4` = seeds 1666, 2666, 3666 (the size-capped configuration; the R3 seed-666 run predates the cap and is a different configuration, so it stays out); LUMPI `bag-pvrcnnpp-ros-g1v4` = seeds 666, 1666, 2666, 3666; V2X `bag-voxelrcnn-ros-g1v5` and `bag-pvrcnnpp-ros-g1v5` = seeds 666, 1666, 2666. Each bag fuses the seeds' own tuned, post-processed predictions (no new knob besides the IoU) in a plain and a TTA variant; fusion IoU 0.7 for Car, Van and vehicle, 0.5 for every other class; the existing fusion averages scores over all seeds, so a box only one seed finds keeps a third or a quarter of its score (a soft vote).
+   *Amendment (2026-10-15, before any S6 portfolio step):* the functional test of the bag tool on the two existing V2X `voxelrcnn-ros-g1v4` seeds gave a bag at least as good as the better seed on every class (TTA, B: vehicle 0.844 against 0.832 / 0.846, pedestrian 0.382 against 0.376 / 0.376, truck 0.803 against 0.803 / 0.636); the two-seed V2X bags `bag-voxelrcnn-ros-g1v4` and `bag-pvrcnnpp-ros-g1v4` (seeds 666 and 1666, no training) are therefore added as candidates, gated like the others.
+   *Clarification (2026-10-15, before any S6 portfolio step):* the S3 rule that a fusion set uses different checkpoints counts a bag as all of its seeds, so a bag is never fused with one of its own seeds (that would count the seed twice; `route_predictions.member_weights`).
+7. **Van candidates:** for the Van judge the fusion search draws on the six members with the best early-A Van AP (four for the other classes), because the best Van fusion of the review needs a fifth-ranked member.
+8. **Monitoring is not selection:** every new member gets realval learning curves in TensorBoard (official AP on a fixed subset of realval-A and B every five epochs, `common/tools/tb_realval.py`) next to OpenPCDet's training losses; the epoch-40 checkpoint is always the one used, as in S1-R5.
+9. **Realism extension (optional, CPU):** the LUMPI frames may also be chosen from the whole `g1-v4` corpus (train and validation splits, 10,000 frames, the generator of the LUMPI members) with the S1 selector and the EMD refinement; the +0.003 held-out rule decides, as in R5.
+10. **Left out after the review:** weight averaging of the last checkpoints (stochastic weight averaging needs a cyclic extra schedule and a batch-norm refit, and the reported LiDAR gain is about 0.2 points [R44](07-LITERATURE.md#r44-afdetv2-swa)); more tail hedges (saturated, review item 1); long-structure negatives (review item 4); per-member fusion weights (more knobs on the same splits).
 
 **Steps.**
-1. Install `torch_scatter` for torch 2.1.2 + CUDA 12.1 into `.venv_ut` (`pip install torch-scatter -f https://data.pyg.org/whl/torch-2.1.0+cu121.html`), add it to `requirements.txt`, check `import torch_scatter`.
-2. Model `dsvt-g1v3` from mainline `cfgs/waymo_models/dsvt_pillar.yaml` (faster than `dsvt_voxel.yaml`): xyz only (the Waymo config uses 5 point features), our ranges, S2's head groups.
-3. Smoke run; full run only if the smoke run predicts 12 h or less per track.
-4. `tune_and_eval.sh`, scorecard, then a member of the current portfolio; joint routing and fusion decide per class.
-5. Upload only before Oct 30 and only through the upload gate.
+1. **Seeds** (GPU, about 16 h on 8 GPUs): LUMPI `voxelrcnn-ros-g1v4` (capped) and `pvrcnnpp-ros-g1v4` with seeds 2666 and 3666 (bags of three with the R5 seed 1666 and, for PV-RCNN++, the R3 seed 666); V2X `voxelrcnn-ros-g1v5` and `pvrcnnpp-ros-g1v5` with seeds 1666 and 2666 (bags of three with 666), on the corpus of the submitted V2X frames. Score blend, plain and TTA tuning as in R5; TTA tunes are queued after training to avoid running out of GPU memory.
+2. **Bag members** (code): `route_predictions.py` member type `bag` (members listed, fused per class before routing, validation and kit predictions cached), unit tests (a bag of identical members equals the member; boxes of one seed alone pass through).
+3. **Van judge** (code): `--judge Van=early-A:late-A` in `fuse` and `gate`, and the LUMPI estimate of rule 3 in `scorecard.py`.
+4. **Portfolio `routed-g8`** from `routed-g7`: bags and the new seeds as members; select, fuse (late-A Person rule, Van judge), budget, freeze, tail, final gate against `routed-g7`; package, kit check, scorecard.
+5. Upload gate, upload, record.
+6. **Final phase** (Section 8.8): the best confirmed zips on the first day, then only gated candidates.
 
-**Evaluation and gate.** As S2; the bar is the current portfolio, not S1.
+**Evaluation.** Per bag against its best single seed and against the R5 configuration of each target class (B, pooled, late-A for LUMPI Person); Van on early-A and late-A; the scorecard against `routed-g7`.
 
-**Risks.** Cost, tuning sensitivity, extra dependency; a dropped S6 costs nothing but GPU time.
+**Expected** (planning numbers): LUMPI Van +0.03-0.05 and Person +0.005-0.015 on the leaderboard: combined about +0.004 to +0.008 (0.524-0.528); V2X truck and pedestrian +0.005-0.01: combined about +0.002 to +0.004 (0.887-0.889).
 
-**Time box.** Post-freeze research, or the slot of a dropped route.
+**Risks and fallbacks.** The Van judge uses the selection split (its post-processing is tuned on all of realval-A), so the late-A check is only partly independent and the leaderboard is the real test; if Van does not transfer, the next upload reverts it. Bags may not beat the best single seed on B (then the gate keeps R5). GPU time competes with nothing else now. If the seeds run late, the Van change alone is an upload candidate (CPU only, about half a day).
+
+**Time box.** Oct 15-16 seeds and code; Oct 17 portfolio and upload; buffer to Oct 25; report from Oct 26.
+
+**Implementation (2026-10-15).** Every step runs detached under `common/pipeline/` ([README](../common/pipeline/README.md); root README Section 6.10) in `$BDC_DATA/logs/s6`: two training workers (one per 4-GPU half) pop the eight seed runs from a queue; two post-processing workers run the score blend, plain and TTA tuning and the realval curves of each finished seed on whichever GPU has 24 GB free (3 retries, the R5 out-of-memory failures); one orchestrator per track (`s6_portfolio.sh`) waits for its seeds, fuses the bags, builds `routed-g8` and runs select, fuse (Van judge, late-A Person rule), budget, freeze or tail copies, the final gate against `routed-g7`, packaging, the official kit check, the scorecard and the reproduction script, then stops: uploads stay manual. Progress: `bash common/pipeline/status.sh $BDC_DATA/logs/s6` and `events.txt`; training losses and realval curves in TensorBoard (localhost, SSH port forwarding). Tools added: `bag_predictions.py`, `score_blend.py`, `tb_realval.py`, `freeze_classes.py`, `reproduce_submission.py` (every scored version since S1 re-merges identically; S1 LUMPI re-run from its checkpoints gave identical boxes and frames), `route_predictions.py --judge`, `scorecard.py --judge`; tests `common/tests/test_s6.py`. Checks before the first portfolio step: every bag's seeds share one training configuration (only the per-member score blend differs, an inference knob); the bag kit cache is redone when a seed's checkpoint or post-processing is newer, and reproduction scripts always predict again. Upload bars fixed before any result: LUMPI judged estimate 0.5846 (R5 0.5796 + 0.005), V2X 0.988; realism item 9 bar 0.9367 (the R5 frames score 0.9337 as packaged: the scorer's subsample depends on frame order by about 0.0005, so candidates are scored in the packaged order).
+
+**Research track (optional, not in the final portfolio unless it passes every gate):** one new-family member for the report, VoxelNeXt first (no new dependency) or DSVT-pillar (`torch_scatter` 2.1.2 wheel for torch 2.1 + cu121 exists; it would be pinned in `.venv_ut`). Original S6 plan of 2026-10-06: install `torch_scatter`, `dsvt-g1v3` from `dsvt_pillar.yaml` with xyz input and our ranges, smoke run, full run only if under 12 h, then a portfolio member through the gates.
+
+
+#### 8.6.1 S6 results (2026-10-15 to 2026-10-16)
+
+**Run.** 16 h of training on the 8 GPUs (12:22 to 04:32, eight seed runs, no failure), post-processing next to training on whichever GPU had 24 GB free (no out-of-memory retry needed), then the two portfolios unattended (V2X 05:48-07:57, LUMPI 05:39-10:07); every step in `$BDC_DATA/logs/s6/events.txt`. Record: [`decisions/2026-10-16-s6-variance-controlled.md`](decisions/2026-10-16-s6-variance-controlled.md).
+
+**Seed bags** (TTA, realval-A / realval-B; best single seed in brackets):
+
+| Track | Bag | Seeds | Bag | Best seed | Per class (B) |
+|---|---|---|---|---|---|
+| V2X | `bag-pvrcnnpp-ros-g1v5` | 666, 1666, 2666 | **0.702 / 0.694** | 0.689 / 0.680 | vehicle 0.846, pedestrian 0.394, truck 0.842: above every seed |
+| V2X | `bag-voxelrcnn-ros-g1v5` | 666, 1666, 2666 | **0.708 / 0.697** | 0.690 / 0.691 | vehicle 0.861, pedestrian 0.407 above every seed; truck 0.822 (seeds 0.697-0.832) |
+| LUMPI | `bag-pvrcnnpp-ros-g1v4` | 666-3666 | **0.356 / 0.200** | 0.343 / 0.196 | Car, Bicycle, Truck and late-A Person (0.334 against 0.316-0.328) above every seed; Person B 0.123 (best seed 0.124) |
+| LUMPI | `bag-voxelrcnn-ros-g1v4` | 1666-3666 | **0.348 / 0.192** | 0.336 / 0.189 | Bicycle 0.241, A Van 0.125 above every seed; Person B 0.128 (seeds 0.093-0.137) |
+
+Hypothesis (a) held for the members: every bag is at or above its best seed on both split means, and the seed spread it removes is large (V2X Voxel R-CNN truck 0.697-0.832 on B, LUMPI Voxel R-CNN Person 0.093-0.137). It did not carry into the portfolios: no bag fusion beat R5's three-architecture fusions by +0.01 on B, most likely because those fusions already average much of the same member noise.
+
+**Portfolios** (`routed-g8`, every change through the class gate with the pooled condition, then the final gate against `routed-g7`):
+
+| Track / class | R5 | S6 | Source | Gate |
+|---|---|---|---|---|
+| LUMPI Van | 0.120 / 0.001 (late-A 0.118) | **0.173 / 0.002 (late-A 0.173)** | `vrros` + `vrros4_tta` + `g1_tta` (IoU 0.5, floor 0.05), the first candidate by early-A | judge: late-A +0.055 (P 1.00) on the final predictions |
+| LUMPI Person | 0.465 / 0.160 | R5 kept | late-A candidates (bag fusions, late-A 0.370-0.372) lost 0.009-0.015 on B | failed |
+| LUMPI Car | 0.898 / 0.792 | R5 kept | `pvros_tta` + `vrros_tta` + `pvros4s2_tta`: +0.007 (P 1.00) | under the bar |
+| LUMPI Motorcycle | 0.008 / 0.015 | R5 (frozen, rule 4) | `cp_tta` + `bagvr4` + `vr` passed (+0.023, A +0.171) | frozen |
+| LUMPI Truck, Bicycle, Bus | R5 | R5 | Truck -0.004; Bicycle and Bus frozen | |
+| V2X vehicle | 0.857 / 0.864 | R5 kept | `bagvr5_tta` + `pvros4s2_tta`: +0.005 (P 0.94), A +0.008, pooled +0.007 | under the bar |
+| V2X pedestrian | 0.381 / 0.418 | R5 kept | `bagvr5_tta` + `bagpv5_tta`: -0.006 | failed |
+| V2X truck | 0.905 / 0.848 | R5 kept | `pp5_tta` + `bagvr5_tta` + `bagpv5`: -0.001, **A +0.030, pooled +0.022** | failed on B |
+
+**Gate.** LUMPI judged estimate 0.5796 -> **0.5860** (bar 0.5846), late-A 0.351 -> 0.358, kit scorer 160 s: **upload gate passed**; the package differs from the R5 entry only in Van. V2X: predictions and frames identical to the R5 entry (estimate 0.983, bar 0.988): no upload.
+
+**V2X variant b (2026-10-16, for the leaderboard comparison).** `routed-g8b` takes, per class, the fuse step's best joint-ranked candidate wherever the pooled condition holds (P >= 0.9) without the +0.01 B requirement: vehicle and truck change, pedestrian stays at R5. A 0.714 -> 0.727, B 0.7101 -> 0.7118 (P 0.82), B 3D mAP@0.7 0.170 -> 0.221 (truck 0.114 -> 0.264), estimate 0.9847 (bar 0.988), kit 137 s. Its upload tests whether the B requirement is too strict for complete systems; the answer changes the final-phase rule only if fixed before the next run.
+
+**Realism (item 9).** The whole `g1-v4` corpus as the pool did not help: as packaged 0.9344 (FPD) and 0.9313 (FPD + EMD) against 0.9337 for the R5 frames; R5 frames kept. Noise study (exact R, 10 subsample seeds): 0.9335 / 0.9340 / 0.9344, sd 0.0012-0.0025. The FPD + EMD set scored 0.9372 in the selector's frame order and 0.9313 in the packaged order: the scorer's 10,000-point subsample depends on the frame order, so held-out scores are now computed in the packaged order (the server's draw), and the +0.003 gate is about 1.5-2 sd of one draw. The R5 realism-gate numbers (selector order) carry the same noise.
+
+**Monitoring.** Realval learning curves for all eight seeds and 28 earlier members are in TensorBoard. They are not monotonic on B (V2X PV-RCNN++ seed 1666: 0.584, 0.494, 0.617, 0.634, 0.580, 0.622 at epochs 15-40), which supports keeping epoch 40 rather than picking an epoch on real data.
+
+**Lessons.** (1) Bags are the right member when a class has no cross-architecture fusion; against fusions they are a near miss, not a gain. (2) A class whose labels differ between the splits needs its own judging split, fixed before the run (Van). (3) Realism changes below about 0.004 cannot be told apart from the scorer's draw. (4) The V2X near misses (truck A +0.030, pooled +0.022) are documented for the report, not adopted: changing the gate after seeing the result would be choosing on the same splits.
+
+
+#### 8.6.2 S6 close-out (2026-10-17): leaderboard transfer, the pooled rule and the plan to the final phase
+
+**Leaderboard (2026-10-17 UTC; record [`decisions/2026-10-16-s6-variance-controlled.md`](decisions/2026-10-16-s6-variance-controlled.md)).** LUMPI 995869 (`routed-g8`) **0.5228** (mAP 0.1748, R 0.9323), rank 1 of 21; V2X 995877 (`routed-g8b`, variant b) **0.8931** (mAP 0.6065, R 0.9332), rank 1 of 23. Both confirmed; realism identical to R5 on both (same frames).
+
+| Change | realval-A | realval-B | Pooled on the final predictions | Leaderboard | Leaderboard / local |
+|---|---|---|---|---|---|
+| LUMPI Van (judge: early-A rank, late-A gate) | +0.053 (late-A +0.055) | +0.001 | judge: late-A +0.055, P 1.00 | **+0.024** | 0.45 x A |
+| V2X vehicle (Voxel R-CNN bag + PV-RCNN++ seed 1666) | +0.008 | +0.005 | +0.007, P 1.00 | **+0.014** | 1.7 x A, 2.7 x B |
+| V2X truck (pillars + both bags) | +0.030 | -0.000 | +0.024, P 1.00 | **+0.014** | 0.45 x A |
+| Combined | | | | LUMPI +0.0029, V2X +0.0079 | projections: LUMPI +0.003 to +0.006 (low end), V2X +0.000 to +0.004 (above) |
+
+**Findings.**
+1. **The +0.01-on-B requirement was too strict for complete systems.** It rejected the two V2X changes that gained +0.014 each; the pooled A+B condition on the final predictions had all three signs right (and had caught the false LUMPI Car gains of S5 and R5). From 6.0 on the pooled rule replaces it, with an upload bar on the projection rule ([`decisions/README.md` Section 3.2](decisions/README.md#32-gates), pre-registered 2026-10-17).
+2. **Bags transfer through fusions with other architectures**, not as routed members alone: both V2X gains are bag fusions.
+3. **A judged class transfers at about half its judging-split gain** (Van 0.45 x A; the leaderboard / A level ratio fell from 0.97 to 0.81).
+4. **The B-based estimate under-predicts V2X fusions** (+0.0014 against +0.0079); the projection rule (0.6 x the mean of the A and B gains) was closer (+0.0037) but still low.
+5. **Box tightness at IoU 0.7 on the V2X test window is not represented locally**: 3D mAP@0.7 fell 0.187 -> 0.165 while it rose on B (0.170 -> 0.221). Not scored, but worth a note in the report.
+
+**Close-out.**
+- **LUMPI variant b (the pooled rule on LUMPI):** only Car qualified in `fuse` (pooled +0.0055, P 1.00); on the final predictions it gains on A (+0.0074) and on B (+0.0074) separately but loses on the pooled frames (-0.0022, P 0.24): the third LUMPI Car fuse-level gain that does not survive (S5, R5, S6). **Not adopted**; LUMPI stays at S6. (`common/pipeline/s6b_lumpi.sh`, `model-lumpi-track/routed-g8b`.)
+- **Reproduction from the weights** (`$BDC_DATA/logs/s6close`, one job per GPU): both entries' test-frame scripts give IDENTICAL predictions (maximum difference 0.0) and identical frames, from the corpus and, as in a fresh clone, from the scored zip; the validation scripts recompute realval-A/B and late-A with split mAP identical to four decimals and every class within 4e-4 AP (EQUIVALENT: 41 of 48 member files bit-identical; 7 TTA files of two-stage members, recorded on GPUs shared with training, differ in the last digits).
+- **Release 6.0** carries the 21 checkpoints and both zips as assets (`releases/6.0/weights.json`; `common/tools/release_weights.py fetch --tag 6.0`).
+
+**Plan to the final phase (reassessed 2026-10-17).** Time left: development phase to Fri Oct 30, 17:00 PDT (13 days, 5 uploads a day; 93 LUMPI and 91 V2X uploads unused); final phase Nov 1-14 (5 uploads, hidden scores, the best counts); report due Nov 15. Every new class change follows the pooled rule; every upload the 6.0 upload bar; one change set per upload.
+
+| # | Task | When | Cost | Expected | Decision rule |
+|---|---|---|---|---|---|
+| 1 | Record S6, close-out, release 6.0 with the weights | Oct 17 | done | traceable, reproducible entries | |
+| 2 | **V2X bag extension (optional):** seeds 3666 and 4666 of `voxelrcnn-ros-g1v5` and `pvrcnnpp-ros-g1v5`, bags of five, the vehicle and truck fusions re-searched | Oct 18-19 | 4 runs, about 12 GPU-hours; pipeline as S6 | +0.002 to +0.005 on vehicle or truck (three seeds gave +0.006 to +0.013 over the best seed on B) | pooled rule; upload bar |
+| 3 | **Bags for the unmoved classes (optional):** seeds of the members in the incumbent V2X pedestrian fusion (`voxelrcnn-ros-g1v3`, `voxelrcnn-ros-g1v4`) and the LUMPI Person fusion (`pointpillars-g1v4`, `voxelrcnn-ros-g1v4-s2` family) | Oct 18-21 | about 6 runs, 18 GPU-hours | uncertain: the S6 bag fusions did not beat these incumbents | pooled rule (LUMPI Person also the late-A rule); upload bar |
+| 4 | Final-phase dry run: rebuild the F1 zips from the release weights in a fresh clone (`reproduce_<tag>.sh`), byte and kit check | Oct 24 | 1 GPU-hour | proves F1 | IDENTICAL |
+| 5 | Gate E: feature freeze; at most two confirmation uploads per track; report draft from 8.10 and the records | Oct 25-30 | | | |
+| 6 | F1 = the 6.0 zips (995869, 995877); F2-F5 only confirmed versions | Nov 1-14 | 5 uploads | | `Force_Best` |
+| 7 | Report (4-8 pages) | to Nov 15 | | | |
+
+Tasks 2 and 3 run with the S6 pipeline (`common/pipeline/`: training queue, post workers, `s6_portfolio.sh` adapted to the pooled rule) after the entrant's go; nothing in them touches the 6.0 entries.
 
 ### 8.7 Parallel and gated work
 
@@ -848,12 +960,11 @@ Leaderboard projection (previous leaderboard mAP + 0.6 x the mean of the A and B
 
 ### 8.8 Final phase plan (Nov 1-14)
 
-The final phase scores the same test data with **1 submission per day, 5 in total, a hidden leaderboard, and no carry-over** of development submissions ([`01-CHALLENGE-FACTS.md`](01-CHALLENGE-FACTS.md)).
-1. Before Nov 1: re-package every frozen candidate from its tag, run `check_submission.py --official`, and store the zips; confirm in [`01-CHALLENGE-FACTS.md`](01-CHALLENGE-FACTS.md) whether the last or the best final submission counts (ask the organizers if it is not stated).
-2. F1 (Nov 1): the frozen best strategy per track, the exact zip confirmed on the development leaderboard.
-3. F2 (Nov 3): the runner-up candidate that differs in one decision (for example routed vs fused, or with and without the R-track frames), only if its development confirmation was within 0.005 of F1.
-4. F3-F5: reserve for platform failures; no new features after Gate E.
-5. Record every final submission like a development one (`codabench_<id>.json`, the register in `decisions/README.md` Section 2, track model README Section 9, root README Section 9) and write the 4-8 page report (due Nov 15) from the progression tracker, the submission register and the decision records ([`decisions/README.md`](decisions/README.md)).
+The final phase scores the same test data with **1 submission per day, 5 in total, a hidden leaderboard, and no carry-over** of development submissions ([`01-CHALLENGE-FACTS.md`](01-CHALLENGE-FACTS.md)). The competition has a single leaderboard (`Results`, rule `Force_Best`), and the final phase hides the scores (`hide_score_output`), so the best final submission most likely counts (checked through the public API on 2026-10-15; to be confirmed in the organizer email).
+1. Before Nov 1: re-package every candidate from its saved predictions and check it byte for byte against its scored upload copy (done for R3 on 2026-10-14), run `check_submission.py --official`, and store the zips.
+2. F1 (Nov 1): the best confirmed version per track, as the exact zip scored in the development phase (since 2026-10-17 S6: `lumpi_s6_submission.zip` (995869) and `v2x_s6b_submission.zip` (995877), release 6.0, with their weights as release assets and verified reproduction scripts).
+3. F2-F5: only versions that passed every local gate, preferably confirmed in the development phase before it closes (Oct 30); with `Force_Best` an unconfirmed gated candidate cannot lower the result, but each try costs one of the five slots and an invalid zip may too, so every zip passes the kit check first.
+4. Record every final submission like a development one (`codabench_<id>.json`, the register in `decisions/README.md` Section 2, track model README Section 9, root README Section 9) and write the 4-8 page report (due Nov 15) from the retrospective (Section 8.10), the progression tracker, the submission register and the decision records.
 
 ### 8.9 R5 Realism-led refinement (after R3; review and plan 2026-10-14)
 
@@ -945,3 +1056,56 @@ The one-step refit fails because the uniform G2-lite output lies far from real i
 5. **LUMPI Person moved for the first time since S3,** through the members that see the static clutter (seeds of the `g1-v4` two-stage members) and a selection rule matched to the test window's label provenance.
 6. **What transferred:** the walker tail copies (1.07 x, as their construction predicts) and the late-A Person rule (1.6 x B); the V2X vehicle fusion of new members did not (0.2 x), and its 3D mAP@0.7 fell on the server as it did locally.
 7. **V2X realism proxies do not hold the reference's moments:** the EMD gain transferred, the FPD doubled on the server while it fell locally; the next V2X frame change should be judged on EMD and FPD separately.
+
+### 8.10 Retrospective after R5 (2026-10-15): what each step bought, why, and what is left
+
+**Benefits per step on the leaderboard** (official scores of every scored upload; the combined change is split into its detection part, 0.6 x dmAP / 0.7, and its realism part, 0.4 x dR):
+
+| Step | What it changed | V2X combined (detection, realism) | LUMPI combined (detection, realism) |
+|---|---|---|---|
+| S1 | engine G1 (walkers ray-cast with the real sensors, actor scale fix, density and FOV calibration), PointPillars, per-class post-processing, routing | **0.7665** (first upload) | **0.4728** (first upload) |
+| S1+C1 | range-dependent z calibration (V2X) | +0.0190 (+0.0190, 0) | no version |
+| S2 | CenterPoint members | no version | no upload (below the gate) |
+| S3 | 8-view TTA as routable members, cross-architecture box fusion, score floors | **+0.0526** (+0.0526, 0) | **+0.0287** (+0.0287, 0) |
+| S4 | two-stage members (Voxel R-CNN, PV-RCNN++) in fusions | +0.0104 (+0.0104, 0) | +0.0025 (+0.0025, 0) |
+| S5 | class-wise object scaling to the real size ranges, GBlobs in fusions | **+0.0245** (+0.0245, 0) | -0.0001 (not listed) |
+| R3 | engine G2-lite (real-size re-cast actors, riders, static clutter) | +0.0059 (+0.0033, +0.0026) | **+0.0129** (-0.0035, **+0.0164**) |
+| R5 | density prior for G2-lite, seeds, tail copies, late-A Person rule | +0.0063 (+0.0037, +0.0026) | +0.0029 (+0.0029, 0) |
+| S6 (added 2026-10-17) | seed bags; LUMPI Van judged on early/late realval-A; V2X variant b (bag fusions by the pooled condition) | **+0.0079** (+0.0079, 0) | +0.0029 (+0.0029, 0) |
+| **Total since S1** | | **0.7665 -> 0.8931 (+0.1266: detection +0.1214, realism +0.0052)** | **0.4728 -> 0.5228 (+0.0500: detection +0.0335, realism +0.0164)** |
+
+Per class on the leaderboard since S1 (to S6): V2X vehicle 0.585 -> 0.735, **pedestrian 0.235 -> 0.413**, truck 0.574 -> 0.671; LUMPI **Person 0.117 -> 0.180**, Car 0.633 -> 0.652, **Bicycle 0.053 -> 0.188** (peak 0.244 in S4), Truck 0.028 -> 0.058, Bus 0.000 -> 0.003, Motorcycle 0.001 (unchanged), Van 0.118 -> 0.141 (unchanged until the S6 judge). S1 itself is measured only locally (no baseline upload): walkers took V2X pedestrian from 0 to 0.266 and LUMPI Person from 0 to 0.341 on realval-A, and the density calibration took LUMPI realism from 0.59 to 0.906; it was rank 1 on both tracks at its first upload, above the ECCV winners on V2X (0.746).
+
+**The main drivers, in order of leaderboard value.**
+1. **Fill what the twin is missing, with the real sensor and annotation conventions** (S1 walkers and calibration; R3 riders, real sizes and static clutter): the foundation of both tracks, and on LUMPI the largest realism gain (R3 +0.041 R).
+2. **Average out member noise at inference** (S3 TTA and fusion: 44% of the V2X and 61% of the LUMPI leaderboard gain; R5 seeds and tail copies): the largest single detection lever on both tracks.
+3. **Give the box head the real size distribution** (S5 object scaling, then R3 real sizes): V2X pedestrian +0.045 and truck +0.029 in one step; capped at the real sizes after the 19.7 m false trucks.
+4. **Correct conventions the detector cannot learn from the twin** (S1 post-processing per class, S1+C1 z calibration, R5 late-A Person rule): cheap and transferable.
+5. **Refinement and capacity mattered least** (S2 CenterPoint: no transferable gain except LUMPI Bicycle through S3; S4 two-stage: vehicle and truck localization only).
+
+**Lessons by theme.**
+
+| Theme | Lesson | Evidence |
+|---|---|---|
+| Synthetic data | The decisive gaps were content and conventions (missing walkers, 0.78x actors, no static structure, few asset sizes), not detector capacity | S1, R3; S1 pillars beat the ECCV runner-up's DSVT ensembles |
+| Synthetic data | Compare synthetic and real data in the same place (BEV cell), not by frame-origin range | R3 density review |
+| Synthetic data | A density prior must be fitted to the generator it corrects, iteratively when cells saturate | R5 (one-step refit on G2-lite was worse) |
+| Synthetic data | Size augmentation needs a ceiling at the real sizes, and anchors cap it | S5 pillars truck, R3 19.7 m trucks |
+| Detectors | Weak members can be good fusion members; architecture diversity helps fusions more than single-model rank | S3-S5 fusions (GBlobs, CenterPoint) |
+| Detectors | Seed variance is as large as many strategy steps (up to 0.17 AP per class on B for one config) | R5 seeds |
+| Inference | TTA and box fusion transfer; so do copies scored below every original (provably non-negative) | S3; R5 tail copies 1.07 x |
+| Inference | The remaining errors are ranking errors and misses, not near-misses: tail hedges of every other kind add 0.000-0.003 AP | S6 review probe (Section 8.6) |
+| Validation | realval-A over-predicts LUMPI levels; realval-B predicts levels; gains transfer at about 0.6 x the mean of the A and B gains (0.25-1.9 x, sign right 9 of 11) | decisions README 3.1 |
+| Validation | Gate on the final predictions, pooled over A and B: it caught two false LUMPI Car gains (S5, R5) | R3, R5 final gates |
+| Validation | Each class needs a judge whose labels share the test window's semantics: realval-B's LUMPI class 6 is not vans; late Measurement4 Person and Bus labels are automatic | S6 review (Section 8.6); R5 Person rule |
+| Validation | Rare LUMPI classes (Bicycle, Motorcycle, Bus) follow no local split; a class-count proxy fails its backtest | S5, R3, R5 |
+| Realism | Frame selection saturates (R2); generator content moves realism (R3); the local proxies represent the reference's EMD but not always its moments (V2X R5 FPD) | R2, R3, R5 |
+| Integrity | Pre-register the rules a run will be judged by; waive only with a proof, and record it | R5 |
+| Operations | Long runs need detached chains, event logs and a status script; TTA tuning next to training can run out of memory; OpenPCDet's after-training evaluation races the last checkpoint | R3, R5 |
+
+**Gaps going into S6** (each a reason for the S6 plan in Section 8.6):
+1. **Gate blind spots:** a class whose second split does not share the test labels' semantics can never pass the B gate. LUMPI Van has used the S1 member since S1 although later members score higher on realval-A, the split that has predicted its leaderboard level (A 0.122, leaderboard 0.118).
+2. **Member noise:** single-seed members make every selection partly a draw; seed bags (fusions of several seeds of one configuration) are untried.
+3. **LUMPI Truck** transfers at 0.3-0.5 x B; long false trucks stand at the same tall static structures in Measurements 4-6.
+4. **LUMPI realism:** EMD 1.30 against the leader's 1.11 and about 1.0 real-vs-real; frame selection is near its limit.
+5. **Detector capacity** (the original S6) has no supporting evidence in this challenge.

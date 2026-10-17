@@ -9,6 +9,8 @@ output of the M12 frame selector) or at random with --seed. They are written as 
 (gitignored), its upload copy <track>_<strategy>_submission.zip (for example lumpi_s2_submission.zip, the file
 to upload unchanged; tracked), manifest.json and synthetic_ids.txt (tracked); a registry row is appended.
 Upload the copy by hand, then record the CodaBench id and scores with --record.
+--syn-zip <zip> takes the 50 frames from a packaged zip instead (as stored there, nulls included): a reproduction
+from a fresh clone repackages the scored frames without the synthetic corpus, which is not in git.
 """
 import argparse
 import os
@@ -22,13 +24,16 @@ from _common import data_path, model_info
 from bdc26 import registry, submit
 
 
-def upload_copy(z: Path, track, card: dict) -> Path:
+def upload_copy(z: Path, track, card: dict, tag: str | None = None) -> Path:
     """The file to upload: a byte-identical copy of submission.zip named <track>_<strategy>_submission.zip
-    (for example lumpi_s2_submission.zip), recorded in the manifest. The working submission.zip stays git-ignored."""
+    (for example lumpi_s2_submission.zip), recorded in the manifest. The working submission.zip stays git-ignored.
+    A tag that extends the strategy code names a variant (S6 tag s6b: v2x_s6b_submission.zip)."""
     import hashlib
     import shutil
     short = track.name.split("-")[0]
     version = str(card.get("strategy") or "s0").lower().replace("+", "-")
+    if tag and tag.lower().startswith(version) and tag.lower() != version:
+        version = tag.lower()
     up = z.with_name(f"{short}_{version}_submission.zip")
     shutil.copy2(z, up)
     man_path = z.parent / "manifest.json"
@@ -46,6 +51,9 @@ def main():
     ap.add_argument("--synthetic")
     ap.add_argument("--syn-split", default="train")
     ap.add_argument("--syn-list", default=None)
+    ap.add_argument("--reproduction", action="store_true",
+                    help="a reproduction run: package into <model>/test/output/<tag>/ (git-ignored), no upload copy, no registry row")
+    ap.add_argument("--syn-zip", default=None, help="take the 50 frames from this zip's synthetic/ (reproduction without the corpus)")
     ap.add_argument("--seed", type=int, default=1234)
     ap.add_argument("--nulls", type=float, default=None,
                     help="(0,0,0) share of each synthetic frame (default track.yaml resample.null_fraction; V2X 0.31)")
@@ -75,24 +83,36 @@ def main():
     from bdc26.io.kit import test_ids
     preds = json.loads(Path(a.pred).read_text())
     ids = test_ids(track)
-    syn_root = data_path(track, a.synthetic)
-    pool = (Path(a.syn_list).read_text().split() if a.syn_list
-            else (syn_root / "ImageSets" / f"{a.syn_split}.txt").read_text().split())
-    chosen = pool[:50] if a.syn_list else sorted(np.random.default_rng(a.seed).choice(pool, 50, replace=False).tolist())
-    frames = [np.load(syn_root / "points" / f"{i}.npy") for i in chosen]
-    null_frac = a.nulls if a.nulls is not None else float(track["resample"].get("null_fraction", 0.0))
+    if a.syn_zip:                          # the frames exactly as packaged before (their nulls included)
+        import zipfile
+        with zipfile.ZipFile(a.syn_zip) as zf:
+            names = sorted(x for x in zf.namelist() if x.startswith("synthetic/") and x.endswith(".bin"))
+            frames = [np.frombuffer(zf.read(x), dtype=np.float32).reshape(-1, 3).copy() for x in names]
+        chosen = Path(a.syn_list).read_text().split()[:50] if a.syn_list else [Path(x).stem for x in names]
+        null_frac = 0.0
+    else:
+        syn_root = data_path(track, a.synthetic)
+        pool = (Path(a.syn_list).read_text().split() if a.syn_list
+                else (syn_root / "ImageSets" / f"{a.syn_split}.txt").read_text().split())
+        chosen = pool[:50] if a.syn_list else sorted(np.random.default_rng(a.seed).choice(pool, 50, replace=False).tolist())
+        frames = [np.load(syn_root / "points" / f"{i}.npy") for i in chosen]
+        null_frac = a.nulls if a.nulls is not None else float(track["resample"].get("null_fraction", 0.0))
     if null_frac > 0:
         from bdc26.frames import with_nulls
         rng = np.random.default_rng(a.seed)
         frames = [with_nulls(f, null_frac, int(track["resample"]["n_points"]), rng) for f in frames]
-    out = model_dir / "submissions" / f"{time.strftime('%Y-%m-%d')}_{a.tag}"
+    out = (model_dir / "test" / "output" / a.tag if a.reproduction
+           else model_dir / "submissions" / f"{time.strftime('%Y-%m-%d')}_{a.tag}")
     meta = {"model": card["name"], "ckpt": a.ckpt, "predictions": str(Path(a.pred).resolve()),
             "synthetic_source": a.synthetic, "synthetic_selection": a.syn_list or f"random seed {a.seed} from split {a.syn_split}",
-            "null_fraction": null_frac,
+            "synthetic_from_zip": a.syn_zip, "null_fraction": null_frac,
             "local_scores": json.loads(Path(a.local_scores).read_text()) if a.local_scores else None}
     z = submit.package(out, {i: preds.get(i, []) for i in ids}, frames, track, meta, team=a.team, test_ids=ids)
     (out / "synthetic_ids.txt").write_text("\n".join(chosen) + "\n")
-    up = upload_copy(z, track, card)
+    if a.reproduction:
+        print(f"reproduction package: {z}")
+        return
+    up = upload_copy(z, track, card, a.tag)
     registry.append(track, kind="submission", model=card["name"], run=a.tag, data_version=a.synthetic,
                     config=str(out.relative_to(model_dir)), notes="packaged, not yet uploaded")
     print(f"ready: {up}  (upload this file unchanged on CodaBench {track['codabench_id']}, then --record)")

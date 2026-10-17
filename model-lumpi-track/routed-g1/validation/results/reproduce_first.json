@@ -1,0 +1,41 @@
+{
+  "model": "routed-g1",
+  "tag": "first",
+  "scored_zip": "model-lumpi-track/routed-g1/submissions/2026-10-02_first/submission_lumpi.zip",
+  "zip_md5": "ea2c76393d6f8868762d6bac1ac03fa8",
+  "codabench": "965614",
+  "remerge_check": {
+    "frames_equal_keys": true,
+    "boxes": [
+      17095,
+      17095
+    ],
+    "frames_differing": 0,
+    "max_abs_diff": 0.0,
+    "identical_within_tol": true
+  },
+  "members": [
+    {
+      "key": "g1",
+      "model": "model-lumpi-track/pointpillars-g1",
+      "ckpt": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/pointpillars-g1/test/postprocess.yaml"
+    },
+    {
+      "key": "g1v3",
+      "model": "model-lumpi-track/pointpillars-g1v3",
+      "ckpt": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/pointpillars-g1v3/test/postprocess.yaml"
+    }
+  ],
+  "md5_cache": {
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "16e68b8b9142688967e4b3d006ac9d54",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "e403acdc3ae30a84de3989da34619440"
+  }
+}

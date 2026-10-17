@@ -1,0 +1,64 @@
+{
+  "vs": "routed-g7",
+  "classes": {
+    "vehicle": {
+      "A": [
+        0.8573405224994672,
+        0.8573405224994672
+      ],
+      "B": [
+        0.864157473701801,
+        0.864157473701801
+      ],
+      "dB": 0.0,
+      "p_gain": 0.0,
+      "dA": 0.0,
+      "pooled": {
+        "delta": 0.0,
+        "p_gain": 0.0
+      },
+      "decision": "reverted (class gate failed)"
+    },
+    "pedestrian": {
+      "A": [
+        0.38049863493283637,
+        0.38049863493283637
+      ],
+      "B": [
+        0.41793706852683526,
+        0.41793706852683526
+      ],
+      "dB": 0.0,
+      "p_gain": 0.0,
+      "dA": 0.0,
+      "pooled": {
+        "delta": 0.0,
+        "p_gain": 0.0
+      },
+      "decision": "reverted (class gate failed)"
+    },
+    "truck": {
+      "A": [
+        0.9051961078110775,
+        0.9051961078110775
+      ],
+      "B": [
+        0.8482140649471539,
+        0.8482140649471539
+      ],
+      "dB": 0.0,
+      "p_gain": 0.0,
+      "dA": 0.0,
+      "pooled": {
+        "delta": 0.0,
+        "p_gain": 0.0
+      },
+      "decision": "reverted (class gate failed)"
+    }
+  },
+  "reverted": [
+    "vehicle",
+    "pedestrian",
+    "truck"
+  ]
+}

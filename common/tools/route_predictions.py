@@ -393,12 +393,25 @@ def _fuse_eval(job):
         if split == "val" and _FUSE.get("late"):          # R5 late-A rank (the late realval-A frames only)
             lg = {f: gts[f] for f in _FUSE["late"] if f in gts}
             out["lateA"] = evalap.evaluate({f: F[f] for f in lg}, lg, [c])["per_class"][c]["3d@0.5"]["AP_R40"]
+        if split == "val" and _FUSE.get("early"):         # S6 judge: rank on early realval-A
+            eg = {f: gts[f] for f in _FUSE["early"] if f in gts}
+            out["earlyA"] = evalap.evaluate({f: F[f] for f in eg}, eg, [c])["per_class"][c]["3d@0.5"]["AP_R40"]
     return job, out
+
+
+def member_weights(model_dir: Path, card: dict, n: str) -> set:
+    """The checkpoints behind member n, as (model folder, ckpt) pairs: one for a detector (its TTA variant shares it), every
+    seed for an S6 bag. A fusion set may not use a checkpoint twice (a bag with one of its own seeds counts that seed twice)."""
+    m = card["members"][n]
+    mc = yaml.safe_load((model_dir.parent / m["model"] / "model.yaml").read_text())
+    if mc.get("type") == "bag":
+        return {(s_, "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth") for s_ in mc["members"]}
+    return {(m["model"], m["ckpt"])}
 
 
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
                 top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False,
-                late_rank=(), gate_top: int = 1) -> dict:
+                late_rank=(), gate_top: int = 1, judge=(), judge_top: int = 6) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
     (joint realval-A/B AP after their gated z calibration, from route_table.json of `select --calibrated`) with equal
     weights at each IoU of iou_grid; the best joint candidate replaces the routed member only through the class gate
@@ -412,7 +425,11 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     late_rank (R5, pre-registered for LUMPI Person): those classes rank their candidates by late-A AP (track.yaml
     `late_a`) instead of the joint A/B mean, and the top `gate_top` candidates go through the same gates in that order;
     the first that passes is kept. Reason: the early realval-A Person labels are almost all manually corrected (0.97-0.99)
-    with 24-34 persons per frame, the late ones 0.69 corrected with 10.8 per frame, like the test window's 10.2."""
+    with 24-34 persons per frame, the late ones 0.69 corrected with 10.8 per frame, like the test window's 10.2.
+    judge (S6, pre-registered for LUMPI Van): realval-B is not used for those classes (its LUMPI class 6 labels are not
+    vans); the member pool is the judge_top members by early-A AP (Measurement4 frames before late_a), candidates are
+    ranked by early-A AP, and the first of the top gate_top that gains at least 0.01 on late-A with paired-bootstrap
+    P(gain) >= 0.9 is kept (no pooled condition)."""
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -437,9 +454,20 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     prior = card.get("fusion") or {}                    # the incumbent fusion of each class, if any
 
     ranked = {c: sorted(table[c]["members"], key=lambda n: -(table[c]["members"][n]["joint"] or 0.0))[:top] for c in classes}
-    ckpt = lambda n: (card["members"][n]["model"], card["members"][n]["ckpt"])
+    judge = [c for c in (judge or ()) if c in classes]
+    late_ids = sc.late_a_ids(track, list(gts["val"]))
+    early_ids = [f for f in gts["val"] if f not in set(late_ids)]
+    early_ap = {}
+    for c in judge:                                     # S6 judge: the member pool by early-A AP
+        early_ap[c] = {}
+        for n in table[c]["members"]:
+            fl_ = sc.subset(sc.frame_flags(class_preds(n, "val", c), gts["val"], [c]), early_ids)[c]
+            early_ap[c][n] = sc.ap_from_flags(fl_, "3d@0.5") or 0.0
+        ranked[c] = sorted(early_ap[c], key=lambda n: -early_ap[c][n])[:judge_top]
+        print(f"  {c}: judge pool by early-A " + ", ".join(f"{n} {early_ap[c][n]:.4f}" for n in ranked[c]), flush=True)
+    W = {n: member_weights(model_dir, card, n) for c in classes for n in ranked[c]}
     sets = lambda c: [m for k in range(2, max_members + 1) for m in itertools.combinations(ranked[c], k)
-                      if len({ckpt(n) for n in m}) == len(m)]
+                      if len(set().union(*(W[n] for n in m))) == sum(len(W[n]) for n in m)]   # no checkpoint used twice
     jobs = [(c, members, thr) for c in classes for members in sets(c) for thr in iou_grid]
     for c, fz in prior.items():
         if c in classes and (c, tuple(fz["members"]), fz["iou"]) not in jobs:
@@ -452,7 +480,8 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         need = set(ranked[c]) | set(prior.get(c, {}).get("members", []))
         _FUSE["preds"] = {(n, split): class_preds(n, split, c) for n in need for split in ("val", "valB")}
         cj = [j for j in jobs if j[0] == c]
-        _FUSE["late"] = sc.late_a_ids(track, list(gts["val"])) if c in late_rank else None
+        _FUSE["late"] = late_ids if (c in late_rank or c in judge) else None
+        _FUSE["early"] = early_ids if c in judge else None
         with ProcessPoolExecutor(max_workers=min(workers, len(cj)), mp_context=mp.get_context("fork")) as ex:
             for job, out in ex.map(_fuse_eval, cj):
                 results[job] = out
@@ -462,7 +491,9 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         cand = {j: r for j, r in results.items() if j[0] == c}
         if not cand:
             continue
-        if c in late_rank:
+        if c in judge:
+            order = sorted(cand, key=lambda j: -(cand[j].get("earlyA") or 0.0))[:max(1, gate_top)]
+        elif c in late_rank:
             order = sorted(cand, key=lambda j: -(cand[j].get("lateA") or 0.0))[:max(1, gate_top)]
         else:
             order = [max(cand, key=lambda j: (cand[j]["val"] + cand[j]["valB"]) / 2)]
@@ -487,7 +518,12 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
             pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")},
                                 {s_: fl[("fused", s_)][c] for s_ in ("val", "valB")}, c, n_boot, seed) if pooled else None
             ok_b, ok = ok, ok and (pg is None or pg["ok"])
-            tested.append({"members": list(pair), "iou": thr, "lateA": cand[best].get("lateA"), "dB": boot["delta"],
+            if c in judge:                              # S6 judge: late-A gain >= 0.01 at P >= 0.9, no B, no pooled
+                bl = sc.paired_bootstrap({c: sc.subset(fl[("inc", "val")], late_ids)[c]},
+                                         {c: sc.subset(fl[("fused", "val")], late_ids)[c]}, [c], n_boot, seed)[c]
+                ok = ok_b = not same and bl["p_gain"] is not None and sc.class_gate(bl["delta"], bl["p_gain"], None)
+                pg = {"delta": bl["delta"], "p_gain": bl["p_gain"], "ok": ok, "judge": "late-A"}
+            tested.append({"members": list(pair), "iou": thr, "lateA": cand[best].get("lateA"), "earlyA": cand[best].get("earlyA"), "dB": boot["delta"],
                            "p_gain": boot["p_gain"], "dA": dA, "pooled": pg and {"delta": pg["delta"], "p_gain": pg["p_gain"]},
                            "passed": ok})
             if ok or same:
@@ -502,7 +538,8 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
                                   else "kept (pooled A+B condition failed)" if ok_b
                                   else "incumbent fusion kept (class gate failed)" if pz else "routed member kept (class gate failed)"),
                      "search_fast_iou": {f"{'+'.join(j[1])}@{j[2]}": r for j, r in cand.items()},
-                     "rank": "late-A, top %d through the gates" % max(1, gate_top) if c in late_rank else "joint A/B, best only",
+                     "rank": ("early-A rank, late-A gate (judge), top %d" % max(1, gate_top)) if c in judge else
+                             ("late-A, top %d through the gates" % max(1, gate_top) if c in late_rank else "joint A/B, best only"),
                      "tested": tested}
         a_best = max(cand, key=lambda j: cand[j]["val"])      # selection-bias check: the pick of realval-A alone
         report[c]["a_only_pick"] = {"members": list(a_best[1]), "iou": a_best[2], "A": cand[a_best]["val"], "B": cand[a_best]["valB"]}
@@ -581,7 +618,7 @@ def _class_config(card: dict, c: str) -> tuple:
             (card.get("budget") or {}).get(c), (card.get("tail_copies") or {}).get(c))
 
 
-def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int) -> dict:
+def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int, judge=()) -> dict:
     """R3 final gate: every class whose configuration (route, calibration, fusion, score floor) differs from the
     confirmed portfolio `vs_dir` must pass the class gate on B and the pooled A+B condition on the FINAL validation
     predictions of both (validation/output/<data>_<split>_routed.json), where the pooled rule was validated (S3-S5:
@@ -602,7 +639,14 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
             report[c] = {"decision": "same configuration as the incumbent"}
             continue
         ap = {(k, s_): sc.ap_from_flags(fl[(k, s_)][c], "3d@0.5") for k in ("inc", "new") for s_ in ("val", "valB")}
-        if ap[("inc", "valB")] is None:
+        if c in judge:                                  # S6 judge (LUMPI Van): late-A gain >= 0.01 at P >= 0.9
+            late = sc.late_a_ids(track, list(gts["val"]))
+            bl = sc.paired_bootstrap({c: sc.subset(fl[("inc", "val")], late)[c]}, {c: sc.subset(fl[("new", "val")], late)[c]},
+                                     [c], n_boot, seed)[c]
+            ok = bl["p_gain"] is not None and sc.class_gate(bl["delta"], bl["p_gain"], None)
+            row = {"A": [ap[("inc", "val")], ap[("new", "val")]], "late_A_delta": bl["delta"], "p_gain": bl["p_gain"],
+                   "decision": "kept (judge: late-A gain passed)" if ok else "reverted (judge: late-A gain failed)"}
+        elif ap[("inc", "valB")] is None:
             ok, row = False, {"decision": "reverted: no realval-B GT"}
         else:
             boot = sc.paired_bootstrap({c: fl[("inc", "valB")][c]}, {c: fl[("new", "valB")][c]}, [c], n_boot, seed)[c]
@@ -655,6 +699,8 @@ def main():
     ap.add_argument("--calibrated", action="store_true", help="select --rule joint: compare members with their gated z calibration")
     ap.add_argument("--max-members", type=int, default=2, help="fuse: largest member set (2: pairs, as in S3; 3: also triples)")
     ap.add_argument("--late-rank", nargs="*", default=[], help="fuse (R5): classes ranked by late-A AP (LUMPI Person)")
+    ap.add_argument("--judge", nargs="*", default=[], help="fuse/gate (S6): classes judged on early-A (rank) and late-A (gate) "
+                                                          "instead of realval-B (LUMPI Van, whose B labels are not vans)")
     ap.add_argument("--gate-top", type=int, default=1, help="fuse (R5): candidates of a --late-rank class tested through the gates")
     ap.add_argument("--vs", default=None, help="gate: the confirmed portfolio to compare the final predictions with")
     ap.add_argument("--pooled", action="store_true", help="select/fuse/calibrate: the class gate also needs a gain on the pooled "
@@ -710,14 +756,14 @@ def main():
     if a.mode == "gate":
         if not a.vs:
             raise SystemExit("gate needs --vs <confirmed routed model>")
-        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed)
+        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed, judge=a.judge)
         if res["reverted"]:
             _, card, _ = model_info(model_dir)
             validate(model_dir, card, track, registry_run="routed + fusion + budget + final gate")
         return
     if a.mode == "fuse":
         fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members, pooled=a.pooled,
-                    late_rank=a.late_rank, gate_top=a.gate_top)
+                    late_rank=a.late_rank, gate_top=a.gate_top, judge=a.judge)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion")
         return

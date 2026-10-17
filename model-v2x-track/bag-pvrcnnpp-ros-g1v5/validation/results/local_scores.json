@@ -1,0 +1,20 @@
+{
+  "run": "bag of 3 seeds",
+  "members": [
+    "pvrcnnpp-ros-g1v5",
+    "pvrcnnpp-ros-g1v5-s2",
+    "pvrcnnpp-ros-g1v5-s3"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.6836804052716424,
+  "realval_A_per_class": {
+    "vehicle": 0.8168032639604675,
+    "pedestrian": 0.34935557093270475,
+    "truck": 0.8848823809217553
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6745289924669572,
+  "realval_B_per_class": {
+    "vehicle": 0.8185729863655826,
+    "pedestrian": 0.37275424155563286,
+    "truck": 0.8322597494796561
+  }
+}
