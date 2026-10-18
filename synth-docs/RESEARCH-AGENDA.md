@@ -336,3 +336,24 @@ Runs: two tracks (plus TUMTraf-I if cleared), PointPillars and CenterPoint, 3 se
 - Paper 4: diversity scaling laws (area 5).
 
 The separation policy (`synth-paper/README.md`) adds one row: the BigData report describes the convention fixes as engineering (actor scale, size and z post-processing, the Van mapping), never the scribe model, the regimes or the decomposition.
+
+### 13.3 Pilot evidence (P0, 2026-10-18) and the next decision
+
+P0 compared real realval-A labels with the `g1-v5` corpus at the challenge's 50k points, with read-only statistics on both tracks. Records: [`synth-lumpi-track/experiments/P0-scribe-pilot/`](../synth-lumpi-track/experiments/P0-scribe-pilot/README.md) and [`synth-v2x-track/experiments/P0-scribe-pilot/`](../synth-v2x-track/experiments/P0-scribe-pilot/README.md).
+
+| Factor | Finding | Consequence for the paper |
+|---|---|---|
+| Scribe: visibility | **Opposite policies.** LUMPI keeps boxes the sensor cannot see: tracks carry amodal boxes through occlusion (Car at 30-57 m: 3.1% with 0 points). V2X-Real drops objects with fewer than about 6 points: far pedestrians with 1-5 points are 4.9% of real boxes and 39% of synthetic ones. Our labels follow neither (min_points = 1) | the best Figure 1 of the paper; it makes the case for a dataset-specific, inferred scribe |
+| Scribe: regimes | LUMPI's manual and automatic labels differ inside one recording: Person 0.70 m long (manual) against 1.03-1.60 m (automatic); the automatic class 6 is person-sized (1.04 x 0.80 x 1.78 m) | claim S3 has direct evidence (the manual flag is an observed regime label) |
+| Scribe: geometry | one box size per track (LUMPI); vehicle boxes about 5% wider than their points and 0.1-0.3 m above the highest point (both tracks); synthetic V2X vehicles 0.15 m too low | padding and size are confounded with asset shape: identify them on near, well-observed objects and within a regime |
+| Sensor and assets | at 30-57 m synthetic LUMPI objects have fewer points (Truck 65 against 183, Bicycle 9 against 29); synthetic walkers fill less of their boxes | the gap is not only the scribe: the decomposition (claim S1) is needed |
+| Sensor: time | LUMPI's five sensors see a vehicle a median 41 ms apart: smear 0.27 m (90th percentile 0.59 m) on moving vehicles; our renders are synchronous; the label's reference time is not identifiable with this diagnostic | a sensor parameter (per-sensor phase, feasible in G2-lite because each sensor is cast separately and UT-LUMPI is a sequence with actor ids), not a claim |
+
+**Next decision: E-S0, a scribe-only label swap** on fixed `g1-v5` frames. It needs no re-render, only training.
+- **V2X:** pedestrian minimum-points rule, and vehicle height and padding.
+- **LUMPI:** manual-regime Person sizes, and track-persistence boxes.
+- **Design:** raw labels against scribe labels; PointPillars, 3 seeds; realval-B AP at IoU 0.25, 0.5 and 0.7, plus static false positives per frame. About 12-18 runs, 70-140 GPU-hours, two days of the machine.
+- **Go:** the scribe leads the paper if pedestrian AP or false positives move outside the interval on at least one track.
+- **Otherwise:** the scribe stays one factor of the decomposition and the paper leads with claim S1.
+
+**Spill-over to the challenge line (decided on `main`, not here).** The V2X minimum-points finding is also a cheap candidate for the detector line: a per-class minimum-points filter on the training labels, gated as usual. Pedestrians are 62% of the V2X test objects, and static false positives are the main walker error. In the challenge report it would read as an engineering label filter, not as the scribe model (synth-paper/README.md Section 2).

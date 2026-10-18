@@ -1,0 +1,7 @@
+# P0 scribe pilot (synth-docs/RESEARCH-AGENDA.md Section 13.3). Read-only statistics; nothing trained.
+command: python synth-common/tools/pilot_scribe.py --track lumpi-track --out synth-lumpi-track/experiments/P0-scribe-pilot/results.json
+real: realval-A (pcdet/realval-v1/ImageSets/val.txt, Measurement4, 1280 frames); labels through the guard; 50k points
+synthetic: g1-v5 (1280 random frames, seed 0)
+timing: 200 raw Measurement4 frames of realval-A (full density, per-point time and sensor id)
+min_points_for_fill: 15
+range_bands_m: [[0, 15], [15, 30], [30, 57]]
