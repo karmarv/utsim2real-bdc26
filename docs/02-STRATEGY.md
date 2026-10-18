@@ -753,7 +753,7 @@ Hypothesis (a) held for the members: every bag is at or above its best seed on b
 | Combined | | | | LUMPI +0.0029, V2X +0.0079 | projections: LUMPI +0.003 to +0.006 (low end), V2X +0.000 to +0.004 (above) |
 
 **Findings.**
-1. **The +0.01-on-B requirement was too strict for complete systems.** It rejected the two V2X changes that gained +0.014 each; the pooled A+B condition on the final predictions had all three signs right (and had caught the false LUMPI Car gains of S5 and R5). From 6.0 on the pooled rule replaces it, with an upload bar on the projection rule ([`decisions/README.md` Section 3.2](decisions/README.md#32-gates), pre-registered 2026-10-17).
+1. **The +0.01-on-B requirement was too strict for complete systems.** It rejected the two V2X changes that gained +0.014 each; the pooled A+B condition on the final predictions had both V2X signs right (and had caught the false LUMPI Car gains of S5 and R5; it does not cover the rare LUMPI classes, which stay frozen after Bicycle passed it in R3 and fell on the leaderboard). From 6.0 on the pooled rule replaces it, with an upload bar on the projection rule ([`decisions/README.md` Section 3.2](decisions/README.md#32-gates), pre-registered 2026-10-17).
 2. **Bags transfer through fusions with other architectures**, not as routed members alone: both V2X gains are bag fusions.
 3. **A judged class transfers at about half its judging-split gain** (Van 0.45 x A; the leaderboard / A level ratio fell from 0.97 to 0.81).
 4. **The B-based estimate under-predicts V2X fusions** (+0.0014 against +0.0079); the projection rule (0.6 x the mean of the A and B gains) was closer (+0.0037) but still low.

@@ -40,8 +40,8 @@ Same scorer, same test data, same rules (summary in `01-CHALLENGE-FACTS.md` Sect
 
 | Work | ID / venue | Key result | Use here |
 |---|---|---|---|
-| Statistical Normalization ("Train in Germany, Test in the USA") | 2005.08139, CVPR 2020 | nuScenes->KITTI Car AP3D 19.0 to 54.8 by matching object sizes | Size synthetic objects and labels to real train-split statistics |
-| PCGen | 2210.08738 | Pedestrians 6.56 to **54.31** AP@0.5 just by loosening boxes to the annotator convention; per-ray drop MLP +1.4 | Fit label conventions per class (M7); simple learned ray-drop (M6) |
+| Statistical Normalization ("Train in Germany, Test in the USA") | 2005.08139, CVPR 2020 | nuScenes->KITTI Car (PointRCNN, moderate, IoU 0.7) AP3D 10.7 to 31.0, APBEV 39.8 to 67.4 by matching object sizes (KITTI-trained 68.9; Table 4; corrected 2026-10-18) | Size synthetic objects and labels to real train-split statistics |
+| PCGen | 2210.08738 | Pedestrians 6.56 to **54.31** 3D AP@0.5 (real 61.62) with "CAD Modified": boxes loosened **and** poses filtered, both fitted to real box and point statistics (not loosening alone; corrected 2026-10-18); per-ray drop MLP +1.4 | Fit label conventions per class (M7); simple learned ray-drop (M6) |
 | Synth It Like KITTI | 2502.15076, ROBOVIS 2025 | Simulated intensity hurt transfer; box convention mattered | xyz only; conventions first |
 | Huch et al. | 2303.01899, IEEE T-IV 2023 | ~14% AP drop sim-to-real; a range-noise model helps, downsampling alone does not | Range noise in M6 |
 | CTS | 2406.18129 | Naive CARLA to KITTI is about 4 AP3D; with sim-to-real UDA 45.3 | Shows the size of the naive gap; the UDA part is gated |
@@ -138,6 +138,8 @@ Achlioptas et al. 1707.02392 (CD/EMD for point clouds); Gretton et al., JMLR 201
 
 ## 4. Licence register (for Hitachi counsel)
 
+**Use statement (2026-10-18).** All work in this repository is academic, non-commercial research: the challenge entries, their reports and papers. That is within the non-commercial and academic terms below (LUMPI CC BY-NC 3.0, V2X-Real academic use). No derived asset is used commercially; any product use at Hitachi will be built on a separate open-source stack.
+
 | Item | Licence | Risk | Action |
 |---|---|---|---|
 | UT-LUMPI, UT-V2X-Real-IC | CC0 1.0 | None | Use |
@@ -190,10 +192,10 @@ OpenPCDet Development Team, [github.com/open-mmlab/OpenPCDet](https://github.com
 ### Sim-to-real transfer and object insertion
 
 #### R7 Statistical normalization
-Wang et al., *Train in Germany, Test in the USA: Making 3D Object Detectors Generalize*, CVPR 2020, [arXiv:2005.08139](https://arxiv.org/abs/2005.08139). **Used for:** S1 size conventions (actor scale fix, size calibration). **Evidence:** nuScenes to KITTI Car AP3D 19.0 to 54.8 by matching object sizes.
+Wang et al., *Train in Germany, Test in the USA: Making 3D Object Detectors Generalize*, CVPR 2020, [arXiv:2005.08139](https://arxiv.org/abs/2005.08139). **Used for:** S1 size conventions (actor scale fix, size calibration). **Evidence:** nuScenes to KITTI Car (PointRCNN, moderate, IoU 0.7, Table 4) AP3D 10.7 to 31.0 and APBEV 39.8 to 67.4 by matching object sizes; KITTI-trained 68.9 (corrected 2026-10-18: the earlier "19.0 to 54.8" is not in the paper). With ground-truth sizes (Table S11) AP3D reaches 47.3.
 
 #### R8 PCGen
-*PCGen: Point Cloud Generator for LiDAR Simulation*, [arXiv:2210.08738](https://arxiv.org/abs/2210.08738). **Used for:** annotator box conventions for pedestrians. **Evidence:** pedestrian AP@0.5 6.56 to 54.31 by loosening boxes to the annotator convention.
+*PCGen: Point Cloud Generator for LiDAR Simulation*, [arXiv:2210.08738](https://arxiv.org/abs/2210.08738). **Used for:** annotator box conventions for pedestrians. **Evidence:** pedestrian 3D AP@0.5 6.56 (naive CAD) to 54.31 ("CAD Modified": boxes loosened and poses filtered, both fitted to real box and point statistics) against 61.62 for real data; venue unverified (corrected 2026-10-18).
 
 #### R9 LiDAR-Aug
 Fang et al., *LiDAR-Aug: A General Rendering-Based Augmentation Framework for 3D Object Detection*, CVPR 2021. **Used for:** S1 rendering-based walker insertion with occlusion.
