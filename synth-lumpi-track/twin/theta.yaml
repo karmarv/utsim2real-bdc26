@@ -1,0 +1,48 @@
+# Twin parameter space theta for LUMPI (synth research line, synth-docs/RESEARCH-AGENDA.md Section 5).
+# Each parameter: where it enters the generator (hook), its current value (the point estimate behind the R3-S6 corpora
+# g1-v4 / g1-v5: data-lumpi-track/prepare_g1.py --walker v2 --density-prior gen/density_prior_v1.npz --g2), the prior
+# used for simulation-based inference (uniform unless stated; bounds are physical or from legal label statistics), and
+# its group. Posterior inference (synth-common, work package WP2) reads this file; nothing here changes the detector
+# line (data-*/model-*). Values are the code defaults as of 2026-10-17 (release 6.0).
+track: lumpi-track
+simulator: G1 walker insertion + engine G2-lite over the organizers' 10,000 UT-LUMPI frames (CARLA twin)
+build_cost: 10,000 frames in about 11 min on 96 workers (logs/r5, 2026-10-14)
+
+parameters:
+  # ---- sensor and insertion (how the five LUMPI sensors see inserted and re-cast objects)
+  walker_drop:        {group: sensor,  hook: "pedsim.InsertParams.drop_prob",     current: 0.02,  prior: [0.0, 0.15]}
+  walker_range_noise: {group: sensor,  hook: "pedsim.InsertParams.range_noise",   current: 0.03,  prior: [0.005, 0.06], unit: m}
+  block_margin:       {group: sensor,  hook: "pedsim.InsertParams.block_margin",  current: 0.25,  prior: [0.10, 0.50], unit: m}
+  occlude_eps:        {group: sensor,  hook: "pedsim.InsertParams.occlude_eps",   current: 0.05,  prior: [0.02, 0.15], unit: m}
+  sensor_jitter_xy:   {group: sensor,  hook: "pedsim.InsertParams.sensor_jitter_xy", current: 0.04, prior: [0.0, 0.12], unit: m, note: extrinsic error and motion between the unsynchronised sensors}
+  sensor_jitter_z:    {group: sensor,  hook: "pedsim.InsertParams.sensor_jitter_z",  current: 0.01, prior: [0.0, 0.05], unit: m}
+  drop_car_near:      {group: sensor,  hook: "prepare_g1.DROP.Car[0]",  current: 0.14, prior: [0.0, 0.4], note: ramp near->far over 15-25 m}
+  drop_car_far:       {group: sensor,  hook: "prepare_g1.DROP.Car[1]",  current: 0.02, prior: [0.0, 0.3]}
+  drop_van:           {group: sensor,  hook: "prepare_g1.DROP.Van",     current: 0.43, prior: [0.1, 0.7]}
+  drop_truck:         {group: sensor,  hook: "prepare_g1.DROP.Truck",   current: 0.20, prior: [0.0, 0.5]}
+  drop_bus:           {group: sensor,  hook: "prepare_g1.DROP.Bus",     current: 0.70, prior: [0.3, 0.9]}
+  drop_clutter:       {group: sensor,  hook: "prepare_g1.DROP.clutter", current: 0.10, prior: [0.0, 0.4]}
+  # ---- content (what is in the scene and at which size)
+  actor_scale:        {group: content, hook: "prepare_g1 --scale-fix",  current: 1.2820513, prior: [1.15, 1.40], note: UT actors are about 0.78x real size}
+  persons_mean:       {group: content, hook: "prepare_g1 --persons",    current: 16.0, prior: [6.0, 30.0], note: legal M4 mean 17.4 in range}
+  walker_depth_lo:    {group: content, hook: "WALKERS.v2.style.depth_range[0]", current: 1.25, prior: [1.0, 1.5]}
+  walker_depth_hi:    {group: content, hook: "WALKERS.v2.style.depth_range[1]", current: 1.70, prior: [1.5, 2.0]}
+  walker_arm_swing:   {group: content, hook: "WALKERS.v2.style.arm_swing",      current: 1.3,  prior: [0.5, 2.0]}
+  backpack_prob:      {group: content, hook: "WALKERS.v2.style.backpack_prob",  current: 0.30, prior: [0.0, 0.6]}
+  sidebag_prob:       {group: content, hook: "WALKERS.v2.style.sidebag_prob",   current: 0.25, prior: [0.0, 0.5]}
+  body_yaw_sigma:     {group: content, hook: "WALKERS.v2.body_yaw_sigma",       current: 0.8,  prior: [0.0, 1.5], unit: rad}
+  clutter_mean:       {group: content, hook: "prepare_g1 --clutter (G2Config.clutter_mean)", current: 30.0, prior: [0.0, 80.0], note: unlabeled static objects per frame}
+  clutter_anchor_share: {group: content, hook: "G2Config.anchor_share",        current: 0.6,  prior: [0.2, 0.9], note: share placed 1-4 m from walker positions}
+  clutter_mix:        {group: content, hook: "g2.CLUTTER_KINDS", current: {pole: 0.35, tree: 0.20, bollard: 0.15, utility_box: 0.15, bin: 0.10, barrier: 0.05},
+                       prior: {dirichlet_concentration: 20, centred_on: current}}
+  truck_stretch_prob: {group: content, hook: "prepare_g1 --truck-size (G2Config.stretch.prob)", current: 0.0, prior: [0.0, 0.5], note: 0 = real sizes only (R3 cap)}
+  # ---- placement
+  jitter_xy:          {group: placement, hook: "prepare_g1 --jitter-xy",  current: 0.4, prior: [0.1, 1.0], unit: m, note: walker positions from legal label rows plus jitter (a kernel density sample)}
+  jitter_yaw:         {group: placement, hook: "prepare_g1 --jitter-yaw", current: 0.2, prior: [0.0, 0.6], unit: rad}
+  # ---- background (the density prior of strategy R5 as a low-dimensional family)
+  prior_strength:     {group: background, hook: "density ratio exponent applied to gen/density_prior_v1.npz", current: 1.0, prior: [0.0, 1.5], note: 0 = no prior, 1 = the fitted prior; new hook (WP1)}
+  prior_ipf_steps:    {group: background, hook: "fit_density_prior.py --base (iterations)", current: 0, prior: {choice: [0, 1, 2]}, note: R5 v2 = one refined step}
+
+# Not inferred (fixed): the five sensors' beam tables and poses (meta.json), the organizers' UT frames, the real-size
+# samples of Bus/Bicycle/Motorcycle/Truck from legal label rows, the 50,000-point resampling protocol.
+# Dimension: 27 scalars + a 6-way mix; sensor 12, content 12, placement 2, background 2.

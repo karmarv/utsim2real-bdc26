@@ -1,0 +1,25 @@
+# Summary statistics s(x) for posterior inference on V2X-Real (synth-docs/RESEARCH-AGENDA.md Section 5.2).
+# Same construction as synth-lumpi-track/twin/summaries.yaml; one OS1-64 sensor (64 x 1024) with null returns.
+track: v2x-track
+batch_frames: 64
+
+calibration_data:
+  unlabeled: guard-allowed frames of the realval-A scenarios NOT sampled into realval-v1 (realval-v1 takes every 5th frame)
+  labels: legal label statistics of realval-A (sizes, counts per frame, points per box by range); realval-B labels are never used
+held_out:
+  - realval-B (298 frames, scenarios disjoint from A by name hash): detection AP
+  - realism-proxy-4, realism-proxy-5: realism R (scored with nulls, as packaged)
+  - the hidden test (CodaBench; development uploads until 2026-10-30, final phase hidden)
+
+families:
+  ring_return_rate:  {dims: "64 rows -> 16 bands of 4 rows = 16", why: "beam table, drop"}
+  null_profile:      {dims: "null fraction in 16 row bands x 8 azimuth sectors = 128 -> PCA 12", why: "the 31% nulls: structure, not uniform drop (cf. LiDAR4D's global drop refinement)"}
+  range_profile:     {dims: "4 elevation bands x 16 log-range bins (2-100 m) = 64", why: "ground rings, slope, max range"}
+  bev_height_bands:  {dims: "4 height bands x 12 x 12 cells of 8 m = 576 -> PCA 24", why: "background density on the sloped campus", note: "heights relative to the local ground (box bottoms span -1 to -7 m)"}
+  clusters:          {dims: "histograms of cluster point count (12), footprint (10), height (10) = 32", why: "walkers (62% of test objects), clutter, vehicles"}
+  ground_residual:   {dims: "16", why: "slope model and mounting"}
+  labels:            {dims: "per-class mean count (3), log points per box in 3 range bands (9), l/w/h medians (9) = 21", why: "content at the object level"}
+  total_dims: 185 handcrafted
+learned_summaries:
+  embedding_net: "DeepSets over per-frame statistics, trained jointly with NPE"
+  robustness: "MMD-regularized summaries (misspecification-robust statistics)"

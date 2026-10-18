@@ -1,0 +1,26 @@
+# Summary statistics s(x) for posterior inference on LUMPI (synth-docs/RESEARCH-AGENDA.md Section 5.2).
+# Computed identically on real calibration batches and on simulated batches; one simulation = a batch of B frames drawn
+# from the UT frame pool under one theta, summarised by the batch mean and standard deviation of per-frame statistics.
+# All frames are first masked to the point-cloud range and resampled to 50,000 points (the organizers' protocol).
+track: lumpi-track
+batch_frames: 64                    # B: frames per simulation (noise of the batch mean vs cost; WP2 checks 32/64/128)
+
+calibration_data:                   # real data the posterior may see (statistics only; rules review: generator adaptation)
+  unlabeled: Measurement4 frames 0-6399 NOT in realval-A (realval-A takes every 5th frame; about 5,100 frames remain)
+  labels: legal label statistics of realval-A (sizes, counts per frame, points per box by range); realval-B labels are never used
+held_out:                           # never used by inference: honest evaluation
+  - realval-B (Measurement5-6, 867 frames): detection AP, the paper's main local test
+  - realism-proxy-4, realism-proxy-5 (realval-A frames): realism R
+  - the hidden test (CodaBench; development uploads until 2026-10-30, final phase hidden)
+
+families:
+  ring_return_rate:  {dims: "5 sensors x their beams, reduced to 5 x 8 elevation bands = 40", why: "beam tables, blind zones, drop", hook: pedsim.assign_sensor}
+  range_profile:     {dims: "4 elevation bands x 16 log-range bins (2-80 m) = 64", why: "ground rings, near-field density, max range"}
+  bev_height_bands:  {dims: "4 height bands (ground, 0.3-1.5, 1.5-3, >3 m above ground) x 10 x 10 cells of 8 m = 400 -> PCA 24", why: "background density, static structure, clutter", note: "PCA basis fitted on prior simulations only"}
+  clusters:          {dims: "histograms of cluster point count (12), footprint area (10), height (10) after ground removal and DBSCAN = 32", why: "walkers, clutter, vehicles as objects"}
+  ground_residual:   {dims: "16-bin histogram of z minus local ground within 25 m", why: "ground model and mounting"}
+  labels:            {dims: "per-class mean count per frame (7), log points per box in 3 range bands per class (21), box l/w/h medians per class (21) = 49", why: "content and sensor at the object level", note: "needs labels: real from realval-A, synthetic from the generator"}
+  total_dims: 225 handcrafted
+learned_summaries:                  # WP2 option, compared against the handcrafted set
+  embedding_net: "DeepSets over the per-frame statistics of the batch, trained jointly with NPE (sbi embedding_net)"
+  robustness: "MMD between embedded real and simulated summaries as a regularizer (misspecification-robust statistics)"
