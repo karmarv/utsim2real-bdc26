@@ -1,0 +1,23 @@
+name: voxelrcnn-ros-g1v5m-s3
+strategy: S7
+track: v2x-track
+module: M9 (engine G2-lite) + S7 label visibility rule
+derived_from: voxelrcnn-ros-g1v5-s3
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN (as voxelrcnn-ros-g1v3) with ROS (truck length range removed)
+data:
+  train: pcdet/g1-v5m
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v5
+postprocess: test/postprocess.yaml
+status: planned (S7 run, seed 2666)
+expected: 'voxelrcnn-ros-g1v5-s3 retrained on the same frames with the S7 visibility
+  labels: fewer confident detections on sparse far blobs (pedestrian), equal or better
+  pedestrian AP on B'
+notes: 'S7 (docs/02-STRATEGY.md Section 8.11, record docs/decisions/2026-10-18-s7-visibility-rule.md):
+  the voxelrcnn-ros-g1v5 config, seed 2666, on pcdet/g1-v5m = the g1-v5 frames with
+  labels of fewer points than the real 2nd percentile removed (pedestrian 6, vehicle
+  8, truck 17; common/tools/filter_labels.py). Paired with voxelrcnn-ros-g1v5-s3 (same
+  seed, same frames).
+
+  '

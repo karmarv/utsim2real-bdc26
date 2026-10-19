@@ -55,8 +55,32 @@ def points_in_boxes(points: np.ndarray, boxes: np.ndarray, margin: float = 0.0) 
 
 
 def count_points_in_boxes(points: np.ndarray, boxes: np.ndarray) -> np.ndarray:
+    """Points per box when each point belongs to at most one box (labels); overlapping boxes: see count_points_per_box."""
     idx = points_in_boxes(points, boxes)
     return np.bincount(idx[idx >= 0], minlength=len(np.asarray(boxes).reshape(-1, 7)))
+
+
+def count_points_per_box(points: np.ndarray, boxes: np.ndarray, drop_null: bool = True) -> np.ndarray:
+    """Points inside each box, counted independently per box, so overlapping boxes (predictions, fused sets, tail
+    copies) each see their own points. (0,0,0) null returns are not measurements and are dropped by default. (M,) int64."""
+    from scipy.spatial import cKDTree
+
+    b = np.asarray(boxes, dtype=np.float64).reshape(-1, 7)
+    out = np.zeros(len(b), dtype=np.int64)
+    p = np.asarray(points, dtype=np.float64)[:, :3]
+    if drop_null and len(p):
+        p = p[np.any(p != 0, axis=1)]
+    if len(b) == 0 or len(p) == 0:
+        return out
+    cands = cKDTree(p[:, :2]).query_ball_point(b[:, :2], np.hypot(b[:, 3], b[:, 4]) / 2)
+    for i, cand in enumerate(cands):
+        if not cand:
+            continue
+        d = p[cand] - b[i, :3]
+        c, s = np.cos(-b[i, 6]), np.sin(-b[i, 6])
+        lx, ly = c * d[:, 0] - s * d[:, 1], s * d[:, 0] + c * d[:, 1]
+        out[i] = int(((np.abs(lx) <= b[i, 3] / 2) & (np.abs(ly) <= b[i, 4] / 2) & (np.abs(d[:, 2]) <= b[i, 5] / 2)).sum())
+    return out
 
 
 def scale_actors(points: np.ndarray, boxes: np.ndarray, scale: float, point_owner: np.ndarray,

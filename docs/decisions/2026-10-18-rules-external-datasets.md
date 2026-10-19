@@ -1,0 +1,19 @@
+# 2026-10-18 rules: external datasets (TUMTraf-V2X and others) for the detectors or the generator
+
+**Question** (the entrant, 2026-10-18). Can a further public dataset such as TUMTraf-V2X ([project page](https://tum-traffic-dataset.github.io/tumtraf-v2x/); CVPR 2024, arXiv 2403.01316) give better detectors, or better insight for our synthetic data, within the rules?
+
+**The dataset.** 2,000 labelled point clouds and 5,000 images, 30k 3D boxes with track ids, 5 roadside and 4 onboard sensors in Munich; roadside LiDAR Ouster OS1-64 (gen 2), onboard Robosense RS-32; the project page links CC BY-NC-SA 4.0. UrbanTwin has no twin of it (the UT sets replicate LUMPI, V2X-Real-IC and TUMTraf-I).
+
+**Binding texts** (CodaBench 16685 Rules tab re-read on 2026-10-18, unchanged since the 2026-10-14 review): Forbidden "Submitting predictions produced by a model that has been trained on real labels for any roadside-LiDAR dataset. The detector must be sim-only"; site "Using real data for training, including fine-tuning"; declaration "all submitted detections were produced by a model trained only on synthetic data I generated"; Allowed "Using the train split of the public real dataset for hyperparameter selection or domain adaptation".
+
+| Use | Status | Reason |
+|---|---|---|
+| Train, pre-train or fine-tune any member on TUMTraf-V2X (or TUMTraf-I, A9, DAIR-V2X, any roadside set) labels | **forbidden** | named in the Rules ("real labels for any roadside-LiDAR dataset") |
+| Pre-train on vehicle-side real sets (KITTI, nuScenes, Waymo), self-supervised pre-training on unlabelled real scans | **not done** | the Rules tab names roadside sets only, but the site ("real data for training") and the declaration ("trained only on synthetic data") exclude it |
+| Copy real object points (any real set) into synthetic frames, or train a generator (diffusion, ray-drop) on real scans of another set | **not done** | real points in the training data contradict the declaration; a generator fitted to real scans is the gray row of `01-CHALLENGE-FACTS.md` Section 3.1; the licence's share-alike (or TUM's no-derivatives terms) would bind derived frames |
+| TUMTraf-V2X label or sensor statistics to set generator parameters | allowed under the 2026-10-14 reading, **not used** | the train splits of LUMPI and V2X-Real already give these statistics for the test sites, sensors and annotators; a third annotator's conventions would move the twin away from the test labels (each real set labels by its own visibility and size rules: S7 record) |
+| TUMTraf-V2X as an extra validation judge | **not used** | the Allowed clause names "the public real dataset" of the track; and a judge must share the test labels' semantics (S6 lesson: realval-B could not judge LUMPI Van) |
+| Synthetic datasets made by others (CARLA sets such as V2X-Sim or OPV2V; UT-TUMTraf-I) | **not used** | the organizers allow the UT twins of the two tracks as training data; other synthetic sets are not "synthetic data I generated", and their sensors and sites differ from the test |
+| Public, non-LiDAR resources for the generator: map data (OpenStreetMap, city tree and street-light inventories, public 3D tiles), 3D asset libraries, sensor datasheets | **allowed** (already in the 2026-10-14 table for map data) | synthetic data we generate from public descriptions of the sites and objects; ODbL or asset licences to be cited in the report. Not scheduled before the Oct 25 freeze (2-3 days plus retraining each) |
+
+**Decision.** No external real dataset enters the detector line. The remaining value is in the legal train splits we already use: the 2026-10-18 review found that the V2X-Real annotators skip objects with fewer than about 6 points while our synthetic labels keep them, which became strategy S7 ([`2026-10-18-s7-visibility-rule.md`](2026-10-18-s7-visibility-rule.md)). `01-CHALLENGE-FACTS.md` Section 3.1 carries the rows above.

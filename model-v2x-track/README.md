@@ -15,6 +15,7 @@
 | Realism of the submitted frames | **R = 0.933 on the server** (R5 frames from `g1-v5`: background density prior, 31% nulls; 0.937 on held-out legal proxies); R3 frames 0.927 (`g1-v4`); S1-S5 0.920 (`g1-v3`) |
 | Submit | Section 6.7 |
 | Strategy | S1, S1+C1, S3, S4, S5, R3, R5 and **S6 (variant b) submitted**; **S6b is the entry** (Section 7.11: vehicle +0.014, truck +0.014 on the leaderboard); the gated S6 (`routed-g8`) equals R5; S2 done without a new V2X version (Section 7.5); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8 |
+| Next upload (decision-ready) | **S7 step 1** [`routed-g9`](routed-g9): the S6 entry with boxes that hold fewer points than the real labels' visibility cut ranked last (pedestrian k = 6, vehicle k = 5); realval 0.734 / 0.721, projection +0.0040; [`v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (Section 7.12) |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
@@ -52,6 +53,10 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`bag-voxelrcnn-ros-g1v5`](bag-voxelrcnn-ros-g1v5), [`bag-pvrcnnpp-ros-g1v5`](bag-pvrcnnpp-ros-g1v5), [`bag-voxelrcnn-ros-g1v4`](bag-voxelrcnn-ros-g1v4), [`bag-pvrcnnpp-ros-g1v4`](bag-pvrcnnpp-ros-g1v4) | seeds 666-2666 (`g1-v5`); 666, 1666 (`g1-v4`) | S6 seed bags (weighted box fusion of the seeds' tuned predictions) | at or above the best seed on A and B; vehicle and truck fusions of `routed-g8b` |
 | [`routed-g8`](routed-g8) | `routed-g7` (incumbent) + the S6 seeds and bags | S6 (gated) | equal to R5 (no class passed the class gate): not uploaded |
 | [`routed-g8b`](routed-g8b) | `routed-g8` with vehicle and truck by the pooled rule | **selected** (S6 variant b) | submitted (995877, **0.8931**, rank 1 of 23; Section 7.11) |
+| [`routed-g9`](routed-g9) | `routed-g8b` + the S7 sparse-box demotion (`sparse_demotion: {vehicle: 5, pedestrian: 6}`) | S7 step 1 | decision-ready, upload gate passed (Section 7.12) |
+| [`voxelrcnn-ros-g1v5m`](voxelrcnn-ros-g1v5m), [`-s2`](voxelrcnn-ros-g1v5m-s2), [`-s3`](voxelrcnn-ros-g1v5m-s3), [`pvrcnnpp-ros-g1v5m`](pvrcnnpp-ros-g1v5m), [`-s2`](pvrcnnpp-ros-g1v5m-s2), [`-s3`](pvrcnnpp-ros-g1v5m-s3) | `pcdet/g1-v5m` (the `g1-v5` frames, labels with the S7 visibility rule) | S7 step 2: the `g1-v5` two-stage configs, seeds 666 / 1666 / 2666 | training (2026-10-18) |
+| [`bag-voxelrcnn-ros-g1v5m`](bag-voxelrcnn-ros-g1v5m), [`bag-pvrcnnpp-ros-g1v5m`](bag-pvrcnnpp-ros-g1v5m) | the three seeds of each | S7 step 2 seed bags; compared with the `g1-v5` bags of the same seeds | planned |
+| `routed-g10` (created by `common/pipeline/s7_portfolio.sh`) | `routed-g9` + the two S7 bags | S7 step 2 portfolio | planned |
 
 ## 2. Modeling approaches considered
 
@@ -314,6 +319,18 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.6.1](../docs/02-STRATEGY.md#861-s6
 
 **Leaderboard (2026-10-17):** 995877 (variant b `routed-g8b`) **0.8931** (mAP 0.6065): **vehicle 0.721 -> 0.735, truck 0.657 -> 0.671**, pedestrian and realism identical; rank 1 of 23.
 
+### 7.12 S7 results: visibility rule (2026-10-18)
+
+Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-visibility-rule-v2x-2026-10-18); record [`2026-10-18-s7-visibility-rule.md`](../docs/decisions/2026-10-18-s7-visibility-rule.md); statistics in [`../data-v2x-track/README.md`](../data-v2x-track/README.md) (label visibility).
+
+| Item | realval-A / realval-B |
+|---|---|
+| Real labels: points per box (p1 / p2 / p5) | pedestrian 5 / 6 / 6 (1.6-1.7% below 6); vehicle 7 / 8 / 10; truck 15-30 / 18-32 / 31-51. Synthetic `g1-v5` pedestrians: 16.3% below 6 (38.4% beyond 30 m) |
+| Step 1, pedestrian k = 6 (ranked last below 6 points) | 0.3805 -> **0.3985** / 0.4179 -> **0.4413**; pooled +0.0197 (P 1.00); k = 7 loses (-0.0022 pooled) |
+| Step 1, vehicle k = 5 | 0.8654 -> 0.8678 / 0.8693 -> 0.8723; pooled +0.0022 (P 1.00) |
+| `routed-g9` | **0.734 / 0.721** (S6b 0.727 / 0.712); unmatched confident pedestrian boxes on B 8.0 -> 5.1 per frame; recall unchanged; projection +0.0040: upload gate passed |
+| Step 2 | running: six runs on `g1-v5m` (Section 1), portfolio `routed-g10` |
+
 ## 8. Experiment log and next experiments
 
 | # | Question | Result / plan |
@@ -333,6 +350,8 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.6.1](../docs/02-STRATEGY.md#861-s6
 | E14 | Background density prior (E8) for the G2-lite corpus | done (R5): `gen/density_prior_v1.npz`, corpus `g1-v5`; realism 0.925 -> 0.937; pillars truck +0.07 on B (Section 7.10) |
 | E15 | Seeds and walker tail copies | done (R5): large seed variance on truck; pedestrian copies +0.010 on B (Section 7.10) |
 | E16 | Seed bags | done (S6): every bag at or above its best seed, none above the R5 fusions on B; `routed-g8` equals R5 (Section 7.11) |
+| E17 | Sparse-box demotion at the real labels' visibility cut (S7 step 1) | done: pedestrian +0.018 (A) / +0.023 (B), vehicle +0.002 / +0.003; `routed-g9` decision-ready (Section 7.12) |
+| E18 | Training labels with the same visibility rule (S7 step 2, corpus `g1-v5m`) | running (Section 7.12) |
 
 ## 9. Submission log
 

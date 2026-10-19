@@ -28,7 +28,7 @@ from pathlib import Path
 import yaml
 
 from _common import REPO, member_tag, model_info
-from route_predictions import merge_card, used_members
+from route_predictions import frame_points, merge_card, used_members
 
 TTA_PP = "test/postprocess_tta.yaml"
 
@@ -253,7 +253,7 @@ def main():
         check = {"identical_within_tol": False, "boxes": [0, 0], "note": "saved member predictions missing: " +
                  ", ".join(k for k, v in saved.items() if v is None)}
     else:
-        check = compare(merge_card(card, saved), scored, tol=1e-9)
+        check = compare(merge_card(card, saved, frame_points(track, "kit")), scored, tol=1e-9)
     res = {"model": card["name"], "tag": a.tag, "scored_zip": str(zpath.relative_to(REPO)), "zip_md5": man.get("zip_md5"),
            "codabench": man.get("codabench_submission_id"), "remerge_check": check, "members": rows, "md5_cache": cache}
     cache_path.write_text(json.dumps(res, indent=2))

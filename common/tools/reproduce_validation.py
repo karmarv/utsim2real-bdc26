@@ -9,7 +9,7 @@ Every used member (for a bag: every seed) predicts realval-A (split val) and rea
 checkpoint and its committed post-processing file, exactly as validation/tune_and_eval.sh wrote the predictions the
 portfolio was selected on, into <model>/validation/output/repro_<tag>/. --score fuses each bag from those seed
 predictions (bag_predictions.fuse_files), merges the routed model with the committed model.yaml
-(route_predictions.merge_card: route, calibration, fusion, score floors, tail copies), evaluates with the official
+(route_predictions.merge_card: route, calibration, fusion, score floors, tail copies, S7 sparse stage), evaluates with the official
 metric and compares the per-class AP on realval-A, realval-B and late-A with validation/results/scorecard.json:
 IDENTICAL within 1e-4 per class, EQUIVALENT within 1e-3 per class and 5e-4 per split mAP (the last digits of GPU
 inference: a member whose recorded predictions were written on a GPU shared with a training job differs by about 1e-3
@@ -74,7 +74,7 @@ def score(model_dir: Path, card: dict, track, tag: str) -> dict:
     from bdc26 import scorecard as sc
     from bdc26.evalap import evaluate
     from bag_predictions import fuse_files
-    from route_predictions import merge_card
+    from route_predictions import frame_points, merge_card
     jobs, how = plan(model_dir, card)
     d = model_dir / "validation" / "output" / f"repro_{tag}"
     root = data_path(track, card["data"]["realval"])
@@ -92,7 +92,7 @@ def score(model_dir: Path, card: dict, track, tag: str) -> dict:
                 preds[key] = fuse_files([d / f"{j}_{split}.json" for j in h["bag"]], h["iou"])
             else:
                 preds[key] = json.loads((d / f"{h['job']}_{split}.json").read_text())
-        routed = merge_card(card, preds)
+        routed = merge_card(card, preds, frame_points(track, card["data"]["realval"]))
         (d / f"routed_{split}.json").write_text(json.dumps(routed))
         g = gts[split]
         pc = evaluate({i: routed.get(i, []) for i in g}, g, track.classes)["per_class"]

@@ -362,6 +362,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.6.1](../docs/02-STRATEGY.md#861-s6
 | E14 | Residual realism after R3 | done (R5): the EMD excess is background (44% ground, 11% above 3 m), not tall structure; refined density prior v2: realism gate missed by 0.0002 (Section 7.10) |
 | E15 | Seeds of the two-stage members | done (R5): Person B +0.02-0.03 per seed member; the late-A Person rule moved Person for the first time since S3 (Section 7.10) |
 | E16 | Seed bags and the Van judge | done (S6): every bag at or above its best seed; Van 0.120 -> 0.173 on A and late-A through the judge; upload gate passed (Section 7.11) |
+| E17 | S7 visibility rule (rank boxes with few points last; V2X step 1) | not applicable (2026-10-18): LUMPI labels keep boxes with no points (0.5-1.8% of Person and Car labels, amodal track boxes); on `routed-g8` the rule gave Person +0.000 to +0.002 and Car -0.004 to -0.014, so LUMPI stays at S6 ([record](../docs/decisions/2026-10-18-s7-visibility-rule.md)) |
 
 ## 9. Submission log
 

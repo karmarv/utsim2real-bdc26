@@ -4,7 +4,7 @@ Bicycle, Motorcycle and Bus follow no local split, docs/02-STRATEGY.md Sections 
 
     python common/tools/freeze_classes.py model-lumpi-track/routed-g8 --from model-lumpi-track/routed-g7 Bicycle Motorcycle Bus
 
-Copies route, calibration, fusion, score floor and tail copies of each class from the reference and checks that every
+Copies route, calibration, fusion, score floor, tail copies and the S7 sparse threshold of each class from the reference and checks that every
 member the class uses is the same member (model folder, checkpoint, TTA) in both. Run `route_predictions.py validate`
 afterwards.
 """
@@ -25,7 +25,7 @@ def main():
     card = yaml.safe_load(p.read_text())
     for c in a.classes:
         card["route"][c] = ref["route"][c]
-        for key in ("calibration", "fusion", "budget", "tail_copies"):
+        for key in ("calibration", "fusion", "budget", "tail_copies", "sparse_demotion"):
             d = card.get(key) or {}
             if (ref.get(key) or {}).get(c) is None:
                 d.pop(c, None)
@@ -37,7 +37,8 @@ def main():
             if card["members"].get(n) != ref["members"][n]:
                 raise SystemExit(f"{c}: member {n} differs between {a.model_dir} and {a.ref}")
         print(f"frozen {c}: route {card['route'][c]}, fusion {(card.get('fusion') or {}).get(c)}, floor {(card.get('budget') or {}).get(c)}")
-    p.write_text(yaml.safe_dump({k: v for k, v in card.items() if v is not None or k != "tail_copies"}, sort_keys=False))
+    p.write_text(yaml.safe_dump({k: v for k, v in card.items() if v is not None or k not in ("tail_copies", "sparse_demotion")},
+                                sort_keys=False))
 
 
 if __name__ == "__main__":

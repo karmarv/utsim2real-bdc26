@@ -10,6 +10,23 @@ python common/tools/release_weights.py publish --tag <tag>        # creates the 
 python common/tools/release_weights.py fetch --tag <tag> --version <track>:<submission tag>   # in a fresh clone: download, md5 check
 ```
 
+## Next release (S7, in progress since 2026-10-18)
+
+- **V2X upload candidate:** S7 step 1 [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`), `routed-g9`.
+  - Content: the boxes and frames of 995877, with boxes holding fewer points than the real labels' visibility cut ranked last (pedestrian 6, vehicle 5).
+  - Local: realval 0.734 / 0.721; projection +0.004.
+  - Status: not uploaded yet.
+  - Weights: the release-6.0 assets (same members).
+- **V2X step 2:** members retrained on visibility-matched labels (`g1-v5m`); its new checkpoints join the release only if a version that uses them is confirmed.
+- **LUMPI:** unchanged (S6, 995869).
+- **Code:**
+  - `bdc26.boxes.count_points_per_box`;
+  - `route_predictions.py sparse`, `fuse --pooled-rule` and `merge --frames`;
+  - `common/tools/filter_labels.py`;
+  - `common/pipeline/s7_portfolio.sh`;
+  - tests `common/tests/test_s7.py`.
+- **Records:** [`2026-10-18-s7-visibility-rule.md`](docs/decisions/2026-10-18-s7-visibility-rule.md), [`2026-10-18-rules-external-datasets.md`](docs/decisions/2026-10-18-rules-external-datasets.md).
+
 ## 6.0 (pre-release, 2026-10-17)
 
 **Leaderboard** (development phase; public leaderboards checked 2026-10-17): both tracks have a new entry, strategy S6.

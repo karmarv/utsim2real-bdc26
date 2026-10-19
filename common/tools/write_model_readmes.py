@@ -61,6 +61,11 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
         lines += ["## Score floors (server-cost budget, `route_predictions.py budget`)", "",
                   "| " + " | ".join(card["budget"]) + " |", "|" + "---|" * len(card["budget"]),
                   "| " + " | ".join(str(v) for v in card["budget"].values()) + " |", ""]
+    if routed and card.get("sparse_demotion"):
+        lines += ["## Sparse-box demotion (S7, `route_predictions.py sparse`)", "",
+                  "A box with fewer points inside it than the threshold ranks below every other box of its class (nothing is deleted).", "",
+                  "| " + " | ".join(card["sparse_demotion"]) + " |", "|" + "---|" * len(card["sparse_demotion"]),
+                  "| " + " | ".join(str(v) for v in card["sparse_demotion"].values()) + " |", ""]
     lines += ["## Commands", "", "From the repository root after `source common/env/activate.sh`:", "", "```bash"]
     if bag:
         lines += [f"python common/tools/bag_predictions.py {rel}                                 # fuse the seeds' realval-A/B predictions (plain + TTA)",
@@ -80,6 +85,8 @@ def model_readme(track_dir: Path, mdir: Path) -> str:
                       + "                                    # per-class fusion (class gate)"]
         if card.get("budget"):
             lines += [f"python common/tools/route_predictions.py budget {rel}                                  # per-class score floors"]
+        if card.get("sparse_demotion"):
+            lines += [f"python common/tools/route_predictions.py sparse {rel}                                  # S7 sparse-box demotion"]
         lines += [f"CUDA_VISIBLE_DEVICES=0 bash {rel}/test/make_submission.sh <tag> [team]                        # zip + validation + local score"]
     lines += ["```", ""]
     cfg = mdir / "train/pcdet_model.yaml"
