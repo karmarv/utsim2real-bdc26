@@ -6,16 +6,15 @@
 
 | | |
 |---|---|
-| Selected model | [`routed-g8b`](routed-g8b) (S6 variant b, the entry): the R5 portfolio with vehicle and truck fused from seed bags, chosen by the pooled A+B condition (Section 7.11); pedestrian, frames and realism as R5; before: [`routed-g7`](routed-g7) (R5) |
-| Real validation (official metric, tuned) | **realval-A mAP 0.727**, realval-B 0.712 (S6b); R5 0.714 / 0.710; R3 0.701 / 0.703; S5 0.694 / 0.699; S1 0.572 / 0.520 |
-| Local combined estimate | 0.985 (B, unclipped) for S6b; leaderboard 0.8931 (Section 9); ECCV winner 0.746 |
-| CodaBench (current entry) | **995877: combined 0.8931** (mAP 0.6065, R 0.9332), S6 variant b ([`routed-g8b`](routed-g8b)), rank 1 of 23 on 2026-10-17 (Section 9) |
-| CodaBench (previous) | 990255: 0.8852 (R5); 986496: 0.8789 (R3); 978945: 0.8730 (S5); 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
-| Submitted zip | current entry: [`routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0; weights as release assets, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); R5: [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
+| Selected model | [`routed-g9`](routed-g9) (S7 step 1, the entry): the S6 variant b portfolio with boxes that hold fewer points than the real labels' visibility cut ranked last (pedestrian k = 6, vehicle k = 5; Section 7.12); before: [`routed-g8b`](routed-g8b) (S6 variant b) |
+| Real validation (official metric, tuned) | **realval-A mAP 0.734**, realval-B 0.721 (S7); S6b 0.727 / 0.712; R5 0.714 / 0.710; R3 0.701 / 0.703; S5 0.694 / 0.699; S1 0.572 / 0.520 |
+| Local combined estimate | 0.992 (B, unclipped) for S7; leaderboard 0.8982 (Section 9); ECCV winner 0.746 |
+| CodaBench (current entry) | **1001919: combined 0.8982** (mAP 0.6124, R 0.9332), S7 step 1 ([`routed-g9`](routed-g9)), rank 1 of 23 on 2026-10-19 (Section 9) |
+| CodaBench (previous) | 995877: 0.8931 (S6 variant b); 990255: 0.8852 (R5); 986496: 0.8789 (R3); 978945: 0.8730 (S5); 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
+| Submitted zip | current entry: [`routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (its members are the release-6.0 weights, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); S6b: [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0); R5: [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
 | Realism of the submitted frames | **R = 0.933 on the server** (R5 frames from `g1-v5`: background density prior, 31% nulls; 0.937 on held-out legal proxies); R3 frames 0.927 (`g1-v4`); S1-S5 0.920 (`g1-v3`) |
 | Submit | Section 6.7 |
-| Strategy | S1, S1+C1, S3, S4, S5, R3, R5 and **S6 (variant b) submitted**; **S6b is the entry** (Section 7.11: vehicle +0.014, truck +0.014 on the leaderboard); the gated S6 (`routed-g8`) equals R5; S2 done without a new V2X version (Section 7.5); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8 |
-| Next upload (decision-ready) | **S7 step 1** [`routed-g9`](routed-g9): the S6 entry with boxes that hold fewer points than the real labels' visibility cut ranked last (pedestrian k = 6, vehicle k = 5); realval 0.734 / 0.721, projection +0.0040; [`v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (Section 7.12) |
+| Strategy | S1, S1+C1, S3, S4, S5, R3, R5, S6 (variant b) and **S7 step 1 submitted**; **S7 step 1 is the entry** (Section 7.12: pedestrian +0.015 on the leaderboard); S7 step 2 (visibility-matched training labels) running; S2 done without a new V2X version (Section 7.5); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#811-s7-visibility-rule-v2x-2026-10-18) Section 8.11 |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
@@ -52,8 +51,8 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`voxelrcnn-ros-g1v5-s2`](voxelrcnn-ros-g1v5-s2), [`-s3`](voxelrcnn-ros-g1v5-s3), [`pvrcnnpp-ros-g1v5-s2`](pvrcnnpp-ros-g1v5-s2), [`-s3`](pvrcnnpp-ros-g1v5-s3) | `pcdet/g1-v5` | S6: seeds 1666 and 2666 | trained, tuned plain and TTA (Section 7.11) |
 | [`bag-voxelrcnn-ros-g1v5`](bag-voxelrcnn-ros-g1v5), [`bag-pvrcnnpp-ros-g1v5`](bag-pvrcnnpp-ros-g1v5), [`bag-voxelrcnn-ros-g1v4`](bag-voxelrcnn-ros-g1v4), [`bag-pvrcnnpp-ros-g1v4`](bag-pvrcnnpp-ros-g1v4) | seeds 666-2666 (`g1-v5`); 666, 1666 (`g1-v4`) | S6 seed bags (weighted box fusion of the seeds' tuned predictions) | at or above the best seed on A and B; vehicle and truck fusions of `routed-g8b` |
 | [`routed-g8`](routed-g8) | `routed-g7` (incumbent) + the S6 seeds and bags | S6 (gated) | equal to R5 (no class passed the class gate): not uploaded |
-| [`routed-g8b`](routed-g8b) | `routed-g8` with vehicle and truck by the pooled rule | **selected** (S6 variant b) | submitted (995877, **0.8931**, rank 1 of 23; Section 7.11) |
-| [`routed-g9`](routed-g9) | `routed-g8b` + the S7 sparse-box demotion (`sparse_demotion: {vehicle: 5, pedestrian: 6}`) | S7 step 1 | decision-ready, upload gate passed (Section 7.12) |
+| [`routed-g8b`](routed-g8b) | `routed-g8` with vehicle and truck by the pooled rule | S6 variant b | submitted (995877, 0.8931, rank 1 of 23; Section 7.11), the entry until S7 |
+| [`routed-g9`](routed-g9) | `routed-g8b` + the S7 sparse-box demotion (`sparse_demotion: {vehicle: 5, pedestrian: 6}`) | **selected** (S7 step 1) | submitted (1001919, **0.8982**, rank 1 of 23; Section 7.12) |
 | [`voxelrcnn-ros-g1v5m`](voxelrcnn-ros-g1v5m), [`-s2`](voxelrcnn-ros-g1v5m-s2), [`-s3`](voxelrcnn-ros-g1v5m-s3), [`pvrcnnpp-ros-g1v5m`](pvrcnnpp-ros-g1v5m), [`-s2`](pvrcnnpp-ros-g1v5m-s2), [`-s3`](pvrcnnpp-ros-g1v5m-s3) | `pcdet/g1-v5m` (the `g1-v5` frames, labels with the S7 visibility rule) | S7 step 2: the `g1-v5` two-stage configs, seeds 666 / 1666 / 2666 | training (2026-10-18) |
 | [`bag-voxelrcnn-ros-g1v5m`](bag-voxelrcnn-ros-g1v5m), [`bag-pvrcnnpp-ros-g1v5m`](bag-pvrcnnpp-ros-g1v5m) | the three seeds of each | S7 step 2 seed bags; compared with the `g1-v5` bags of the same seeds | planned |
 | `routed-g10` (created by `common/pipeline/s7_portfolio.sh`) | `routed-g9` + the two S7 bags | S7 step 2 portfolio | planned |
@@ -329,6 +328,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | Step 1, pedestrian k = 6 (ranked last below 6 points) | 0.3805 -> **0.3985** / 0.4179 -> **0.4413**; pooled +0.0197 (P 1.00); k = 7 loses (-0.0022 pooled) |
 | Step 1, vehicle k = 5 | 0.8654 -> 0.8678 / 0.8693 -> 0.8723; pooled +0.0022 (P 1.00) |
 | `routed-g9` | **0.734 / 0.721** (S6b 0.727 / 0.712); unmatched confident pedestrian boxes on B 8.0 -> 5.1 per frame; recall unchanged; projection +0.0040: upload gate passed |
+| Leaderboard (2026-10-19) | **1001919: 0.8982** (mAP 0.6124): pedestrian 0.413 -> **0.429** (0.85 x A, 0.66 x B), vehicle 0.735 -> 0.737, truck and realism identical; rank 1 of 23 |
 | Step 2 | running: six runs on `g1-v5m` (Section 1), portfolio `routed-g10` |
 
 ## 8. Experiment log and next experiments
@@ -350,7 +350,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | E14 | Background density prior (E8) for the G2-lite corpus | done (R5): `gen/density_prior_v1.npz`, corpus `g1-v5`; realism 0.925 -> 0.937; pillars truck +0.07 on B (Section 7.10) |
 | E15 | Seeds and walker tail copies | done (R5): large seed variance on truck; pedestrian copies +0.010 on B (Section 7.10) |
 | E16 | Seed bags | done (S6): every bag at or above its best seed, none above the R5 fusions on B; `routed-g8` equals R5 (Section 7.11) |
-| E17 | Sparse-box demotion at the real labels' visibility cut (S7 step 1) | done: pedestrian +0.018 (A) / +0.023 (B), vehicle +0.002 / +0.003; `routed-g9` decision-ready (Section 7.12) |
+| E17 | Sparse-box demotion at the real labels' visibility cut (S7 step 1) | done: pedestrian +0.018 (A) / +0.023 (B), vehicle +0.002 / +0.003; leaderboard 1001919 **0.8982** (pedestrian +0.015), the entry (Section 7.12) |
 | E18 | Training labels with the same visibility rule (S7 step 2, corpus `g1-v5m`) | running (Section 7.12) |
 
 ## 9. Submission log
@@ -366,12 +366,15 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | 2026-10-13 | `routed-g6` / `r3` (strategy R3), uploaded unchanged as `v2x_r3_submission.zip` | 986496 | 0.701 / 0.703 | 0.925 | **0.5929** | **0.9268** | **0.8789** | strategy R3; rank 1 of 19 (next 0.6616); kit scorer 56 s, 8,682 boxes; server record [`codabench_986496.json`](routed-g6/submissions/2026-10-12_r3/codabench_986496.json); [decision record](../docs/decisions/2026-10-12-r3-g2-lite.md) |
 | 2026-10-15 | `routed-g7` / `r5` (strategy R5), uploaded unchanged as `v2x_r5_submission.zip` | 990255 | 0.714 / 0.710 | 0.937 | **0.5972** | **0.9332** | **0.8852** | strategy R5; **rank 1 of 20** (next 0.6616); confirmed (+0.0063: pedestrian +0.011, vehicle +0.002, realism +0.0065); kit scorer 132 s, 24,759 boxes; server record [`codabench_990255.json`](routed-g7/submissions/2026-10-14_r5/codabench_990255.json); [decision record](../docs/decisions/2026-10-14-r5-realism-led.md) |
 | 2026-10-17 | `routed-g8b` / `s6b` (S6 variant b), uploaded unchanged as `v2x_s6b_submission.zip` | 995877 | 0.727 / 0.712 | 0.937 | **0.6065** | **0.9332** | **0.8931** | S6 variant b (not through the upload gate; a complete-system comparison at the entrant's request); **rank 1 of 23** (next 0.7555); confirmed (+0.0079: vehicle +0.014, truck +0.014, pedestrian and realism identical); kit scorer 137 s, 24,284 boxes; server record [`codabench_995877.json`](routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json) |
+| 2026-10-19 | `routed-g9` / `s7` (S7 step 1), uploaded unchanged as `v2x_s7_submission.zip` | 1001919 | 0.734 / 0.721 | 0.937 | **0.6124** | **0.9332** | **0.8982** | S7 step 1 (upload gate passed: projection +0.0040); **rank 1 of 23** (next 0.7555); confirmed (+0.0051: pedestrian +0.0154, vehicle +0.0023, truck and realism identical); kit scorer 141 s, 24,284 boxes; server record [`codabench_1001919.json`](routed-g9/submissions/2026-10-18_s7/codabench_1001919.json) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | vehicle | pedestrian | truck | BEV mAP@0.5 |
 |---|---|---|---|---|---|
-| **995877 leaderboard (S6 variant b)** | **0.6065** | **0.735** | 0.413 | **0.671** | 0.6583 |
+| **1001919 leaderboard (S7 step 1)** | **0.6124** | **0.737** | **0.429** | **0.671** | 0.6662 |
+| S7 realval-A / realval-B | 0.734 / 0.721 | 0.868 / 0.872 | 0.399 / 0.441 | 0.936 / 0.848 | |
+| 995877 leaderboard (S6 variant b) | 0.6065 | 0.735 | 0.413 | 0.671 | 0.6583 |
 | S6b realval-A / realval-B | 0.727 / 0.712 | 0.865 / 0.869 | 0.381 / 0.418 | 0.936 / 0.848 | |
 | 990255 leaderboard (R5) | **0.5972** | 0.721 | 0.413 | 0.657 | 0.6482 |
 | R5 realval-A / realval-B | 0.714 / 0.710 | 0.857 / 0.864 | 0.381 / 0.418 | 0.905 / 0.848 | |
@@ -394,6 +397,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | leaderboard gain / realval-A gain, / realval-B gain (S3 -> S4) | 0.53, 0.80 | 0.54, 1.11 | (unchanged) | 0.50, 0.45 | |
 | leaderboard gain / realval-A gain, / realval-B gain (S4 -> S5) | 2.83, 1.46 | 0.50, 1.23 | (A 0.000), 1.27 | 3.28, 2.04 | |
 | leaderboard gain / realval-A gain, / realval-B gain (S5 -> R3) | 0.57, 1.05 | (unchanged) | 0.60, 1.07 | (unchanged) | |
+| leaderboard gain / realval-A gain, / realval-B gain (S6b -> S7) | 0.87, 0.67 | 0.98, 0.79 | 0.85, 0.66 | (unchanged) | |
 S3 changed only the detections (same 50 frames, identical realism): the leaderboard BEV-3D gap fell from 0.083 to 0.070 (realval-B: 0.129 to 0.062), 3D@0.7 rose from 0.0555 to 0.0755. The S1+C1 z calibration changed only z, so BEV AP and realism are identical; it gained more on the test frames than on realval-B for pedestrians (+0.046 vs +0.026) and about the same for vehicles (+0.020 vs +0.023), and the leaderboard BEV-3D gap fell from 0.105 to 0.083.
 
 Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).

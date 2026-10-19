@@ -235,8 +235,9 @@ data:
   train: pcdet/g1-v3
   realval: pcdet/realval-v1
 realism_frames: pcdet/g1-v5
-status: 'S7 step 1 (2026-10-18): the S6 entry routed-g8b (995877) plus the sparse-box
-  demotion stage; gated by the pre-registered rules of docs/decisions/2026-10-18-s7-visibility-rule.md'
+status: 'S7 step 1, the V2X entry: submitted 1001919, combined 0.8982 (mAP 0.6124,
+  pedestrian 0.429), rank 1 of 23 (2026-10-19); the S6 entry routed-g8b plus the sparse-box
+  demotion, through the pre-registered rules of docs/decisions/2026-10-18-s7-visibility-rule.md'
 notes: 'S7 Visibility Rule (docs/02-STRATEGY.md Section 8.11): routed-g8b unchanged
   (route, calibration, fusion, score floors, tail copies, members, realism frames)
   plus model.yaml sparse_demotion, chosen by route_predictions.py sparse: a box of

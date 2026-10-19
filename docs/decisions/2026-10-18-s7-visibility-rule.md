@@ -1,4 +1,4 @@
-# 2026-10-18 S7 Visibility Rule (V2X): pre-registration, results and decision
+# 2026-10-18 S7 Visibility Rule (V2X): step 1 uploaded and confirmed (V2X 1001919 0.8982, pedestrian +0.015), rank 1; step 2 retrain gated against it
 
 **Version.** Strategy S7, V2X only, two change sets on top of the S6 entry (`model-v2x-track/routed-g8b`, 995877, 0.8931):
 - **Step 1, `routed-g9`:** `routed-g8b` plus a per-class **sparse-box demotion** stage on the final predictions (no training).
@@ -55,7 +55,33 @@ The re-merge check is identical, and `test/reproduce_s7.sh` re-predicts the memb
 
 **Decision, step 1.** `routed-g9` is decision-ready and passes every pre-registered rule. Upload `v2x_s7_submission.zip` unchanged to CodaBench 16685. It is one change set: two classes are re-ranked, and nothing else changes. Projection 0.893 + 0.004 = about **0.897**. LUMPI is unchanged (rule 1).
 
-**Outcome.** Pending upload (the entrant's step). Record afterwards with `python common/tools/package_submission.py model-v2x-track/routed-g9 --tag s7 --record <id> <leaderboard.json>`.
+**Outcome, step 1** (uploaded unchanged by the entrant; scored 2026-10-19 02:52 UTC; public leaderboard API; server record [`codabench_1001919.json`](../../model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json), manifest via `--record`):
+
+| | V2X 1001919 (S7 step 1) | Previous entry 995877 (S6 variant b) | Change |
+|---|---|---|---|
+| Combined | **0.8982** | 0.8931 | **+0.0051** |
+| 3D mAP@0.5 R40 | 0.6124 | 0.6065 | +0.0059 |
+| pedestrian | **0.4288** | 0.4134 | **+0.0154** |
+| vehicle | 0.7372 | 0.7349 | +0.0023 |
+| truck | 0.6710 | 0.6710 | identical (not changed) |
+| Realism R (CD, MMD, EMD, FPD) | 0.9332 (1.986, 0.00063, 1.182, 1.468) | the same | identical (same 50 frames) |
+| BEV mAP@0.5 / 3D mAP@0.7 | 0.6662 / 0.1649 | 0.6583 / 0.1645 | +0.008 / +0.000 |
+| Rank | **1 of 23** (Raj Patil 0.7555, unchanged since Oct 15) | 1 of 23 | |
+
+**Confirmation passed** (+0.0051).
+
+**Transfer.**
+- **Per class.** Pedestrian +0.0154 on the leaderboard against +0.0180 on realval-A (0.85 x) and +0.0233 on realval-B (0.66 x). Vehicle +0.0023 against +0.0024 (0.98 x) and +0.0029 (0.79 x).
+- **mAP.** +0.0059 against A +0.0068 and B +0.0088: 0.76 x the mean, near the 0.6 x of the projection rule.
+- **Combined.** The leaderboard gain was 1.27 x the projection (+0.0040) and 0.68 x the B-based estimate (+0.0075).
+- **Signs.** The pooled condition on the final predictions had both class signs right.
+- **The sharp cut transferred.** The k chosen on realval-A at the test format (50,000 points, 31% nulls) is the k the test labels reward. As the disclosure required, the leaderboard was the independent check of k.
+- **Comparison.** This is the largest V2X pedestrian gain since S5 (+0.046), above R3 (+0.012) and R5 (+0.011), from a CPU-only stage.
+
+**Consequences.**
+1. V2X 1001919 is the entry. `v2x_s7_submission.zip` becomes the V2X candidate for F1 of the final phase. Release 6.0 weights rebuild it; `test/reproduce_s7.sh` is to be verified on an idle GPU before Oct 24.
+2. Step 2 is judged against `routed-g9` (`common/pipeline/s7_portfolio.sh`).
+3. Budget used: V2X 10 of 100.
 
 **Reproduce (step 1).**
 - Members: those of `routed-g8b` (record [`2026-10-16-s6-variance-controlled.md`](2026-10-16-s6-variance-controlled.md), weights in release 6.0).

@@ -1,0 +1,59 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S7 step 1 (V2X visibility rule: boxes with fewer points than the real labels' cut ranked last, pedestrian k = 6, vehicle k = 5; otherwise the S6 variant b entry)",
+  "codabench_competition": 16685,
+  "codabench_submission_id": 1001919,
+  "uploaded_file": "v2x_s7_submission.zip of this folder, unchanged (md5 c1483d590242d4fe6b4eefff96c1619c, as in manifest.json)",
+  "submitted": "2026-10-19 02:52 UTC (2026-10-18 19:52 PDT; leaderboard created_when)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 23,
+  "runner_up_at_check": {
+    "owner": "Raj Patil",
+    "id": 990507,
+    "combined": 0.7555
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.001764598910258975
+  },
+  "scores": {
+    "score_combined": 0.898172,
+    "score_detection": 0.874796,
+    "score_realism": 0.933237,
+    "mAP_3d_0.5_R40": 0.612357,
+    "mAP_3d_0.5_R11": 0.616376,
+    "mAP_3d_0.7_R40": 0.16487,
+    "mAP_bev_0.5_R40": 0.666248,
+    "CD": 1.985873,
+    "MMD": 0.00063035,
+    "EMD": 1.182178,
+    "FPD": 1.467728,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.737224,
+    "AP_3d_0.5_R40_pedestrian": 0.428826,
+    "AP_3d_0.5_R40_truck": 0.671021
+  },
+  "scoring_log": [
+    "[scoring] installing dependencies...",
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 1.9858730070063668, 'MMD': 0.0006303514120418185, 'EMD': 1.1821778412756239, 'FPD': 1.46772753949125, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.001764598910258975}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.6123569387701271",
+    "[scoring] DONE: scores={'score_combined': 0.898172, 'score_detection': 0.874796, 'score_realism': 0.933237, 'mAP_3d_0.5_R40': 0.612357, 'mAP_3d_0.5_R11': 0.616376, 'mAP_3d_0.7_R40': 0.16487, 'mAP_bev_0.5_R40': 0.666248, 'CD': 1.985873, 'MMD': 0.00063035, 'EMD': 1.182178, 'FPD': 1.467728, 'valid_submission': 1, 'AP_3d_0.5_R40_vehicle': 0.737224, 'AP_3d_0.5_R40_pedestrian': 0.428826, 'AP_3d_0.5_R40_truck': 0.671021}"
+  ],
+  "vs_previous": {
+    "id": 995877,
+    "note": "S6 variant b, the previous V2X entry",
+    "combined": 0.893111,
+    "mAP_3d_0.5_R40": 0.606452,
+    "score_realism": 0.933237,
+    "AP_vehicle": 0.734896,
+    "AP_pedestrian": 0.41344,
+    "truck_identical": true,
+    "realism_identical": true
+  }
+}

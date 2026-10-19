@@ -12,10 +12,9 @@ python common/tools/release_weights.py fetch --tag <tag> --version <track>:<subm
 
 ## Next release (S7, in progress since 2026-10-18)
 
-- **V2X upload candidate:** S7 step 1 [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`), `routed-g9`.
+- **V2X entry:** S7 step 1, **1001919: 0.8982** (mAP 0.6124, R 0.9332; scored 2026-10-19 02:52 UTC), rank 1 of 23, from [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`), `routed-g9`; server record [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json).
   - Content: the boxes and frames of 995877, with boxes holding fewer points than the real labels' visibility cut ranked last (pedestrian 6, vehicle 5).
-  - Local: realval 0.734 / 0.721; projection +0.004.
-  - Status: not uploaded yet.
+  - Local: realval 0.734 / 0.721; projection +0.004; leaderboard +0.0051 (pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737).
   - Weights: the release-6.0 assets (same members).
 - **V2X step 2:** members retrained on visibility-matched labels (`g1-v5m`); its new checkpoints join the release only if a version that uses them is confirmed.
 - **LUMPI:** unchanged (S6, 995869).
