@@ -31,6 +31,7 @@ git worktree add ../utsim2real-bdc26-main main
 | Path | Content |
 |---|---|
 | [`RESEARCH-AGENDA.md`](RESEARCH-AGENDA.md) | plan of record. Rev. 2: Calibrated Twin Distributions. Rev. 3, Section 13: the refined CVPR paper "Sensor, Scene, Scribe". Also evidence, claims, experiments, compute, work packages, gates and risks |
+| [`S3-STRATEGY.md`](S3-STRATEGY.md) | **start here for the plan**: value assessment of every approach, the S3 step sequence (novelty, pros and cons, workflow, complexity, value, gates), the S3-Twin framework and the dated execution plan |
 | [`LITERATURE.md`](LITERATURE.md) | references R45-R124 with verification status (R1-R44 stay in `docs/07-LITERATURE.md` on `main`) |
 | [`../synth-common/`](../synth-common/README.md) | shared code of the line (package `synthtwin`, tools such as `export_public.py`, pipeline, tests) |
 | [`../synth-lumpi-track/`](../synth-lumpi-track/README.md), [`../synth-v2x-track/`](../synth-v2x-track/README.md) | per-track twin parameter spaces (`twin/theta.yaml`), summary statistics and data protocol (`twin/summaries.yaml`), experiment records |
