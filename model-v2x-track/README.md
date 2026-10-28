@@ -58,7 +58,7 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`routed-g10`](routed-g10) | `routed-g9` + the two S7 bags | S7 step 2 portfolio | not uploaded: A 0.738 / B 0.722, projection +0.0014 (below +0.003) |
 | [`voxelrcnn-ros-g1v5d2`](voxelrcnn-ros-g1v5d2), [`-d3`](voxelrcnn-ros-g1v5d3), [`pvrcnnpp-ros-g1v5d2`](pvrcnnpp-ros-g1v5d2), [`-d3`](pvrcnnpp-ros-g1v5d3) | `pcdet/g1-v5d2`, `g1-v5d3` (fresh `g1-v5` generator draws, seeds 2234 / 3234); training seeds 4666 / 5666 | S7.4 draw members | done: inside the seeds' spread (TTA A 0.669-0.682) |
 | [`bag-voxelrcnn-ros-g1v5x`](bag-voxelrcnn-ros-g1v5x), [`bag-pvrcnnpp-ros-g1v5x`](bag-pvrcnnpp-ros-g1v5x) | the three seeds + both draws (5 each) | S7.4 extended bags | done: TTA +0.0017 / +0.0030 and +0.0037 / +0.0031 over the 3-seed bags |
-| [`routed-g11`](routed-g11), [`routed-g12`](routed-g12) | `routed-g9` + the draw runs and extended bags; `routed-g12` = the S7.6 bag swap and pooled budget | S7.4 and S7.6 portfolios | equal to the entry (no class passed; [record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
+| [`routed-g11`](routed-g11), [`routed-g12`](routed-g12) | `routed-g9` + the draw runs and extended bags; `routed-g12` = the S7.6 bag swap and pooled budget | S7.4 and S7.6 portfolios | equal to the entry (no class passed; [record](../docs/decisions/2026-10-26-s7-final-revisions.md)); `routed-g12` packaged as [`v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) on the entrant's request: frames byte-identical to 1001919, predictions equal, kit 153 s; expected 0.8982 |
 
 ## 2. Modeling approaches considered
 
