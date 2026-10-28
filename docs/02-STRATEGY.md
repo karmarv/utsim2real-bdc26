@@ -1188,7 +1188,7 @@ The package `routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip` holds th
 Conclusion: S7 took the last systematic labelling difference. The remaining V2X error is random localization (pedestrian BEV-3D gap 0.12-0.13 from z noise) and ranking, which only better members reduce.
 
 Revisions:
-- S7.1 compliance actions (the entrant's LOI and email; train-split checks);
+- S7.1 compliance actions (the entrant's email; train-split checks; the LOI turned out to be on record since 2026-08-26);
 - S7.2 dry run of both entries from their weights (done: IDENTICAL on both);
 - S7.3 the LUMPI envelope (not adopted);
 - S7.4 V2X generator-draw bags (about 12 h on 8 GPUs, +0.002 to +0.005 expected): it runs after the freeze, so it needs the entrant's go and must be confirmed by Oct 30 or enter the final phase only as an F2-F5 candidate.

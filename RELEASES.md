@@ -2,7 +2,7 @@
 
 Each release tag fixes the code, the documentation and the submission files of the leaderboard entries at that point. The zip of every leaderboard entry is committed next to its manifest, byte for byte the file that was scored (md5 below and in the folder's `manifest.json`): in 1.0 as `submission_<track>.zip`; from S2 on under its upload name `<track>_<strategy>_submission.zip`, written by the packager (the upload copies of leaderboard entries are committed; the ignore rule for upload copies was lifted on 2026-10-10). The full submission register, with the gate result of every version, is [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register).
 
-From 6.0 on, a release also carries **the weights of its leaderboard entries** as GitHub release assets (checkpoints are not in git), listed with their repository paths and md5 in `releases/<tag>/weights.json`, so the entries can be rebuilt from a fresh clone (root README Section 6.11). Real data is never a release asset: the assets are checkpoints trained on synthetic data only and the scored zips (synthetic frames, predictions, declaration).
+From 6.0 on, a release also carries **the weights of its leaderboard entries** as GitHub release assets (checkpoints are not in git), listed with their repository paths and md5 in `releases/<tag>/weights.json`, so the entries can be rebuilt from a fresh clone (root README Section 6.11). `releases/<tag>/github.json` records the published release as GitHub shows it: URL, commit, label, upload times and the sha256 of every asset, checked against the local files. Real data is never a release asset: the assets are checkpoints trained on synthetic data only and the scored zips (synthetic frames, predictions, declaration).
 
 **Making a release.** Steps 1-4 run on the server; steps 5-8 need the entrant's GitHub credentials and run in the entrant's terminal (the tool reads `$GITHUB_TOKEN` or `$GH_TOKEN`, or asks for a token at a hidden prompt).
 1. Record every upload of the release: `package_submission.py <model> --tag <tag> --record <id> <codabench json>` (manifest and registry row), the server record `codabench_<id>.json`, the register row (`docs/decisions/README.md` Section 2), the track README Section 9, the root README Section 9.
@@ -12,7 +12,7 @@ From 6.0 on, a release also carries **the weights of its leaderboard entries** a
 5. `git push origin main && git push origin <tag>`.
 6. `python common/tools/release_weights.py publish --tag <tag>`: creates the GitHub pre-release of the tag (notes: its section of this file, links pointing at the tag) and uploads every asset; it ends with "all assets uploaded and sizes match".
 7. In a fresh clone at the tag: `release_weights.py fetch --tag <tag> --version <track>:<submission tag>` (md5-verified), then the version's `test/reproduce_<tag>.sh`.
-8. Record the outcome (release URL, fresh-clone check) in the release section, commit and push; the tag stays on its commit.
+8. Record the outcome in the release section and in `releases/<tag>/github.json` (release URL, label, the sha256 GitHub shows for each asset compared with the local files, fresh-clone check), commit and push; the tag stays on its commit.
 
 The workflow from a scored upload to a release that anyone with read access can rebuild:
 
@@ -42,10 +42,10 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 5.0 | 2026-10-11 | S5 | 978931: 0.5039 (not listed) | 978945: 0.8730 | no | `routed-g5/test/reproduce_s5.sh` |
 | 5.1 | 2026-10-13 | R3 | 986489: 0.5169 | 986496: 0.8789 | no | `routed-g6/test/reproduce_r3.sh` |
 | 5.2 | 2026-10-15 | R5 | 990245: 0.5198 | 990255: 0.8852 | no | `routed-g7/test/reproduce_r5.sh` |
-| 6.0 | 2026-10-17 | S6 | 995869: 0.5228 (0.522754) | 995877: 0.8931 | **yes**: 21 checkpoints + 2 zips ([`releases/6.0/weights.json`](releases/6.0/weights.json)) | `routed-g8/test/reproduce_s6.sh` (LUMPI), `routed-g8b/test/reproduce_s6b.sh` (V2X) |
-| **7.0** | 2026-10-27 | **S7** (the entries, F1) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
+| 6.0 | 2026-10-17 | S6 | 995869: 0.5228 (0.522754) | 995877: 0.8931 | **yes**: 21 checkpoints + 2 zips ([`releases/6.0/weights.json`](releases/6.0/weights.json)), published 2026-10-18 ([`github.json`](releases/6.0/github.json)) | `routed-g8/test/reproduce_s6.sh` (LUMPI), `routed-g8b/test/reproduce_s6b.sh` (V2X) |
+| **7.0** | 2026-10-27 | **S7** (the entries, F1) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)), published 2026-10-28 ([`github.json`](releases/7.0/github.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
 
-The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release.
+The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0 and 7.0 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
 
 ## 7.0 (pre-release, 2026-10-27)
 
@@ -67,6 +67,8 @@ CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s_vali
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g12/test/reproduce_s7s.sh                # V2X entry; routed-g9/test/reproduce_s7.sh for 1001919
 ```
 Verified on 2026-10-27 on idle GPUs, one job per GPU (`$BDC_DATA/logs/r70`): the three test-frame scripts reproduce their scored zips **IDENTICAL** from these weights (predictions, maximum difference 0.0; all 50 frames byte-identical; kit scorer valid: LUMPI `s7s` 284 s and 23,270 boxes, V2X `s7s` 157 s, V2X `s7` 160 s). The two validation scripts reproduce realval-A/B to four decimals: LUMPI `s7s` A 0.3881, B 0.2250, late-A 0.3583, every class within 6.2e-4 AP, 28 of 34 member files bit-identical; V2X `s7s` A 0.7340, B 0.7206, every class within 1.9e-4, 15 of 20 bit-identical (**EQUIVALENT**; the others were recorded on GPUs shared with training, as in 6.0). `v2x:s7` uses the same ten checkpoints and members as `v2x:s7s`.
+
+**Published** by the entrant on 2026-10-28 and checked on GitHub the same day ([`releases/7.0/github.json`](releases/7.0/github.json)): [release 7.0](https://github.com/karmarv/utsim2real-bdc26/releases/tag/7.0) on commit `3eafbaf` (tag created 2026-10-28 04:52 UTC). The 28 assets were uploaded 13:10-13:14 UTC; GitHub lists 30 with its two source archives. The sha256 GitHub shows for every asset equals the sha256 of the file the dry run used (28 of 28), so the published weights and zips are the ones that reproduced. GitHub label: **Latest**, kept by the entrant on 2026-10-28 (a pre-release cannot be Latest; 6.0 carries neither label; both titles say pre-release). The fresh-clone fetch (step 7) is the entrant's: the repository is private and the server has no GitHub token.
 
 **F1 and fallbacks for the final phase** ([`docs/02-STRATEGY.md` Section 8.8](docs/02-STRATEGY.md#88-final-phase-plan-nov-1-14)): F1 = `lumpi_s7s_submission.zip` and `v2x_s7s_submission.zip`. Fallbacks: `v2x_s7_submission.zip` (1001919, equal score, in this release) and `lumpi_s6_submission.zip` (995869, release 6.0).
 
@@ -99,6 +101,8 @@ CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6.sh    
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
 ```
 Verified on 2026-10-17 on idle GPUs (`$BDC_DATA/logs/s6close`): the test-frame scripts reproduce both scored zips **IDENTICAL** (predictions, maximum difference 0.0; all 50 frames byte-identical, from the corpus and from the committed zip); the validation scripts reproduce realval-A/B to four decimals on both tracks (every class within 4e-4 AP: EQUIVALENT; 41 of 48 member files bit-identical, the others recorded on GPUs shared with training).
+
+**Published** 2026-10-18 (assets uploaded 14:43-14:46 UTC; [`releases/6.0/github.json`](releases/6.0/github.json)): the sha256 GitHub shows for each of the 23 assets equals the local file (checked 2026-10-28); GitHub label: none.
 
 **Fallback for the first final-phase submission:** the R5 zips of release 5.2.
 

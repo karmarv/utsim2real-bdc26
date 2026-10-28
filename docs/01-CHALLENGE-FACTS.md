@@ -36,7 +36,7 @@ CodaBench phase boundaries are in UTC. US daylight saving time ends Sun Nov 1, 2
 | Event | UTC | Pacific | Central |
 |---|---|---|---|
 | Dev phase closes | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 19:00 CDT |
-| LOI form closes (if not already filed) | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 20:00 EDT (stated on the CodaBench Overview, re-read 2026-10-26; the site still shows Aug 15) |
+| LOI form closes (if not already filed) | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 19:00 CDT (stated as 20:00 EDT on the CodaBench Overview, re-read 2026-10-28; the site still shows Aug 15). **Not needed for us:** our LOI went by email on 2026-08-26 and the organizers acknowledged it; the Overview says such teams "need take no further action" |
 | Final phase opens | 2026-11-01 00:00 | Sat Oct 31, 17:00 PDT | Sat Oct 31, 19:00 CDT |
 | **Final phase closes** | 2026-11-15 00:00 | **Sat Nov 14, 16:00 PST** | **Sat Nov 14, 18:00 CST** |
 | Challenge report (4-8 pages) | Nov 15 | | |
@@ -258,9 +258,9 @@ What this says:
 3. May a small set of post-processing parameters (per-class size scale factors, NMS IoU) be selected on labeled non-forbidden real frames? **Answered by the FAQ (Sept 30): yes**, real data may be used outside the training pipeline "to judge and select models" (the conservative reading, confirmed).
 4. Does `local_eval.py` drop GT boxes with zero LiDAR points or outside the range, and are range bounds inclusive?
 5. What is the exact report submission channel and format (Nov 15 report vs Nov 20 camera-ready)?
-6. Please confirm our LOI registration for both IEEE tracks.
+6. Please confirm our LOI registration for both IEEE tracks. **Closed 2026-10-28, no question needed:** the LOI went by email on 2026-08-26 (team KarmaRV, both tracks) and the organizers acknowledged it the same day ([audit addendum](decisions/2026-10-26-rules-compliance-audit.md#addendum-2026-10-28-the-letter-of-intent-is-on-record)).
 7. (Only if the clean re-uploads also fail.) Submissions 957399 (Track 1, Failed with no message) and 957439 (Track 2, Running for 4 days with no log, cancelled): can you see a worker error, and does the default queue give the scorer the 6 GB it needs for the 10k x 10k MMD?
 8. (Added 2026-10-26.) The Rules allow "the train split of the public real dataset" for hyperparameter selection: is validation on non-forbidden frames of V2X-Real's val and test splits, and on LUMPI Measurements 5-6, also acceptable? **V2X answered by the FAQ (Oct 14): yes** ("the remaining real frames"); LUMPI asked again (revised email Q2).
 9. (Added 2026-10-26.) In the Final phase, does the best of the five submissions count (`Force_Best`), or the last one?
 
-Questions 4-6 and 9 stay open. The disclosure email (revised 2026-10-27 after the forum FAQ) that carries the open questions is drafted in [`decisions/2026-10-26-rules-compliance-audit.md`](decisions/2026-10-26-rules-compliance-audit.md) Appendix A.
+Questions 4, 5 and 9 stay open. The disclosure email (revised 2026-10-27 after the forum FAQ) that carries the open questions is drafted in [`decisions/2026-10-26-rules-compliance-audit.md`](decisions/2026-10-26-rules-compliance-audit.md) Appendix A.

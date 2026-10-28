@@ -21,8 +21,8 @@
 
 | # | Item | Clause | Our use | Risk | Action |
 |---|---|---|---|---|---|
-| 1 | Letter of Intent | Overview: LOIs "accepted through October 30, 2026, 8:00 PM EDT" | no LOI or confirmation on record since Oct 2 | **moderate** (eligibility for prizes and the paper track) | the entrant files the form for both tracks, or confirms the earlier email, **before Oct 30, 20:00 EDT**; record it here |
-| 2 | Disclosure to the organizers | Terms 6 (integrity verification of top teams); Rules, Disqualification | the Section 10 questions and the gray-area disclosures were never sent | **low-moderate**: an undisclosed gray use found in a verification reads worse than a declared one | send Appendix A before Oct 30; record the reply verbatim |
+| 1 | Letter of Intent | Overview: LOIs "accepted through October 30, 2026, 8:00 PM EDT"; "Teams that have already submitted an LOI by email need take no further action" | ~~no LOI or confirmation on record since Oct 2~~ **2026-10-28:** LOI by email on 2026-08-26 (team KarmaRV, both tracks, institution and bio), acknowledged by the organizers the same day; the repository had no record of it until 2026-10-28 | ~~moderate~~ **none (closed 2026-10-28)** | none: no form and no confirmation request ([Addendum 2026-10-28](#addendum-2026-10-28-the-letter-of-intent-is-on-record)) |
+| 2 | Disclosure to the organizers | Terms 6 (integrity verification of top teams); Rules, Disqualification | the Section 10 questions and the gray-area disclosures were never sent | **low-moderate**: an undisclosed gray use found in a verification reads worse than a declared one | send Appendix A, recommended before the final phase opens on Nov 1 (the audit's date, not a rule's); record the reply verbatim |
 | 3 | Scope of "train split" | Rules, Allowed: "the train split of the public real dataset for hyperparameter selection or domain adaptation" | V2X validation includes V2X-Real val and test split frames (38% of A, 46% of B); LUMPI realval-B is Measurements 5-6, outside the organizers' M4 split; LUMPI realval-A (M4 0-6399) is inside it | **low**: not forbidden (the Forbidden list and Terms 1 name only the 100 frames), but outside the Allowed wording. **2026-10-27:** V2X validation allowed by the forum FAQ; LUMPI M5-6 open (Addendum) | disclose and ask (Appendix A, Q1). The live S7 V2X decision holds on train-split frames alone (pedestrian k = 6 best on A-train +0.018 and B-train +0.019; vehicle gains on both). From now on every gate also reports the train-split-only result |
 | 4 | Real label statistics in the generator | Rules: detector "trained on your synthetic data only"; "model trained on real labels" forbidden; declaration "synthetic data I generated" | walker placement drawn from legal real label rows plus jitter (a kernel density sample); real size priors and ROS ranges; clutter near real walker positions; S7 label thresholds | ~~remote~~ **moderate (2026-10-27, Addendum)**: each inserted walker's training box is a jittered real label row, against the FAQ's "real labels (or derivatives) as ground truth" | disclose (Appendix A; report); no new label-derived generator content before the final |
 | 5 | Post-processing selected on real labels | Rules, Allowed: hyperparameter selection; Terms 1 | per-class sizes, C1 z, NMS, score blend, fusion sets, score floors, tail copies, S7 point thresholds | **none-remote** | **boundary kept and now a rule:** a few scalars per class are chosen on validation; no model is ever fitted to real labels (no learned re-scorer, regressor or calibration network), because that would be "a model trained on real labels" |
@@ -48,9 +48,9 @@
    - (c) no statistic of the test frames or of the public test GT is used;
    - (d) no leaderboard-informed rule change before the final;
    - (e) frame-independent constants are preferred for new score scaling.
-3. **The entrant's actions before Oct 30, 20:00 EDT:** the LOI (item 1) and the email (Appendix A).
+3. **The entrant's action:** the email (Appendix A), recommended before the final phase opens on Nov 1 so that a ruling can arrive in time (no rule sets a date for it). ~~The LOI (item 1), before Oct 30, 20:00 EDT~~: closed on 2026-10-28, the LOI is on record since 2026-08-26 ([Addendum 2026-10-28](#addendum-2026-10-28-the-letter-of-intent-is-on-record)).
 
-**Outcome.** Pending: the LOI confirmation and the organizers' reply.
+**Outcome.** Pending: the organizers' reply to the email. The LOI needs no action (Addendum 2026-10-28).
 
 ## Addendum 2026-10-27: the organizers' forum FAQ
 
@@ -127,18 +127,33 @@
    - **C2, if label-derived placement is not allowed.** Place walkers from a non-label source (UT's own actors, or public map data for sidewalks and crossings) with sizes from published anthropometrics. Expected loss on pedestrian and Person: unknown; a one-member probe per track (about 8 h) measures it.
 4. **The S7.4-S7.6 versions** use the same corpus recipes (only the generator seed differs), so they share the entries' status. This now covers the entries themselves: the entrant uploaded both S7.6 packages on 2026-10-27 (LUMPI 1014495, V2X 1014682, identical to 1001919), and they are F1.
 
-## Appendix A. Email to the organizers (draft, revised 2026-10-27 after the forum FAQ; the entrant sends it)
+## Addendum 2026-10-28: the Letter of Intent is on record
+
+**Source.** The entrant's email thread with the organizers (Muhammad Shahbaz and Shaurya Agarwal, UCF) of 2026-08-26, which the entrant provided. It stays out of the repository because it holds personal contact details.
+- The entrant asked the organizers to take the email as the team's participation intent.
+- The organizers noted the intent and asked for a short bio with the team name, the institution and the tracks.
+- The entrant replied the same day: team KarmaRV (the CodaBench profile), both tracks (16684 and 16685), Hitachi America Ltd. R&D, and a bio.
+- The organizers acknowledged the reply ("Noted") the same afternoon.
+
+**Rule.** The Overview of both tracks, re-read through the public API on 2026-10-28, is unchanged:
+- LOIs are "accepted through October 30, 2026, 8:00 PM EDT";
+- teams that already sent an LOI by email "need take no further action";
+- the form is for teams joining now.
+
+The Rules tab sets no LOI condition: eligibility is open to anyone, with one account per team. The deadline in force on Aug 26 (Aug 15) had passed, but the organizers noted the LOI, and the extension to Oct 30 covers it in any case.
+
+**Decision.** Item 1 is closed: no form and no confirmation request. Appendix A no longer asks about the LOI. Item 1 was opened on 2026-10-26 because the repository held no record of the LOI, not because a rule asks a team to file twice.
+
+## Appendix A. Email to the organizers (draft, revised 2026-10-27 after the forum FAQ; LOI item removed 2026-10-28; the entrant sends it, best as a reply in the 2026-08-26 LOI thread)
 
 To: Muhammad.Shahbaz@ucf.edu; Cc: Shaurya.Agarwal@ucf.edu
-Subject: UrbanTwin Sim2Real Challenge, team KarmaRV (both tracks): LOI confirmation, disclosure of real-data use, rule questions
+Subject: UrbanTwin Sim2Real Challenge, team KarmaRV (both tracks): disclosure of real-data use, rule questions
 
 > Dear Dr. Shahbaz and Dr. Agarwal,
 >
-> I compete as team KarmaRV (one account; Rahul Vishwakarma, Hitachi) on both tracks (CodaBench 16684 and 16685).
+> I compete as team KarmaRV (one account; Rahul Vishwakarma, Hitachi) on both tracks (CodaBench 16684 and 16685), as in my Letter of Intent of Aug 26.
 >
-> **1. Letter of Intent.** Please confirm that our LOI covers both tracks. If it is not on record, I will submit the form before Oct 30, 8:00 PM EDT.
->
-> **2. Disclosure.** Our detectors are trained from scratch on our own synthetic data: the UrbanTwin frames, re-rendered and extended with our own LiDAR simulation. No real point is ever a training input, and no network sees a real frame. Your forum FAQ (Sept 30 and Oct 14) asks that real labels and their derivatives are never used as ground truth for training. One part of our generator comes close to that line, so I describe every use of the public real data exactly. None touches a forbidden frame:
+> **1. Disclosure.** Our detectors are trained from scratch on our own synthetic data: the UrbanTwin frames, re-rendered and extended with our own LiDAR simulation. No real point is ever a training input, and no network sees a real frame. Your forum FAQ (Sept 30 and Oct 14) asks that real labels and their derivatives are never used as ground truth for training. One part of our generator comes close to that line, so I describe every use of the public real data exactly. None touches a forbidden frame:
 >
 > (a) **Walker placement from real label rows.** Each synthetic walker we insert takes one real label row: its position (jittered by 0.4 m), heading (jittered by 0.2 rad), box size (scaled by 0.97-1.03) and ground height. Our engine renders the walker into a synthetic frame, and that box becomes its training label.
 > - V2X-Real: 70,818 Pedestrian/Child/RoadWorker rows from non-forbidden infrastructure frames of the train, val and test splits.
@@ -161,7 +176,7 @@ Subject: UrbanTwin Sim2Real Challenge, team KarmaRV (both tracks): LOI confirmat
 >
 > (g) **The 50 synthetic frames.** They are generator outputs chosen on our own real validation frames, never by leaderboard probing.
 >
-> **3. Questions.**
+> **2. Questions.**
 >
 > Q1. Are (a), (b) and (c) acceptable for prize-eligible submissions as distribution analysis or domain adaptation? If (a) is not, may walker positions come from a coarse statistic of the labels, or must they come from non-label sources? If any of them must use the train split only, please say so. We would rebuild those parts before the final phase.
 >

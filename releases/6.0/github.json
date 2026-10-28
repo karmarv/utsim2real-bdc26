@@ -1,0 +1,178 @@
+{
+  "tag": "6.0",
+  "url": "https://github.com/karmarv/utsim2real-bdc26/releases/tag/6.0",
+  "title": "6.0 (pre-release)",
+  "commit": "dae343e99193c9d76f677e770222d455653738d8",
+  "tag_created_utc": "2026-10-17T17:07:23Z",
+  "assets_uploaded_utc": [
+    "2026-10-18T14:43:29Z",
+    "2026-10-18T14:46:04Z"
+  ],
+  "label": "None (not flagged pre-release, not Latest)",
+  "listed_assets": 25,
+  "checked": "2026-10-28",
+  "check": "read from the GitHub release page; the sha256 GitHub shows for each asset equals the sha256 of the local file in weights.json (23 of 23); the other two listed assets are GitHub's source archives",
+  "assets": [
+    {
+      "name": "lumpi.centerpoint-g1v3.epoch40.pth",
+      "bytes": 100168080,
+      "md5": "25e4c0acf63d4b8f3b425fdc37bb3898",
+      "sha256": "5585b898b48877e2dd6c4ce18a8677809c52ba933e5a1b35c1882540a2a580e1",
+      "uploaded": "2026-10-18T14:43:29Z"
+    },
+    {
+      "name": "lumpi.pointpillars-g1.epoch40.pth",
+      "bytes": 59012833,
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "sha256": "3a0b76aeeb25c7beea5fd58b43b363c261d6e69f24140edc667b28e73c22f091",
+      "uploaded": "2026-10-18T14:43:34Z"
+    },
+    {
+      "name": "lumpi.pointpillars-g1v3.epoch40.pth",
+      "bytes": 59012833,
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "sha256": "351f1bb4bee8a55475d379ae5324139209945063133c9cd53c1c34ae189822d6",
+      "uploaded": "2026-10-18T14:43:37Z"
+    },
+    {
+      "name": "lumpi.pointpillars-g1v4.epoch40.pth",
+      "bytes": 59324259,
+      "md5": "46e9f504fd05e90f72272387a102eeb0",
+      "sha256": "18ab8f2cb0fa6b259fcdadb5939e00bfb89114ffba8926789a328317b39c70ea",
+      "uploaded": "2026-10-18T14:43:40Z"
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+      "bytes": 59010233,
+      "md5": "590e9f16fe22d1f429d4827392c1f0ba",
+      "sha256": "212efd0183beb1f19246070f7668b1ad2725f3d3682d3c322d8cca1e1f7bf477",
+      "uploaded": "2026-10-18T14:43:43Z"
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+      "bytes": 59324377,
+      "md5": "97be701cb39c8b56c663acee56cc7bf7",
+      "sha256": "b48b51acc032d2cba3129e27b03c2559f43141f0229aee037b33a1b545a2252d",
+      "uploaded": "2026-10-18T14:43:46Z"
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+      "bytes": 200583607,
+      "md5": "66c1f05a2e602113dd011d96a22ec334",
+      "sha256": "8adcde2896c47fdfbbb5df42d32acd26f48978b55652e9370554df05fcfc3301",
+      "uploaded": "2026-10-18T14:43:49Z"
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+      "bytes": 200583329,
+      "md5": "3fffacf2d0baab79eb5cd12676ea591f",
+      "sha256": "7092292c241b1711ad63e706b5cef5465f0c6593277713f84cb9f33be510c596",
+      "uploaded": "2026-10-18T14:43:57Z"
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+      "bytes": 231954827,
+      "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+      "sha256": "a4f2437d2f6b0f2c92750bf60601343eee146dd05dcda84c92f1ac9858c32f1b",
+      "uploaded": "2026-10-18T14:44:09Z"
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v4-s2.epoch40.pth",
+      "bytes": 231954967,
+      "md5": "4d877e50e45311ece0284cca946d4e37",
+      "sha256": "43eda91387d88f0fb211a4e3bb7fcf6fbd591fe45608cd69413c385e4b06b9b1",
+      "uploaded": "2026-10-18T14:44:21Z"
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
+      "bytes": 231954967,
+      "md5": "5c061261f002f5e04eaec1d4704b937f",
+      "sha256": "6080c56f490886a8bff28b8439b60807194c9ce72cca61d2e6c79e2b6f299bd1",
+      "uploaded": "2026-10-18T14:44:29Z"
+    },
+    {
+      "name": "v2x.pointpillars-g1v5.epoch40.pth",
+      "bytes": 58418223,
+      "md5": "62070b22bce0641b803187bda4b113e9",
+      "sha256": "463679b021e4c9eec0aafe428318efb6a6811053fc2c1b7bb3539c2e6989b44a",
+      "uploaded": "2026-10-18T14:44:37Z"
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+      "bytes": 198248942,
+      "md5": "30b8d6036c6f2c4b8d9de562d0f2e6a5",
+      "sha256": "09fdb1bce18c538cec664d4f67b67fc4382f17fcc66c5c9d21ef24a15b265a05",
+      "uploaded": "2026-10-18T14:44:40Z"
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
+      "bytes": 198248868,
+      "md5": "f36f0300036e489bde87e30fd17e694d",
+      "sha256": "ecaa71acdc01acf1548ffcd64d1743797e3a864797f6a2df2a671d0bbd4b4f71",
+      "uploaded": "2026-10-18T14:44:49Z"
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
+      "bytes": 198248724,
+      "md5": "106fcb7d15e72ef1efcb10bfc90b543c",
+      "sha256": "0c5d2b1abde6db74359cd2a5fbdd58e848bbc2f8019d6319f1916f5d8d176228",
+      "uploaded": "2026-10-18T14:44:58Z"
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
+      "bytes": 198248952,
+      "md5": "4bceaa59aeb5c62520b334a0c20525d5",
+      "sha256": "a613bbba41d9d386bfd84947c9676832619f44bd956ba57f0db108157d73d325",
+      "uploaded": "2026-10-18T14:45:07Z"
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
+      "bytes": 229620302,
+      "md5": "5677c039b8cc33a058b045f732c687de",
+      "sha256": "9bee96c5588b20be14a5e3ba13ec4b8a2044b06f309143fb9bd32ad05d37bb05",
+      "uploaded": "2026-10-18T14:45:15Z"
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v4.epoch40.pth",
+      "bytes": 229620302,
+      "md5": "b85264eaec17f167f34b0185acce9313",
+      "sha256": "d269219ca37fd710e7af3631e265e6d1ea5491e7cead88438c37164db80bee37",
+      "uploaded": "2026-10-18T14:45:24Z"
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
+      "bytes": 229620302,
+      "md5": "be6acbf7d91fea91235ff2d89fc8dbae",
+      "sha256": "ed5b7681e64c71cb77941b77f7ab2c07d9e353241af85ad266b8b9967449da6f",
+      "uploaded": "2026-10-18T14:45:32Z"
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
+      "bytes": 229620292,
+      "md5": "3a4f716b778dc88d4b030e8c2f3ac756",
+      "sha256": "fa00e348dbd55a180632f1c25a60a5eeb0baa2afc599321b558e10347b226e99",
+      "uploaded": "2026-10-18T14:45:40Z"
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5.epoch40.pth",
+      "bytes": 229620004,
+      "md5": "a90a13b7e29706bb06b8a435bf0b3eac",
+      "sha256": "eb998649da8f1cc011aa17596fe027f480c0a52ce6b040574d4f397160889229",
+      "uploaded": "2026-10-18T14:45:53Z"
+    },
+    {
+      "name": "lumpi_s6_submission.zip",
+      "bytes": 23859278,
+      "md5": "02c731ecbd162a84d6eae5537856bc4a",
+      "sha256": "c5d2273b2a9ce56e972266a97eb272364d5839d74bbe09514d68dc5b2daeee8a",
+      "uploaded": "2026-10-18T14:46:02Z"
+    },
+    {
+      "name": "v2x_s6b_submission.zip",
+      "bytes": 21502927,
+      "md5": "00a80bb32c5019b6d9913555efebc6b6",
+      "sha256": "ef135f62a0c79d3ea03b5115d1bbbd94edea88ba13055e7712fb5784caeb03af",
+      "uploaded": "2026-10-18T14:46:04Z"
+    }
+  ]
+}
