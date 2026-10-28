@@ -1,0 +1,80 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S7.6 (amendment of the S7 final revisions: S6 entry + generator-draw bags; Car fused with the extended PV-RCNN++ bag under the pooled budget, Truck from a draw run); uploaded by the entrant although below the +0.003 upload gate (projection +0.0014)",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 1014495,
+  "uploaded_file": "lumpi_s7s_submission.zip of this folder (md5 19122be039da416d98ccdf852d67532b, as in manifest.json); identified by the per-class scores: Car and Truck differ from 995869, and only s7s changes Car (s7x keeps the entry's Car)",
+  "submitted": "2026-10-28 00:32 UTC (2026-10-27 19:32 CDT; leaderboard created_when)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 22,
+  "runner_up_at_check": {
+    "owner": "Raj Patil",
+    "id": 1009661,
+    "combined": 0.496
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005290070873853157
+  },
+  "scores": {
+    "score_combined": 0.522846,
+    "score_detection": 0.249885,
+    "score_realism": 0.932287,
+    "mAP_3d_0.5_R40": 0.17492,
+    "mAP_3d_0.5_R11": 0.178529,
+    "mAP_3d_0.7_R40": 0.085093,
+    "mAP_bev_0.5_R40": 0.187988,
+    "CD": 1.593929,
+    "MMD": 3.071e-05,
+    "EMD": 1.302012,
+    "FPD": 0.519356,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.180231,
+    "AP_3d_0.5_R40_Car": 0.648233,
+    "AP_3d_0.5_R40_Bicycle": 0.188193,
+    "AP_3d_0.5_R40_Motorcycle": 0.000909,
+    "AP_3d_0.5_R40_Bus": 0.002778,
+    "AP_3d_0.5_R40_Truck": 0.063199,
+    "AP_3d_0.5_R40_Van": 0.140894,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] launching scorer...",
+    "[scoring] computing realism metrics...",
+    "[scoring] realism: {'CD': 1.5939288476319815, 'MMD': 3.070874668242851e-05, 'EMD': 1.3020122538945853, 'FPD': 0.5193563285015443, 'n_syn_points_pre_subsample': 2500000, 'n_real_points_pre_subsample': 2500000, 'MMD_gamma': 0.0005290070873853157}",
+    "[scoring] computing 3D detection mAP...",
+    "[scoring] mAP_3d_0.5_R40 = 0.17491958048208178",
+    "[scoring] DONE: scores={'score_combined': 0.522846, 'score_detection': 0.249885, 'score_realism': 0.932287, 'mAP_3d_0.5_R40': 0.17492, 'mAP_3d_0.5_R11': 0.178529, 'mAP_3d_0.7_R40': 0.085093, 'mAP_bev_0.5_R40': 0.187988, 'CD': 1.593929, 'MMD': 3.071e-05, 'EMD': 1.302012, 'FPD': 0.519356, 'valid_submission': 1, 'AP_3d_0.5_R40_Person': 0.180231, 'AP_3d_0.5_R40_Car': 0.648233, 'AP_3d_0.5_R40_Bicycle': 0.188193, 'AP_3d_0.5_R40_Motorcycle': 0.000909, 'AP_3d_0.5_R40_Bus': 0.002778, 'AP_3d_0.5_R40_Truck': 0.063199, 'AP_3d_0.5_R40_Van': 0.140894, 'AP_3d_0.5_R40_Unknown': None}"
+  ],
+  "vs_previous": {
+    "id": 995869,
+    "note": "S6, the previous LUMPI entry",
+    "combined": 0.522754,
+    "mAP_3d_0.5_R40": 0.174812,
+    "AP_Car": 0.652404,
+    "AP_Truck": 0.058275,
+    "delta_combined": 9.2e-05,
+    "delta_AP_Car": -0.004171,
+    "delta_AP_Truck": 0.004924,
+    "other_classes_identical": true,
+    "realism_identical": true,
+    "local_deltas": {
+      "Car": {
+        "A": 0.0063,
+        "B": 0.0063,
+        "pooled": 0.0059,
+        "p_gain": 1.0
+      },
+      "Truck": {
+        "A": 0.021,
+        "B": 0.0049,
+        "pooled": 0.0169,
+        "p_gain": 1.0
+      }
+    },
+    "projection_combined": 0.0014
+  }
+}

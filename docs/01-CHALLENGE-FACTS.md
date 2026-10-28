@@ -201,6 +201,8 @@ V2X forbidden IDs: all 26 scenario indices that occur among the test IDs resolve
 
 **ECCV V2X final (same scorer and data as IEEE):** amanupg 0.7457 (mAP 0.438, R 0.925); luopuu 0.7421 (mAP 0.452, R 0.887); loopy 0.6512.
 **ECCV LUMPI final:** amanupg 0.4793 (mAP 0.133, R 0.913); y1nnng 0.4782; best realism R 0.937 (deleted user).
+**IEEE live (2026-10-28, public leaderboard API):** V2X: KarmaRV **0.8982** (1001919), Raj Patil 0.7937 (1010004, Oct 26: mAP 0.503), linyongchun 0.7734 (1013532, Oct 27: mAP 0.455), dipper13579 0.6757 (1013469, new on Oct 27); 24 entries. LUMPI: KarmaRV **0.5228** (1014495, S7.6: mAP 0.1749, R 0.932; +0.00009 over 995869), Raj Patil 0.4960 (1009661, Oct 26: mAP 0.139), dipper13579 0.4885 (1013482, new on Oct 27: mAP 0.130); 22 entries. Both runners-up gained on Oct 26-27 (LUMPI +0.005, V2X +0.038); our leads are 0.027 and 0.105.
+
 **IEEE live (2026-10-19, public leaderboard API):** V2X: KarmaRV **0.8982** (1001919, S7 step 1: mAP 0.612, pedestrian 0.429, R 0.933), Raj Patil 0.7555 (990507, unchanged since Oct 15), linyongchun 0.6616; 23 entries. LUMPI: KarmaRV **0.5228** (995869, S6), Raj Patil 0.4914 (980383, unchanged since Oct 12), IDEAMCVG 0.3243 (1001685, new on Oct 18: mAP 0.106); 21 entries.
 
 **IEEE live (2026-10-17, public leaderboard API):** V2X: KarmaRV **0.8931** (995877, S6 variant b: mAP 0.607, R 0.933), **Raj Patil 0.7555** (990507, Oct 15: mAP 0.477, R about 0.867), linyongchun 0.6616 (972310), Peneter ML 0.5738 (990719), KLsys 0.5700 (990768), IAsystems 0.5680 (990708; the last three with R about 0.836, Oct 15); 23 entries. LUMPI: KarmaRV **0.5228** (995869, S6: mAP 0.175, R 0.932), Raj Patil 0.4914 (980383, unchanged since Oct 12), tesla2026 0.2769; 21 entries.

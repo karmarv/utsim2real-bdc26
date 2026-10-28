@@ -17,8 +17,11 @@ python common/tools/release_weights.py fetch --tag <tag> --version <track>:<subm
   - Local: realval 0.734 / 0.721; projection +0.004; leaderboard +0.0051 (pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737).
   - Weights: the release-6.0 assets (same members).
 - **V2X step 2:** members retrained on visibility-matched labels (`g1-v5m`); not uploaded (projection +0.0014), so its checkpoints stay out of the release.
-- **LUMPI:** unchanged (S6, 995869).
-- **S7.4-S7.6** (generator-draw bags, bag swap, pooled budget; 2026-10-26/27): no version passed the upload gate, so both entries stay the submission-ready versions; the eight draw checkpoints (`*-g1v5d2/d3`, `*-g1v4d2/d3`) stay out of the release ([record](docs/decisions/2026-10-26-s7-final-revisions.md)).
+- **LUMPI entry:** S7.6, **1014495: 0.522846** (mAP 0.1749, R 0.9323; submitted 2026-10-28 00:32 UTC), rank 1 of 22, from [`lumpi_s7s_submission.zip`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (md5 `19122be039da416d98ccdf852d67532b`), `routed-g10`; server record [`codabench_1014495.json`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json).
+  - Content: the S6 entry with Car fused from `pvros_tta` + the extended PV-RCNN++ bag (no score floor) and Truck from `pvros4d2_tta` + `ppros_tta`; uploaded by the entrant below the +0.003 gate (projection +0.0014).
+  - Leaderboard: +0.00009 over 995869 (Truck +0.0049, Car -0.0042).
+  - **Weights:** the release-6.0 assets plus five checkpoints not yet released: `pvrcnnpp-ros-g1v4-s2`, `-s3`, `-s4`, `pvrcnnpp-ros-g1v4d2`, `-d3` (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`). The next release must carry them, with `reproduce_s7s.sh` and `reproduce_s7s_validation.sh`.
+- **S7.4-S7.6** (generator-draw bags, bag swap, pooled budget; 2026-10-26/27): no version passed the upload gate. The entrant uploaded LUMPI `s7s` anyway: 1014495, now the LUMPI entry (above). The V2X draw checkpoints (`*-g1v5d2/d3`) and the LUMPI Voxel R-CNN draws stay out of the release ([record](docs/decisions/2026-10-26-s7-final-revisions.md)).
 - **Code:**
   - `bdc26.boxes.count_points_per_box`;
   - `route_predictions.py sparse`, `fuse --pooled-rule` and `merge --frames`;

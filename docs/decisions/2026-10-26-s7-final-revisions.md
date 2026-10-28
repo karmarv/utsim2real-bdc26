@@ -123,3 +123,21 @@ Seeds vary only the initialization. A member trained on a fresh draw of the same
 - The LUMPI `s7s` package (`model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/submission.zip`) stays on disk, checked and reproducible. It is not an upload candidate under these rules.
 - No upload is planned before the development phase closes. Final-phase F1 is the exact scored zip of each track.
 - The forum-FAQ review of 2026-10-27 ([audit addendum](2026-10-26-rules-compliance-audit.md#addendum-2026-10-27-the-organizers-forum-faq)) applies to these versions as it does to the entries. They use the same corpus recipes; only the generator seed differs.
+
+**Upload of LUMPI `s7s`** (the entrant's decision, outside rule 6). **1014495**, submitted 2026-10-28 00:32 UTC: combined **0.522846** (mAP 0.17492, R 0.932287), rank 1 of 22. Server record: [`codabench_1014495.json`](../../model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json). The per-class scores identify the zip as `s7s`: Car changed, and only `s7s` changes Car.
+
+| | 995869 (S6) | 1014495 (S7.6) | Leaderboard delta | Local delta (A / B, pooled) |
+|---|---|---|---|---|
+| Combined | 0.522754 | 0.522846 | **+0.00009** | projection +0.0014 |
+| Car | 0.652404 | 0.648233 | **-0.0042** | +0.0063 / +0.0063, +0.0059 at P 1.0 |
+| Truck | 0.058275 | 0.063199 | **+0.0049** | +0.0210 / +0.0049, +0.0169 at P 1.0 |
+| Other classes, realism | | | identical | |
+
+- **Truck transferred** at its realval-B gain, as every Truck change has since R3.
+- **Car did not transfer.** This is the second LUMPI Car change, after S5's -0.010, to gain locally and lose on the test window. This time it gained on both splits and on the pooled frames at P 1.0. It is recorded as an observation for the report, not as a new rule, because audit rule d bars leaderboard-informed rule changes before the final. No further LUMPI change is planned anyway.
+- **Projection calibration.** A projection of +0.0014 became +0.0001 on the leaderboard. The +0.003 bar stands.
+- **Entry and F1.** 1014495 is now the best confirmed LUMPI version (+0.00009 over 995869 on the same test data), so by the existing F1 rule ([`02` Section 8.8](../02-STRATEGY.md#88-final-phase-plan-nov-1-14)) it is the LUMPI entry and F1. 995869 stays the verified fallback.
+  - F1 needs five checkpoints that are not in release 6.0: `pvrcnnpp-ros-g1v4-s2`, `-s3`, `-s4`, `pvrcnnpp-ros-g1v4d2` and `-d3`, all members of the extended PV-RCNN++ bag. They must join the next release with `reproduce_s7s.sh` and `reproduce_s7s_validation.sh`.
+- **Integrity: no per-class follow-up.** `s7x`, the Truck-only version, would very probably score about +0.0007 over 995869. Uploading it now would be a per-class choice read off this leaderboard result, which our rules forbid ([`01` Section 3.1](../01-CHALLENGE-FACTS.md#31-our-operating-interpretation); audit rule d). It stays unused.
+- **V2X.** `routed-g11` and `routed-g12` equal the entry `routed-g9` in every class configuration (route, calibration, fusion, budget, tail copies, sparse stage), in the members used, and in the realism frames (checked 2026-10-28). Since the entry rebuilds identically from its weights (dry run 2026-10-26), a V2X package would reproduce 1001919's predictions and score 0.8982 again. Uploading it gives no information and costs a slot.
+  - The only other packaged V2X version is S7 step 2 (`v2x_s7m_submission.zip`, projection +0.0014). It failed the train-split rule on truck (A-train -0.0045). Its members are trained on labels filtered by real-label point statistics, against the audit's "no new label-derived generator content". It is not an upload candidate.

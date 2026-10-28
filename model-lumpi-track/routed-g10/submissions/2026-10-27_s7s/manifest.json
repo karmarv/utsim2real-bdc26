@@ -62,8 +62,29 @@
       "synthetic/"
     ]
   },
-  "codabench_submission_id": null,
-  "leaderboard": null,
+  "codabench_submission_id": "1014495",
+  "leaderboard": {
+    "score_combined": 0.522846,
+    "score_detection": 0.249885,
+    "score_realism": 0.932287,
+    "mAP_3d_0.5_R40": 0.17492,
+    "mAP_3d_0.5_R11": 0.178529,
+    "mAP_3d_0.7_R40": 0.085093,
+    "mAP_bev_0.5_R40": 0.187988,
+    "CD": 1.593929,
+    "MMD": 3.071e-05,
+    "EMD": 1.302012,
+    "FPD": 0.519356,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.180231,
+    "AP_3d_0.5_R40_Car": 0.648233,
+    "AP_3d_0.5_R40_Bicycle": 0.188193,
+    "AP_3d_0.5_R40_Motorcycle": 0.000909,
+    "AP_3d_0.5_R40_Bus": 0.002778,
+    "AP_3d_0.5_R40_Truck": 0.063199,
+    "AP_3d_0.5_R40_Van": 0.140894,
+    "AP_3d_0.5_R40_Unknown": null
+  },
   "upload_file": {
     "name": "lumpi_s7s_submission.zip",
     "md5": "19122be039da416d98ccdf852d67532b"
