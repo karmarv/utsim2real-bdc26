@@ -10,7 +10,7 @@
 | Cup paper (paper track, CyberChair subarea SC04) | camera-ready **Nov 20, 2026** | up to 10 pages including references, IEEE two-column | top 3 per track (invited) | CyberChair |
 | Code release for verification | with the paper | a public repository with the detector code and the weights of the final entries | top 3 per track | GitHub (Section 6) |
 
-The final phase closes Sat Nov 14, 16:00 PST, so the report's final-phase numbers arrive less than a day before it is due: draft everything else by **Nov 1**, when the system is frozen at the S7 entries (F1 = the S7.6 zips; their weights are release 6.0 plus five LUMPI checkpoints for the next release). Winners are announced Nov 25; IEEE BigData 2026 is Dec 14-17 in Phoenix.
+The final phase closes Sat Nov 14, 16:00 PST, so the report's final-phase numbers arrive less than a day before it is due: draft everything else by **Nov 1**, when the system is frozen at the S7 entries (F1 = the S7.6 zips; their weights are the assets of release 7.0). Winners are announced Nov 25; IEEE BigData 2026 is Dec 14-17 in Phoenix.
 
 **Questions for the organizers** (send them with question 5 of `docs/01` Section 10): the submission channel and template for the Nov 15 report; whether the report is archival (published in the proceedings) or only a requirement for the prize; whether the Nov 20 camera-ready replaces it or is a separate paper.
 
@@ -72,5 +72,5 @@ The server has no TeX installation: build on Overleaf (IEEE conference template)
 - [ ] Section 3 matches the declaration and the rules review word for word where it quotes them.
 - [ ] Organizers cited as Shahbaz and Agarwal; the UrbanTwin papers and datasets cited with their DOIs; licences acknowledged (LUMPI CC BY-NC 3.0, V2X-Real academic use, UT sets CC0).
 - [ ] Every number traceable to a record; development and final-phase numbers labelled as such.
-- [ ] Code release (top 3): a new public repository with the detector code and the weights of the final entries (release 6.0 plus the five LUMPI S7.6 checkpoints), prepared by the maintainer; the paper links to it, never to this repository (which is private).
+- [ ] Code release (top 3): a new public repository with the detector code and the weights of the final entries (the release 7.0 assets), prepared by the maintainer; the paper links to it, never to this repository (which is private).
 - [ ] No em dashes; IEEE reference style; figures readable in grayscale.

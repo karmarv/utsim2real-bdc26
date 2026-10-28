@@ -13,57 +13,64 @@
 5. **Scorer-exact everywhere.** Local AP and realism must reproduce `local_eval.py` bit-for-bit before they are trusted.
 6. **Rule-safe by construction.** A single `ForbiddenGuard` sits in every real-data loader. Gray-area features are behind flags that default to off until the organizers confirm them (`01-CHALLENGE-FACTS.md` Section 10).
 
-## 2. The pipeline at a glance
+## 2. The pipeline at a glance (as built for S7, 2026-10-27)
+
+The plan of Sections 3-4 was written on 2026-09-30. What was built differs in three places: **G2-lite** (R3, `common/bdc26/render/g2.py`) replaced the G2 Twin-Raycast with a scene mesh; **G3** was not built (the FAQ bars learned synthesis fitted to V2X-Real frames for prize-seeking submissions); the detectors are four OpenPCDet architectures (no VoxelNeXt or DSVT). The diagram shows the system behind the S7 entries.
 
 ```mermaid
 flowchart TD
     subgraph L0["L0 Data layer"]
-      RK["Challenge starting kit<br/>test frames, forbidden IDs,<br/>local_eval.py, config.json"]
-      RD["Real train split<br/>(LUMPI / V2X-Real)"]
-      UT["Organizer synthetic<br/>UT-LUMPI / UT-V2X-Real-IC"]
-      FG["ForbiddenGuard<br/>(100 IDs + 2 s buffer)"]
+      RK["Challenge starting kit<br/>50 test frames, forbidden IDs,<br/>scoring_program, config.json"]
+      RD["Real LUMPI / V2X-Real<br/>licensed, never redistributed"]
+      UT["Organizer synthetic<br/>UT-LUMPI / UT-V2X-Real-IC, CC0"]
+      FG["ForbiddenGuard<br/>forbidden frames and +/-20 frames,<br/>LUMPI 006400-008200; access log"]
       RD --> FG
     end
-    subgraph L1["L1 Measure the target (real train split)"]
-      SC["Sensor calibration<br/>beam table, pose, noise,<br/>ray-drop stats"]
-      LS["Label statistics<br/>class freq, sizes, box<br/>conventions, placement heatmaps"]
-      RV["Real validation set<br/>(labels mapped to track taxonomy)"]
-      RP["Realism proxy set<br/>(pooled real frames)"]
+    subgraph L1["L1 Measure the target (legal real frames)"]
+      SC["Sensor calibration<br/>beam tables, poses, null rate"]
+      LS["Label statistics<br/>sizes, walker rows, visibility cut"]
+      DP["Density prior<br/>8 x 8 x 2.5 m cell ratios"]
+      RV["Real validation<br/>realval-A / realval-B"]
+      RP["Realism proxies 1-5"]
     end
-    FG --> SC & LS & RV & RP
-    subgraph GEN["Generation engines"]
-      G1["G1 UT+<br/>UT frames + taxonomy map +<br/>ray-consistent insertion of<br/>missing classes"]
-      G2["G2 Twin-Raycast<br/>static scene mesh + actor library +<br/>exact sensor model + ray-drop"]
-      G3["G3 Refine (optional)<br/>learned ray-drop / range-image<br/>refinement"]
+    FG --> SC & LS & DP & RV & RP
+    subgraph GEN["Generation, prepare_g1.py"]
+      G1["G1: actor scale fix, walkers ray-cast<br/>with the real sensors, occlusion"]
+      G2["G2-lite: re-cast real-size actors,<br/>riders, static clutter, calibrated dropout"]
+      DR["generator draws, --seed"]
     end
-    UT --> G1
-    SC --> G1 & G2
-    LS --> G1 & G2
-    G2 --> G3
-    subgraph DET["Detection"]
-      DS["Corpus builder<br/>OpenPCDet format + gt_database"]
-      TR["Detector training<br/>(CenterPoint / VoxelNeXt /<br/>Voxel R-CNN) + DG aug"]
-      INF["Inference stack<br/>TTA + multi-model WBF"]
+    UT --> G1 --> G2 --> DR
+    SC & LS & DP --> G1
+    subgraph DET["Detection, trained on synthetic data only"]
+      DS["corpora pcdet/g1-v4 LUMPI, g1-v5 V2X"]
+      TR["PointPillars, CenterPoint,<br/>Voxel R-CNN, PV-RCNN++ with ROS;<br/>seeds and draws, no pretraining"]
+      MB["members: tuned post-processing,<br/>8-view TTA, seed and draw bags"]
+      PF["portfolio, route_predictions.py:<br/>route, fuse, score floors;<br/>V2X tail copies, sparse demotion"]
     end
-    G1 & G2 & G3 --> DS --> TR --> INF
-    subgraph EVAL["Evaluation (scorer-exact)"]
-      AP["AP evaluator<br/>R40, IoU 0.5/0.7, no difficulty filter"]
-      RS["Realism scorer<br/>CD / MMD / EMD / FPD + config.json norm"]
-      FS["Frame selector<br/>(50 submission frames)"]
+    G2 & DR --> DS --> TR --> MB --> PF
+    subgraph EVAL["Evaluation, scorer-exact"]
+      AP["AP evaluator, evalap.py<br/>3D AP@0.5 R40"]
+      GT["gates: class gate, pooled rule,<br/>train-split rule, upload gate +0.003"]
+      RS["Realism scorer, realism.py"]
+      FS["Frame selector, 50 frames"]
     end
     RV --> AP
-    INF --> AP
+    MB & PF --> AP --> GT
     RP --> RS
-    G1 & G2 & G3 --> FS --> RS
-    subgraph OUT["Output"]
-      PK["Packager + validator<br/>submission.zip"]
-      LOG["Experiment registry<br/>+ ablation table + report"]
+    DS --> FS --> RS
+    subgraph OUT["Output and traceability"]
+      PK["package_submission.py<br/>check_submission.py --official"]
+      UPL["the entrant uploads;<br/>codabench_ID.json recorded"]
+      LOG["registry.csv, decision records,<br/>submission register"]
+      REL["release tag: weights.json,<br/>assets, reproduce scripts"]
     end
-    INF --> PK
+    RK --> PF
+    GT --> PK
     FS --> PK
-    RK --> PK
-    AP & RS --> LOG
+    PK --> UPL --> LOG --> REL
 ```
+
+Every real-data arrow passes the guard; no arrow leads from real data into a training label or a training input. The rules behind each arrow: [`01-CHALLENGE-FACTS.md` Section 3](01-CHALLENGE-FACTS.md#3-rules) and the root README Section 2.4.
 
 ## 3. Generation engines
 
@@ -78,6 +85,8 @@ Start from the organizers' UT frames (a CARLA digital twin of each site) and fix
 5. **Density protocol:** resample every frame to **50,000 points** (the organizers' protocol for real frames), for training and for submission. For V2X realism frames, keep the Ouster-style **(0,0,0) null returns** (about 31% of real points).
 
 ### G2: Twin-Raycast (main engine, week 2-3)
+
+> **As built:** not built in this form. R3 built **G2-lite** instead ([`02-STRATEGY.md` Section 8.7.1](02-STRATEGY.md#871-r3-engine-g2-lite-review-and-plan-2026-10-11)): UT frames kept as the scene, real-size actors re-cast with Open3D and the real sensors, riders and static clutter added, dropout calibrated (corpus `g1-v4`; V2X `g1-v5` adds the R5 density prior).
 
 A compact, fully controllable LiDAR simulator. No Unreal Engine, no RoadRunner.
 
@@ -108,6 +117,8 @@ CARLA stays useful as a **source of traffic behaviour** if needed later. It is n
 | (c) Procedural ground plus OSM building footprints | Low | Safe | Medium |
 
 ### G3: Refine (optional, week 3-4)
+
+> **As built:** not built. The organizers' FAQ (2026-10-14) bars learned synthesis components fitted to V2X-Real frames for prize-seeking submissions.
 
 Learned ray-drop (a small per-ray classifier over range, incidence, beam, local geometry), or range-image refinement, fitted to real unlabeled scans. Gated: default off until the organizers confirm that fitting a generator to real scans is allowed. Expected gain is mostly realism (+0.01-0.03 R), which is worth at most about 0.01 combined.
 
@@ -169,25 +180,29 @@ flowchart LR
       F1["fetch_ut.py"] --> P1["prepare_ut.py"]
       K["ingest_kit.py"] --> R["resolve_test_ids.py"]
       F2["fetch_real.py"] --> R --> PR["prepare_realval.py"]
-      G["generate_g1.py / generate_g2.py (to build)"]
+      G["prepare_g1.py<br/>G1 + G2-lite, --seed draws"]
+      FP["fit_density_prior.py"]
     end
     subgraph B["BDC_DATA/TRACK/"]
       UT["ut/"] ; KIT["kit/"] ; REAL["real/"] ; PC["pcdet/VERSION/"] ; GEN["gen/"]
     end
     subgraph M["model-TRACK/MODEL/"]
-      TR["train/train.sh"] --> VA["validation/evaluate.sh"] --> TE["test/predict.sh"] --> SU["submissions/DATE_TAG/"]
+      TR["train/train.sh"] --> VA["validation/tune_and_eval.sh"] --> TE["test/make_submission.sh"] --> SU["submissions/DATE_TAG/"]
+      SU --> RE["test/reproduce_TAG.sh"]
     end
     F1 --> UT --> P1 --> PC
+    UT --> G
     K --> KIT
     F2 --> REAL
     PR --> PC
-    G --> GEN --> PC
+    PR --> FP --> GEN --> G --> PC
     PC --> TR
     PC --> VA
     KIT --> TE
+    RE --> RL["releases/TAG/weights.json<br/>GitHub release assets"]
 ```
 
-### 6.3 Code map and build status (2026-09-30)
+### 6.3 Code map and build status (2026-09-30; rows M8-M12 updated 2026-10-27)
 
 | Module | Where | Status | Next step |
 |---|---|---|---|
@@ -199,11 +214,11 @@ flowchart LR
 | M5 measurement | `data-<track>/prepare_realval.py`; `common/bdc26/density.py`, `common/tools/fit_density_prior.py`; V2X OS1-64 beam table `gen/os1_64_calib_v1.npz` | **Done for both tracks**: realval-v1 (LUMPI A 1,280 / B 867; V2X A 688 / B 298), realism proxies, LUMPI class report and density prior, V2X walker prior and measured beam table | V2X density prior |
 | M6 raycaster | `common/bdc26/render/lidar_sim.py` | **Prototype** (benchmarked) | `render/sensor_model.py` (SensorModel, RayDropModel), OS1 null grid, LUMPI 5-sensor merge |
 | M7 actors | `common/bdc26/render/pedsim.py` (walkers: 16 ellipsoids, gait; analytic ray casting) | **Walkers done** (unit-tested; density matches real LUMPI Persons) | Riders, trash cans (V2X truck), parked vehicles; box primitive |
-| M8 engine G1 | `common/bdc26/render/{pedsim,g1}.py`, `common/bdc26/prep.py` (`inserter` hook, calibrated resampling), `data-<track>/prepare_g1.py` | **v1-v3 done**: LUMPI `g1-v1..v3` (walker v1/v2, density calibration); V2X `g1-v1..v3` (`g1-v3`: real placement and ground, FOV mask, measured beams, density gain 2.5 calibrated per range) | true-scale actor re-render; riders and containers |
-| M9 engine G2 | `common/bdc26/scene/`, `data-<track>/generate_g2.py` | To build | UT static-scene accumulation and meshing |
-| M10 detector v2 | `model-<track>/<model>/` via `common/tools/new_model.py` | To build | CenterPoint / VoxelNeXt / DSVT variants, multi-mode anchors |
-| M11 inference | `common/bdc26/detect/postprocess.py`, `common/tools/tune_postprocess.py`, `model-<track>/<model>/validation/tune_and_eval.sh` | **Done for v1**: per-class NMS, score floor, re-centering, size calibration, z offset, multi-target hedges; per-class coordinate-descent selection on realval-A, reported on realval-B | `detect/ensemble.py` (rotated WBF), TTA, density re-scoring |
-| M12 selection + packaging | `common/tools/{select_realism_frames,package_submission}.py`, `model-<track>/<model>/test/make_submission.sh` | **Done for v1**: frame selection by pooled-moment matching to legal proxies 1-3 (LUMPI held-out R 0.88 -> 0.90); one command from checkpoint to validated zip | Report |
+| M8 engine G1 | `common/bdc26/render/{pedsim,g1}.py`, `common/bdc26/prep.py` (`inserter` hook, calibrated resampling), `data-<track>/prepare_g1.py` | **v1-v3 done**: LUMPI `g1-v1..v3` (walker v1/v2, density calibration); V2X `g1-v1..v3` (`g1-v3`: real placement and ground, FOV mask, measured beams, density gain 2.5 calibrated per range) | done in G2-lite (M9): true-scale actors, riders, static clutter |
+| M9 engine G2 | `common/bdc26/render/g2.py` (G2-lite), `data-<track>/prepare_g1.py` | **G2-lite done (R3)**: real-size actors re-cast with Open3D and the real sensors, riders, static clutter, calibrated dropout; corpora `g1-v4` (both tracks) and `g1-v5` (V2X, R5 density prior); fresh draws with `--seed` (S7.4/S7.5). The Twin-Raycast scene mesh was not built | - |
+| M10 detector v2 | `model-<track>/<model>/` via `common/tools/new_model.py` | **Done**: CenterPoint (stride 8 and 4), Voxel R-CNN and PV-RCNN++ beside PointPillars, class-wise object scaling (ROS), seeds and generator draws; seed bags (`common/tools/bag_predictions.py`, folders `bag-*`) | - |
+| M11 inference | `common/bdc26/detect/postprocess.py`, `common/tools/tune_postprocess.py`, `common/tools/route_predictions.py`, `model-<track>/<model>/validation/tune_and_eval.sh` | **Done**: per-class NMS, score floor, re-centering, size calibration, z offset, hedges; 8-view TTA; per-class routing, cross-architecture weighted box fusion, score floors, z calibration, V2X tail copies and sparse-box demotion (S7), the LUMPI Van judge; gates in `pooled_check.py` and `s7_check.py` | - |
+| M12 selection + packaging | `common/tools/{select_realism_frames,package_submission,check_submission,reproduce_submission,reproduce_validation,release_weights}.py`, `model-<track>/<model>/test/make_submission.sh` | **Done**: frame selection against legal proxies; one command from predictions to a validated zip; the kit scorer check; reproduction scripts per scored version; release weights as GitHub assets (6.0, 7.0) | the 4-8 page report (`paper-bigdata2026/`) |
 
 ## 7. Core data contracts
 

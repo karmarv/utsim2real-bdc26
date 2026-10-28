@@ -4,7 +4,7 @@ Entry for the **UCF UrbanTwin Sim2Real LiDAR Challenge** at the IEEE BigData Cup
 
 **Contents.** Develop: [1 Objective](#1-objective) · [2 How the system works](#2-how-the-system-works) · [3 Repository layout](#3-repository-layout) · [4 Prerequisites](#4-prerequisites) · [5 Setup](#5-setup) · [6 Developer workflow](#6-developer-workflow-end-to-end) · [7 Tracks](#7-tracks). Strategy and results: [8 Strategy and next steps](#8-strategy-and-next-steps) · [9 CodaBench submissions](#9-codabench-submissions). Reference: [10 Documentation index](#10-documentation-index). Citations [Rn] open their entry in [`docs/07-LITERATURE.md`](docs/07-LITERATURE.md#6-named-references-r1-r42).
 
-**Status (2026-10-27):** S7 is the entry on both tracks, **rank 1 on both**, and both latest uploads are the S7.6 packages: Track 1 LUMPI **0.5228** (1014495, S7.6; next Raj Patil 0.4960), Track 2 V2X-Real **0.8982** (1014682, S7.6, identical in every metric to 1001919, S7 step 1, which stays the listed row; next Raj Patil 0.7937). The S7.6 zips are F1 for the final phase. S6 (variance-controlled final portfolio: seed bags, the LUMPI Van judge, and on V2X seed-bag fusions chosen by the pooled A+B condition; [`docs/02-STRATEGY.md` Sections 8.6-8.6.2](docs/02-STRATEGY.md#86-s6-variance-controlled-final-portfolio-re-planned-2026-10-15)) is release 6.0, whose assets carry the weights of the S6 entries and of the V2X S7 versions (1001919 and 1014682); the LUMPI entry 1014495 also needs five newer PV-RCNN++ checkpoints (`pvrcnnpp-ros-g1v4-s2/-s3/-s4/d2/d3`), which the next release must carry (Section 6.11). Submissions: [Section 9](#9-codabench-submissions); register, gates and calendar: [`docs/decisions/README.md`](docs/decisions/README.md).
+**Status (2026-10-27):** S7 is the entry on both tracks, **rank 1 on both**, and both latest uploads are the S7.6 packages: Track 1 LUMPI **0.5228** (1014495, S7.6; next Raj Patil 0.4960), Track 2 V2X-Real **0.8982** (1014682, S7.6, identical in every metric to 1001919, S7 step 1, which stays the listed row; next Raj Patil 0.7937). The S7.6 zips are F1 for the final phase. S6 (variance-controlled final portfolio: seed bags, the LUMPI Van judge, and on V2X seed-bag fusions chosen by the pooled A+B condition; [`docs/02-STRATEGY.md` Sections 8.6-8.6.2](docs/02-STRATEGY.md#86-s6-variance-controlled-final-portfolio-re-planned-2026-10-15)) is release 6.0, whose assets carry the weights of the S6 entries and of the V2X S7 versions (1001919 and 1014682); release 7.0 carries the weights of all three S7 versions, including the five newer PV-RCNN++ checkpoints of the LUMPI entry (Section 6.11; the tag map: [`RELEASES.md`](RELEASES.md#release-map-tags-leaderboard-submissions-weights)). Submissions: [Section 9](#9-codabench-submissions); register, gates and calendar: [`docs/decisions/README.md`](docs/decisions/README.md).
 
 ---
 
@@ -43,28 +43,32 @@ combined = 0.6 * clip(mAP_3D@0.5 / 0.7)  +  0.4 * R          R = 1 - mean( clip(
 
 ### 2.1 Big picture
 
+The system as built for the S7 entries (2026-10-27); every arrow is implemented and named in Sections 6.1-6.11.
+
 ```mermaid
 flowchart LR
-  subgraph S[Synthetic sources]
-    UT[UT twin frames<br/>CARLA, CC0]
+  subgraph SYN["Synthetic sources"]
+    UT["UT twin frames<br/>CARLA, CC0"]
   end
-  subgraph R[Real data: never for training]
-    RL[legal real frames + labels<br/>through ForbiddenGuard]
-    KIT[starting kit:<br/>50 test frames, scorer]
+  subgraph REAL["Real data: never a training input or a training label"]
+    RL["legal real frames + labels<br/>through ForbiddenGuard,<br/>every read logged with its purpose"]
+    KIT["starting kit: 50 test frames,<br/>scorer; inference and<br/>format checks only"]
   end
-  UT --> G1[Engine G1<br/>fix actors, add walkers,<br/>sensor-faithful ray casting,<br/>density calibration]
-  RL -. sensor metadata, label statistics,<br/>density prior .-> G1
-  G1 --> DS[(OpenPCDet datasets<br/>pcdet/g1-v*)]
-  DS --> TR[Train PointPillars<br/>40 epochs, 4 GPUs]
-  TR --> VAL[Real validation A/B<br/>tune post-processing,<br/>route per class]
-  RL --> VAL
-  VAL --> INF[Inference on the<br/>50 kit test frames]
+  UT --> GEN["Generator, prepare_g1.py<br/>G1: actor scale fix, walkers ray-cast<br/>with the real sensors, occlusion<br/>G2-lite: real-size actors, riders,<br/>static clutter, density prior"]
+  RL -.->|"statistics only: beam tables, sizes,<br/>walker rows, density prior (disclosed)"| GEN
+  GEN --> DS[("corpora pcdet/g1-v4 LUMPI,<br/>g1-v5 V2X, + generator draws")]
+  DS --> TR["train on synthetic only<br/>PointPillars, CenterPoint,<br/>Voxel R-CNN, PV-RCNN++<br/>40 epochs, seeds, no pretraining"]
+  TR --> MEM["members: per-class post-processing,<br/>8-view TTA, seed and draw bags"]
+  MEM --> SELV["portfolio on realval-A/B<br/>route, fuse, score floors;<br/>V2X tail copies, sparse demotion;<br/>gates, Section 2.3"]
+  RL --> SELV
+  SELV --> INF["inference on the<br/>50 kit test frames"]
   KIT --> INF
-  DS --> SEL[Select 50 realism frames<br/>vs legal proxies]
-  INF --> PKG[Package, validate,<br/>score locally]
-  SEL --> PKG
-  PKG --> CHK[check_submission.py<br/>kit scorer, 1,200 s budget]
-  CHK --> CB[CodaBench upload<br/>unchanged zip]
+  DS --> FR["50 realism frames<br/>selected against legal proxies"]
+  INF --> PKG["package + declaration,<br/>validate, kit scorer check<br/>1,200 s budget"]
+  FR --> PKG
+  PKG --> UP["the entrant uploads the unchanged zip<br/>development 5 a day, 100 in total;<br/>final 1 a day, 5 in total"]
+  UP --> REC["record: server record, registry,<br/>register, track READMEs"]
+  REC --> REL["release tag: weights as assets,<br/>reproduction scripts, RELEASES.md"]
 ```
 
 The architecture, data contracts and code map are in [`docs/03-ARCHITECTURE.md`](docs/03-ARCHITECTURE.md); the module-by-module build plan is [`docs/04-IMPLEMENTATION-GUIDE.md`](docs/04-IMPLEMENTATION-GUIDE.md).
@@ -85,26 +89,44 @@ Full ranking with gates and risks: [`docs/02-STRATEGY.md`](docs/02-STRATEGY.md).
 
 ```mermaid
 flowchart LR
-  CK[checkpoint] --> RAW[raw predictions<br/>realval-A and realval-B]
-  RAW --> TUNE[per-class tuner<br/>1: NMS, re-centering, guarded by B<br/>2: size, z offset on A<br/>3: cross-class hedges]
-  TUNE --> PP[test/postprocess.yaml]
-  PP --> EV[official-metric AP on A and B<br/>registry.csv, local_scores.json]
-  EV --> RT[route_predictions.py select<br/>best member per class]
+  CK["member checkpoint"] --> RAW["raw predictions on<br/>realval-A and realval-B<br/>plain and 8-view TTA"]
+  RAW --> TUNE["per-class tuner<br/>chosen on A, guarded by B<br/>test/postprocess.yaml"]
+  TUNE --> BAG["seed and draw bags<br/>weighted box fusion"]
+  BAG --> RT["select: best member per class<br/>class gate; LUMPI Van by the judge"]
+  RT --> FU["fuse across architectures<br/>pooled A+B rule"]
+  FU --> BU["score floors for the server cost<br/>bounded on the pooled frames"]
+  BU --> V2["V2X: walker tail copies,<br/>sparse-box demotion"]
+  V2 --> FC["final check on the final predictions<br/>pooled P(gain) >= 0.9, no split down<br/>by more than 0.005, train-split result"]
+  FC --> UG{"upload gate<br/>projection >= +0.003"}
+  UG -->|passed| PK["package and kit check:<br/>upload candidate"]
+  UG -->|"not passed"| EN["the entry stays the<br/>submission-ready version"]
 ```
 
-realval-A is real data from the same recording as the test frames (LUMPI Measurement4; V2X scenes split by name) and is used for every choice; realval-B is a second split that only checks the choices.
+realval-A is real data from the same recording as the test frames (LUMPI Measurement4; V2X scenes split by name) and chooses; realval-B is a second split that checks every choice. From R3 on a change must also gain on the pooled A+B frames, and from 6.0 on the pooled condition is the gate on the final predictions. The thresholds and the pre-registered rules a-e are in [`docs/decisions/README.md` Section 3.2](docs/decisions/README.md#32-gates). Every choice is a complete system or a per-class scalar chosen on validation frames; no per-class choice is read off the leaderboard.
 
 ### 2.4 Integrity by construction
 
+The competition rules as the code enforces them (the Rules, Terms and declaration, and the organizers' forum FAQ: [`docs/01-CHALLENGE-FACTS.md` Section 3](docs/01-CHALLENGE-FACTS.md#3-rules)):
+
 ```mermaid
 flowchart LR
-  RD[any real-data reader] --> GD{ForbiddenGuard}
-  GD -- forbidden frame or within 20 frames --> X[refused]
-  GD -- allowed --> LOG[access_log.csv<br/>with purpose] --> USE[validation, statistics,<br/>sensor calibration]
-  KITF[kit test frames] --> ONLY[inference and<br/>format checks only]
+  RD["any real-data reader"] --> GD{"ForbiddenGuard"}
+  GD -->|"a forbidden test frame,<br/>within +/-20 frames of one,<br/>or LUMPI 006400-008200"| X["refused"]
+  GD -->|allowed| LOG["access_log.csv<br/>with purpose"]
+  LOG --> VAL["validation and parameter<br/>selection, realval-A/B"]
+  LOG --> STAT["generator statistics: sensor beams,<br/>sizes, walker rows, density prior<br/>(disclosed to the organizers)"]
+  KITF["kit: 50 test frames"] --> ONLY["inference and<br/>format checks only"]
+  ZIP["submission zip"] --> DECL["50 synthetic frames N x 3 float32,<br/>predictions for the 50 test frames,<br/>the declaration word for word"]
+  DECL --> ENT["the entrant uploads;<br/>LOI and disclosure email<br/>before Oct 30, 20:00 EDT"]
+  subgraph NEVER["Never done"]
+    N1["real frames or labels as a training<br/>input or label; pretraining, fine-tuning,<br/>BN statistics or pseudo-labels on real frames"]
+    N2["learned synthesis fitted to V2X-Real;<br/>other real roadside datasets"]
+    N3["statistics of the test frames; hidden-GT<br/>bundles; per-class choices read off<br/>the leaderboard"]
+    N4["real data in git or in release assets"]
+  end
 ```
 
-Rules and the real-data uses per track: [`model-lumpi-track/README.md`](model-lumpi-track/README.md#11-integrity-rules-and-real-data-uses) and [`model-v2x-track/README.md`](model-v2x-track/README.md#11-integrity-rules-and-real-data-uses) Section 11. The named end-to-end recipe built from these parts is strategy S1 ([Section 8](#8-strategy-and-next-steps)).
+Rules and the real-data uses per track: [`model-lumpi-track/README.md`](model-lumpi-track/README.md#11-integrity-rules-and-real-data-uses) and [`model-v2x-track/README.md`](model-v2x-track/README.md#11-integrity-rules-and-real-data-uses) Section 11. The named end-to-end recipes built from these parts are the strategies S1-S7 ([Section 8](#8-strategy-and-next-steps)); the entries are S7.
 
 ## 3. Repository layout
 
@@ -277,27 +299,31 @@ ssh -N -L 6006:localhost:6006 <user>@<server>
 ### 6.11 Reproducing a submission
 Every scored version can be rebuilt from its checkpoints and the committed files. Its decision record ends with a **Reproduce** section (members, weight paths with md5, TTA, post-processing files, commands), indexed in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission). Each version has two generated scripts in its model folder: `test/reproduce_<tag>.sh` (test-frame inference with the recorded weights, merge with the committed `model.yaml`, comparison with the scored zip, repackaging of the same 50 frames into `test/output/repro-<tag>/`, the official kit scorer, a final comparison of predictions and frames) and `test/reproduce_<tag>_validation.sh` (realval-A/B inference of every member, merge, official metric, comparison with `validation/results/scorecard.json`).
 
-From a fresh clone (the weights of the leaderboard entries are assets of their GitHub release; the repository is private, so the fetch asks for a token with read access, or reads `$GITHUB_TOKEN`):
+From a fresh clone at the release of the version (the weights of the leaderboard entries are assets of their GitHub release, 6.0 for S6 and 7.0 for S7; which release holds which submission: the release map in [`RELEASES.md`](RELEASES.md#release-map-tags-leaderboard-submissions-weights)). The repository is private, so the fetch asks for a token with read access, or reads `$GITHUB_TOKEN`. The current entries (S7, release 7.0):
 ```bash
-git clone https://github.com/karmarv/utsim2real-bdc26.git && cd utsim2real-bdc26 && git checkout 6.0
+git clone https://github.com/karmarv/utsim2real-bdc26.git && cd utsim2real-bdc26 && git checkout 7.0
 ```
 ```bash
 bash common/env/setup_venv_ut.sh                                                        # Section 5.1; then place the starting kits (Section 5.3)
 ```
 ```bash
-python common/tools/release_weights.py fetch --tag 6.0 --version lumpi:s6               # 11 checkpoints, md5-verified (v2x:s6b: 10)
+python common/tools/release_weights.py fetch --tag 7.0 --version lumpi:s7s              # 15 checkpoints, md5-verified (v2x:s7s and v2x:s7: 10 each)
 ```
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6.sh             # expect: reproduction: IDENTICAL, frames identical
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s.sh            # expect: reproduction: IDENTICAL, frames identical
 ```
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6_validation.sh  # needs the prepared real data (Section 6.2); expect EQUIVALENT or IDENTICAL
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s_validation.sh # needs the prepared real data (Section 6.2); expect EQUIVALENT or IDENTICAL
 ```
-Without the synthetic corpus (not in git) the test-frame script takes the 50 frames from the scored zip, which is committed; with it, it re-reads them from the corpus, which also checks the frame selection. The validation script needs the real datasets, which are licensed and not redistributed. On this server the saved predictions allow a quick check in seconds: `python common/tools/reproduce_submission.py model-lumpi-track/routed-g8 --tag s6` (re-merge, compare with the scored zip).
+```bash
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g12/test/reproduce_s7s.sh              # the V2X entry; routed-g9/test/reproduce_s7.sh for 1001919
+```
+The S6 entries: `git checkout 6.0`, `release_weights.py fetch --tag 6.0 --version lumpi:s6` (or `v2x:s6b`), then `model-lumpi-track/routed-g8/test/reproduce_s6.sh` (or `model-v2x-track/routed-g8b/test/reproduce_s6b.sh`).
+Without the synthetic corpus (not in git) the test-frame script takes the 50 frames from the scored zip, which is committed; with it, it re-reads them from the corpus, which also checks the frame selection. The validation script needs the real datasets, which are licensed and not redistributed. On this server the saved predictions allow a quick check in seconds: `python common/tools/reproduce_submission.py model-lumpi-track/routed-g10 --tag s7s` (re-merge, compare with the scored zip).
 
-Run reproductions on an idle GPU: inference is then bit-identical (both 6.0 entries on the test frames, Section 8.6.2 of the strategy). A run sharing its GPU with another job can differ in the last digits; the test-frame comparison then matches boxes per frame and reports EQUIVALENT (no box above score 0.3 unmatched, 99% within 0.1 m and 0.01 in score). The validation check reports IDENTICAL (every class within 1e-4 AP) or EQUIVALENT (within 1e-3 per class and 5e-4 per split): some recorded validation predictions were written on GPUs shared with training, so the 6.0 entries reproduce their realval mAP to four decimals with 41 of 48 member files bit-identical. `release_weights.py verify --tag 6.0` checks the md5 of the files in place; `releases/6.0/weights.json` maps every asset to its path, md5 and the versions that use it. Older versions: their checkpoints are on this server (`train/output/`, git-ignored); check out their release tag for the files of the time.
+Run reproductions on an idle GPU: inference is then bit-identical (both 6.0 entries on the test frames, Section 8.6.2 of the strategy). A run sharing its GPU with another job can differ in the last digits; the test-frame comparison then matches boxes per frame and reports EQUIVALENT (no box above score 0.3 unmatched, 99% within 0.1 m and 0.01 in score). The validation check reports IDENTICAL (every class within 1e-4 AP) or EQUIVALENT (within 1e-3 per class and 5e-4 per split): some recorded validation predictions were written on GPUs shared with training, so the 6.0 entries reproduce their realval mAP to four decimals with 41 of 48 member files bit-identical. `release_weights.py verify --tag 7.0` checks the md5 of the files in place; `releases/<tag>/weights.json` maps every asset to its path, md5 and the versions that use it. Older versions: their checkpoints are on this server (`train/output/`, git-ignored); check out their release tag for the files of the time.
 
-**The S7 entries (the S7.6 zips, F1).** Both folders are newer than the 6.0 tag, so run them from a checkout of `main` (or the next release tag). V2X `routed-g12` (`s7s`, 1014682) uses exactly the 10 checkpoints of `v2x:s6b` (`release_weights.py fetch --tag 6.0 --version v2x:s6b`), then `model-v2x-track/routed-g12/test/reproduce_s7s.sh` and `reproduce_s7s_validation.sh`. LUMPI `routed-g10` (`s7s`, 1014495) needs 15 checkpoints: 10 of `lumpi:s6` and five that are not yet release assets (`pvrcnnpp-ros-g1v4-s2/-s3/-s4/d2/d3`); until the next release carries them, its scripts run only where those weights are on disk.
+**The S7 entries in release 7.0.** The three S7 versions (LUMPI `lumpi:s7s` 1014495; V2X `v2x:s7s` 1014682 and `v2x:s7` 1001919) use 25 checkpoints: 20 are byte-identical to 6.0 assets, and the five LUMPI PV-RCNN++ checkpoints of the extended bag (`pvrcnnpp-ros-g1v4-s2/-s3/-s4/d2/d3`) are new in 7.0. The release notes record the dry run of every script ([`RELEASES.md` 7.0](RELEASES.md#70-pre-release-2026-10-27)).
 
 ## 7. Tracks
 
@@ -331,7 +357,7 @@ A strategy is the complete recipe behind one submission per track: synthetic dat
 
 **Why this order.** The S1 leaderboard showed that transfer and small-object localization, not detector capacity, limit the score: S1's PointPillars beat the ECCV runner-up's DSVT ensembles on both tracks [R20](docs/07-LITERATURE.md#r20-eccv-2026-runner-up-reports), while LUMPI Person, Bicycle and Truck lost most of their local AP and V2X lost 0.105 mAP to height (0.083 after the S1+C1 z calibration; track model READMEs Section 9.4).
 
-**Next step: the final phase, with S7 as the entry.** S7 is the entry on both tracks, and both latest uploads are the S7.6 packages: LUMPI 1014495 **0.5228** and V2X 1014682 **0.8982** (identical to 1001919). F1 on Nov 1 is the S7.6 zip of each track ([`docs/02-STRATEGY.md` 8.8](docs/02-STRATEGY.md#88-final-phase-plan-nov-1-14)). Remaining: the LOI and the revised disclosure email (the entrant's, before Oct 30, 20:00 EDT); the next release with the five LUMPI checkpoints of 1014495 and both `reproduce_s7s` script pairs (Section 6.11); F1 on Nov 1; the report (Nov 15). S6 ([`docs/02-STRATEGY.md` Sections 8.6.1-8.6.2](docs/02-STRATEGY.md#862-s6-close-out-2026-10-17-leaderboard-transfer-the-pooled-rule-and-the-plan-to-the-final-phase), [decision record](docs/decisions/2026-10-16-s6-variance-controlled.md)) was the entry before S7: LUMPI 995869 **0.5228** (Van 0.117 -> 0.141 through the pre-registered judge) and V2X 995877 **0.8931** (vehicle and truck +0.014 each from seed-bag fusions that only the pooled A+B condition accepted). Its close-out made the pooled condition the gate from 6.0 on ([`docs/decisions/README.md` Section 3.2](docs/decisions/README.md#32-gates)) and verified that both S6 entries reproduce bit for bit from the weights attached to release 6.0 (Section 6.11).
+**Next step: the final phase, with S7 as the entry.** S7 is the entry on both tracks, and both latest uploads are the S7.6 packages: LUMPI 1014495 **0.5228** and V2X 1014682 **0.8982** (identical to 1001919). F1 on Nov 1 is the S7.6 zip of each track ([`docs/02-STRATEGY.md` 8.8](docs/02-STRATEGY.md#88-final-phase-plan-nov-1-14)). Remaining: the LOI and the revised disclosure email (the entrant's, before Oct 30, 20:00 EDT); publishing release 7.0 with the weights of the S7 versions (the entrant's GitHub steps, [`RELEASES.md` 7.0](RELEASES.md#70-pre-release-2026-10-27)); F1 on Nov 1; the report (Nov 15). S6 ([`docs/02-STRATEGY.md` Sections 8.6.1-8.6.2](docs/02-STRATEGY.md#862-s6-close-out-2026-10-17-leaderboard-transfer-the-pooled-rule-and-the-plan-to-the-final-phase), [decision record](docs/decisions/2026-10-16-s6-variance-controlled.md)) was the entry before S7: LUMPI 995869 **0.5228** (Van 0.117 -> 0.141 through the pre-registered judge) and V2X 995877 **0.8931** (vehicle and truck +0.014 each from seed-bag fusions that only the pooled A+B condition accepted). Its close-out made the pooled condition the gate from 6.0 on ([`docs/decisions/README.md` Section 3.2](docs/decisions/README.md#32-gates)) and verified that both S6 entries reproduce bit for bit from the weights attached to release 6.0 (Section 6.11).
 
 **S7, 2026-10-18 (V2X).** A review asked whether TUMTraf-V2X or other external data could still help. It cannot: training on any real roadside labels is forbidden, and other datasets' statistics are dominated by the tracks' own legal train splits ([rules record](docs/decisions/2026-10-18-rules-external-datasets.md)). Those train splits showed a mismatch that no strategy had used: the V2X-Real annotators skip objects seen with fewer than about 6 points, while 16% of our synthetic pedestrian labels are that sparse.
 - **Step 1** ranks boxes with fewer points than a per-class threshold last, with no training. `routed-g9`: pedestrian realval-B 0.418 -> 0.441, vehicle +0.003. The projection was +0.004, so the upload gate passed. The upload of [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) scored **1001919: 0.8982** (+0.0051 over 995877; pedestrian 0.413 -> 0.429, vehicle +0.002, realism identical), rank 1 of 23: the V2X entry.
@@ -380,10 +406,10 @@ Others on 2026-10-27, 21:41 CDT (public API; unchanged since the 1014495 check):
 
 | Id | Model | Submitted file | Server record | Details |
 |---|---|---|---|---|
-| 1014682 | [`model-v2x-track/routed-g12`](model-v2x-track/routed-g12) | [`v2x_s7s_submission.zip`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) | [`codabench_1014682.json`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; reproduce: [`reproduce_s7s.sh`](model-v2x-track/routed-g12/test/reproduce_s7s.sh) (members: release-6.0 weights); [decision record](docs/decisions/2026-10-26-s7-final-revisions.md) |
-| 1001919 | [`model-v2x-track/routed-g9`](model-v2x-track/routed-g9) | [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) | [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md) Section 9; reproduce: [`reproduce_s7.sh`](model-v2x-track/routed-g9/test/reproduce_s7.sh) (members: release-6.0 weights); [decision record](docs/decisions/2026-10-18-s7-visibility-rule.md) |
+| 1014682 | [`model-v2x-track/routed-g12`](model-v2x-track/routed-g12) | [`v2x_s7s_submission.zip`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (tag 7.0) | [`codabench_1014682.json`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; reproduce: [`reproduce_s7s.sh`](model-v2x-track/routed-g12/test/reproduce_s7s.sh) (weights: release 7.0); [decision record](docs/decisions/2026-10-26-s7-final-revisions.md) |
+| 1001919 | [`model-v2x-track/routed-g9`](model-v2x-track/routed-g9) | [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (tag 7.0) | [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md) Section 9; reproduce: [`reproduce_s7.sh`](model-v2x-track/routed-g9/test/reproduce_s7.sh) (weights: release 7.0, also 6.0); [decision record](docs/decisions/2026-10-18-s7-visibility-rule.md) |
 | 995877 | [`model-v2x-track/routed-g8b`](model-v2x-track/routed-g8b) | [`v2x_s6b_submission.zip`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0) | [`codabench_995877.json`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md) Section 9; reproduce: [`reproduce_s6b.sh`](model-v2x-track/routed-g8b/test/reproduce_s6b.sh), weights `releases/6.0/weights.json` |
-| 1014495 | [`model-lumpi-track/routed-g10`](model-lumpi-track/routed-g10) | [`lumpi_s7s_submission.zip`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) | [`codabench_1014495.json`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md#9-submission-log) Section 9; reproduce: [`reproduce_s7s.sh`](model-lumpi-track/routed-g10/test/reproduce_s7s.sh); [decision record](docs/decisions/2026-10-26-s7-final-revisions.md) |
+| 1014495 | [`model-lumpi-track/routed-g10`](model-lumpi-track/routed-g10) | [`lumpi_s7s_submission.zip`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (tag 7.0) | [`codabench_1014495.json`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md#9-submission-log) Section 9; reproduce: [`reproduce_s7s.sh`](model-lumpi-track/routed-g10/test/reproduce_s7s.sh) (weights: release 7.0); [decision record](docs/decisions/2026-10-26-s7-final-revisions.md) |
 | 995869 | [`model-lumpi-track/routed-g8`](model-lumpi-track/routed-g8) | [`lumpi_s6_submission.zip`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (tag 6.0) | [`codabench_995869.json`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/codabench_995869.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md) Section 9; reproduce: [`reproduce_s6.sh`](model-lumpi-track/routed-g8/test/reproduce_s6.sh), weights `releases/6.0/weights.json` |
 | 990255 | [`model-v2x-track/routed-g7`](model-v2x-track/routed-g7) | [`v2x_r5_submission.zip`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2) | [`codabench_990255.json`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/codabench_990255.json) | [`model-v2x-track/README.md`](model-v2x-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-14-r5-realism-led.md) |
 | 990245 | [`model-lumpi-track/routed-g7`](model-lumpi-track/routed-g7) | [`lumpi_r5_submission.zip`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (tag 5.2) | [`codabench_990245.json`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/codabench_990245.json) | [`model-lumpi-track/README.md`](model-lumpi-track/README.md#9-submission-log) Section 9; [decision record](docs/decisions/2026-10-14-r5-realism-led.md) |
@@ -419,7 +445,7 @@ Not scored: 957399 and 957439, hand-edited copies of the same zips ([decision re
 | [`data-lumpi-track/README.md`](data-lumpi-track/README.md), [`data-v2x-track/README.md`](data-v2x-track/README.md) | per-track data guides |
 | [`model-lumpi-track/README.md`](model-lumpi-track/README.md), [`model-v2x-track/README.md`](model-v2x-track/README.md) | per-track model guides: approaches, lifecycle, results (7), submission log and CodaBench detail (9), local evaluation and packaging (10), integrity (11), contributing (12) |
 | `model-<track>/<model>/submissions/<date>_<tag>/` | `manifest.json`, `synthetic_ids.txt` and the server's `codabench_<id>.json` for every submission; `submission_<track>.zip` for the leaderboard entries |
-| [`RELEASES.md`](RELEASES.md) | release log: per tag, the leaderboard entries, their files and checksums |
+| [`RELEASES.md`](RELEASES.md) | release log: the release map (every tag with its leaderboard submissions and weights), per tag the entries, their files, checksums, weights and the verified reproduction; how to make a release |
 | [`releases/6.0/weights.json`](releases/6.0/weights.json) | the checkpoints of the 6.0 leaderboard entries as release assets: names, paths, md5, the versions using them (`common/tools/release_weights.py`) |
 
 ## Licence

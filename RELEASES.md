@@ -2,41 +2,84 @@
 
 Each release tag fixes the code, the documentation and the submission files of the leaderboard entries at that point. The zip of every leaderboard entry is committed next to its manifest, byte for byte the file that was scored (md5 below and in the folder's `manifest.json`): in 1.0 as `submission_<track>.zip`; from S2 on under its upload name `<track>_<strategy>_submission.zip`, written by the packager (the upload copies of leaderboard entries are committed; the ignore rule for upload copies was lifted on 2026-10-10). The full submission register, with the gate result of every version, is [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register).
 
-From 6.0 on, a release also carries **the weights of its leaderboard entries** as GitHub release assets (checkpoints are not in git), listed with their repository paths and md5 in `releases/<tag>/weights.json`, so the entries can be rebuilt from a fresh clone (root README Section 6.11). Making a release (the GitHub steps need the entrant's credentials and run in the entrant's terminal; the tool asks for a token at a hidden prompt):
-```bash
-python common/tools/release_weights.py collect --tag <tag> <model folder>:<submission tag> ...   # writes releases/<tag>/weights.json (commit it)
-git tag -a <tag> -m "<summary>" && git push origin main && git push origin <tag>
-python common/tools/release_weights.py publish --tag <tag>        # creates the pre-release (notes: this file's section) and uploads the assets
-python common/tools/release_weights.py fetch --tag <tag> --version <track>:<submission tag>   # in a fresh clone: download, md5 check
+From 6.0 on, a release also carries **the weights of its leaderboard entries** as GitHub release assets (checkpoints are not in git), listed with their repository paths and md5 in `releases/<tag>/weights.json`, so the entries can be rebuilt from a fresh clone (root README Section 6.11). Real data is never a release asset: the assets are checkpoints trained on synthetic data only and the scored zips (synthetic frames, predictions, declaration).
+
+**Making a release.** Steps 1-4 run on the server; steps 5-8 need the entrant's GitHub credentials and run in the entrant's terminal (the tool reads `$GITHUB_TOKEN` or `$GH_TOKEN`, or asks for a token at a hidden prompt).
+1. Record every upload of the release: `package_submission.py <model> --tag <tag> --record <id> <codabench json>` (manifest and registry row), the server record `codabench_<id>.json`, the register row (`docs/decisions/README.md` Section 2), the track README Section 9, the root README Section 9.
+2. Dry-run the reproduction scripts of every version on idle GPUs, one job per GPU (`common/pipeline/gpu_queue.sh`): `test/reproduce_<tag>.sh` must report IDENTICAL, `test/reproduce_<tag>_validation.sh` IDENTICAL or EQUIVALENT. Write the result into the release section below.
+3. `python common/tools/release_weights.py collect --tag <tag> <model folder>:<submission tag> ...` writes `releases/<tag>/weights.json`; add the release section and its row in the release map below.
+4. Commit on main and create the annotated tag: `git tag -a <tag> -m "<summary with the CodaBench ids>"`.
+5. `git push origin main && git push origin <tag>`.
+6. `python common/tools/release_weights.py publish --tag <tag>`: creates the GitHub pre-release of the tag (notes: its section of this file, links pointing at the tag) and uploads every asset; it ends with "all assets uploaded and sizes match".
+7. In a fresh clone at the tag: `release_weights.py fetch --tag <tag> --version <track>:<submission tag>` (md5-verified), then the version's `test/reproduce_<tag>.sh`.
+8. Record the outcome (release URL, fresh-clone check) in the release section, commit and push; the tag stays on its commit.
+
+The workflow from a scored upload to a release that anyone with read access can rebuild:
+
+```mermaid
+flowchart LR
+  UP["the entrant's upload<br/>of the unchanged zip"] --> REC["record: codabench_ID.json,<br/>manifest, registry, register"]
+  REC --> RS["reproduce_TAG.sh and<br/>reproduce_TAG_validation.sh"]
+  RS --> DRY["dry run on idle GPUs:<br/>IDENTICAL or EQUIVALENT"]
+  DRY --> COL["release_weights.py collect:<br/>releases/TAG/weights.json"]
+  COL --> GIT["commit, annotated tag,<br/>push main and the tag"]
+  GIT --> PUB["release_weights.py publish:<br/>pre-release, notes from this file,<br/>checkpoints and zips as assets"]
+  PUB --> FET["fresh clone at the tag:<br/>fetch --version, md5 check"]
+  FET --> RS2["reproduce scripts against<br/>the scored zip"]
 ```
 
-## Next release (S7, in progress since 2026-10-18)
+## Release map (tags, leaderboard submissions, weights)
 
-S7 is the entry on both tracks, and the latest upload on each track is its S7.6 package; those two zips are F1 for the final phase.
+Every tag fixes the code, the documentation and the scored zips of the leaderboard versions of that point. A submission is identified by its CodaBench id, its zip (md5 in the folder's `manifest.json` and the server record `codabench_<id>.json`) and its model folder. Weights are GitHub release assets from 6.0 on; earlier versions are rebuilt by retraining from their configs.
 
-- **V2X entry (S7.6):** **1014682: 0.898172**, identical in every metric to 1001919 (below), from [`v2x_s7s_submission.zip`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed78ed70f78437bf62c715b`), `routed-g12`; server record [`codabench_1014682.json`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json). The public leaderboard keeps listing 1001919.
-  - Content: 1001919 rebuilt by the S7.6 pipeline (no class changed): frames byte-identical, predictions numerically equal in another in-frame order.
-  - Weights: the 10 release-6.0 checkpoints of `v2x:s6b`; scripts `reproduce_s7s.sh` and `reproduce_s7s_validation.sh`.
-- **V2X S7 step 1 (equal to the entry):** **1001919: 0.8982** (mAP 0.6124, R 0.9332; scored 2026-10-19 02:52 UTC), rank 1 of 23, from [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`), `routed-g9`; server record [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json).
-  - Content: the boxes and frames of 995877, with boxes holding fewer points than the real labels' visibility cut ranked last (pedestrian 6, vehicle 5).
-  - Local: realval 0.734 / 0.721; projection +0.004; leaderboard +0.0051 (pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737).
-  - Weights: the release-6.0 assets (same members).
-- **V2X step 2:** members retrained on visibility-matched labels (`g1-v5m`); not uploaded (projection +0.0014), so its checkpoints stay out of the release.
-- **LUMPI entry:** S7.6, **1014495: 0.522846** (mAP 0.1749, R 0.9323; submitted 2026-10-28 00:32 UTC), rank 1 of 22, from [`lumpi_s7s_submission.zip`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (md5 `19122be039da416d98ccdf852d67532b`), `routed-g10`; server record [`codabench_1014495.json`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json).
-  - Content: the S6 entry with Car fused from `pvros_tta` + the extended PV-RCNN++ bag (no score floor) and Truck from `pvros4d2_tta` + `ppros_tta`; uploaded by the entrant below the +0.003 gate (projection +0.0014).
-  - Leaderboard: +0.00009 over 995869 (Truck +0.0049, Car -0.0042).
-  - **Weights:** the release-6.0 assets plus five checkpoints not yet released: `pvrcnnpp-ros-g1v4-s2`, `-s3`, `-s4`, `pvrcnnpp-ros-g1v4d2`, `-d3` (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`). The next release must carry them, with `reproduce_s7s.sh` and `reproduce_s7s_validation.sh`.
-- **S7.4-S7.6** (generator-draw bags, bag swap, pooled budget; 2026-10-26/27): no version passed the upload gate. The entrant uploaded both `s7s` packages anyway: LUMPI 1014495, now the LUMPI entry, and V2X 1014682, equal to 1001919 (above). The V2X draw checkpoints (`*-g1v5d2/d3`) and the LUMPI Voxel R-CNN draws stay out of the release ([record](docs/decisions/2026-10-26-s7-final-revisions.md)).
-- **Code:**
-  - `bdc26.boxes.count_points_per_box`;
-  - `route_predictions.py sparse`, `fuse --pooled-rule` and `merge --frames`;
-  - `common/tools/filter_labels.py`;
-  - `common/pipeline/s7_portfolio.sh`, `s7f_portfolio.sh`, `s7g_amend.sh`;
-  - `common/tools/s7_check.py` (final check and projection), `route_predictions.py fuse --swap-to` and `budget --pooled`;
-  - `prepare_g1.py --seed` (both tracks; the default reproduces the existing corpora); the V2X corpus card lists every real-derived generator input;
-  - tests `common/tests/test_s7.py`.
-- **To collect** (the entrant's step; the tag is the entrant's choice): `python common/tools/release_weights.py collect --tag <tag> model-lumpi-track/routed-g10:s7s model-v2x-track/routed-g12:s7s model-v2x-track/routed-g9:s7`, so the release carries the LUMPI five new checkpoints and both S7.6 versions.
-- **Records:** [`2026-10-18-s7-visibility-rule.md`](docs/decisions/2026-10-18-s7-visibility-rule.md), [`2026-10-18-rules-external-datasets.md`](docs/decisions/2026-10-18-rules-external-datasets.md), [`2026-10-26-rules-compliance-audit.md`](docs/decisions/2026-10-26-rules-compliance-audit.md) (with the 2026-10-27 forum-FAQ addendum), [`2026-10-26-s7-final-revisions.md`](docs/decisions/2026-10-26-s7-final-revisions.md).
+| Tag | Date | Strategy | LUMPI (16684) id: combined | V2X (16685) id: combined | Weights in the release | Reproduction script (in the tree from 6.0 on) |
+|---|---|---|---|---|---|---|
+| 0.1 | 2026-10-06 | S1 | 965614: 0.4728 | 965633: 0.7665 | no (zips as assets) | `routed-g1/test/reproduce_first.sh` |
+| 1.0 | 2026-10-09 | S1, S1+C1 | 965614: 0.4728 | 972563: 0.7855 | no | `reproduce_first.sh`, `routed-g1z/test/reproduce_zcal.sh` |
+| 2.0 | 2026-10-09 | S2 (no upload) | 965614 | 972563 | no | |
+| 3.0 | 2026-10-10 | S3 | 974348: 0.5015 (log; never listed) | 974400: 0.8381 | no | `routed-g3/test/reproduce_s3.sh` |
+| 4.0 | 2026-10-11 | S4 | 975871: 0.5040 | 975938: 0.8485 | no | `routed-g4/test/reproduce_s4.sh` |
+| 5.0 | 2026-10-11 | S5 | 978931: 0.5039 (not listed) | 978945: 0.8730 | no | `routed-g5/test/reproduce_s5.sh` |
+| 5.1 | 2026-10-13 | R3 | 986489: 0.5169 | 986496: 0.8789 | no | `routed-g6/test/reproduce_r3.sh` |
+| 5.2 | 2026-10-15 | R5 | 990245: 0.5198 | 990255: 0.8852 | no | `routed-g7/test/reproduce_r5.sh` |
+| 6.0 | 2026-10-17 | S6 | 995869: 0.5228 (0.522754) | 995877: 0.8931 | **yes**: 21 checkpoints + 2 zips ([`releases/6.0/weights.json`](releases/6.0/weights.json)) | `routed-g8/test/reproduce_s6.sh` (LUMPI), `routed-g8b/test/reproduce_s6b.sh` (V2X) |
+| **7.0** | 2026-10-27 | **S7** (the entries, F1) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
+
+The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release.
+
+## 7.0 (pre-release, 2026-10-27)
+
+**Leaderboard** (development phase; public leaderboards checked 2026-10-27, 21:41 CDT): S7 on both tracks, rank 1 on both; the latest upload on each track is its S7.6 package, and those two zips are F1 for the final phase.
+
+| Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | S7.6 | 1014495 | 2026-10-28 00:32 | **0.5228** (0.522846) | 0.1749 | 0.9323 | **1 of 22** | [`lumpi_s7s_submission.zip`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (`19122be039da416d98ccdf852d67532b`) | [s7 final revisions](docs/decisions/2026-10-26-s7-final-revisions.md) |
+| 2 V2X-Real (16685) | S7.6 | 1014682 | 2026-10-28, between 00:53 and 02:41 (not public: a tie does not replace the listed row) | **0.8982** (0.898172) | 0.6124 | 0.9332 | 1 (tie with 1001919) | [`v2x_s7s_submission.zip`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (`73518975aed78ed70f78437bf62c715b`) | same |
+| 2 V2X-Real (16685) | S7 step 1 | 1001919 | 2026-10-19 02:52 | **0.8982** (0.898172) | 0.6124 | 0.9332 | **1 of 24** (the listed row) | [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (`c1483d590242d4fe6b4eefff96c1619c`) | [s7 visibility rule](docs/decisions/2026-10-18-s7-visibility-rule.md) |
+
+Server records: [`codabench_1014495.json`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json), [`codabench_1014682.json`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json), [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json). LUMPI against S6 (995869): Truck 0.058 -> 0.063, Car 0.652 -> 0.648, every other class and the realism identical (+0.00009). V2X: 1014682 equals 1001919 in every metric; 1001919 against S6 variant b (995877): pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737, truck and realism identical (+0.0051).
+
+**Release assets: everything needed to replicate the three versions.** The three submission zips and the 25 checkpoints they use (4.46 GB; LUMPI 15, V2X 10, every file exactly as used), named `<track>.<model folder>.epoch40.pth` and mapped to their repository paths and md5 in [`releases/7.0/weights.json`](releases/7.0/weights.json). Twenty checkpoints are byte-identical to 6.0 assets; new are the five LUMPI PV-RCNN++ checkpoints of the extended bag (`pvrcnnpp-ros-g1v4-s2`, `-s3`, `-s4`, `pvrcnnpp-ros-g1v4d2`, `-d3`). From a fresh clone at this tag (root README Section 6.11):
+```bash
+python common/tools/release_weights.py fetch --tag 7.0 --version lumpi:s7s                 # or v2x:s7s, v2x:s7; md5-verified, placed under train/output/
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s.sh              # test frames: predictions and frames against the scored zip
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g12/test/reproduce_s7s.sh                # V2X entry; routed-g9/test/reproduce_s7.sh for 1001919
+```
+Verified on 2026-10-27 on idle GPUs, one job per GPU (`$BDC_DATA/logs/r70`): the three test-frame scripts reproduce their scored zips **IDENTICAL** from these weights (predictions, maximum difference 0.0; all 50 frames byte-identical; kit scorer valid: LUMPI `s7s` 284 s and 23,270 boxes, V2X `s7s` 157 s, V2X `s7` 160 s). The two validation scripts reproduce realval-A/B to four decimals: LUMPI `s7s` A 0.3881, B 0.2250, late-A 0.3583, every class within 6.2e-4 AP, 28 of 34 member files bit-identical; V2X `s7s` A 0.7340, B 0.7206, every class within 1.9e-4, 15 of 20 bit-identical (**EQUIVALENT**; the others were recorded on GPUs shared with training, as in 6.0). `v2x:s7` uses the same ten checkpoints and members as `v2x:s7s`.
+
+**F1 and fallbacks for the final phase** ([`docs/02-STRATEGY.md` Section 8.8](docs/02-STRATEGY.md#88-final-phase-plan-nov-1-14)): F1 = `lumpi_s7s_submission.zip` and `v2x_s7s_submission.zip`. Fallbacks: `v2x_s7_submission.zip` (1001919, equal score, in this release) and `lumpi_s6_submission.zip` (995869, release 6.0).
+
+**What 7.0 contains**
+- Strategy S7 ([`docs/02-STRATEGY.md` Sections 8.11-8.12](docs/02-STRATEGY.md#811-s7-visibility-rule-v2x-2026-10-18)):
+  - step 1, the V2X sparse-box demotion at the real annotators' visibility cut (`route_predictions.py sparse`, `bdc26.boxes.count_points_per_box`; `routed-g9`, 1001919);
+  - step 2, members retrained on visibility-matched labels (`common/tools/filter_labels.py`, corpus `g1-v5m`, `routed-g10`): below the upload gate, so its checkpoints stay out of the release;
+  - S7.4-S7.6, fresh generator draws (`prepare_g1.py --seed`; the default reproduces the existing corpora) in extended seed-and-draw bags (`bag-*-g1v5x`, `bag-*-g1v4x`), the bag swap (`route_predictions.py fuse --swap-to`), the pooled bound on score floors (`budget --pooled`), the final check and projection (`common/tools/s7_check.py`); V2X `routed-g11` and `routed-g12` (the entry), LUMPI `routed-g9` and `routed-g10` (the entry). No version passed the +0.003 upload gate; the entrant uploaded both S7.6 packages.
+- Pipelines (`common/pipeline/`): `s7_portfolio.sh`, `s7f_portfolio.sh`, `s7g_amend.sh`; `route_predictions.py fuse --pooled-rule` and `merge --frames`.
+- Rules and compliance: [`2026-10-18-rules-external-datasets.md`](docs/decisions/2026-10-18-rules-external-datasets.md) (TUMTraf-V2X and other real sets not used), [`2026-10-26-rules-compliance-audit.md`](docs/decisions/2026-10-26-rules-compliance-audit.md) (18 items, the pre-registered rules a-e, the 2026-10-27 forum-FAQ addendum and the disclosure email draft); the V2X corpus card lists every real-derived generator input.
+- Documentation: workflow and compliance diagrams as built (root README Sections 2.1, 2.3 and 2.4; `docs/03-ARCHITECTURE.md` Sections 2 and 6.2; `model-lumpi-track/README.md` Section 5); the release map and the release workflow (top of this file); the release of every version in `docs/decisions/README.md` Section 6.1; model READMEs for every `routed-g*` folder.
+- Findings: inside portfolios that already fuse architectures, more seeds or draws of one family add little; a score floor can cut an R40 level of the pooled frames that neither split shows; LUMPI Car failed to transfer for the second time (an observation, no rule change before the final); the in-frame order of equal predictions does not change the server score.
+- Tests: 106 (`python -m pytest -q common/tests`; `test_s7.py` added; the release-manifest check covers 6.0 and 7.0).
 
 ## 6.0 (pre-release, 2026-10-17)
 

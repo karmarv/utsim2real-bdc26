@@ -11,7 +11,7 @@
 | Local combined estimate | 0.992 (B, unclipped) for S7; leaderboard 0.8982 (Section 9); ECCV winner 0.746 |
 | CodaBench (current entry) | **1014682: combined 0.8982** (0.898172; mAP 0.6124, R 0.9332), S7.6 ([`routed-g12`](routed-g12)), identical in every metric to **1001919** (S7 step 1, [`routed-g9`](routed-g9)), which stays the listed row: rank 1 of 24 on 2026-10-27 (Section 9) |
 | CodaBench (previous) | 1001919: 0.8982 (S7 step 1, identical to the entry, the listed row); 995877: 0.8931 (S6 variant b); 990255: 0.8852 (R5); 986496: 0.8789 (R3); 978945: 0.8730 (S5); 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
-| Submitted zip | current entry and F1: [`routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed7`); S7 step 1, equal: [`routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (both use the release-6.0 weights, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); S6b: [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0); R5: [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
+| Submitted zip | current entry and F1: [`routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed7`); S7 step 1, equal: [`routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (tag 7.0; both use the same 10 checkpoints, release assets of 7.0 and 6.0, [`releases/7.0/weights.json`](../releases/7.0/weights.json)); S6b: [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0); R5: [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
 | Realism of the submitted frames | **R = 0.933 on the server** (R5 frames from `g1-v5`: background density prior, 31% nulls; 0.937 on held-out legal proxies); R3 frames 0.927 (`g1-v4`); S1-S5 0.920 (`g1-v3`) |
 | Submit | Section 6.7 |
 | Strategy | S1, S1+C1, S3, S4, S5, R3, R5, S6 (variant b), S7 step 1 and **S7.6 submitted**; **S7 is the entry**: step 1 brought pedestrian +0.015 on the leaderboard (Section 7.12), and S7.6 (1014682) rebuilt it with no class changed; S7 step 2 (visibility-matched training labels) and S7.4 stayed below the upload gate; S2 done without a new V2X version (Section 7.5); next: the final phase, root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
@@ -92,11 +92,11 @@ UT-V2X frames resampled to 35,000 valid points, plus 12-16 procedural walkers pe
 
 ## 5. Lifecycle
 
-The lifecycle is the same as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-track/README.md) Section 5 diagram): preparation, training, real validation and tuning, routing, test inference, evaluation, submission.
+The lifecycle is the same as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-track/README.md) Section 5 diagram): preparation (corpus `g1-v5`), training on synthetic data only, real validation and tuning, seed and draw bags, the portfolio (route, fuse, score floors, walker tail copies, sparse-box demotion) with its gates, test inference, evaluation, the entrant's upload and the record, reproduction and release. The entry is S7.6 [`routed-g12`](routed-g12).
 
 ## 6. Selected model lifecycle, step by step
 
-From the repository root after `source common/env/activate.sh`.
+The commands below walk through the first entry (S1, `routed-g1`); later models repeat them per member, then add the portfolio steps of their model README (`routed-g12/README.md`, Commands) and their `test/reproduce_<tag>.sh`. From the repository root after `source common/env/activate.sh`.
 
 ### 6.1 Preparation
 ```bash
@@ -411,7 +411,7 @@ Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (lo
 
 ### 9.2 Artifacts
 
-S7.6 (1014682, the entry and F1): model [`routed-g12`](routed-g12) ([`model.yaml`](routed-g12/model.yaml)); the upload copy [`v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed78ed70f78437bf62c715b`, in its [`manifest.json`](routed-g12/submissions/2026-10-27_s7s/manifest.json)); server record [`codabench_1014682.json`](routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json); the 10 checkpoints of `v2x:s6b`, assets of release 6.0 ([`releases/6.0/weights.json`](../releases/6.0/weights.json)); reproduction from the weights: [`routed-g12/test/reproduce_s7s.sh`](routed-g12/test/reproduce_s7s.sh) (test frames) and [`reproduce_s7s_validation.sh`](routed-g12/test/reproduce_s7s_validation.sh) (realval-A/B).
+S7.6 (1014682, the entry and F1): model [`routed-g12`](routed-g12) ([`model.yaml`](routed-g12/model.yaml)); the upload copy [`v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed78ed70f78437bf62c715b`, in its [`manifest.json`](routed-g12/submissions/2026-10-27_s7s/manifest.json)); server record [`codabench_1014682.json`](routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json); the 10 checkpoints as assets of release 7.0 (`python common/tools/release_weights.py fetch --tag 7.0 --version v2x:s7s`; the same files as `v2x:s6b` in 6.0); reproduction from the weights: [`routed-g12/test/reproduce_s7s.sh`](routed-g12/test/reproduce_s7s.sh) (test frames) and [`reproduce_s7s_validation.sh`](routed-g12/test/reproduce_s7s_validation.sh) (realval-A/B).
 
 S7 step 1 (1001919, identical scores; the listed leaderboard row): model [`routed-g9`](routed-g9); the upload copy [`v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`); server record [`codabench_1001919.json`](routed-g9/submissions/2026-10-18_s7/codabench_1001919.json); reproduction: [`routed-g9/test/reproduce_s7.sh`](routed-g9/test/reproduce_s7.sh).
 

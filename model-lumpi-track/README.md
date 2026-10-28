@@ -12,7 +12,7 @@
 | Local combined estimate | 0.565 (B) and 0.586 (B with Van read from realval-A) for S6; leaderboard 0.5228 (Section 9); ECCV winner 0.479 |
 | Competition | **rank 1 of 22** (S7.6, 0.5228, 2026-10-27; second Raj Patil 0.4960, 1009661, Oct 26; third dipper13579 0.4885, new on Oct 27); earlier: rank 1 of 21 (S6, 0.5228, 2026-10-17); second Raj Patil 0.4914 (980383, Oct 12) with mAP 0.1337 and realism R about 0.942 (ours 0.932) |
 | CodaBench | **1014495 (S7.6): combined 0.5228** (0.522846; mAP 0.1749, R 0.9323), rank 1 of 22 on 2026-10-27; before: 995869 (S6, 0.522754), 990245 (R5, 0.5198), 986489 (R3, 0.5169), 975871 (S4, 0.5040), 978931 (S5, 0.5039, not listed), 974348 (S3, 0.5015 by its log), 965614 (S1, 0.4728) (Section 9; root README Section 9) |
-| Submitted zip | current entry and F1, S7.6: [`routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip`](routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (five of its checkpoints are not in release 6.0: `pvrcnnpp-ros-g1v4-s2/-s3/-s4/d2/d3`); S6: [`routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip`](routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (tag 6.0; weights as release assets, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); R5: [`lumpi_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (tag 5.2); R3: [`lumpi_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (tag 5.1) |
+| Submitted zip | current entry and F1, S7.6: [`routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip`](routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (tag 7.0; weights as release assets, [`releases/7.0/weights.json`](../releases/7.0/weights.json)); S6: [`routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip`](routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (tag 6.0; weights as release assets, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); R5: [`lumpi_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (tag 5.2); R3: [`lumpi_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (tag 5.1) |
 | Submit | `bash model-lumpi-track/routed-g10/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
 | Strategy | S1, S3, S4, S5, R3, R5, S6 and **S7.6 submitted**; **S7.6 is the entry** (+0.0001 over S6: Car -0.004, Truck +0.005 on the leaderboard); before: S6 (Section 7.11: Van 0.117 -> 0.141 on the leaderboard); S2 done, below the upload gate (Section 7.5); S5 not confirmed (Section 7.8); next: the final phase with the S7.6 zip as F1, root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
@@ -108,20 +108,24 @@ UT-LUMPI frames with the actor scale fix, plus about 16 procedural walkers per f
 
 ## 5. Selected model lifecycle at a glance
 
+The lifecycle of the entry (S7.6, [`routed-g10`](routed-g10); the V2X entry `routed-g12` follows the same steps plus tail copies and the sparse-box demotion):
+
 ```mermaid
 flowchart TB
-  P[6.1 Preparation<br/>g1-v2, g1-v3 + infos] --> T[6.2 Training<br/>2 x PointPillars, 40 epochs, 4 GPUs]
-  T --> V[6.3 Validation<br/>raw preds on realval A/B<br/>two-phase tuner -> postprocess.yaml]
-  V --> R[6.4 Routing<br/>best member per class on A, ties by B]
-  R --> I[6.5 Test inference<br/>50 kit frames, both members]
-  I --> E[6.6 Evaluation<br/>official metric, realism on held-out proxies]
-  E --> S[6.7 Submission<br/>zip, validation, upload, record]
-  V -.-> A[Ablations, Section 7]
+  P["Preparation<br/>corpus g1-v4 (G1 + G2-lite),<br/>generator draws, infos"] --> T["Training on synthetic data only<br/>PointPillars, CenterPoint, Voxel R-CNN,<br/>PV-RCNN++; seeds and draws, 40 epochs"]
+  T --> V["Validation per member<br/>raw predictions on realval-A/B, plain and TTA<br/>tuner -> postprocess.yaml"]
+  V --> B["Seed and draw bags<br/>weighted box fusion"]
+  B --> R["Portfolio: route, fuse, score floors,<br/>Van judge, rare classes frozen<br/>gates on the final predictions"]
+  R --> I["Test inference<br/>50 kit frames, every used member"]
+  I --> E["Evaluation<br/>official metric on A/B, realism on<br/>held-out proxies, kit scorer check"]
+  E --> S["Submission<br/>zip, the entrant's upload, record"]
+  S --> RP["Reproduction and release<br/>reproduce_s7s.sh, weights as release assets"]
+  V -.-> A["Ablations, Section 7"]
 ```
 
 ## 6. Selected model lifecycle, step by step
 
-All commands from the repository root after `source common/env/activate.sh`. GPU numbers are examples (`CUDA_VISIBLE_DEVICES`).
+The commands below walk through the first entry (S1, `routed-g1`: two PointPillars members); every later model repeats them per member, then adds the portfolio steps of its model README (`routed-g10/README.md`, Commands) and its `test/reproduce_<tag>.sh`. All commands from the repository root after `source common/env/activate.sh`. GPU numbers are examples (`CUDA_VISIBLE_DEVICES`).
 
 ### 6.1 Preparation
 ```bash
@@ -411,7 +415,7 @@ Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (lo
 
 ### 9.2 Artifacts
 
-S7.6 (1014495, the entry and F1): model [`routed-g10`](routed-g10) ([`model.yaml`](routed-g10/model.yaml)); the upload copy [`lumpi_s7s_submission.zip`](routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (md5 `19122be039da416d98ccdf852d67532b`, in its [`manifest.json`](routed-g10/submissions/2026-10-27_s7s/manifest.json)); server record [`codabench_1014495.json`](routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json); 15 checkpoints: 10 of the release-6.0 assets (`lumpi:s6`) and five not yet released (`pvrcnnpp-ros-g1v4-s2/-s3/-s4/d2/d3`, which the next release must carry); reproduction from the weights: [`routed-g10/test/reproduce_s7s.sh`](routed-g10/test/reproduce_s7s.sh) (test frames) and [`reproduce_s7s_validation.sh`](routed-g10/test/reproduce_s7s_validation.sh) (realval-A/B).
+S7.6 (1014495, the entry and F1): model [`routed-g10`](routed-g10) ([`model.yaml`](routed-g10/model.yaml)); the upload copy [`lumpi_s7s_submission.zip`](routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (md5 `19122be039da416d98ccdf852d67532b`, in its [`manifest.json`](routed-g10/submissions/2026-10-27_s7s/manifest.json)); server record [`codabench_1014495.json`](routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json); the 15 checkpoints as assets of release 7.0 (`python common/tools/release_weights.py fetch --tag 7.0 --version lumpi:s7s`; ten of them also in 6.0, the five PV-RCNN++ checkpoints `pvrcnnpp-ros-g1v4-s2/-s3/-s4/d2/d3` new in 7.0); reproduction from the weights: [`routed-g10/test/reproduce_s7s.sh`](routed-g10/test/reproduce_s7s.sh) (test frames) and [`reproduce_s7s_validation.sh`](routed-g10/test/reproduce_s7s_validation.sh) (realval-A/B).
 
 S6 (995869, the entry until 1014495): model [`routed-g8`](routed-g8) ([`model.yaml`](routed-g8/model.yaml)); the upload copy [`lumpi_s6_submission.zip`](routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (md5 `02c731ecbd162a84d6eae5537856bc4a`, in its [`manifest.json`](routed-g8/submissions/2026-10-16_s6/manifest.json)); server record [`codabench_995869.json`](routed-g8/submissions/2026-10-16_s6/codabench_995869.json); the 11 checkpoints as assets of release 6.0 ([`releases/6.0/weights.json`](../releases/6.0/weights.json); `python common/tools/release_weights.py fetch --tag 6.0 --version lumpi:s6`); reproduction from the weights: [`routed-g8/test/reproduce_s6.sh`](routed-g8/test/reproduce_s6.sh) (test frames) and [`reproduce_s6_validation.sh`](routed-g8/test/reproduce_s6_validation.sh) (realval-A/B).
 
