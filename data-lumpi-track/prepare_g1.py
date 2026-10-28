@@ -185,6 +185,7 @@ if __name__ == "__main__":
     ap.add_argument("--density-prior", default=None, help="bdc26.density prior relative to $BDC_DATA/<track> (calibrated background)")
     ap.add_argument("--val-from", type=int, default=9000)
     ap.add_argument("--workers", type=int, default=48)
+    ap.add_argument("--seed", type=int, default=1234, help="generator seed (UTConvertParams.seed); S7.4/S7.5 draws use other seeds")
     ap.add_argument("--g2", action="store_true", help="engine G2-lite pass (R3): re-cast actors, riders, clutter")
     ap.add_argument("--clutter", type=float, default=30.0, help="G2: mean unlabeled static objects per frame")
     ap.add_argument("--truck-size", default="real", choices=["real", "stretch"],
@@ -196,7 +197,7 @@ if __name__ == "__main__":
     cmap = dict(T["ut"]["class_map"], Van=a.van_as)
     out = T.pcdet / a.name
     params = UTConvertParams(n_points=a.n_points, scale_fix=a.scale_fix, min_points=a.min_points, class_map=cmap,
-                             density_prior=str(T.root / a.density_prior) if a.density_prior else None)
+                             density_prior=str(T.root / a.density_prior) if a.density_prior else None, seed=a.seed)
     frames = list(range(0, T["ut"]["n_frames"], a.stride))[: a.frames]
     if a.g2:
         build_hull_bank(params, a.val_from)

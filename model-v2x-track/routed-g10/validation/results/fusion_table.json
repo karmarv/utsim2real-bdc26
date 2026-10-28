@@ -1,0 +1,520 @@
+{
+  "vehicle": {
+    "incumbent": "fusion bagvr5_tta+pvros4s2_tta@0.7",
+    "incumbent_A": 0.8654479516582698,
+    "incumbent_B": 0.8693467434481645,
+    "best": {
+      "members": [
+        "bagvr5_tta",
+        "bagvr5m_tta",
+        "bagpv5_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8673810130952105,
+      "B": 0.8691225629796235
+    },
+    "dB": -0.00022418046854100204,
+    "p_gain": 0.525,
+    "ci90": [
+      -0.004565405967628805,
+      0.004874479214335187
+    ],
+    "dA": 0.0019330614369407195,
+    "pooled": {
+      "delta": 0.0014198565826089027,
+      "p_gain": 0.835
+    },
+    "decision": "kept (pooled A+B condition failed)",
+    "search_fast_iou": {
+      "bagvr5_tta+bagpv5m_tta@0.3": {
+        "val": 0.8505367900821094,
+        "valB": 0.8526999396585312
+      },
+      "bagvr5_tta+bagpv5m_tta@0.5": {
+        "val": 0.8660330257913806,
+        "valB": 0.8641087436829785
+      },
+      "bagvr5_tta+bagpv5m_tta@0.7": {
+        "val": 0.8672521254522667,
+        "valB": 0.8650506847366225
+      },
+      "bagvr5_tta+bagvr5m_tta@0.3": {
+        "val": 0.8516873561752336,
+        "valB": 0.848122292743761
+      },
+      "bagvr5_tta+bagvr5m_tta@0.5": {
+        "val": 0.8630456595810732,
+        "valB": 0.8645601539778223
+      },
+      "bagvr5_tta+bagvr5m_tta@0.7": {
+        "val": 0.8642190241242391,
+        "valB": 0.8652045505355845
+      },
+      "bagvr5_tta+bagpv5_tta@0.3": {
+        "val": 0.8489649356287732,
+        "valB": 0.8483796958516472
+      },
+      "bagvr5_tta+bagpv5_tta@0.5": {
+        "val": 0.8607510336040824,
+        "valB": 0.8604482343364042
+      },
+      "bagvr5_tta+bagpv5_tta@0.7": {
+        "val": 0.8636965797001604,
+        "valB": 0.8644368030877645
+      },
+      "bagpv5m_tta+bagvr5m_tta@0.3": {
+        "val": 0.8375299246597752,
+        "valB": 0.8409065091192514
+      },
+      "bagpv5m_tta+bagvr5m_tta@0.5": {
+        "val": 0.8568195281936661,
+        "valB": 0.8547463424475831
+      },
+      "bagpv5m_tta+bagvr5m_tta@0.7": {
+        "val": 0.8581371629581795,
+        "valB": 0.8563786664178601
+      },
+      "bagpv5m_tta+bagpv5_tta@0.3": {
+        "val": 0.8390701546117073,
+        "valB": 0.8418272575703447
+      },
+      "bagpv5m_tta+bagpv5_tta@0.5": {
+        "val": 0.856261282653738,
+        "valB": 0.8572888777136166
+      },
+      "bagpv5m_tta+bagpv5_tta@0.7": {
+        "val": 0.8606892712586113,
+        "valB": 0.8589645871066705
+      },
+      "bagvr5m_tta+bagpv5_tta@0.3": {
+        "val": 0.840537251808793,
+        "valB": 0.8423934852764752
+      },
+      "bagvr5m_tta+bagpv5_tta@0.5": {
+        "val": 0.8560790099217843,
+        "valB": 0.852846309289449
+      },
+      "bagvr5m_tta+bagpv5_tta@0.7": {
+        "val": 0.8593868784431027,
+        "valB": 0.8573489597456192
+      },
+      "bagvr5_tta+bagpv5m_tta+bagvr5m_tta@0.3": {
+        "val": 0.8541177805826287,
+        "valB": 0.8489547341095351
+      },
+      "bagvr5_tta+bagpv5m_tta+bagvr5m_tta@0.5": {
+        "val": 0.8663743789076797,
+        "valB": 0.8667339138019946
+      },
+      "bagvr5_tta+bagpv5m_tta+bagvr5m_tta@0.7": {
+        "val": 0.8696241488359903,
+        "valB": 0.8663389214150292
+      },
+      "bagvr5_tta+bagpv5m_tta+bagpv5_tta@0.3": {
+        "val": 0.8523481232806122,
+        "valB": 0.8473129629427352
+      },
+      "bagvr5_tta+bagpv5m_tta+bagpv5_tta@0.5": {
+        "val": 0.8644955313744589,
+        "valB": 0.8643926895649752
+      },
+      "bagvr5_tta+bagpv5m_tta+bagpv5_tta@0.7": {
+        "val": 0.8685732481593351,
+        "valB": 0.8666647995103715
+      },
+      "bagvr5_tta+bagvr5m_tta+bagpv5_tta@0.3": {
+        "val": 0.8526044951408108,
+        "valB": 0.8514301400860752
+      },
+      "bagvr5_tta+bagvr5m_tta+bagpv5_tta@0.5": {
+        "val": 0.8644281894041619,
+        "valB": 0.864591830098092
+      },
+      "bagvr5_tta+bagvr5m_tta+bagpv5_tta@0.7": {
+        "val": 0.8673810130952105,
+        "valB": 0.8691225629796235
+      },
+      "bagpv5m_tta+bagvr5m_tta+bagpv5_tta@0.3": {
+        "val": 0.844282243069177,
+        "valB": 0.8437517512820116
+      },
+      "bagpv5m_tta+bagvr5m_tta+bagpv5_tta@0.5": {
+        "val": 0.8597807761929486,
+        "valB": 0.8585488536899535
+      },
+      "bagpv5m_tta+bagvr5m_tta+bagpv5_tta@0.7": {
+        "val": 0.8635403799131156,
+        "valB": 0.8608186470135826
+      },
+      "bagvr5_tta+pvros4s2_tta@0.7": {
+        "val": 0.8652815194245747,
+        "valB": 0.8693467434481645
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagvr5_tta",
+          "bagvr5m_tta",
+          "bagpv5_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": -0.00022418046854100204,
+        "p_gain": 0.525,
+        "dA": 0.0019330614369407195,
+        "pooled": {
+          "delta": 0.0014198565826089027,
+          "p_gain": 0.835
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bagvr5_tta",
+        "bagpv5m_tta",
+        "bagvr5m_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8696241488359903,
+      "B": 0.8663389214150292
+    }
+  },
+  "pedestrian": {
+    "incumbent": "fusion vrros_tta+vrros4_tta@0.5",
+    "incumbent_A": 0.37028597319738193,
+    "incumbent_B": 0.4081384224365614,
+    "best": {
+      "members": [
+        "bagvr5_tta",
+        "bagvr5m",
+        "bagpv5_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.3918284631185737,
+      "B": 0.4200656358034848
+    },
+    "dB": 0.011927213366923428,
+    "p_gain": 0.985,
+    "ci90": [
+      0.0027068580295983137,
+      0.020734703451159315
+    ],
+    "dA": 0.021542489921191788,
+    "pooled": {
+      "delta": 0.017362823871760857,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "bagvr5_tta+bagvr5m_tta@0.3": {
+        "val": 0.38823871266069027,
+        "valB": 0.41333411698083006
+      },
+      "bagvr5_tta+bagvr5m_tta@0.5": {
+        "val": 0.3896635381543033,
+        "valB": 0.41476935974577717
+      },
+      "bagvr5_tta+bagvr5m_tta@0.7": {
+        "val": 0.3906971879003888,
+        "valB": 0.4146525014062344
+      },
+      "bagvr5_tta+bagvr5m@0.3": {
+        "val": 0.3820869285724152,
+        "valB": 0.411778605290886
+      },
+      "bagvr5_tta+bagvr5m@0.5": {
+        "val": 0.3855745873457246,
+        "valB": 0.41290862966222114
+      },
+      "bagvr5_tta+bagvr5m@0.7": {
+        "val": 0.38806774897259677,
+        "valB": 0.4159519738284076
+      },
+      "bagvr5_tta+bagpv5_tta@0.3": {
+        "val": 0.37241894935326925,
+        "valB": 0.39936343499656946
+      },
+      "bagvr5_tta+bagpv5_tta@0.5": {
+        "val": 0.375638011852532,
+        "valB": 0.4011360300796527
+      },
+      "bagvr5_tta+bagpv5_tta@0.7": {
+        "val": 0.37695752581898956,
+        "valB": 0.40285532603925284
+      },
+      "bagvr5m_tta+bagpv5_tta@0.3": {
+        "val": 0.3847387563751665,
+        "valB": 0.41223470853884886
+      },
+      "bagvr5m_tta+bagpv5_tta@0.5": {
+        "val": 0.38758834841908957,
+        "valB": 0.4150202587047128
+      },
+      "bagvr5m_tta+bagpv5_tta@0.7": {
+        "val": 0.38879825608775154,
+        "valB": 0.41673623819045497
+      },
+      "bagvr5m+bagpv5_tta@0.3": {
+        "val": 0.38208723815938905,
+        "valB": 0.40923318206112025
+      },
+      "bagvr5m+bagpv5_tta@0.5": {
+        "val": 0.38707826051951216,
+        "valB": 0.41277500614884455
+      },
+      "bagvr5m+bagpv5_tta@0.7": {
+        "val": 0.3879821505443529,
+        "valB": 0.41328117007801995
+      },
+      "bagvr5_tta+bagvr5m_tta+bagpv5_tta@0.3": {
+        "val": 0.38704761193511106,
+        "valB": 0.41459832702589106
+      },
+      "bagvr5_tta+bagvr5m_tta+bagpv5_tta@0.5": {
+        "val": 0.3904015780103815,
+        "valB": 0.4164925794537832
+      },
+      "bagvr5_tta+bagvr5m_tta+bagpv5_tta@0.7": {
+        "val": 0.3926396768632656,
+        "valB": 0.41914411397216284
+      },
+      "bagvr5_tta+bagvr5m+bagpv5_tta@0.3": {
+        "val": 0.3853136657966328,
+        "valB": 0.41221673182027213
+      },
+      "bagvr5_tta+bagvr5m+bagpv5_tta@0.5": {
+        "val": 0.3890302906932809,
+        "valB": 0.4171683183003994
+      },
+      "bagvr5_tta+bagvr5m+bagpv5_tta@0.7": {
+        "val": 0.3921550624030717,
+        "valB": 0.4218195697669328
+      },
+      "vrros_tta+vrros4_tta@0.5": {
+        "val": 0.37085374068408833,
+        "valB": 0.4085149735614005
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagvr5_tta",
+          "bagvr5m",
+          "bagpv5_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.011927213366923428,
+        "p_gain": 0.985,
+        "dA": 0.021542489921191788,
+        "pooled": {
+          "delta": 0.017362823871760857,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bagvr5_tta",
+        "bagvr5m_tta",
+        "bagpv5_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.3926396768632656,
+      "B": 0.41914411397216284
+    }
+  },
+  "truck": {
+    "incumbent": "fusion pp5_tta+bagvr5_tta+bagpv5@0.5",
+    "incumbent_A": 0.9355914484395431,
+    "incumbent_B": 0.8481127581754194,
+    "best": {
+      "members": [
+        "bagpv5m_tta",
+        "pp5_tta",
+        "bagvr5m_tta"
+      ],
+      "iou": 0.5,
+      "A": 0.936242441690122,
+      "B": 0.8562203650133036
+    },
+    "dB": 0.00810760683788414,
+    "p_gain": 1.0,
+    "ci90": [
+      0.003593463120004104,
+      0.016159866905041596
+    ],
+    "dA": 0.0006509932505789351,
+    "pooled": {
+      "delta": 0.004157402203031402,
+      "p_gain": 0.91
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "bagpv5_tta+bagpv5m_tta@0.3": {
+        "val": 0.9023206648899681,
+        "valB": 0.8463268072287192
+      },
+      "bagpv5_tta+bagpv5m_tta@0.5": {
+        "val": 0.9023206648899681,
+        "valB": 0.8476894355061251
+      },
+      "bagpv5_tta+bagpv5m_tta@0.7": {
+        "val": 0.9018527508454655,
+        "valB": 0.84537009998616
+      },
+      "bagpv5_tta+pp5_tta@0.3": {
+        "val": 0.931200777643749,
+        "valB": 0.8468756158538409
+      },
+      "bagpv5_tta+pp5_tta@0.5": {
+        "val": 0.9310637811044596,
+        "valB": 0.8472994083027918
+      },
+      "bagpv5_tta+pp5_tta@0.7": {
+        "val": 0.9255660266167386,
+        "valB": 0.8451531360483541
+      },
+      "bagpv5_tta+bagvr5m_tta@0.3": {
+        "val": 0.9092778680105184,
+        "valB": 0.8434166852972261
+      },
+      "bagpv5_tta+bagvr5m_tta@0.5": {
+        "val": 0.9082414220703349,
+        "valB": 0.8453734365670673
+      },
+      "bagpv5_tta+bagvr5m_tta@0.7": {
+        "val": 0.9066280276547711,
+        "valB": 0.8458190744924388
+      },
+      "bagpv5m_tta+pp5_tta@0.3": {
+        "val": 0.9350618634769263,
+        "valB": 0.8502886991308861
+      },
+      "bagpv5m_tta+pp5_tta@0.5": {
+        "val": 0.9352244099888554,
+        "valB": 0.8568068461224614
+      },
+      "bagpv5m_tta+pp5_tta@0.7": {
+        "val": 0.9318588581264986,
+        "valB": 0.8516758006727032
+      },
+      "bagpv5m_tta+bagvr5m_tta@0.3": {
+        "val": 0.9043515880314258,
+        "valB": 0.841501424891647
+      },
+      "bagpv5m_tta+bagvr5m_tta@0.5": {
+        "val": 0.9041464396811147,
+        "valB": 0.8445253617391133
+      },
+      "bagpv5m_tta+bagvr5m_tta@0.7": {
+        "val": 0.9041499856589725,
+        "valB": 0.8436042322129318
+      },
+      "pp5_tta+bagvr5m_tta@0.3": {
+        "val": 0.936987081616075,
+        "valB": 0.8500991965798992
+      },
+      "pp5_tta+bagvr5m_tta@0.5": {
+        "val": 0.93819252415079,
+        "valB": 0.8510844096384587
+      },
+      "pp5_tta+bagvr5m_tta@0.7": {
+        "val": 0.9294057345374671,
+        "valB": 0.8499841139389457
+      },
+      "bagpv5_tta+bagpv5m_tta+pp5_tta@0.3": {
+        "val": 0.9327614794938194,
+        "valB": 0.8509344962724577
+      },
+      "bagpv5_tta+bagpv5m_tta+pp5_tta@0.5": {
+        "val": 0.934485335570195,
+        "valB": 0.852072286053111
+      },
+      "bagpv5_tta+bagpv5m_tta+pp5_tta@0.7": {
+        "val": 0.9292876964986618,
+        "valB": 0.8497224418815797
+      },
+      "bagpv5_tta+bagpv5m_tta+bagvr5m_tta@0.3": {
+        "val": 0.9094833222627127,
+        "valB": 0.845169232333118
+      },
+      "bagpv5_tta+bagpv5m_tta+bagvr5m_tta@0.5": {
+        "val": 0.9094823766057631,
+        "valB": 0.8479979602988161
+      },
+      "bagpv5_tta+bagpv5m_tta+bagvr5m_tta@0.7": {
+        "val": 0.907212811106314,
+        "valB": 0.8469381289745976
+      },
+      "bagpv5_tta+pp5_tta+bagvr5m_tta@0.3": {
+        "val": 0.9359875200597827,
+        "valB": 0.8499846046365096
+      },
+      "bagpv5_tta+pp5_tta+bagvr5m_tta@0.5": {
+        "val": 0.9358752869935467,
+        "valB": 0.8513337139731074
+      },
+      "bagpv5_tta+pp5_tta+bagvr5m_tta@0.7": {
+        "val": 0.9305392767445033,
+        "valB": 0.8502996663125135
+      },
+      "bagpv5m_tta+pp5_tta+bagvr5m_tta@0.3": {
+        "val": 0.9359935751905596,
+        "valB": 0.8543745348497636
+      },
+      "bagpv5m_tta+pp5_tta+bagvr5m_tta@0.5": {
+        "val": 0.936242441690122,
+        "valB": 0.8562203650133036
+      },
+      "bagpv5m_tta+pp5_tta+bagvr5m_tta@0.7": {
+        "val": 0.932751016592241,
+        "valB": 0.8523722948562696
+      },
+      "pp5_tta+bagvr5_tta+bagpv5@0.5": {
+        "val": 0.9355914484395431,
+        "valB": 0.8481127581754194
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagpv5m_tta",
+          "pp5_tta",
+          "bagvr5m_tta"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.00810760683788414,
+        "p_gain": 1.0,
+        "dA": 0.0006509932505789351,
+        "pooled": {
+          "delta": 0.004157402203031402,
+          "p_gain": 0.91
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "pp5_tta",
+        "bagvr5m_tta"
+      ],
+      "iou": 0.5,
+      "A": 0.93819252415079,
+      "B": 0.8510844096384587
+    }
+  }
+}

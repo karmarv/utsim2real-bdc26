@@ -53,9 +53,12 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`routed-g8`](routed-g8) | `routed-g7` (incumbent) + the S6 seeds and bags | S6 (gated) | equal to R5 (no class passed the class gate): not uploaded |
 | [`routed-g8b`](routed-g8b) | `routed-g8` with vehicle and truck by the pooled rule | S6 variant b | submitted (995877, 0.8931, rank 1 of 23; Section 7.11), the entry until S7 |
 | [`routed-g9`](routed-g9) | `routed-g8b` + the S7 sparse-box demotion (`sparse_demotion: {vehicle: 5, pedestrian: 6}`) | **selected** (S7 step 1) | submitted (1001919, **0.8982**, rank 1 of 23; Section 7.12) |
-| [`voxelrcnn-ros-g1v5m`](voxelrcnn-ros-g1v5m), [`-s2`](voxelrcnn-ros-g1v5m-s2), [`-s3`](voxelrcnn-ros-g1v5m-s3), [`pvrcnnpp-ros-g1v5m`](pvrcnnpp-ros-g1v5m), [`-s2`](pvrcnnpp-ros-g1v5m-s2), [`-s3`](pvrcnnpp-ros-g1v5m-s3) | `pcdet/g1-v5m` (the `g1-v5` frames, labels with the S7 visibility rule) | S7 step 2: the `g1-v5` two-stage configs, seeds 666 / 1666 / 2666 | training (2026-10-18) |
-| [`bag-voxelrcnn-ros-g1v5m`](bag-voxelrcnn-ros-g1v5m), [`bag-pvrcnnpp-ros-g1v5m`](bag-pvrcnnpp-ros-g1v5m) | the three seeds of each | S7 step 2 seed bags; compared with the `g1-v5` bags of the same seeds | planned |
-| `routed-g10` (created by `common/pipeline/s7_portfolio.sh`) | `routed-g9` + the two S7 bags | S7 step 2 portfolio | planned |
+| [`voxelrcnn-ros-g1v5m`](voxelrcnn-ros-g1v5m), [`-s2`](voxelrcnn-ros-g1v5m-s2), [`-s3`](voxelrcnn-ros-g1v5m-s3), [`pvrcnnpp-ros-g1v5m`](pvrcnnpp-ros-g1v5m), [`-s2`](pvrcnnpp-ros-g1v5m-s2), [`-s3`](pvrcnnpp-ros-g1v5m-s3) | `pcdet/g1-v5m` (the `g1-v5` frames, labels with the S7 visibility rule) | S7 step 2: the `g1-v5` two-stage configs, seeds 666 / 1666 / 2666 | done (S7 step 2; members of `routed-g10`) |
+| [`bag-voxelrcnn-ros-g1v5m`](bag-voxelrcnn-ros-g1v5m), [`bag-pvrcnnpp-ros-g1v5m`](bag-pvrcnnpp-ros-g1v5m) | the three seeds of each | S7 step 2 seed bags; compared with the `g1-v5` bags of the same seeds | done: pedestrian +0.001 to +0.008 pooled, vehicle and truck mixed ([record](../docs/decisions/2026-10-18-s7-visibility-rule.md)) |
+| [`routed-g10`](routed-g10) | `routed-g9` + the two S7 bags | S7 step 2 portfolio | not uploaded: A 0.738 / B 0.722, projection +0.0014 (below +0.003) |
+| [`voxelrcnn-ros-g1v5d2`](voxelrcnn-ros-g1v5d2), [`-d3`](voxelrcnn-ros-g1v5d3), [`pvrcnnpp-ros-g1v5d2`](pvrcnnpp-ros-g1v5d2), [`-d3`](pvrcnnpp-ros-g1v5d3) | `pcdet/g1-v5d2`, `g1-v5d3` (fresh `g1-v5` generator draws, seeds 2234 / 3234); training seeds 4666 / 5666 | S7.4 draw members | done: inside the seeds' spread (TTA A 0.669-0.682) |
+| [`bag-voxelrcnn-ros-g1v5x`](bag-voxelrcnn-ros-g1v5x), [`bag-pvrcnnpp-ros-g1v5x`](bag-pvrcnnpp-ros-g1v5x) | the three seeds + both draws (5 each) | S7.4 extended bags | done: TTA +0.0017 / +0.0030 and +0.0037 / +0.0031 over the 3-seed bags |
+| [`routed-g11`](routed-g11), [`routed-g12`](routed-g12) | `routed-g9` + the draw runs and extended bags; `routed-g12` = the S7.6 bag swap and pooled budget | S7.4 and S7.6 portfolios | equal to the entry (no class passed; [record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 
 ## 2. Modeling approaches considered
 
@@ -329,7 +332,8 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | Step 1, vehicle k = 5 | 0.8654 -> 0.8678 / 0.8693 -> 0.8723; pooled +0.0022 (P 1.00) |
 | `routed-g9` | **0.734 / 0.721** (S6b 0.727 / 0.712); unmatched confident pedestrian boxes on B 8.0 -> 5.1 per frame; recall unchanged; projection +0.0040: upload gate passed |
 | Leaderboard (2026-10-19) | **1001919: 0.8982** (mAP 0.6124): pedestrian 0.413 -> **0.429** (0.85 x A, 0.66 x B), vehicle 0.735 -> 0.737, truck and realism identical; rank 1 of 23 |
-| Step 2 | running: six runs on `g1-v5m` (Section 1), portfolio `routed-g10` |
+| Step 2 | done (2026-10-19): `routed-g10` A 0.7377 / B 0.7223, projection +0.0014: not uploaded |
+| S7.4 and S7.6 (2026-10-26/27) | generator-draw bags, bag swap, pooled budget: no class passed against the entry; the entry stays the submission-ready version ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 
 ## 8. Experiment log and next experiments
 
@@ -351,7 +355,8 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | E15 | Seeds and walker tail copies | done (R5): large seed variance on truck; pedestrian copies +0.010 on B (Section 7.10) |
 | E16 | Seed bags | done (S6): every bag at or above its best seed, none above the R5 fusions on B; `routed-g8` equals R5 (Section 7.11) |
 | E17 | Sparse-box demotion at the real labels' visibility cut (S7 step 1) | done: pedestrian +0.018 (A) / +0.023 (B), vehicle +0.002 / +0.003; leaderboard 1001919 **0.8982** (pedestrian +0.015), the entry (Section 7.12) |
-| E18 | Training labels with the same visibility rule (S7 step 2, corpus `g1-v5m`) | running (Section 7.12) |
+| E18 | Training labels with the same visibility rule (S7 step 2, corpus `g1-v5m`) | done: projection +0.0014, not uploaded (Section 7.12) |
+| E19 | Generator-draw bags, bag swap and pooled budget (S7.4, S7.6) | done: bags +0.002 to +0.004 alone, nothing passed inside the portfolio; truck swap +0.002 on both splits, pooled P 0.70 ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 
 ## 9. Submission log
 

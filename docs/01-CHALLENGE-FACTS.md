@@ -36,7 +36,7 @@ CodaBench phase boundaries are in UTC. US daylight saving time ends Sun Nov 1, 2
 | Event | UTC | Pacific | Central |
 |---|---|---|---|
 | Dev phase closes | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 19:00 CDT |
-| LOI form closes (if not already filed) | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 20:00 EDT (stated) |
+| LOI form closes (if not already filed) | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 20:00 EDT (stated on the CodaBench Overview, re-read 2026-10-26; the site still shows Aug 15) |
 | Final phase opens | 2026-11-01 00:00 | Sat Oct 31, 17:00 PDT | Sat Oct 31, 19:00 CDT |
 | **Final phase closes** | 2026-11-15 00:00 | **Sat Nov 14, 16:00 PST** | **Sat Nov 14, 18:00 CST** |
 | Challenge report (4-8 pages) | Nov 15 | | |
@@ -76,17 +76,17 @@ The CodaBench Terms (item 1) bind you to the **Rules tab**:
 
 | Use of real data | Status |
 |---|---|
-| Real **labeled** non-forbidden frames as a **validation set** (checkpoint, architecture, augmentation, NMS, ensemble selection) | **Allowed** ("hyperparameter selection") |
-| Real label **statistics** (class frequencies, box-size distributions, box conventions, placement heatmaps) to set generator parameters | **Allowed**; state it in the report |
+| Real **labeled** non-forbidden frames as a **validation set** (checkpoint, architecture, augmentation, NMS, ensemble selection) | **Allowed** ("hyperparameter selection"). **Scope (audit 2026-10-26):** the Allowed clause names "the train split of the public real dataset"; our V2X validation also holds V2X-Real val and test split frames (38% of A, 46% of B) and LUMPI realval-B is Measurements 5-6, outside the organizers' M4 80/20 split: not forbidden, low risk, asked (Section 10, Q8); gates from 2026-10-26 also report the train-split-only result. **V2X settled by the forum FAQ (Section 3.2):** "Using the remaining real frames for validation or parameter selection is allowed"; LUMPI M5-6 still open |
+| Real label **statistics** (class frequencies, box-size distributions, box conventions, placement heatmaps) to set generator parameters | **Allowed** as distribution analysis; state it in the report. **Our walker placement is stronger than a heatmap:** each inserted walker takes one real label row (position, heading, size, ground height, jittered), and its box becomes the training label. Against the FAQ's "real labels (or derivatives) as ground truth" this is **moderate risk**, disclosed and asked ([audit addendum 2026-10-27](decisions/2026-10-26-rules-compliance-audit.md#addendum-2026-10-27-the-organizers-forum-faq)) |
 | A handful of post-processing scalars (per-class NMS IoU, size scale factors, score re-weighting) selected on real val | **Allowed as hyperparameter selection**; ASK to be safe, and prefer fixing sizes in the generator |
 | Per-class minimum points per box read off real label statistics: removing sparser synthetic training labels, ranking sparser predicted boxes last (S7) | **Allowed**: label statistics set the generator's labels, and one post-processing scalar per class is chosen on the train split ([`decisions/2026-10-18-s7-visibility-rule.md`](decisions/2026-10-18-s7-visibility-rule.md)) |
 | **Other real datasets** (TUMTraf-V2X, TUMTraf-I, A9, DAIR-V2X or any roadside set; KITTI, nuScenes, Waymo): training, pre-training, fine-tuning, copying real object points, fitting a generator to their scans | **Forbidden** for roadside sets ("real labels for any roadside-LiDAR dataset"); **not done** for vehicle sets (site and declaration). Their statistics or use as a judge are not used either: the tracks' own train splits describe the test sites, sensors and annotators ([`decisions/2026-10-18-rules-external-datasets.md`](decisions/2026-10-18-rules-external-datasets.md)) |
-| Synthetic datasets made by others (CARLA sets, UT twins of other sites) | **Not used**: the declaration speaks of "synthetic data I generated"; the organizers' statement covers the UT twins of the two tracks |
+| Synthetic datasets made by others (CARLA sets, UT twins of other sites) | **Not used**: the declaration speaks of "synthetic data I generated". The UT twins of the two tracks are covered: the FAQ says UT-V2X-Real-IC "counts as synthetic data" and "synthetic data I generated" includes the published UrbanTwin data |
 | Public non-LiDAR descriptions of the sites and objects (map data, city tree and street-light inventories, 3D tiles, asset libraries, sensor datasheets) as generator input | **Allowed**; cite their licences in the report |
 | Real unlabeled frames to measure the sensor (beam table, pose, null-return rate, ray-drop statistics) | **Allowed** (the organizers estimated sensor pose from a real frame) |
 | Background occupancy prior from train-split frames applied at inference | **Gray**: the submitted detections would no longer come from the sim-trained model alone; off without a written ruling (review 2026-10-14) |
-| Re-estimating normalization (BN) statistics, self-training / pseudo-labels, or fine-tuning on real frames | **Not done**: the detector's parameters would be fitted on real data, which the site forbids ("real data for training, including fine-tuning") and the declaration contradicts ("a model trained only on synthetic data I generated"). The Rules tab alone is ambiguous (its Forbidden clause names "real labels"; "domain adaptation" is allowed), so only a written organizer ruling could change this |
-| Generator fitted to real scans (reconstructed static mesh, structure positions read off real points, learned ray-drop, diffusion trained on real) | **Gray**; default off. Coarse statistics (per-type heights, density on 8 m cells) and public map data (OpenStreetMap, 3D tiles: the organizers' own twin method) are allowed |
+| Re-estimating normalization (BN) statistics, self-training / pseudo-labels, or fine-tuning on real frames | **Forbidden** (FAQ, Sept 30: "never use real frames (or derivatives) as input ... for training and/or fine-tunning the model"); never done |
+| Generator fitted to real scans (reconstructed static mesh, structure positions read off real points, learned ray-drop, diffusion trained on real) | **Not with the track's own real frames** for prize-seeking submissions (FAQ: "real frames from the V2X-Real must not be used" for learned synthesis components); learned components on **other** real datasets are allowed "in any form" (V2X FAQ; LUMPI by analogy, unconfirmed). Coarse statistics (per-type heights, density on 8 m cells) and public map data (OpenStreetMap, 3D tiles: the organizers' own twin method) remain distribution analysis; our density prior and beam table are disclosed (audit item 19) |
 | Per-class or per-knob choices from leaderboard per-class numbers | **Not done**: the leaderboard is computed on the forbidden frames, so this is "hyperparameter-tuning" on them. Choosing among complete systems and resubmitting the best one is allowed ("Use this to iterate"; "resubmit your best system") |
 | Uploads designed to isolate realism (only the frames changed, or detection zeroed) | **Not done**: probing the realism reference |
 | Affine or quantile warping applied **only** to the 50 submitted frames to match real moments | **Avoid.** Not forbidden, but it decouples the submitted frames from the training data, and the winners tuned it with server probes |
@@ -94,6 +94,19 @@ The CodaBench Terms (item 1) bind you to the **Rules tab**:
 | The starter kit's `reference_data_local/realism_reference/` frames | **Forbidden for fitting**: a competitor found them byte-identical to the 50 detection-test frames. Use it only to check that `local_eval.py` runs |
 | **Hidden-GT reference bundles** that the CodaBench API reportedly exposes | **Never download.** That is observing forbidden ground truth (disqualification) |
 | Any real frame in LUMPI **006400-008200**, or within +/-20 frames of a V2X forbidden frame | **Self-excluded** (near-duplicates of forbidden frames; avoids the "suspiciously resemble" clause) |
+
+### 3.2 Organizer FAQ (CodaBench V2X-Real forum, Sept 30 and Oct 14, 2026; the LUMPI forum has no posts)
+
+Verbatim, from the organizers' posts; read in full in the [audit addendum](decisions/2026-10-26-rules-compliance-audit.md#addendum-2026-10-27-the-organizers-forum-faq):
+- Accounts: "it is not allowed to create multiple accounts by same team to increase the number of allowed submissions."
+- Authority: "Please treat the current Codabench page, config, and scorer as authoritative; starter kit is to help participants kick start experimentation".
+- Real data: "participants should never use real frames (or derivatives) as input and real labels (or derivatives) as ground truth for training and/or fine-tunning the model. They can be used outside model training pipeline to judge and select models trained on synthetic data only." The question's conservative reading (real-train data only for distribution analysis, model selection and confidence calibration) is answered "Yes, this conservative assumption is correct."
+- Learned synthesis components: "real frames from the V2X-Real must not be used, but any data from any other real datasets can be used in any form. Of course, that restriction is only for submissions seeking prize".
+- Format: "XYZ is the recommended format, intensity realism is not tested/scored by our evals." Held-out frames are "from the same release as the forbidden real frames", and the fixed point count and zero padding are the same on test "as they are provided in the kit."
+- Forbidden IDs: `<index>_<frame>`, agent `-1`; the index counts the sorted `2023-` scenario folders that contain a `-1` agent (33 scenarios, 0 = `2023-03-17-15-53-02_1_0`, 32 = `2023-04-05-16-28-26_25_0`). "You are right to remove all 100 frames before using any other real frames. Using the remaining real frames for validation or parameter selection is allowed. The detector itself must be trained only on synthetic data."
+- Classes: V2X-Real's SUPER_CLASS_MAP (vehicle: Car, PoliceCar, LongVehicle; pedestrian: Pedestrian, Child, RoadWorker, Scooter, ScooterRider, Motorcycle, MotorcyleRider, BicycleRider; truck: Truck, Van, Bus, ConcreteTruck, TrashCan); unlisted types are left out.
+- UT data: "UT-V2X-Real-IC ... counts as synthetic data for this challenge. You can train on it as released, modify it, or combine it with data you generate yourself."
+- Declaration: "keep the required statement exactly as written, because the scoring program checks for it ... You may add a line below it naming your sources". The 50 frames "must be synthetic: no real V2X-Real frames, and nothing derived from the 100 forbidden frames. Please say in your report where they came from."
 
 ## 4. Scoring (exact)
 
@@ -180,7 +193,7 @@ Our validator (`common/bdc26/submit.py`, module M3) checks all of these plus: ea
 | `forbidden_frames.txt` | 100 IDs (50 test + 50 realism reference) fed to the ForbiddenGuard |
 | `make_dummy_submission.py`, `submission_format.md`, `declaration_template.{pdf,txt}`, `requirements.txt` (numpy >= 1.24, scipy, shapely >= 2.0, POT >= 0.9) | format reference; the scorer also runs on numpy 1.23.5 |
 
-V2X forbidden IDs: all 26 scenario indices that occur among the test IDs resolve, by exact point matching, to **V2X-Real train-split scenes**, at strictly increasing positions in the sorted train-scene list; the 6 indices that occur only among the realism-reference IDs are bounded to 1-3 candidate scenes each (`data-v2x-track/README.md` Section 6). V2X-Real val and test splits hold no forbidden frame.
+V2X forbidden IDs: all 26 scenario indices that occur among the test IDs resolve, by exact point matching, to **V2X-Real train-split scenes**, at strictly increasing positions in the sorted train-scene list; the 6 indices that occur only among the realism-reference IDs are bounded to 1-3 candidate scenes each (`data-v2x-track/README.md` Section 6). V2X-Real val and test splits hold no forbidden frame. The organizers' rule (forum FAQ, Oct 14: the index counts the 33 sorted infrastructure scenarios) agrees with every resolved index and resolves the 6 bounded ones inside their candidate lists; under it no realval frame and no logged real-data access is within ±20 frames of a forbidden frame (audit addendum 2026-10-27).
 
 ## 7. Leaderboard intelligence
 
@@ -238,10 +251,14 @@ What this says:
 
 ## 10. Questions for the organizers (email Muhammad.Shahbaz@ucf.edu on day 1)
 
-1. Is self-training or pseudo-labeling on unlabeled, non-forbidden real train-split frames permitted as "domain adaptation"?
-2. May a generator be fitted to non-forbidden real scans (reconstructed static scene, learned ray-drop, diffusion model), and may a static-background occupancy map from train-split frames be used at inference? (Measured value, 2026-10-09: 72-77% of the V2X and 50-69% of the LUMPI unmatched walker detections are static structures; suppressing them is worth up to +0.09 pedestrian AP on V2X realval-B.)
-3. May a small set of post-processing parameters (per-class size scale factors, NMS IoU) be selected on labeled non-forbidden real frames?
+1. Is self-training or pseudo-labeling on unlabeled, non-forbidden real train-split frames permitted as "domain adaptation"? **Answered by the FAQ (Sept 30): no** (real frames never as training input).
+2. May a generator be fitted to non-forbidden real scans (reconstructed static scene, learned ray-drop, diffusion model), and may a static-background occupancy map from train-split frames be used at inference? (Measured value, 2026-10-09: 72-77% of the V2X and 50-69% of the LUMPI unmatched walker detections are static structures; suppressing them is worth up to +0.09 pedestrian AP on V2X realval-B.) **Answered in part (FAQ, Sept 30):** learned synthesis components may not use V2X-Real frames for prize-seeking submissions; other real datasets may be used. The occupancy map at inference stays off. Our fitted statistics (density prior, beam table, walker rows) are asked again in the revised email (Q1).
+3. May a small set of post-processing parameters (per-class size scale factors, NMS IoU) be selected on labeled non-forbidden real frames? **Answered by the FAQ (Sept 30): yes**, real data may be used outside the training pipeline "to judge and select models" (the conservative reading, confirmed).
 4. Does `local_eval.py` drop GT boxes with zero LiDAR points or outside the range, and are range bounds inclusive?
 5. What is the exact report submission channel and format (Nov 15 report vs Nov 20 camera-ready)?
 6. Please confirm our LOI registration for both IEEE tracks.
 7. (Only if the clean re-uploads also fail.) Submissions 957399 (Track 1, Failed with no message) and 957439 (Track 2, Running for 4 days with no log, cancelled): can you see a worker error, and does the default queue give the scorer the 6 GB it needs for the 10k x 10k MMD?
+8. (Added 2026-10-26.) The Rules allow "the train split of the public real dataset" for hyperparameter selection: is validation on non-forbidden frames of V2X-Real's val and test splits, and on LUMPI Measurements 5-6, also acceptable? **V2X answered by the FAQ (Oct 14): yes** ("the remaining real frames"); LUMPI asked again (revised email Q2).
+9. (Added 2026-10-26.) In the Final phase, does the best of the five submissions count (`Force_Best`), or the last one?
+
+Questions 4-6 and 9 stay open. The disclosure email (revised 2026-10-27 after the forum FAQ) that carries the open questions is drafted in [`decisions/2026-10-26-rules-compliance-audit.md`](decisions/2026-10-26-rules-compliance-audit.md) Appendix A.

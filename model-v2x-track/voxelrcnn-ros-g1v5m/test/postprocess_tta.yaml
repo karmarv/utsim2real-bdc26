@@ -6,21 +6,22 @@ default:
   recenter: 0.0
 classes:
   vehicle:
-    nms_iou: 0.7
+    nms_iou: 0.4
     size_scale:
     - 1.0
     - 1.0
-    - 1.08
+    - 1.0
   pedestrian:
     nms_iou: 0.7
-    z_offset: -0.1
+    recenter: 0.25
+    z_offset: 0.0
   truck:
     nms_iou: 0.01
-    z_offset: 0.0
+    z_offset: 0.1
     size_scale:
     - 1.08
     - 1.08
-    - 1.08
+    - 1.0
 hedge:
   vehicle:
   - - truck

@@ -19,6 +19,8 @@ at any time. Nothing here uploads to CodaBench, commits or tags. Root README Sec
 | `finish_portfolio.sh <run> <track> <model> <tag> <ref>` | finishes a routed model whose route and fusions are already set (a variant): score floors (tail copies removed first and derived after), tail copies (V2X), packaging, kit check, scorecard, reproduction script; no gate (S6 V2X variant b) |
 | `s6b_lumpi.sh <run>` | S6 close-out for LUMPI: `routed-g8b` = the S6 entry plus the fuse step's Car candidate, kept only if the pooled condition holds on the final predictions, then packaged and checked |
 | `s7_portfolio.sh <run>` | S7 step 2, V2X (docs/02-STRATEGY.md Section 8.11): waits for the six visibility-label runs (`*-g1v5m`), fuses their bags and compares them with the `g1-v5` bags, builds `routed-g10` from `routed-g9`, select, fuse (`--pooled-rule`), budget, tail, sparse, final pooled check against `routed-g9` (failing classes frozen), package, kit check, scorecard, reproduction script, projection |
+| `s7f_portfolio.sh <run> <track>` | S7 final revisions (S7.4 V2X, S7.5 LUMPI; `docs/decisions/2026-10-26-s7-final-revisions.md`): waits for the four generator-draw runs of the track, fuses the extended bags, builds the portfolio from the entry (V2X `routed-g11` from `routed-g9`, LUMPI `routed-g9` from `routed-g8`), select, fuse (`--pooled-rule`; LUMPI with the late-A Person rule and the Van judge), budget, V2X tail and sparse or LUMPI rare-class freeze, final check per class against the entry with the train-split rule (`common/tools/s7_check.py check`), package, kit check, scorecard, reproduction scripts, projection (`s7_check.py projection`) |
+| `s7g_amend.sh <run> <track>` | S7.6 amendment (same record): the `s7f` portfolio before its final-check freeze (V2X `routed-g12`, LUMPI `routed-g10` with its fused classes restored), `fuse --swap-to` (one candidate per class: the incumbent fusion with the extended bags in place of their seeds or 3-seed bag), `budget --pooled`, then the `s7f` steps from tail and sparse (V2X) or the rare-class freeze (LUMPI) to the projection; events `AMEND <track>: ...`, logs `am_<track>_*.log` |
 | `gpu_queue.sh <run> <name> <queue> <gpu>` | generic worker pinned to one GPU: pops one shell command per line from a queue file and runs it from the repository root (reproduction runs: one job per GPU, never shared) |
 | `status.sh <run>` | one screen: `STATUS.md`, queue lengths, last 20 events, epoch of each training run, live processes, GPU memory |
 | `tensorboard.sh [port]` | TensorBoard on 127.0.0.1 over every model's `tensorboard/` and `tensorboard_realval/` folders; restarts it when a new run folder appears (checked every 10 minutes) |
@@ -43,7 +45,7 @@ train_<track>_<member>.log, post_<track>_<member>_<step>.log, pf_<track>_<step>.
 
 Events: `LAUNCH`, `TRAIN_WORKER_START/DONE`, `TRAIN_START`, `TRAIN_DONE` (checkpoint verified; OpenPCDet's own
 evaluation after training races the last save and may exit 1, which is harmless), `TRAIN_FAIL`, `POST_WORKER_START/DONE`,
-`POST_START`, `POST_STEP_DONE/FAIL <step>`, `POST_DONE/FAIL`, `BAG_DONE`, `PORTFOLIO <track>: ...` (ends with `DONE` or
+`POST_START`, `POST_STEP_DONE/FAIL <step>`, `POST_DONE/FAIL`, `BAG_DONE`, `PORTFOLIO <track>: ...` and `AMEND <track>: ...` (end with `DONE` or
 `<step> FAILED`), `REALISM lumpi: ...`, `CURVES_WORKER_START/DONE`, `CURVES_DONE/FAIL`.
 
 ## Usage

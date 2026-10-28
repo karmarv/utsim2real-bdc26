@@ -1,6 +1,6 @@
 """S7: per-box point counts (bdc26.boxes.count_points_per_box), the sparse-box demotion stage
-(route_predictions.apply_sparse_demotion and its place in merge_card) and the label visibility rule
-(common/tools/filter_labels.py)."""
+(route_predictions.apply_sparse_demotion and its place in merge_card), the label visibility rule
+(common/tools/filter_labels.py) and the S7.6 amendment (bag swap candidates, pooled budget floors)."""
 import subprocess
 import sys
 from pathlib import Path
@@ -14,7 +14,7 @@ sys.path.insert(0, str(REPO / "common" / "tools"))
 sys.path.insert(0, str(REPO / "common"))
 
 from bdc26.boxes import count_points_in_boxes, count_points_per_box  # noqa: E402
-from route_predictions import apply_sparse_demotion, box_point_counts, merge_card  # noqa: E402
+from route_predictions import apply_sparse_demotion, box_point_counts, floor_aps, merge_card, swap_candidates  # noqa: E402
 
 
 def _cloud(centres_counts, seed=0):
@@ -109,3 +109,43 @@ def test_filter_labels_keeps_frames_and_drops_sparse_labels(tmp_path, monkeypatc
     assert (dst / "points").is_symlink()
     card = yaml.safe_load((dst / "dataset.yaml").read_text())
     assert card["label_rule"]["min_points_per_box"] == {"pedestrian": 6} and card["label_rule_removed"] == {"pedestrian": 1}
+
+
+def _models(root, cards):
+    for name, card in cards.items():
+        (root / name).mkdir()
+        (root / name / "model.yaml").write_text(yaml.safe_dump({"name": name, **card}))
+
+
+def test_swap_puts_the_extended_bag_in_place_of_its_seeds_and_its_three_seed_bag(tmp_path):
+    _models(tmp_path, {"seed-a": {}, "seed-b": {}, "seed-c": {}, "other": {}, "other2": {},
+                       "bag-ab": {"type": "bag", "members": ["seed-a", "seed-b"]},
+                       "bag-abc": {"type": "bag", "members": ["seed-a", "seed-b", "seed-c"]}})
+    ck, bk = "run1/ckpt/checkpoint_epoch_40.pth", "bag/ckpt/checkpoint_epoch_40.pth"
+    tta = {"tta": "flip4+yaw+z"}
+    card = {"members": {"a": {"model": "seed-a", "ckpt": ck}, "a_tta": {"model": "seed-a", "ckpt": ck, **tta},
+                        "b3_tta": {"model": "bag-ab", "ckpt": bk, **tta}, "o": {"model": "other", "ckpt": ck},
+                        "o_tta": {"model": "other", "ckpt": ck, **tta}, "o2": {"model": "other2", "ckpt": ck},
+                        "bx": {"model": "bag-abc", "ckpt": bk}, "bx_tta": {"model": "bag-abc", "ckpt": bk, **tta}}}
+    prior = {"Car": {"members": ["b3_tta", "o"], "iou": 0.7},          # the 3-seed bag -> the extended bag, TTA kept
+             "Van": {"members": ["a", "o_tta"], "iou": 0.5},           # a seed -> the extended bag, plain kept
+             "Person": {"members": ["o", "o2"], "iou": 0.5},           # no bag family: no candidate
+             "Truck": {"members": ["bx_tta", "a"], "iou": 0.3}}        # would use seed-a twice: no candidate
+    got = swap_candidates(tmp_path / "routed", card, prior, ["Car", "Van", "Person", "Truck"], ["bx"])
+    assert got == {"Car": ("bx_tta", "o"), "Van": ("bx", "o_tta")}
+
+
+def _rec(n_gt, n_hi, n_lo):
+    """One frame of one class: n_hi true positives at 0.9 and n_lo at 0.005, no false positives."""
+    s = np.array([0.9] * n_hi + [0.005] * n_lo)
+    return {"n_gt": n_gt, "scores": s, "3d@0.5": np.ones(len(s), dtype=np.int64)}
+
+
+def test_pooled_floor_loss_shows_an_r40_level_the_splits_do_not():
+    # A: 40 of 40 found; B: 116 of 120 (R40 level 38 of 40), 2 of them below 0.01. A floor of 0.01 keeps B at level 38,
+    # so neither split AP moves, but the pooled frames drop from 156/160 (level 39) to 154/160 (level 38).
+    fa, fb = [_rec(40, 40, 0)], [_rec(120, 114, 2)]
+    full, cut = floor_aps(fa, fb, 0.0, pooled=True), floor_aps(fa, fb, 0.01, pooled=True)
+    assert cut["val"] == full["val"] and cut["valB"] == full["valB"]
+    assert abs(full["pooled"] - cut["pooled"] - 1 / 40) < 1e-9
+    assert "pooled" not in floor_aps(fa, fb, 0.01)

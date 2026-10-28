@@ -28,6 +28,10 @@ come from the member that is best for it on real validation.
     # S3 server-cost budget: per class the highest score floor costing <= 0.002 AP on realval-A and on realval-B;
     # writes model.yaml `budget` (applied last by merge), then validates
     python common/tools/route_predictions.py budget model-v2x-track/routed-g3
+    # S7.6: one candidate per class, the incumbent fusion with the extended bags in place of their seeds or 3-seed bag;
+    # the budget's floor loss also bounded on the pooled A+B frames
+    python common/tools/route_predictions.py fuse model-v2x-track/routed-g12 --pooled-rule --swap-to bagvr5x bagpv5x
+    python common/tools/route_predictions.py budget model-v2x-track/routed-g12 --pooled
     # S7 sparse-box demotion (V2X): per class the threshold k (fewer points -> ranked last) with the best realval-A AP,
     # kept by the pooled rule and a k - 1 robustness check; writes model.yaml `sparse_demotion`, then validates
     python common/tools/route_predictions.py sparse model-v2x-track/routed-g9
@@ -513,9 +517,37 @@ def member_weights(model_dir: Path, card: dict, n: str) -> set:
     return {(m["model"], m["ckpt"])}
 
 
+def swap_candidates(model_dir: Path, card: dict, prior: dict, classes, bags) -> dict:
+    """S7.6 bag swap (docs/decisions/2026-10-26-s7-final-revisions.md): per class, the incumbent fusion with every member
+    that is a seed of an extended bag in `bags` (plain member keys), or a bag whose seeds that bag contains, replaced by
+    the extended bag with the same TTA setting; one candidate per class, the incumbent's IoU. Classes without such a
+    member, and candidates that would use a checkpoint twice, get none. Returns {class: member tuple}."""
+    seeds_of = lambda k: set(yaml.safe_load((model_dir.parent / card["members"][k]["model"] / "model.yaml").read_text()).get("members") or [])
+    sw = {}
+    for b in bags:
+        seeds = seeds_of(b)
+        for k, m in card["members"].items():
+            if k in (b, b + "_tta"):
+                continue
+            mc = yaml.safe_load((model_dir.parent / m["model"] / "model.yaml").read_text())
+            if m["model"] in seeds or (mc.get("type") == "bag" and set(mc["members"]) <= seeds):
+                sw[k] = b + "_tta" if m.get("tta") else b
+    out = {}
+    for c in classes:
+        pz = prior.get(c)
+        if not pz or not any(n in sw for n in pz["members"]):
+            continue
+        new = tuple(dict.fromkeys(sw.get(n, n) for n in pz["members"]))
+        W = [member_weights(model_dir, card, n) for n in new]
+        if len(new) >= 2 and len(set().union(*W)) == sum(len(w) for w in W):
+            out[c] = new
+    return out
+
+
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
                 top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False,
-                late_rank=(), gate_top: int = 1, judge=(), judge_top: int = 6, pooled_rule: bool = False) -> dict:
+                late_rank=(), gate_top: int = 1, judge=(), judge_top: int = 6, pooled_rule: bool = False,
+                swap_to=()) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
     (joint realval-A/B AP after their gated z calibration, from route_table.json of `select --calibrated`) with equal
     weights at each IoU of iou_grid; the best joint candidate replaces the routed member only through the class gate
@@ -535,7 +567,9 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     ranked by early-A AP, and the first of the top gate_top that gains at least 0.01 on late-A with paired-bootstrap
     P(gain) >= 0.9 is kept (no pooled condition).
     pooled_rule (from 6.0 on, docs/decisions/README.md Section 3.2): the best candidate is kept when the pooled A+B gain
-    has P(gain) >= 0.9 and neither split drops by more than 0.005; the +0.01-on-B requirement is dropped."""
+    has P(gain) >= 0.9 and neither split drops by more than 0.005; the +0.01-on-B requirement is dropped.
+    swap_to (S7.6): no search; the only candidate of a class is its incumbent fusion with the extended bags swapped in
+    (swap_candidates), ranked and gated against the incumbent as above; the other classes keep their fusion."""
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -558,8 +592,12 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         return zcalib.apply(pc, {c: cal}) if cal else pc
 
     prior = card.get("fusion") or {}                    # the incumbent fusion of each class, if any
+    swaps = swap_candidates(model_dir, card, prior, classes, swap_to) if swap_to else None
+    if swaps is not None:
+        classes = list(swaps)
+        print("  swap candidates: " + (", ".join(f"{c} {'+'.join(m)}@{prior[c]['iou']}" for c, m in swaps.items()) or "none"), flush=True)
 
-    ranked = {c: sorted(table[c]["members"], key=lambda n: -(table[c]["members"][n]["joint"] or 0.0))[:top] for c in classes}
+    ranked ={c: sorted(table[c]["members"], key=lambda n: -(table[c]["members"][n]["joint"] or 0.0))[:top] for c in classes}
     judge = [c for c in (judge or ()) if c in classes]
     late_ids = sc.late_a_ids(track, list(gts["val"]))
     early_ids = [f for f in gts["val"] if f not in set(late_ids)]
@@ -575,6 +613,9 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     sets = lambda c: [m for k in range(2, max_members + 1) for m in itertools.combinations(ranked[c], k)
                       if len(set().union(*(W[n] for n in m))) == sum(len(W[n]) for n in m)]   # no checkpoint used twice
     jobs = [(c, members, thr) for c in classes for members in sets(c) for thr in iou_grid]
+    if swaps is not None:                               # S7.6: the swap candidate and the incumbent only
+        jobs = [(c, m, prior[c]["iou"]) for c, m in swaps.items()]
+        ranked = {c: list(m) for c, m in swaps.items()}
     for c, fz in prior.items():
         if c in classes and (c, tuple(fz["members"]), fz["iou"]) not in jobs:
             jobs.append((c, tuple(fz["members"]), fz["iou"]))
@@ -671,9 +712,26 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
 FLOORS = (0.0, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3)
 
 
-def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002) -> dict:
+def _trunc(recs: list, floor: float) -> list:
+    return [{"n_gt": r["n_gt"], "scores": r["scores"][r["scores"] >= floor], "3d@0.5": r["3d@0.5"][r["scores"] >= floor]}
+            for r in recs]
+
+
+def floor_aps(fa: list, fb: list, floor: float, pooled: bool = False) -> dict:
+    """AP on realval-A ('val'), realval-B ('valB') and, if pooled, on both pooled, after removing every box of the class
+    below `floor` (per-frame flags of one class; budget_select)."""
+    ta, tb = _trunc(fa, floor), _trunc(fb, floor)
+    out = {"val": sc.ap_from_flags(ta, "3d@0.5"), "valB": sc.ap_from_flags(tb, "3d@0.5")}
+    if pooled:
+        out["pooled"] = sc.ap_from_flags(ta + tb, "3d@0.5")
+    return out
+
+
+def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002, pooled: bool = False) -> dict:
     """Server-cost budget (docs/02-STRATEGY.md Section 8.3 step 6): per class, the highest score floor whose AP loss
-    is at most max_loss on realval-A and on realval-B. Exact and cheap: matching is greedy in score order, so
+    is at most max_loss on realval-A and on realval-B; pooled=True (S7.6) also on the pooled A+B frames, which the final
+    pooled check reads: a floor can keep both split APs and still cut the last true positives under an R40 recall level
+    of the pooled frames (S7.5 LUMPI Car: floor 0.01, A and B unchanged, pooled AP -0.0085). Exact and cheap: matching is greedy in score order, so
     removing every box below a floor leaves the matches of the boxes above it unchanged, and the AP at a floor is
     the AP of the truncated flags. Fusion and TTA make many low-score single-source boxes; they sit in the tail of
     the precision-recall curve, where R40 gives them little weight. Reads the unbudgeted routed predictions."""
@@ -691,21 +749,15 @@ def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002) -
         counts[split] = (len(gts), {c: np.array([d["score"] for v in merged.values() for d in v if d["class"] == c])
                                     for c in track.classes})
 
-    def trunc(recs, floor):
-        out = []
-        for r in recs:
-            m = r["scores"] >= floor
-            out.append({"n_gt": r["n_gt"], "scores": r["scores"][m], "3d@0.5": r["3d@0.5"][m]})
-        return out
-
     for c in track.classes:
-        base = {s_: sc.ap_from_flags(flags[s_][c], "3d@0.5") for s_ in ("val", "valB")}
+        base = floor_aps(flags["val"][c], flags["valB"][c], 0.0, pooled)
         best, rows = 0.0, []
         for fl in FLOORS:
-            ap_ = {s_: sc.ap_from_flags(trunc(flags[s_][c], fl), "3d@0.5") for s_ in ("val", "valB")}
+            ap_ = floor_aps(flags["val"][c], flags["valB"][c], fl, pooled)
             loss = {s_: (base[s_] - ap_[s_]) if base[s_] is not None else 0.0 for s_ in ap_}
             n = counts["val"][1][c]
-            rows.append({"floor": fl, "A": ap_["val"], "B": ap_["valB"], "boxes_per_frame_A": float((n >= fl).sum() / counts["val"][0])})
+            rows.append({"floor": fl, "A": ap_["val"], "B": ap_["valB"], **({"pooled": ap_["pooled"]} if pooled else {}),
+                         "boxes_per_frame_A": float((n >= fl).sum() / counts["val"][0])})
             if all(v <= max_loss for v in loss.values()):
                 best = fl
         if best > 0:
@@ -814,7 +866,10 @@ def main():
     ap.add_argument("--gate-top", type=int, default=1, help="fuse (R5): candidates of a --late-rank class tested through the gates")
     ap.add_argument("--vs", default=None, help="gate: the confirmed portfolio to compare the final predictions with")
     ap.add_argument("--pooled", action="store_true", help="select/fuse/calibrate: the class gate also needs a gain on the pooled "
-                                                          "A+B frames with P(gain) >= 0.9 (docs/decisions/README.md Section 3.2, R3 on)")
+                                                          "A+B frames with P(gain) >= 0.9 (docs/decisions/README.md Section 3.2, R3 on); "
+                                                          "budget (S7.6): the floor's AP loss is also bounded on the pooled frames")
+    ap.add_argument("--swap-to", nargs="*", default=[], help="fuse (S7.6): extended bags (plain member keys) swapped into each "
+                                                             "incumbent fusion in place of their seeds or 3-seed bag; no search")
     ap.add_argument("--pooled-rule", action="store_true", help="fuse: the 6.0 pooled rule (pooled A+B P(gain) >= 0.9, neither split "
                                                                  "down by more than 0.005, no +0.01 on B; docs/decisions/README.md 3.2)")
     ap.add_argument("--frames", default="kit", help="merge: frames whose points the S7 sparse stage counts ('kit' or a dataset)")
@@ -862,7 +917,7 @@ def main():
         validate(model_dir, card, track)
         return
     if a.mode == "budget":
-        budget_select(model_dir, card, track)
+        budget_select(model_dir, card, track, pooled=a.pooled)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion + budget")
         return
@@ -882,7 +937,7 @@ def main():
         return
     if a.mode == "fuse":
         fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members, pooled=a.pooled,
-                    late_rank=a.late_rank, gate_top=a.gate_top, judge=a.judge, pooled_rule=a.pooled_rule)
+                    late_rank=a.late_rank, gate_top=a.gate_top, judge=a.judge, pooled_rule=a.pooled_rule, swap_to=a.swap_to)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion")
         return

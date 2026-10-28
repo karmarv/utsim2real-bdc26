@@ -1,0 +1,22 @@
+{
+  "run": "bag of 5 seeds",
+  "members": [
+    "voxelrcnn-ros-g1v5",
+    "voxelrcnn-ros-g1v5-s2",
+    "voxelrcnn-ros-g1v5-s3",
+    "voxelrcnn-ros-g1v5d2",
+    "voxelrcnn-ros-g1v5d3"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.7029042494890732,
+  "realval_A_per_class": {
+    "vehicle": 0.8473889620596082,
+    "pedestrian": 0.3625037430002445,
+    "truck": 0.898820043407367
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6922517221240633,
+  "realval_B_per_class": {
+    "vehicle": 0.848833891521575,
+    "pedestrian": 0.39455411045128436,
+    "truck": 0.8333671643993302
+  }
+}

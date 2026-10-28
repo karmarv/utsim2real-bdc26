@@ -1,4 +1,4 @@
-# 2026-10-18 S7 Visibility Rule (V2X): step 1 uploaded and confirmed (V2X 1001919 0.8982, pedestrian +0.015), rank 1; step 2 retrain gated against it
+# 2026-10-18 S7 Visibility Rule (V2X): step 1 uploaded and confirmed (V2X 1001919 0.8982, pedestrian +0.015), rank 1; step 2 below the upload gate; 2026-10-26 review: conventions saturated
 
 **Version.** Strategy S7, V2X only, two change sets on top of the S6 entry (`model-v2x-track/routed-g8b`, 995877, 0.8931):
 - **Step 1, `routed-g9`:** `routed-g8b` plus a per-class **sparse-box demotion** stage on the final predictions (no training).
@@ -51,7 +51,39 @@ Exploratory probe of the review (2026-10-18, before this record; final `routed-g
 
 The re-merge check is identical, and `test/reproduce_s7.sh` re-predicts the members from the release-6.0 weights.
 
-**Results, step 2.** To be filled after the six runs (`$BDC_DATA/logs/s7`, `common/pipeline/s7_portfolio.sh`: bags, comparison with the `g1-v5` bags, `routed-g10`, gates, package).
+**Results, step 2** (2026-10-19, unattended in `$BDC_DATA/logs/s7`, `common/pipeline/s7_portfolio.sh`; six runs, no failure).
+- **Bags on the visibility labels against the `g1-v5` bags of the same seeds** (pooled A+B, member level, before the S7 stage):
+  - pedestrian +0.0014 to +0.0083 (plain P 0.98-1.00, TTA P 0.69-0.79);
+  - vehicle +0.0078 for PV-RCNN++ and -0.0091 to -0.0130 for Voxel R-CNN;
+  - truck -0.0197 to +0.0044.
+  - Removing the sparse labels in training buys far less than ranking sparse boxes last at inference (+0.0197).
+- **`routed-g10`** (`routed-g9` + both bags; select, fuse with `--pooled-rule`, budget, tail, sparse, final pooled check):
+  - pedestrian fused with `bagvr5_tta` + `bagvr5m` + `bagpv5_tta` (A +0.0104, B -0.0030, pooled +0.0064, P 0.99);
+  - truck `bagpv5m_tta` + `pp5_tta` + `bagvr5m_tta` (A +0.0007, B +0.0081, pooled +0.0042, P 0.91);
+  - vehicle frozen at `routed-g9`;
+  - A 0.7340 -> 0.7377, B 0.7206 -> 0.7223. Kit check valid (164 s, 29,117 boxes).
+- **Projection +0.0014 against the bar +0.003: not met; not uploaded.** On train-split frames only (audit 2026-10-26, rule a): pedestrian +0.0136 (A) / +0.0024 (B), truck -0.0045 / +0.0153. The truck change would fail rule a as well. Package `routed-g10/submissions/2026-10-19_s7m/` kept for the record only.
+
+**Review of 2026-10-26: what else the visibility-and-convention idea can still buy.** Read-only probes on the final validation predictions of the entries, official 3D AP@0.5. Scripts `probe_geom.py`, `probe_height.py`, `probe_envelope.py` (session scratchpad; numbers here).
+
+| Probe | Idea | V2X (`routed-g9`) | LUMPI (`routed-g8`) | Verdict |
+|---|---|---|---|---|
+| Range-dependent box extents | correct bottom, top, length and width by the realval-A median residual of matched pairs per 10 m (linear in range) | pedestrian z-only pooled +0.0020 (P 0.95); length, width and all-axes variants -0.0014 to -0.0032; vehicle and truck all -0.0004 to -0.0032 | not run (V2X shows no systematic residual) | **saturated**: the BEV-3D gap (pedestrian 0.13 on A, 0.12 on B) is random z error (IQR 0.12 m centre, 0.17 m height), not a bias |
+| Heights read off the points | top = 98th percentile of in-box z + A-median offset; bottom = ring-ground 10th percentile + offset | pedestrian pooled -0.021 (top), -0.021 (bottom), -0.040 (both): point extents are noisier (IQR 0.22 / 0.18 m) than the detector's | not run | **rejected** |
+| Labels end at a range | predictions beyond the real labels' 99.5th-percentile range | 0.2-1.8% of the top-half boxes | 1-5% (Bicycle 5%, a frozen class) | **negligible** |
+| Range-conditional visibility envelope | per class and 5 m bin, rank last boxes below the lower or above the upper percentile of real points per box | every variant loses (pedestrian -0.0002 to -0.0103 pooled; vehicle and truck worse): the flat k already holds the cut | Person lower p5 +0.0048 (P 1.00), Truck lower p2 +0.0027 (P 1.00), Car -0.0011 to -0.0226, Van -0.0012 to +0.0006 | **below the bar**: LUMPI Person + Truck projects about +0.0006 combined |
+| Taxonomy | V2X "truck" includes `TrashCan` | `TrashCan` labels are 8.2 x 2.9 x 2.6 m refuse trucks (959 of the truck boxes in realval), not bins, so the unlabeled bins of the G2-lite clutter do not conflict | | **no change** |
+
+**Reading.** On V2X the S7 rule took the one systematic labelling difference left; the other conventions are matched, and what remains is random localization error and ranking, which only better members reduce. On LUMPI the same probes buy at most +0.0006 combined.
+
+**Revisions under S7** (from 2026-10-26; every gate also on train-split frames, audit rule a):
+
+| Revision | What | Cost | Expected | Status |
+|---|---|---|---|---|
+| S7.1 compliance | close the audit's items 1-3: LOI, the disclosure email, train-split robustness reported with every gate | the entrant's emails; CPU | keeps both entries safe through the verification of top teams | items 1-2 are the entrant's, before Oct 30 20:00 EDT; item 3 done for the live S7 change |
+| S7.2 dry run | rebuild both entries from their weights on idle GPUs and compare with the scored zips | 2 GPU-hours | proves F1 | **done 2026-10-26: IDENTICAL on both** (V2X `reproduce_s7.sh`, LUMPI `reproduce_s6.sh`: predictions and all 50 frames equal to the scored zips; kit checks valid, 315 s and 299 s with both jobs running at once; `$BDC_DATA/logs/s7repro`) |
+| S7.3 LUMPI envelope | Person lower p5, Truck lower p2 | CPU | +0.0006 projected | **not adopted** (bar +0.003) |
+| S7.4 V2X generator-draw bags | the two two-stage configs trained on two fresh draws of the `g1-v5` generator (raw labels), bagged with the existing seeds, fuse with `--pooled-rule` against `routed-g9` | about 12 h on 8 GPUs, CPU portfolio | +0.002 to +0.005 (seed bags gave vehicle and truck +0.014 each through fusion in S6); uncertain | **needs the entrant's go**: it would run after the Oct 25 freeze, so it must be confirmed in the development phase (by Oct 30) or enter the final phase only as an F2-F5 candidate under `Force_Best` |
 
 **Decision, step 1.** `routed-g9` is decision-ready and passes every pre-registered rule. Upload `v2x_s7_submission.zip` unchanged to CodaBench 16685. It is one change set: two classes are re-ranked, and nothing else changes. Projection 0.893 + 0.004 = about **0.897**. LUMPI is unchanged (rule 1).
 
@@ -79,7 +111,7 @@ The re-merge check is identical, and `test/reproduce_s7.sh` re-predicts the memb
 - **Comparison.** This is the largest V2X pedestrian gain since S5 (+0.046), above R3 (+0.012) and R5 (+0.011), from a CPU-only stage.
 
 **Consequences.**
-1. V2X 1001919 is the entry. `v2x_s7_submission.zip` becomes the V2X candidate for F1 of the final phase. Release 6.0 weights rebuild it; `test/reproduce_s7.sh` is to be verified on an idle GPU before Oct 24.
+1. V2X 1001919 is the entry. `v2x_s7_submission.zip` becomes the V2X candidate for F1 of the final phase. Release 6.0 weights rebuild it; `test/reproduce_s7.sh` reproduced it IDENTICAL on 2026-10-26.
 2. Step 2 is judged against `routed-g9` (`common/pipeline/s7_portfolio.sh`).
 3. Budget used: V2X 10 of 100.
 

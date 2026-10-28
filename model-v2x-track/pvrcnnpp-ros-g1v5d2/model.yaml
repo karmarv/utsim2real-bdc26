@@ -1,0 +1,20 @@
+name: pvrcnnpp-ros-g1v5d2
+strategy: S7
+track: v2x-track
+module: M9 (engine G2-lite)
+derived_from: pvrcnnpp-ros-g1v5-s2
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++ (as pvrcnnpp-ros-g1v3) with ROS (truck length range removed)
+data:
+  train: pcdet/g1-v5d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v5
+postprocess: test/postprocess.yaml
+status: planned (S7 final revision, training seed 4666)
+expected: a member as good as the pvrcnnpp-ros-g1v5 seeds, decorrelated from them
+  by a fresh generator draw
+notes: 'S7.4 (docs/decisions/2026-10-26-s7-final-revisions.md): the config of pvrcnnpp-ros-g1v5-s2,
+  unchanged, on pcdet/g1-v5d2 = the g1-v5 recipe with generator seed 2234 (prepare_g1.py
+  --seed); training seed 4666; member of bag-pvrcnnpp-ros-g1v5x.
+
+  '

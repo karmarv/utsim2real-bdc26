@@ -65,6 +65,9 @@ Create a model with `python common/tools/new_model.py lumpi <name> --from <exist
 | [`bag-voxelrcnn-ros-g1v4`](bag-voxelrcnn-ros-g1v4), [`bag-pvrcnnpp-ros-g1v4`](bag-pvrcnnpp-ros-g1v4) | seeds 1666-3666; 666-3666 | S6 seed bags (weighted box fusion of the seeds' tuned predictions) | at or above the best seed on A and B; no class through the gate |
 | [`routed-g8`](routed-g8) | `routed-g7` (incumbent) + the S6 seeds and bags | **selected** (S6) | submitted (995869, **0.5228**, rank 1 of 21; Van through the judge; Section 7.11) |
 | [`routed-g8b`](routed-g8b) | `routed-g8` + the Car candidate by the pooled rule | S6 close-out | not adopted: Car +0.007 on A and on B, but -0.002 on the pooled frames (P 0.24) on the final predictions; nothing packaged |
+| [`voxelrcnn-ros-g1v4d2`](voxelrcnn-ros-g1v4d2), [`-d3`](voxelrcnn-ros-g1v4d3), [`pvrcnnpp-ros-g1v4d2`](pvrcnnpp-ros-g1v4d2), [`-d3`](pvrcnnpp-ros-g1v4d3) | `pcdet/g1-v4d2`, `g1-v4d3` (fresh `g1-v4` generator draws, seeds 2234 / 3234); training seeds 4666 / 5666 | S7.5 draw members | done: Voxel R-CNN draws above their seeds (TTA A 0.345-0.350 against 0.327-0.336), PV-RCNN++ inside |
+| [`bag-voxelrcnn-ros-g1v4x`](bag-voxelrcnn-ros-g1v4x), [`bag-pvrcnnpp-ros-g1v4x`](bag-pvrcnnpp-ros-g1v4x) | the seeds + both draws (5 and 6) | S7.5 extended bags | done: TTA +0.0110 / +0.0070 and +0.0050 / +0.0013 over the S6 bags |
+| [`routed-g9`](routed-g9), [`routed-g10`](routed-g10) | `routed-g8` + the draw runs and extended bags; `routed-g10` = the S7.6 bag swap and pooled budget | S7.5 and S7.6 portfolios | not uploaded: Truck (+0.017 pooled) and, in `routed-g10`, Car (+0.006) pass, but the projection is +0.0010 / +0.0014, below +0.003; packages `s7x`, `s7s` valid ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 
 ## 2. Modeling approaches considered
 
@@ -363,6 +366,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.6.1](../docs/02-STRATEGY.md#861-s6
 | E15 | Seeds of the two-stage members | done (R5): Person B +0.02-0.03 per seed member; the late-A Person rule moved Person for the first time since S3 (Section 7.10) |
 | E16 | Seed bags and the Van judge | done (S6): every bag at or above its best seed; Van 0.120 -> 0.173 on A and late-A through the judge; upload gate passed (Section 7.11) |
 | E17 | S7 visibility rule (rank boxes with few points last; V2X step 1) | not applicable (2026-10-18): LUMPI labels keep boxes with no points (0.5-1.8% of Person and Car labels, amodal track boxes); on `routed-g8` the rule gave Person +0.000 to +0.002 and Car -0.004 to -0.014, so LUMPI stays at S6 ([record](../docs/decisions/2026-10-18-s7-visibility-rule.md)) |
+| E18 | Generator-draw bags, bag swap and pooled budget (S7.5, S7.6) | done: Truck and Car pass, projection +0.0014 below the gate; the S6 entry stays ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 
 ## 9. Submission log
 

@@ -237,6 +237,7 @@ if __name__ == "__main__":
     ap.add_argument("--density-prior", default=None, help="bdc26.density prior relative to $BDC_DATA/<track> (calibrated background)")
     ap.add_argument("--val-from", type=int, default=9000)
     ap.add_argument("--workers", type=int, default=48)
+    ap.add_argument("--seed", type=int, default=1234, help="generator seed (UTConvertParams.seed); S7.4/S7.5 draws use other seeds")
     ap.add_argument("--g2", action="store_true", help="engine G2-lite pass (R3): re-cast and lengthen trucks, clutter")
     ap.add_argument("--clutter", type=float, default=30.0, help="G2: mean unlabeled static objects per frame")
     ap.add_argument("--truck-size", default="real", choices=["real", "stretch"],
@@ -248,7 +249,7 @@ if __name__ == "__main__":
     if a.placement == "prior":
         build_prior()
     params = UTConvertParams(n_points=a.n_valid, scale_fix=T["ut"]["actor_scale_fix"], min_points=a.min_points,
-                             density_prior=str(T.root / a.density_prior) if a.density_prior else None)
+                             density_prior=str(T.root / a.density_prior) if a.density_prior else None, seed=a.seed)
     frames = list(range(0, T["ut"]["n_frames"], a.stride))[: a.frames]
     if a.g2:
         build_hull_bank(params, a.val_from)
@@ -270,8 +271,13 @@ if __name__ == "__main__":
                                 "truck_size": a.truck_size if a.g2 else None,
                                 "g2_drop": g2_drop_table(a.g2_drop) if a.g2 else None},
                      "class_map": T["ut"]["class_map"],
-                     "real_data_use": ("legal V2X-Real walker label rows (placement, box sizes; gen/walker_prior_v1.npz)"
-                                       if a.placement == "prior" else "none (sensor spec and KITTI-like box convention)"),
+                     "real_data_use": "; ".join(u for u in (     # every real-derived generator input (FAQ review 2026-10-27)
+                         "legal V2X-Real walker label rows (placement, box sizes; gen/walker_prior_v1.npz)" if a.placement == "prior" else "",
+                         "OS1-64 beam table measured on legal unlabeled frames (gen/os1_64_calib_v1.npz)" if a.fov_mask else "",
+                         "legal realval truck label sizes (gen/size_prior_g2.npz)" if a.g2 and a.truck_size == "real" else "",
+                         "background density prior from legal unlabeled realval-A frames disjoint from the realism proxies"
+                         f" ({Path(a.density_prior).name})" if a.density_prior else "") if u)
+                         or "none (sensor spec and KITTI-like box convention)",
                      "g2_stats": {k: float(np.mean([s.get(k, 0) for s in stats])) for k in ("g2_recast", "g2_resized", "g2_grown", "g2_completed", "g2_clutter", "g2_hits_median", "g2_occluded_removed")} if a.g2 else None,
                      "mean_boxes_per_frame": sum(s["n_boxes"] for s in stats) / max(len(stats), 1),
                      "mean_walkers_per_frame": sum(s.get("n_walkers", 0) for s in stats) / max(len(stats), 1),

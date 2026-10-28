@@ -14,14 +14,14 @@ classes:
   pedestrian:
     nms_iou: 0.7
     recenter: 0.25
-    z_offset: 0.0
+    z_offset: -0.1
   truck:
     nms_iou: 0.3
-    z_offset: 0.2
+    z_offset: 0.1
     size_scale:
     - 1.08
     - 1.08
-    - 1.0
+    - 1.08
 hedge:
   vehicle:
   - - truck

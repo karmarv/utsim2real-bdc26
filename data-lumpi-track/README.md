@@ -222,6 +222,7 @@ Layout (`common/bdc26/pcdet_export.py`): `points/<id>.npy` (float32 N x 3), `lab
 | `g1-v3` | `prepare_g1.py --name g1-v3 --walker v2 --density-prior gen/density_prior_v1.npz` | `g1-v2` with walker v2 | `pointpillars-g1v3` |
 | `g1-v4` | `prepare_g1.py --name g1-v4 --walker v2 --density-prior gen/density_prior_v1.npz --g2` | `g1-v3` with engine G2-lite (Section 8.7a) | R3 members `*-g1v4` |
 | `g1-v4u` | `prepare_g1.py --name g1-v4u --walker v2 --g2 --stride 10` | the `g1-v4` recipe without a density prior (1,000 frames) | input of the R5 one-step refit |
+| `g1-v4d2`, `g1-v4d3` | the `g1-v4` command + `--seed 2234` / `--seed 3234` | fresh draws of the `g1-v4` generator (same recipe and UT frames); `--seed 1234`, the default, reproduces `g1-v4` | S7.5 members `*-g1v4d2/d3` ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 | `g1-v5` | `g1-v4` command with `--density-prior gen/density_prior_v2.npz` | `g1-v4` with the refined density prior (R5); objects unchanged | built, **not adopted**: its frames missed the realism gate by 0.0002 (Section 8.7b) |
 | `g1-v5c8`, `g1-v5c4`, `g1-v5ia1-3`, `g1-v5ib1-3` | as `g1-v5` with `--stride 5` and candidate priors | evaluation corpora of the R5 prior choice | R5 prior selection only |
 

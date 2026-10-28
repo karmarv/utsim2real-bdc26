@@ -1,0 +1,20 @@
+{
+  "run": "bag of 3 seeds (TTA)",
+  "members": [
+    "voxelrcnn-ros-g1v5m",
+    "voxelrcnn-ros-g1v5m-s2",
+    "voxelrcnn-ros-g1v5m-s3"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.7058097060904281,
+  "realval_A_per_class": {
+    "vehicle": 0.8473871824205299,
+    "pedestrian": 0.3729485714877935,
+    "truck": 0.897093364362961
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6923671762031813,
+  "realval_B_per_class": {
+    "vehicle": 0.8484969931001961,
+    "pedestrian": 0.3968807194492522,
+    "truck": 0.8317238160600958
+  }
+}

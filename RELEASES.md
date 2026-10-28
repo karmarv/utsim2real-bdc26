@@ -16,15 +16,18 @@ python common/tools/release_weights.py fetch --tag <tag> --version <track>:<subm
   - Content: the boxes and frames of 995877, with boxes holding fewer points than the real labels' visibility cut ranked last (pedestrian 6, vehicle 5).
   - Local: realval 0.734 / 0.721; projection +0.004; leaderboard +0.0051 (pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737).
   - Weights: the release-6.0 assets (same members).
-- **V2X step 2:** members retrained on visibility-matched labels (`g1-v5m`); its new checkpoints join the release only if a version that uses them is confirmed.
+- **V2X step 2:** members retrained on visibility-matched labels (`g1-v5m`); not uploaded (projection +0.0014), so its checkpoints stay out of the release.
 - **LUMPI:** unchanged (S6, 995869).
+- **S7.4-S7.6** (generator-draw bags, bag swap, pooled budget; 2026-10-26/27): no version passed the upload gate, so both entries stay the submission-ready versions; the eight draw checkpoints (`*-g1v5d2/d3`, `*-g1v4d2/d3`) stay out of the release ([record](docs/decisions/2026-10-26-s7-final-revisions.md)).
 - **Code:**
   - `bdc26.boxes.count_points_per_box`;
   - `route_predictions.py sparse`, `fuse --pooled-rule` and `merge --frames`;
   - `common/tools/filter_labels.py`;
-  - `common/pipeline/s7_portfolio.sh`;
+  - `common/pipeline/s7_portfolio.sh`, `s7f_portfolio.sh`, `s7g_amend.sh`;
+  - `common/tools/s7_check.py` (final check and projection), `route_predictions.py fuse --swap-to` and `budget --pooled`;
+  - `prepare_g1.py --seed` (both tracks; the default reproduces the existing corpora); the V2X corpus card lists every real-derived generator input;
   - tests `common/tests/test_s7.py`.
-- **Records:** [`2026-10-18-s7-visibility-rule.md`](docs/decisions/2026-10-18-s7-visibility-rule.md), [`2026-10-18-rules-external-datasets.md`](docs/decisions/2026-10-18-rules-external-datasets.md).
+- **Records:** [`2026-10-18-s7-visibility-rule.md`](docs/decisions/2026-10-18-s7-visibility-rule.md), [`2026-10-18-rules-external-datasets.md`](docs/decisions/2026-10-18-rules-external-datasets.md), [`2026-10-26-rules-compliance-audit.md`](docs/decisions/2026-10-26-rules-compliance-audit.md) (with the 2026-10-27 forum-FAQ addendum), [`2026-10-26-s7-final-revisions.md`](docs/decisions/2026-10-26-s7-final-revisions.md).
 
 ## 6.0 (pre-release, 2026-10-17)
 

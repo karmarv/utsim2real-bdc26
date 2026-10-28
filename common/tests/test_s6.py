@@ -130,10 +130,11 @@ def test_bag_folders_are_seeds_of_one_configuration(bag):
     card = yaml.safe_load((bag / "model.yaml").read_text())
     assert card["type"] == "bag" and len(card["members"]) >= 2 and "default" in card["iou"]
     cfgs = set()
+    corpora = {c.strip() for c in str(card["data"]["train"]).split("+")}   # S7 draw bags list each generator draw
     for m in card["members"]:
         md = bag.parent / m
         mc = yaml.safe_load((md / "model.yaml").read_text())
-        assert mc["data"]["train"] == card["data"]["train"], m
+        assert mc["data"]["train"] in corpora, m
         text = (md / "train" / "pcdet_model.yaml").read_text()
         # the per-member score blend is an inference knob chosen after training; everything else must be equal
         cfgs.add("\n".join(line for line in text.splitlines() if "SCORE_BLEND_ALPHA" not in line))

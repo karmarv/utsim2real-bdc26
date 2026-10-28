@@ -1,0 +1,137 @@
+{
+  "vehicle": {
+    "incumbent": "fusion bagvr5_tta+pvros4s2_tta@0.7",
+    "incumbent_A": 0.8654479516582698,
+    "incumbent_B": 0.8693467434481645,
+    "best": {
+      "members": [
+        "bagvr5_tta",
+        "pvros4s2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8654479516582698,
+      "B": 0.8693467434481645
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bagvr5x_tta+pvros4s2_tta@0.7": {
+        "val": 0.8649334988824389,
+        "valB": 0.8661904358702586
+      },
+      "bagvr5_tta+pvros4s2_tta@0.7": {
+        "val": 0.8652815194245747,
+        "valB": 0.8693467434481645
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagvr5_tta",
+          "pvros4s2_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bagvr5_tta",
+        "pvros4s2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8652815194245747,
+      "B": 0.8693467434481645
+    }
+  },
+  "truck": {
+    "incumbent": "fusion pp5_tta+bagvr5_tta+bagpv5@0.5",
+    "incumbent_A": 0.9355914484395431,
+    "incumbent_B": 0.8481127581754194,
+    "best": {
+      "members": [
+        "pp5_tta",
+        "bagvr5x_tta",
+        "bagpv5x"
+      ],
+      "iou": 0.5,
+      "A": 0.9374731749681245,
+      "B": 0.8502402944903835
+    },
+    "dB": 0.002127536314964096,
+    "p_gain": 0.595,
+    "ci90": [
+      -0.0026467784248866808,
+      0.0026260581972145144
+    ],
+    "dA": 0.0018817265285814289,
+    "pooled": {
+      "delta": 0.0009721472625452421,
+      "p_gain": 0.695
+    },
+    "decision": "kept (pooled A+B condition failed)",
+    "search_fast_iou": {
+      "pp5_tta+bagvr5x_tta+bagpv5x@0.5": {
+        "val": 0.9374731749681245,
+        "valB": 0.8502402944903835
+      },
+      "pp5_tta+bagvr5_tta+bagpv5@0.5": {
+        "val": 0.9355914484395431,
+        "valB": 0.8481127581754194
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "pp5_tta",
+          "bagvr5x_tta",
+          "bagpv5x"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.002127536314964096,
+        "p_gain": 0.595,
+        "dA": 0.0018817265285814289,
+        "pooled": {
+          "delta": 0.0009721472625452421,
+          "p_gain": 0.695
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "pp5_tta",
+        "bagvr5x_tta",
+        "bagpv5x"
+      ],
+      "iou": 0.5,
+      "A": 0.9374731749681245,
+      "B": 0.8502402944903835
+    }
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.40593422122748046,
+    "A_behaviour": 0.40670521200115556,
+    "A_tuned": 0.40670521200115556,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5,
+      "size_scale": [
+        0.92,
+        0.92,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        0.92,
+        0.92,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.10283796053189778,
+    "B_behaviour": 0.10499747158515386,
+    "B_tuned": 0.10499747158515386,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.41263112585522804
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.878812106725627,
+    "A_behaviour": 0.878812106725627,
+    "A_tuned": 0.878812106725627,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 25573,
+    "B_start": 0.7589959904506856,
+    "B_behaviour": 0.7589959904506856,
+    "B_tuned": 0.7589959904506856,
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.8894689160681117
+    },
+    "hedge_from_Truck": {
+      "factor": 0.1,
+      "A": 0.897049192015283
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.48182135477147775,
+    "A_behaviour": 0.48241004935657833,
+    "A_tuned": 0.4847828400088778,
+    "behaviour_cfg": {
+      "recenter": 0.5,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.19715001723524012,
+    "B_behaviour": 0.19752297168387747,
+    "B_tuned": 0.20006885018983303,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.5493591998559143
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.062005443634464696,
+    "A_behaviour": 0.062005443634464696,
+    "A_tuned": 0.062005443634464696,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.25
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.04069776575777521,
+    "B_behaviour": 0.04069776575777521,
+    "B_tuned": 0.04069776575777521
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.029218123312792433,
+    "A_behaviour": 0.029218123312792433,
+    "A_tuned": 0.029218123312792433,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.016747426721857556,
+    "B_behaviour": 0.016747426721857556,
+    "B_tuned": 0.016747426721857556,
+    "hedge_from_Truck": {
+      "factor": 0.1,
+      "A": 0.0330937232876488
+    }
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.37765585646257627,
+    "A_behaviour": 0.38061635073868133,
+    "A_tuned": 0.3815639847648207,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.08
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.109259514299145,
+    "B_behaviour": 0.11092894248324667,
+    "B_tuned": 0.11662864382032859,
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.3890305562616102
+    },
+    "hedge_from_Bus": {
+      "factor": 0.3,
+      "A": 0.3916167746261114
+    }
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.09451863260959052,
+    "A_behaviour": 0.09451863260959052,
+    "A_tuned": 0.09451863260959052,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0,
+    "B_behaviour": 0.0,
+    "B_tuned": 0.0,
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.10735788465588145
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.003350210472246662
+    }
+  }
+}

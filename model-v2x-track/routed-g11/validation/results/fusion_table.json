@@ -1,0 +1,299 @@
+{
+  "vehicle": {
+    "incumbent": "fusion bagvr5_tta+pvros4s2_tta@0.7",
+    "incumbent_A": 0.8654479516582698,
+    "incumbent_B": 0.8693467434481645,
+    "best": {
+      "members": [
+        "bagvr5_tta",
+        "pvros4s2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8654479516582698,
+      "B": 0.8693467434481645
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bagvr5x_tta+bagpv5x_tta@0.3": {
+        "val": 0.851063883151493,
+        "valB": 0.8517329940374528
+      },
+      "bagvr5x_tta+bagpv5x_tta@0.5": {
+        "val": 0.8615403034700109,
+        "valB": 0.8638980596383862
+      },
+      "bagvr5x_tta+bagpv5x_tta@0.7": {
+        "val": 0.8640132010807904,
+        "valB": 0.8690130650526084
+      },
+      "bagvr5_tta+bagpv5x_tta@0.3": {
+        "val": 0.8502378790496357,
+        "valB": 0.8500507617149357
+      },
+      "bagvr5_tta+bagpv5x_tta@0.5": {
+        "val": 0.8626160813830828,
+        "valB": 0.8637400785552984
+      },
+      "bagvr5_tta+bagpv5x_tta@0.7": {
+        "val": 0.8655094381013206,
+        "valB": 0.8652946995472309
+      },
+      "bagpv5x_tta+bagvr5x@0.3": {
+        "val": 0.8461526781614456,
+        "valB": 0.8491021437645866
+      },
+      "bagpv5x_tta+bagvr5x@0.5": {
+        "val": 0.8563470724463744,
+        "valB": 0.8608574112037216
+      },
+      "bagpv5x_tta+bagvr5x@0.7": {
+        "val": 0.8605980368787918,
+        "valB": 0.8650921179603296
+      },
+      "bagvr5_tta+pvros4s2_tta@0.7": {
+        "val": 0.8652815194245747,
+        "valB": 0.8693467434481645
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagvr5_tta",
+          "pvros4s2_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bagvr5_tta",
+        "bagpv5x_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8655094381013206,
+      "B": 0.8652946995472309
+    }
+  },
+  "pedestrian": {
+    "incumbent": "fusion vrros_tta+vrros4_tta@0.5",
+    "incumbent_A": 0.37028597319738193,
+    "incumbent_B": 0.4081384224365614,
+    "best": {
+      "members": [
+        "bagvr5_tta",
+        "bagpv5x_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.37617066540007205,
+      "B": 0.40401758050886344
+    },
+    "dB": -0.00412084192769796,
+    "p_gain": 0.155,
+    "ci90": [
+      -0.011755557476014741,
+      0.003168635214775784
+    ],
+    "dA": 0.005884692202690112,
+    "pooled": {
+      "delta": 0.0016995894280915635,
+      "p_gain": 0.79
+    },
+    "decision": "kept (pooled A+B condition failed)",
+    "search_fast_iou": {
+      "bagvr5_tta+bagpv5x_tta@0.3": {
+        "val": 0.372245475112233,
+        "valB": 0.4024213632908067
+      },
+      "bagvr5_tta+bagpv5x_tta@0.5": {
+        "val": 0.3750535307859998,
+        "valB": 0.4047643815281739
+      },
+      "bagvr5_tta+bagpv5x_tta@0.7": {
+        "val": 0.37693047341030206,
+        "valB": 0.40564511115103674
+      },
+      "bagvr5x_tta+bagpv5x_tta@0.3": {
+        "val": 0.37106118440195074,
+        "valB": 0.40287502849054785
+      },
+      "bagvr5x_tta+bagpv5x_tta@0.5": {
+        "val": 0.37447765233078406,
+        "valB": 0.4050922326913701
+      },
+      "bagvr5x_tta+bagpv5x_tta@0.7": {
+        "val": 0.3757105536904212,
+        "valB": 0.4058401389723592
+      },
+      "bagpv5x_tta+bagvr5x@0.3": {
+        "val": 0.3688878662269778,
+        "valB": 0.4017955718531203
+      },
+      "bagpv5x_tta+bagvr5x@0.5": {
+        "val": 0.3727571536102373,
+        "valB": 0.405994679791328
+      },
+      "bagpv5x_tta+bagvr5x@0.7": {
+        "val": 0.3739271808124682,
+        "valB": 0.4058984565844824
+      },
+      "vrros_tta+vrros4_tta@0.5": {
+        "val": 0.37085374068408833,
+        "valB": 0.4085149735614005
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagvr5_tta",
+          "bagpv5x_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": -0.00412084192769796,
+        "p_gain": 0.155,
+        "dA": 0.005884692202690112,
+        "pooled": {
+          "delta": 0.0016995894280915635,
+          "p_gain": 0.79
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bagvr5_tta",
+        "bagpv5x_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.37693047341030206,
+      "B": 0.40564511115103674
+    }
+  },
+  "truck": {
+    "incumbent": "fusion pp5_tta+bagvr5_tta+bagpv5@0.5",
+    "incumbent_A": 0.9355914484395431,
+    "incumbent_B": 0.8481127581754194,
+    "best": {
+      "members": [
+        "pp5_tta",
+        "bagvr5_tta",
+        "bagpv5"
+      ],
+      "iou": 0.5,
+      "A": 0.9355914484395431,
+      "B": 0.8481127581754194
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bagpv5_tta+bagvr5x_tta@0.3": {
+        "val": 0.9040572223329623,
+        "valB": 0.8405600822021413
+      },
+      "bagpv5_tta+bagvr5x_tta@0.5": {
+        "val": 0.9040572223329623,
+        "valB": 0.8405970949196604
+      },
+      "bagpv5_tta+bagvr5x_tta@0.7": {
+        "val": 0.9038192713692741,
+        "valB": 0.84015877453208
+      },
+      "bagpv5x+bagvr5x_tta@0.3": {
+        "val": 0.9099692184079544,
+        "valB": 0.841706794361124
+      },
+      "bagpv5x+bagvr5x_tta@0.5": {
+        "val": 0.9107632468106661,
+        "valB": 0.8419757050102803
+      },
+      "bagpv5x+bagvr5x_tta@0.7": {
+        "val": 0.909837884989847,
+        "valB": 0.8424799718835374
+      },
+      "bagpv5x_tta+bagvr5x_tta@0.3": {
+        "val": 0.9065789720513505,
+        "valB": 0.8408106782515178
+      },
+      "bagpv5x_tta+bagvr5x_tta@0.5": {
+        "val": 0.9065789720513505,
+        "valB": 0.8411510035968834
+      },
+      "bagpv5x_tta+bagvr5x_tta@0.7": {
+        "val": 0.9066106406038731,
+        "valB": 0.8409148013672574
+      },
+      "pp5_tta+bagvr5_tta+bagpv5@0.5": {
+        "val": 0.9355914484395431,
+        "valB": 0.8481127581754194
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "pp5_tta",
+          "bagvr5_tta",
+          "bagpv5"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "pp5_tta",
+        "bagvr5_tta",
+        "bagpv5"
+      ],
+      "iou": 0.5,
+      "A": 0.9355914484395431,
+      "B": 0.8481127581754194
+    }
+  }
+}

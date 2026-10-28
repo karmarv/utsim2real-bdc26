@@ -197,7 +197,7 @@ Every strategy below uses the same template: **hypothesis** (what it should fix,
 | **R3** | Engine G2-lite (extended step after S5) | **submitted 2026-10-14**, the entry on both tracks until R5: LUMPI 986489 **0.5169** (rank 1; realism 0.891 -> 0.932, mAP -0.004), V2X 986496 **0.8789** (rank 1) (8.7.1-8.7.2) | corpus `g1-v4`: actors re-cast at real size and density with the real rig, real-sized trucks, buses and two-wheelers with riders, unlabeled static clutter; retrained S5 members; pooled A+B class-gate condition | the twin's object geometry: Car and two-wheeler density, size-gap classes, static walker false positives | 2 days; about 60 GPU-hours | medium | [R9](07-LITERATURE.md#r9-lidar-aug), [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports), [R40](07-LITERATURE.md#r40-st3d) |
 | **R5** | Realism-led refinement (after R3) | **submitted 2026-10-15**, the entry until S6: V2X 990255 **0.8852**, LUMPI 990245 **0.5198** (rank 1 on both) (8.9-8.9.1) | background density prior for the G2-lite corpus (`g1-v5`; V2X first prior), seeds of the two-stage members, V2X members on `g1-v5`, walker tail copies, pre-registered late-A Person rule and rare-class freeze | background realism (EMD), seed variance, LUMPI Person | 1 day; about 60 GPU-hours | low | [R9](07-LITERATURE.md#r9-lidar-aug), [R40](07-LITERATURE.md#r40-st3d) |
 | **S6** | Variance-Controlled Final Portfolio (re-planned 2026-10-15; was Sparse Transformer Experts) | **submitted 2026-10-17**: LUMPI 995869 **0.5228**, V2X 995877 **0.8931** (variant b), rank 1 on both; the LUMPI entry (8.6.1-8.6.2) | seed bags of the strongest two-stage configurations; LUMPI Van judged on realval-A frames whose labels are vans; final-phase protocol | member noise (seed spread up to 0.17 AP); the frozen LUMPI Van | about 1.5 days; about 120 GPU-hours (16 h on 8 GPUs) | low | [R23](07-LITERATURE.md#r23-weighted-boxes-fusion), [R37](07-LITERATURE.md#r37-ms3d-kde-box-fusion) |
-| **S7** | Visibility Rule (V2X) | **step 1 submitted 2026-10-19, the V2X entry**: 1001919 **0.8982** (pedestrian +0.015), rank 1; step 2 training (8.11) | the V2X-Real annotators skip objects seen with fewer than about 6 points: a box with fewer points than a per-class threshold ranks last (step 1, no training); members retrained on labels with the same rule (step 2) | V2X pedestrian false positives on sparse far blobs (16.3% of the synthetic pedestrian labels are sparser than 98% of the real ones) | step 1 CPU, 1 h; step 2 about 50 GPU-hours | low | [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports) |
+| **S7** | Visibility Rule (V2X) | **step 1 submitted 2026-10-19, the V2X entry**: 1001919 **0.8982** (pedestrian +0.015), rank 1; step 2 below the upload gate (+0.0014); review 2026-10-26: conventions saturated (8.11) | the V2X-Real annotators skip objects seen with fewer than about 6 points: a box with fewer points than a per-class threshold ranks last (step 1, no training); members retrained on labels with the same rule (step 2) | V2X pedestrian false positives on sparse far blobs (16.3% of the synthetic pedestrian labels are sparser than 98% of the real ones) | step 1 CPU, 1 h; step 2 about 50 GPU-hours | low | [R19](07-LITERATURE.md#r19-eccv-2026-winner-reports) |
 
 GPU-hours are on the A6000s, from the measured PointPillars runs (LUMPI 40 epochs in 1 h 46 min on 4 GPUs, about 7 GPU-hours; V2X about 4) times the usual cost ratio of each family (center-head voxel models 2-3x, two-stage 4-5x, sparse transformers 5x or more). Each is replaced by the measured smoke-run speed before the full run. Dependencies checked on 2026-10-09: CenterPoint, PV-RCNN++ (its `vector_pool` ops are compiled) and Voxel R-CNN with `MeanVFE` run on the installed stack; DSVT and every dynamic-voxel encoder need `torch_scatter`, which is not installed.
 
@@ -1173,3 +1173,37 @@ The package `routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip` holds th
 - k was seen on both splits in the review probe before the record (disclosed), so the leaderboard is the independent test.
 
 **Time box.** Step 1 done Oct 18; step 2 gated by Oct 21; freeze Oct 25.
+
+**Results, step 2 (2026-10-19).** Bags trained on the visibility labels gain little over the raw-label bags of the same seeds: pedestrian pooled +0.0014 to +0.0083 at member level, against +0.0197 for the inference-time rule. `routed-g10` (pedestrian and truck fused with them) projects +0.0014 against the bar +0.003: not uploaded. On train-split frames its truck change loses on A.
+
+**Review of 2026-10-26 (record: S7 and [`decisions/2026-10-26-rules-compliance-audit.md`](decisions/2026-10-26-rules-compliance-audit.md)).** Five read-only probes asked what else the convention idea can buy:
+- range-dependent box extents fitted on realval-A: V2X pedestrian z-only +0.0020 pooled, everything else loses;
+- heights read off the points: -0.021 to -0.040;
+- a label range limit: 0.2-5% of the boxes;
+- a range-conditional visibility envelope: V2X loses throughout; LUMPI Person and Truck project about +0.0006;
+- the V2X `TrashCan` taxonomy: they are 8.2 m refuse trucks, which do not conflict with the clutter bins.
+
+Conclusion: S7 took the last systematic labelling difference. The remaining V2X error is random localization (pedestrian BEV-3D gap 0.12-0.13 from z noise) and ranking, which only better members reduce.
+
+Revisions:
+- S7.1 compliance actions (the entrant's LOI and email; train-split checks);
+- S7.2 dry run of both entries from their weights (done: IDENTICAL on both);
+- S7.3 the LUMPI envelope (not adopted);
+- S7.4 V2X generator-draw bags (about 12 h on 8 GPUs, +0.002 to +0.005 expected): it runs after the freeze, so it needs the entrant's go and must be confirmed by Oct 30 or enter the final phase only as an F2-F5 candidate.
+
+**Freeze extended (the entrant, 2026-10-26)** for S7.4 and the same lever on LUMPI (S7.5). The rules are pre-registered in [`decisions/2026-10-26-s7-final-revisions.md`](decisions/2026-10-26-s7-final-revisions.md):
+- two fresh generator draws per track (`prepare_g1.py --seed`);
+- the two two-stage configs on each draw;
+- extended bags (the existing seeds plus the draws);
+- portfolios against the entries, with the 6.0 gates plus the train-split rule.
+
+Running from 2026-10-26 15:34. Each track ends with one submission-ready version: the new package if it passes, otherwise the entry's scored zip.
+
+**Outcome (2026-10-27).** Both tracks keep their entries as the submission-ready versions; nothing reached the +0.003 upload gate.
+- **Runs.** The draw members fall inside their seeds' spread. The extended bags gain +0.002 to +0.011 over the bags they extend.
+- **V2X (S7.4, `routed-g11`).** No class changed: the incumbent cross-architecture fusions stay ahead of every extended-bag candidate.
+- **LUMPI (S7.5, `routed-g9`).** Truck passed: pooled +0.017 at P 1.0. Car was frozen by a scoring artifact: the budget floor of 0.01 leaves A and B unchanged but cuts one R40 level of the pooled frames (-0.0085). Projection +0.0010.
+- **S7.6 amendment** (post hoc, one candidate per class):
+  - Each fusion was tried with the extended bag swapped in. V2X truck gained on both splits (+0.002) but failed the pooled rule (P 0.70); the other swaps did not beat their incumbents.
+  - A pooled bound on the budget floor kept LUMPI Car (+0.0059 at P 1.0). LUMPI `s7s` projects +0.0014: valid, but below the gate.
+- **Lesson.** Inside a portfolio that already fuses architectures, more seeds or draws of one family add little. The S7 revisions close with the entries unchanged ([record](decisions/2026-10-26-s7-final-revisions.md)).

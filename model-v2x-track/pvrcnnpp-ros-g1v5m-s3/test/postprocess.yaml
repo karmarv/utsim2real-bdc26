@@ -6,27 +6,27 @@ default:
   recenter: 0.0
 classes:
   vehicle:
-    nms_iou: 0.6
+    nms_iou: 0.7
     size_scale:
     - 1.0
     - 1.0
     - 1.08
-    z_offset: -0.1
+    z_offset: 0.0
   pedestrian:
-    nms_iou: 0.7
+    nms_iou: 0.6
     recenter: 0.25
     z_offset: -0.1
   truck:
     nms_iou: 0.7
-    z_offset: 0.1
+    z_offset: 0.2
     size_scale:
-    - 1.16
-    - 1.16
+    - 1.08
+    - 1.08
     - 1.0
 hedge:
   vehicle:
   - - truck
-    - 0.6
+    - 0.3
 selected_on: pcdet/realval-v1:val (real train split, guard-allowed)
 checked_on: pcdet/realval-v1:valB
 b_guard: 0.005
