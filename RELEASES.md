@@ -12,7 +12,12 @@ python common/tools/release_weights.py fetch --tag <tag> --version <track>:<subm
 
 ## Next release (S7, in progress since 2026-10-18)
 
-- **V2X entry:** S7 step 1, **1001919: 0.8982** (mAP 0.6124, R 0.9332; scored 2026-10-19 02:52 UTC), rank 1 of 23, from [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`), `routed-g9`; server record [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json).
+S7 is the entry on both tracks, and the latest upload on each track is its S7.6 package; those two zips are F1 for the final phase.
+
+- **V2X entry (S7.6):** **1014682: 0.898172**, identical in every metric to 1001919 (below), from [`v2x_s7s_submission.zip`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed78ed70f78437bf62c715b`), `routed-g12`; server record [`codabench_1014682.json`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json). The public leaderboard keeps listing 1001919.
+  - Content: 1001919 rebuilt by the S7.6 pipeline (no class changed): frames byte-identical, predictions numerically equal in another in-frame order.
+  - Weights: the 10 release-6.0 checkpoints of `v2x:s6b`; scripts `reproduce_s7s.sh` and `reproduce_s7s_validation.sh`.
+- **V2X S7 step 1 (equal to the entry):** **1001919: 0.8982** (mAP 0.6124, R 0.9332; scored 2026-10-19 02:52 UTC), rank 1 of 23, from [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`), `routed-g9`; server record [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json).
   - Content: the boxes and frames of 995877, with boxes holding fewer points than the real labels' visibility cut ranked last (pedestrian 6, vehicle 5).
   - Local: realval 0.734 / 0.721; projection +0.004; leaderboard +0.0051 (pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737).
   - Weights: the release-6.0 assets (same members).
@@ -21,7 +26,7 @@ python common/tools/release_weights.py fetch --tag <tag> --version <track>:<subm
   - Content: the S6 entry with Car fused from `pvros_tta` + the extended PV-RCNN++ bag (no score floor) and Truck from `pvros4d2_tta` + `ppros_tta`; uploaded by the entrant below the +0.003 gate (projection +0.0014).
   - Leaderboard: +0.00009 over 995869 (Truck +0.0049, Car -0.0042).
   - **Weights:** the release-6.0 assets plus five checkpoints not yet released: `pvrcnnpp-ros-g1v4-s2`, `-s3`, `-s4`, `pvrcnnpp-ros-g1v4d2`, `-d3` (`train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth`). The next release must carry them, with `reproduce_s7s.sh` and `reproduce_s7s_validation.sh`.
-- **S7.4-S7.6** (generator-draw bags, bag swap, pooled budget; 2026-10-26/27): no version passed the upload gate. The entrant uploaded LUMPI `s7s` anyway: 1014495, now the LUMPI entry (above). The V2X draw checkpoints (`*-g1v5d2/d3`) and the LUMPI Voxel R-CNN draws stay out of the release ([record](docs/decisions/2026-10-26-s7-final-revisions.md)).
+- **S7.4-S7.6** (generator-draw bags, bag swap, pooled budget; 2026-10-26/27): no version passed the upload gate. The entrant uploaded both `s7s` packages anyway: LUMPI 1014495, now the LUMPI entry, and V2X 1014682, equal to 1001919 (above). The V2X draw checkpoints (`*-g1v5d2/d3`) and the LUMPI Voxel R-CNN draws stay out of the release ([record](docs/decisions/2026-10-26-s7-final-revisions.md)).
 - **Code:**
   - `bdc26.boxes.count_points_per_box`;
   - `route_predictions.py sparse`, `fuse --pooled-rule` and `merge --frames`;
@@ -30,6 +35,7 @@ python common/tools/release_weights.py fetch --tag <tag> --version <track>:<subm
   - `common/tools/s7_check.py` (final check and projection), `route_predictions.py fuse --swap-to` and `budget --pooled`;
   - `prepare_g1.py --seed` (both tracks; the default reproduces the existing corpora); the V2X corpus card lists every real-derived generator input;
   - tests `common/tests/test_s7.py`.
+- **To collect** (the entrant's step; the tag is the entrant's choice): `python common/tools/release_weights.py collect --tag <tag> model-lumpi-track/routed-g10:s7s model-v2x-track/routed-g12:s7s model-v2x-track/routed-g9:s7`, so the release carries the LUMPI five new checkpoints and both S7.6 versions.
 - **Records:** [`2026-10-18-s7-visibility-rule.md`](docs/decisions/2026-10-18-s7-visibility-rule.md), [`2026-10-18-rules-external-datasets.md`](docs/decisions/2026-10-18-rules-external-datasets.md), [`2026-10-26-rules-compliance-audit.md`](docs/decisions/2026-10-26-rules-compliance-audit.md) (with the 2026-10-27 forum-FAQ addendum), [`2026-10-26-s7-final-revisions.md`](docs/decisions/2026-10-26-s7-final-revisions.md).
 
 ## 6.0 (pre-release, 2026-10-17)

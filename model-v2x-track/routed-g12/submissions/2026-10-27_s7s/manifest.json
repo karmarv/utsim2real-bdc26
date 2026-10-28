@@ -47,8 +47,24 @@
       "synthetic/"
     ]
   },
-  "codabench_submission_id": null,
-  "leaderboard": null,
+  "codabench_submission_id": "1014682",
+  "leaderboard": {
+    "score_combined": 0.898172,
+    "score_detection": 0.874796,
+    "score_realism": 0.933237,
+    "mAP_3d_0.5_R40": 0.612357,
+    "mAP_3d_0.5_R11": 0.616376,
+    "mAP_3d_0.7_R40": 0.16487,
+    "mAP_bev_0.5_R40": 0.666248,
+    "CD": 1.985873,
+    "MMD": 0.00063035,
+    "EMD": 1.182178,
+    "FPD": 1.467728,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.737224,
+    "AP_3d_0.5_R40_pedestrian": 0.428826,
+    "AP_3d_0.5_R40_truck": 0.671021
+  },
   "upload_file": {
     "name": "v2x_s7s_submission.zip",
     "md5": "73518975aed78ed70f78437bf62c715b"
@@ -57,6 +73,10 @@
     {
       "time": "2026-10-27 17:54",
       "action": "check_submission (team=None)"
+    },
+    {
+      "time": "2026-10-27 19:41",
+      "action": "uploaded by the entrant as 1014682: scores identical to 1001919 (combined 0.898172)"
     }
   ],
   "official_local_eval": {
@@ -76,5 +96,5 @@
     "time": "2026-10-27 17:56",
     "n_boxes": 24284
   },
-  "note": "S7.6 V2X package, made on the entrant's request so that both tracks carry an S7 version. routed-g12 equals the entry routed-g9 in every class configuration, member and realism frame; frames byte-identical to 1001919; predictions numerically equal (max difference 0.0, same 24,284 boxes) in a different in-frame order, which leaves validation AP identical to 8 decimals on A and B in every class; kit 153 s. Expected score: 1001919's 0.8982. Weights: the release-6.0 assets (same members)."
+  "note": "S7.6 V2X package, made on the entrant's request so that both tracks carry an S7 version. routed-g12 equals the entry routed-g9 in every class configuration, member and realism frame; frames byte-identical to 1001919; predictions numerically equal (max difference 0.0, same 24,284 boxes) in a different in-frame order, which leaves validation AP identical to 8 decimals on A and B in every class; kit 153 s. Expected score: 1001919's 0.8982; scored 1014682 0.898172, identical to 1001919 in every metric. Weights: the release-6.0 assets (same members)."
 }

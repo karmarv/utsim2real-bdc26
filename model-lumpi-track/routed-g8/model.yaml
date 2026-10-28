@@ -187,7 +187,7 @@ data:
   train: pcdet/g1-v2
   realval: pcdet/realval-v1
 realism_frames: pcdet/g1-v4
-status: S6 decision-ready (2026-10-16; upload gate passed through the Van judge, judged estimate 0.5860); not yet uploaded
+status: S6 decision-ready (2026-10-16; upload gate passed through the Van judge, judged estimate 0.5860); submitted 995869, combined 0.5228, the LUMPI entry until 1014495 (S7.6, routed-g10)
 notes: 'R3 Engine G2-lite (docs/02-STRATEGY.md Section 8.7.1): the confirmed S4 portfolio
   routed-g4 (route, fusion and score floors are the incumbents) plus the S5 members
   and the R3 g1-v4 members; every change, the S5 ones included, passes the class gate

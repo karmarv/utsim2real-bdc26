@@ -6,15 +6,15 @@
 
 | | |
 |---|---|
-| Selected model | [`routed-g9`](routed-g9) (S7 step 1, the entry): the S6 variant b portfolio with boxes that hold fewer points than the real labels' visibility cut ranked last (pedestrian k = 6, vehicle k = 5; Section 7.12); before: [`routed-g8b`](routed-g8b) (S6 variant b) |
+| Selected model | [`routed-g12`](routed-g12) (S7.6, the entry since 2026-10-27, F1), equal to [`routed-g9`](routed-g9) (S7 step 1) in every class configuration, member and realism frame: the S6 variant b portfolio with boxes that hold fewer points than the real labels' visibility cut ranked last (pedestrian k = 6, vehicle k = 5; Section 7.12); before: [`routed-g8b`](routed-g8b) (S6 variant b) |
 | Real validation (official metric, tuned) | **realval-A mAP 0.734**, realval-B 0.721 (S7); S6b 0.727 / 0.712; R5 0.714 / 0.710; R3 0.701 / 0.703; S5 0.694 / 0.699; S1 0.572 / 0.520 |
 | Local combined estimate | 0.992 (B, unclipped) for S7; leaderboard 0.8982 (Section 9); ECCV winner 0.746 |
-| CodaBench (current entry) | **1001919: combined 0.8982** (mAP 0.6124, R 0.9332), S7 step 1 ([`routed-g9`](routed-g9)), rank 1 of 23 on 2026-10-19 (Section 9) |
-| CodaBench (previous) | 995877: 0.8931 (S6 variant b); 990255: 0.8852 (R5); 986496: 0.8789 (R3); 978945: 0.8730 (S5); 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
-| Submitted zip | current entry: [`routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (its members are the release-6.0 weights, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); S6b: [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0); R5: [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
+| CodaBench (current entry) | **1014682: combined 0.8982** (0.898172; mAP 0.6124, R 0.9332), S7.6 ([`routed-g12`](routed-g12)), identical in every metric to **1001919** (S7 step 1, [`routed-g9`](routed-g9)), which stays the listed row: rank 1 of 24 on 2026-10-27 (Section 9) |
+| CodaBench (previous) | 1001919: 0.8982 (S7 step 1, identical to the entry, the listed row); 995877: 0.8931 (S6 variant b); 990255: 0.8852 (R5); 986496: 0.8789 (R3); 978945: 0.8730 (S5); 975938: 0.8485 (S4); 974400: 0.8381 (S3); 972563: 0.7855 (S1+C1); 965633: 0.7665 (S1) |
+| Submitted zip | current entry and F1: [`routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed7`); S7 step 1, equal: [`routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (both use the release-6.0 weights, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); S6b: [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0); R5: [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
 | Realism of the submitted frames | **R = 0.933 on the server** (R5 frames from `g1-v5`: background density prior, 31% nulls; 0.937 on held-out legal proxies); R3 frames 0.927 (`g1-v4`); S1-S5 0.920 (`g1-v3`) |
 | Submit | Section 6.7 |
-| Strategy | S1, S1+C1, S3, S4, S5, R3, R5, S6 (variant b) and **S7 step 1 submitted**; **S7 step 1 is the entry** (Section 7.12: pedestrian +0.015 on the leaderboard); S7 step 2 (visibility-matched training labels) running; S2 done without a new V2X version (Section 7.5); next: root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#811-s7-visibility-rule-v2x-2026-10-18) Section 8.11 |
+| Strategy | S1, S1+C1, S3, S4, S5, R3, R5, S6 (variant b), S7 step 1 and **S7.6 submitted**; **S7 is the entry**: step 1 brought pedestrian +0.015 on the leaderboard (Section 7.12), and S7.6 (1014682) rebuilt it with no class changed; S7 step 2 (visibility-matched training labels) and S7.4 stayed below the upload gate; S2 done without a new V2X version (Section 7.5); next: the final phase, root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
@@ -58,7 +58,7 @@ Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-trac
 | [`routed-g10`](routed-g10) | `routed-g9` + the two S7 bags | S7 step 2 portfolio | not uploaded: A 0.738 / B 0.722, projection +0.0014 (below +0.003) |
 | [`voxelrcnn-ros-g1v5d2`](voxelrcnn-ros-g1v5d2), [`-d3`](voxelrcnn-ros-g1v5d3), [`pvrcnnpp-ros-g1v5d2`](pvrcnnpp-ros-g1v5d2), [`-d3`](pvrcnnpp-ros-g1v5d3) | `pcdet/g1-v5d2`, `g1-v5d3` (fresh `g1-v5` generator draws, seeds 2234 / 3234); training seeds 4666 / 5666 | S7.4 draw members | done: inside the seeds' spread (TTA A 0.669-0.682) |
 | [`bag-voxelrcnn-ros-g1v5x`](bag-voxelrcnn-ros-g1v5x), [`bag-pvrcnnpp-ros-g1v5x`](bag-pvrcnnpp-ros-g1v5x) | the three seeds + both draws (5 each) | S7.4 extended bags | done: TTA +0.0017 / +0.0030 and +0.0037 / +0.0031 over the 3-seed bags |
-| [`routed-g11`](routed-g11), [`routed-g12`](routed-g12) | `routed-g9` + the draw runs and extended bags; `routed-g12` = the S7.6 bag swap and pooled budget | S7.4 and S7.6 portfolios | equal to the entry (no class passed; [record](../docs/decisions/2026-10-26-s7-final-revisions.md)); `routed-g12` packaged as [`v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) on the entrant's request: frames byte-identical to 1001919, predictions equal, kit 153 s; expected 0.8982 |
+| [`routed-g11`](routed-g11), [`routed-g12`](routed-g12) | `routed-g9` + the draw runs and extended bags; `routed-g12` = the S7.6 bag swap and pooled budget | S7.4 and S7.6 portfolios | equal to the entry (no class passed; [record](../docs/decisions/2026-10-26-s7-final-revisions.md)); `routed-g12` packaged as [`v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) on the entrant's request: frames byte-identical to 1001919, predictions equal, kit 153 s; **submitted (1014682, 0.8982, identical to 1001919); the entry and F1** |
 
 ## 2. Modeling approaches considered
 
@@ -333,7 +333,8 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | `routed-g9` | **0.734 / 0.721** (S6b 0.727 / 0.712); unmatched confident pedestrian boxes on B 8.0 -> 5.1 per frame; recall unchanged; projection +0.0040: upload gate passed |
 | Leaderboard (2026-10-19) | **1001919: 0.8982** (mAP 0.6124): pedestrian 0.413 -> **0.429** (0.85 x A, 0.66 x B), vehicle 0.735 -> 0.737, truck and realism identical; rank 1 of 23 |
 | Step 2 | done (2026-10-19): `routed-g10` A 0.7377 / B 0.7223, projection +0.0014: not uploaded |
-| S7.4 and S7.6 (2026-10-26/27) | generator-draw bags, bag swap, pooled budget: no class passed against the entry; the entry stays the submission-ready version ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
+| S7.4 and S7.6 (2026-10-26/27) | generator-draw bags, bag swap, pooled budget: no class passed against the entry ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
+| S7.6 upload (2026-10-27) | `routed-g12` / `s7s` uploaded by the entrant so that both tracks carry an S7.6 version: **1014682: 0.898172**, identical to 1001919 in every metric |
 
 ## 8. Experiment log and next experiments
 
@@ -356,7 +357,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | E16 | Seed bags | done (S6): every bag at or above its best seed, none above the R5 fusions on B; `routed-g8` equals R5 (Section 7.11) |
 | E17 | Sparse-box demotion at the real labels' visibility cut (S7 step 1) | done: pedestrian +0.018 (A) / +0.023 (B), vehicle +0.002 / +0.003; leaderboard 1001919 **0.8982** (pedestrian +0.015), the entry (Section 7.12) |
 | E18 | Training labels with the same visibility rule (S7 step 2, corpus `g1-v5m`) | done: projection +0.0014, not uploaded (Section 7.12) |
-| E19 | Generator-draw bags, bag swap and pooled budget (S7.4, S7.6) | done: bags +0.002 to +0.004 alone, nothing passed inside the portfolio; truck swap +0.002 on both splits, pooled P 0.70 ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
+| E19 | Generator-draw bags, bag swap and pooled budget (S7.4, S7.6) | done: bags +0.002 to +0.004 alone, nothing passed inside the portfolio; truck swap +0.002 on both splits, pooled P 0.70; the unchanged S7.6 package scored 1014682, identical to 1001919 ([record](../docs/decisions/2026-10-26-s7-final-revisions.md)) |
 
 ## 9. Submission log
 
@@ -372,12 +373,13 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | 2026-10-15 | `routed-g7` / `r5` (strategy R5), uploaded unchanged as `v2x_r5_submission.zip` | 990255 | 0.714 / 0.710 | 0.937 | **0.5972** | **0.9332** | **0.8852** | strategy R5; **rank 1 of 20** (next 0.6616); confirmed (+0.0063: pedestrian +0.011, vehicle +0.002, realism +0.0065); kit scorer 132 s, 24,759 boxes; server record [`codabench_990255.json`](routed-g7/submissions/2026-10-14_r5/codabench_990255.json); [decision record](../docs/decisions/2026-10-14-r5-realism-led.md) |
 | 2026-10-17 | `routed-g8b` / `s6b` (S6 variant b), uploaded unchanged as `v2x_s6b_submission.zip` | 995877 | 0.727 / 0.712 | 0.937 | **0.6065** | **0.9332** | **0.8931** | S6 variant b (not through the upload gate; a complete-system comparison at the entrant's request); **rank 1 of 23** (next 0.7555); confirmed (+0.0079: vehicle +0.014, truck +0.014, pedestrian and realism identical); kit scorer 137 s, 24,284 boxes; server record [`codabench_995877.json`](routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json) |
 | 2026-10-19 | `routed-g9` / `s7` (S7 step 1), uploaded unchanged as `v2x_s7_submission.zip` | 1001919 | 0.734 / 0.721 | 0.937 | **0.6124** | **0.9332** | **0.8982** | S7 step 1 (upload gate passed: projection +0.0040); **rank 1 of 23** (next 0.7555); confirmed (+0.0051: pedestrian +0.0154, vehicle +0.0023, truck and realism identical); kit scorer 141 s, 24,284 boxes; server record [`codabench_1001919.json`](routed-g9/submissions/2026-10-18_s7/codabench_1001919.json) |
+| 2026-10-27 | `routed-g12` / `s7s` (S7.6), uploaded unchanged as `v2x_s7s_submission.zip` | 1014682 | 0.734 / 0.721 | 0.937 | **0.6124** | **0.9332** | **0.8982** | S7.6 (no class changed; the entrant's upload so that both tracks carry S7.6); **identical to 1001919 in every metric** (0.898172); the leaderboard keeps listing 1001919 (rank 1 of 24, next 0.7937); kit scorer 153 s, 24,284 boxes; server record [`codabench_1014682.json`](routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | vehicle | pedestrian | truck | BEV mAP@0.5 |
 |---|---|---|---|---|---|
-| **1001919 leaderboard (S7 step 1)** | **0.6124** | **0.737** | **0.429** | **0.671** | 0.6662 |
+| **1014682 leaderboard (S7.6) = 1001919 (S7 step 1)** | **0.6124** | **0.737** | **0.429** | **0.671** | 0.6662 |
 | S7 realval-A / realval-B | 0.734 / 0.721 | 0.868 / 0.872 | 0.399 / 0.441 | 0.936 / 0.848 | |
 | 995877 leaderboard (S6 variant b) | 0.6065 | 0.735 | 0.413 | 0.671 | 0.6583 |
 | S6b realval-A / realval-B | 0.727 / 0.712 | 0.865 / 0.869 | 0.381 / 0.418 | 0.936 / 0.848 | |
@@ -409,7 +411,11 @@ Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (lo
 
 ### 9.2 Artifacts
 
-S6 variant b (995877, the entry): model [`routed-g8b`](routed-g8b) ([`model.yaml`](routed-g8b/model.yaml)); the upload copy [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (md5 `00a80bb32c5019b6d9913555efebc6b6`, in its [`manifest.json`](routed-g8b/submissions/2026-10-16_s6b/manifest.json)); server record [`codabench_995877.json`](routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json); the 10 checkpoints (two bags of three seeds and four single members) as assets of release 6.0 ([`releases/6.0/weights.json`](../releases/6.0/weights.json); `python common/tools/release_weights.py fetch --tag 6.0 --version v2x:s6b`); reproduction from the weights: [`routed-g8b/test/reproduce_s6b.sh`](routed-g8b/test/reproduce_s6b.sh) (test frames) and [`reproduce_s6b_validation.sh`](routed-g8b/test/reproduce_s6b_validation.sh) (realval-A/B).
+S7.6 (1014682, the entry and F1): model [`routed-g12`](routed-g12) ([`model.yaml`](routed-g12/model.yaml)); the upload copy [`v2x_s7s_submission.zip`](routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed78ed70f78437bf62c715b`, in its [`manifest.json`](routed-g12/submissions/2026-10-27_s7s/manifest.json)); server record [`codabench_1014682.json`](routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json); the 10 checkpoints of `v2x:s6b`, assets of release 6.0 ([`releases/6.0/weights.json`](../releases/6.0/weights.json)); reproduction from the weights: [`routed-g12/test/reproduce_s7s.sh`](routed-g12/test/reproduce_s7s.sh) (test frames) and [`reproduce_s7s_validation.sh`](routed-g12/test/reproduce_s7s_validation.sh) (realval-A/B).
+
+S7 step 1 (1001919, identical scores; the listed leaderboard row): model [`routed-g9`](routed-g9); the upload copy [`v2x_s7_submission.zip`](routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (md5 `c1483d590242d4fe6b4eefff96c1619c`); server record [`codabench_1001919.json`](routed-g9/submissions/2026-10-18_s7/codabench_1001919.json); reproduction: [`routed-g9/test/reproduce_s7.sh`](routed-g9/test/reproduce_s7.sh).
+
+S6 variant b (995877, the entry until 1001919): model [`routed-g8b`](routed-g8b) ([`model.yaml`](routed-g8b/model.yaml)); the upload copy [`v2x_s6b_submission.zip`](routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (md5 `00a80bb32c5019b6d9913555efebc6b6`, in its [`manifest.json`](routed-g8b/submissions/2026-10-16_s6b/manifest.json)); server record [`codabench_995877.json`](routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json); the 10 checkpoints (two bags of three seeds and four single members) as assets of release 6.0 ([`releases/6.0/weights.json`](../releases/6.0/weights.json); `python common/tools/release_weights.py fetch --tag 6.0 --version v2x:s6b`); reproduction from the weights: [`routed-g8b/test/reproduce_s6b.sh`](routed-g8b/test/reproduce_s6b.sh) (test frames) and [`reproduce_s6b_validation.sh`](routed-g8b/test/reproduce_s6b_validation.sh) (realval-A/B).
 
 990255 (R5): model [`routed-g7`](routed-g7) ([`model.yaml`](routed-g7/model.yaml)); the upload copy [`v2x_r5_submission.zip`](routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (md5 `0d339f79a21059a8c97211d4d7c15533`, in its [`manifest.json`](routed-g7/submissions/2026-10-14_r5/manifest.json)); server record [`codabench_990255.json`](routed-g7/submissions/2026-10-14_r5/codabench_990255.json); realism frames from `pcdet/g1-v5` ([`synthetic_ids.txt`](routed-g7/submissions/2026-10-14_r5/synthetic_ids.txt)).
 

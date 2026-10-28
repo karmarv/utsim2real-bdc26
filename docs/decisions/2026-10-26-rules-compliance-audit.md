@@ -125,7 +125,7 @@
 3. **Contingency** (not started; the entrant's decision once the ruling arrives). The final phase opens Nov 1, so a negative reply after about Nov 5 leaves little room.
    - **C1, if the statistics must come from the train split.** Rebuild the V2X priors from train-split frames only (walker rows, density prior, beam table, truck sizes) and the LUMPI sizes from realval-A. Regenerate the corpora with the same recipes and seeds, then retrain the core members. Cost: about 1-2 days of 8 GPUs.
    - **C2, if label-derived placement is not allowed.** Place walkers from a non-label source (UT's own actors, or public map data for sidewalks and crossings) with sizes from published anthropometrics. Expected loss on pedestrian and Person: unknown; a one-member probe per track (about 8 h) measures it.
-4. **The S7.4-S7.6 versions** use the same corpus recipes (only the generator seed differs), so they share the entries' status.
+4. **The S7.4-S7.6 versions** use the same corpus recipes (only the generator seed differs), so they share the entries' status. This now covers the entries themselves: the entrant uploaded both S7.6 packages on 2026-10-27 (LUMPI 1014495, V2X 1014682, identical to 1001919), and they are F1.
 
 ## Appendix A. Email to the organizers (draft, revised 2026-10-27 after the forum FAQ; the entrant sends it)
 
