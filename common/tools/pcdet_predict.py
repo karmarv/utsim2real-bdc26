@@ -10,7 +10,10 @@
 Post-processing: <model>/test/postprocess.yaml (override with --postprocess; use --raw to skip it).
 Test-time augmentation (strategy S3): --tta flip4[+yaw][+z] runs every frame in all views as one batch, maps the
 boxes back (bdc26.detect.tta) and fuses them class by class (bdc26.detect.fusion.wbf) before post-processing; the
-fused output keeps the raw format, so tune_postprocess.py tunes the TTA variant like any member.
+fused output keeps the raw format, so tune_postprocess.py tunes the TTA variant like any member. Views run in chunks of
+at most 8 (the two-stage members' voxel-query kernel fails on larger batches; S8 12-view set flip4+yaw+z+scale).
+--from-raw RAW.json applies the post-processing to raw predictions written earlier on the same frames (--raw, same
+views) instead of running the model again; the boxes are the same, so the output is too.
 Two-stage members (strategy S4): --score-blend A overrides the final-score blend stage1^A x stage2^(1-A) of the config
 (bdc26.detect.pcdet_patches), for choosing A on real validation.
 """
@@ -47,12 +50,15 @@ def main():
     ap.add_argument("--raw", action="store_true", help="skip bdc26 post-processing (write OpenPCDet outputs)")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--stride", type=int, default=1, help="keep every k-th frame of the split (learning curves on a fixed subset)")
-    ap.add_argument("--tta", default=None, help="views: flip4, flip4+yaw, flip4+yaw+z (bdc26.detect.tta.parse)")
+    ap.add_argument("--tta", default=None, help="views: flip4, flip4+yaw, flip4+yaw+z, flip4+yaw+z+scale (bdc26.detect.tta.parse)")
     ap.add_argument("--tta-iou", default=None, help="per-class view-fusion IoU, e.g. pedestrian=0.3,vehicle=0.5 (default: 0.3 small classes, 0.5 others)")
+    ap.add_argument("--from-raw", default=None, help="post-process these raw predictions (--raw output) instead of running the model")
     ap.add_argument("--score-blend", type=float, default=None,
                     help="two-stage members: override ROI_HEAD.SCORE_BLEND_ALPHA (final score = stage1^a x stage2^(1-a))")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
+    if a.from_raw:
+        return from_raw(a, model_dir, track)
     cfg = load_pcdet_cfg(model_dir, data_path(track, card["data"]["train"]))
     if a.score_blend is not None:
         if "ROI_HEAD" not in cfg.MODEL:
@@ -106,9 +112,12 @@ def main():
                 scores = out[0]["pred_scores"].cpu().numpy().astype(np.float64)
                 labels = [cfg.CLASS_NAMES[int(i) - 1] for i in out[0]["pred_labels"].cpu().numpy()]
             else:
-                batch = ds.collate_batch([ds.prepare_data({"points": tta.forward_points(p, v), "frame_id": fid}) for v in views])
-                load_data_to_gpu(batch)
-                out, _ = model.forward(batch)
+                out = []
+                for k0 in range(0, len(views), 8):
+                    batch = ds.collate_batch([ds.prepare_data({"points": tta.forward_points(p, v), "frame_id": fid})
+                                              for v in views[k0:k0 + 8]])
+                    load_data_to_gpu(batch)
+                    out += model.forward(batch)[0]
                 rows = {}
                 for j, v in enumerate(views):
                     vb = tta.inverse_boxes(out[j]["pred_boxes"].cpu().numpy().astype(np.float64), v)
@@ -130,6 +139,29 @@ def main():
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(preds))
     print(f"{len(preds)} frames, {sum(len(v) for v in preds.values())} boxes -> {out_path}")
+
+
+def from_raw(a, model_dir, track):
+    """--from-raw: the post-processing of the main loop, on raw predictions read back (JSON floats are exact)."""
+    from bdc26.detect.postprocess import postprocess
+    from bdc26.frames import strip_nulls
+
+    raw = json.loads(Path(a.from_raw).read_text())
+    pp_cfg = yaml.safe_load(Path(a.postprocess or model_dir / "test" / "postprocess.yaml").read_text())
+    preds = {}
+    for fid, pts in frames_iter(track, a.frames, a.split):
+        if fid not in raw:
+            continue
+        r = raw[fid]
+        boxes = np.array([d["box"] for d in r], dtype=np.float64).reshape(-1, 7)
+        scores = np.array([d["score"] for d in r], dtype=np.float64)
+        preds[fid] = postprocess(boxes, scores, [d["class"] for d in r], pp_cfg, points=strip_nulls(pts)[:, :3])
+    if len(preds) != len(raw):
+        raise SystemExit(f"{a.from_raw}: {len(raw) - len(preds)} frames not in {a.frames} {a.split}")
+    out_path = Path(a.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(preds))
+    print(f"{len(preds)} frames, {sum(len(v) for v in preds.values())} boxes -> {out_path} (from {a.from_raw})")
 
 
 if __name__ == "__main__":

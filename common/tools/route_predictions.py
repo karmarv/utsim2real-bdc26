@@ -32,6 +32,8 @@ come from the member that is best for it on real validation.
     # the budget's floor loss also bounded on the pooled A+B frames
     python common/tools/route_predictions.py fuse model-v2x-track/routed-g12 --pooled-rule --swap-to bagvr5x bagpv5x
     python common/tools/route_predictions.py budget model-v2x-track/routed-g12 --pooled
+    # S8.2: members missing from route_table.json enter it with their uncalibrated joint AP (so fuse can rank them)
+    python common/tools/route_predictions.py extend model-lumpi-track/routed-g11c
     # S7 sparse-box demotion (V2X): per class the threshold k (fewer points -> ranked last) with the best realval-A AP,
     # kept by the pooled rule and a k - 1 robustness check; writes model.yaml `sparse_demotion`, then validates
     python common/tools/route_predictions.py sparse model-v2x-track/routed-g9
@@ -168,6 +170,32 @@ def select_joint(model_dir: Path, card: dict, track, n_boot: int, seed: int, cal
     scored = list(track["classes_with_test_gt"])
     est = {s_: sum(((A if s_ == "A" else B)[c][route[c]] or 0.0) for c in scored) / len(scored) for s_ in ("A", "B")}
     return route, table, est, calib
+
+
+def extend_table(model_dir: Path, card: dict, track) -> list:
+    """S8.2: members of model.yaml missing from route_table.json enter it as `select --rule joint` would rank them without
+    calibration (A, B, joint = mean of A and B, or A without B GT; calibration None), so `fuse` can rank them; the
+    existing rows and the route are not touched. Returns the added members."""
+    path = model_dir / "validation" / "results" / "route_table.json"
+    table = json.loads(path.read_text())
+    root = data_path(track, card["data"]["realval"])
+    gts = {s_: sc.load_split(root, s_) for s_ in ("val", "valB")}
+    classes = [c for c in track.classes if c in table]
+    added = []
+    for n, m in card["members"].items():
+        if all(n in table[c]["members"] for c in classes):
+            continue
+        fl = {s_: sc.flags_for(validation_predictions(model_dir.parent / m["model"], card, s_, tag=member_tag(m)), gts[s_],
+                               list(track.classes)) for s_ in gts}
+        for c in classes:
+            a_, b_ = sc.ap_from_flags(fl["val"][c], "3d@0.5"), sc.ap_from_flags(fl["valB"][c], "3d@0.5")
+            if n in table[c]["members"] or a_ is None:
+                continue
+            table[c]["members"][n] = {"A": a_, "B": b_, "joint": (a_ + b_) / 2 if b_ is not None else a_, "calibration": None}
+        added.append(n)
+        print(n, {c: round(table[c]["members"][n]["joint"], 4) for c in classes if n in table[c]["members"]}, flush=True)
+    path.write_text(json.dumps(table, indent=2))
+    return added
 
 
 def calibrate(model_dir: Path, card: dict, track, classes, n_boot: int, seed: int, pooled: bool = False) -> None:
@@ -361,7 +389,9 @@ def apply_tail_copies(preds: dict, spec: dict | None) -> dict:
     matches in score order inside a frame and pools all frames by score, so the originals keep their matches and
     their place on the precision-recall curve; a copy can only match a GT box that no original matched at IoU 0.5.
     Adding boxes below all existing scores cannot lower an interpolated AP (R40 takes the maximum precision at
-    recall >= r), so the knob can only help the class on any frame set; it is still gated like any other."""
+    recall >= r), so the knob can only help the class on any frame set; it is still gated like any other.
+    S8: `min_score: t` copies only the boxes scored >= t (f still from all boxes of the class, so the copies stay below
+    every original); a constant frozen on realval-A, which halves the added boxes at the same local gain."""
     if not spec:
         return preds
     out = {f: list(v) for f, v in preds.items()}
@@ -370,11 +400,11 @@ def apply_tail_copies(preds: dict, spec: dict | None) -> dict:
         if not s or max(s) <= 0:
             continue
         f = 0.99 * min(s) / max(s)
-        r, n = float(sp["r"]), int(sp.get("n", 4))
+        r, n, t = float(sp["r"]), int(sp.get("n", 4)), float(sp.get("min_score", -np.inf))
         offs = [(r * np.cos(2 * np.pi * k / n), r * np.sin(2 * np.pi * k / n)) for k in range(n)]
         for fid, v in preds.items():
             for d in v:
-                if d["class"] != c:
+                if d["class"] != c or d["score"] < t:
                     continue
                 for dx, dy in offs:
                     b = list(d["box"])
@@ -544,10 +574,25 @@ def swap_candidates(model_dir: Path, card: dict, prior: dict, classes, bags) -> 
     return out
 
 
+def variant_candidates(card: dict, prior: dict, classes, tag: str) -> dict:
+    """S8 view-set swap (docs/decisions/2026-10-29-s8-last-day-strategy.md): per class, the incumbent fusion with every
+    TTA member that has a sibling of the same checkpoint with `tta_tag: tag` replaced by that sibling; one candidate per
+    class, the incumbent's IoU. Classes without such a member get none. Returns {class: member tuple}."""
+    sib = {(m["model"], m["ckpt"]): k for k, m in card["members"].items() if m.get("tta") and m.get("tta_tag") == tag}
+    sw = {k: sib[(m["model"], m["ckpt"])] for k, m in card["members"].items()
+          if m.get("tta") and not m.get("tta_tag") and (m["model"], m["ckpt"]) in sib}
+    out = {}
+    for c in classes:
+        pz = prior.get(c)
+        if pz and any(n in sw for n in pz["members"]):
+            out[c] = tuple(sw.get(n, n) for n in pz["members"])
+    return out
+
+
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
                 top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False,
                 late_rank=(), gate_top: int = 1, judge=(), judge_top: int = 6, pooled_rule: bool = False,
-                swap_to=()) -> dict:
+                swap_to=(), swap_variant=None) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
     (joint realval-A/B AP after their gated z calibration, from route_table.json of `select --calibrated`) with equal
     weights at each IoU of iou_grid; the best joint candidate replaces the routed member only through the class gate
@@ -569,7 +614,8 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     pooled_rule (from 6.0 on, docs/decisions/README.md Section 3.2): the best candidate is kept when the pooled A+B gain
     has P(gain) >= 0.9 and neither split drops by more than 0.005; the +0.01-on-B requirement is dropped.
     swap_to (S7.6): no search; the only candidate of a class is its incumbent fusion with the extended bags swapped in
-    (swap_candidates), ranked and gated against the incumbent as above; the other classes keep their fusion."""
+    (swap_candidates), ranked and gated against the incumbent as above; the other classes keep their fusion.
+    swap_variant (S8): the same with the incumbent's TTA members replaced by their `tta_tag` siblings (variant_candidates)."""
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -592,7 +638,8 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         return zcalib.apply(pc, {c: cal}) if cal else pc
 
     prior = card.get("fusion") or {}                    # the incumbent fusion of each class, if any
-    swaps = swap_candidates(model_dir, card, prior, classes, swap_to) if swap_to else None
+    swaps = (swap_candidates(model_dir, card, prior, classes, swap_to) if swap_to else
+             variant_candidates(card, prior, classes, swap_variant) if swap_variant else None)
     if swaps is not None:
         classes = list(swaps)
         print("  swap candidates: " + (", ".join(f"{c} {'+'.join(m)}@{prior[c]['iou']}" for c, m in swaps.items()) or "none"), flush=True)
@@ -695,7 +742,7 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         report[c]["a_only_pick"] = {"members": list(a_best[1]), "iou": a_best[2], "A": cand[a_best]["val"], "B": cand[a_best]["valB"]}
         if ok:
             fusion[c] = {"members": list(pair), "weights": [1.0] * len(pair), "iou": thr,
-                         "calibration": {n: mem[n]["calibration"] for n in pair if mem[n]["calibration"]}}
+                         "calibration": {n: mem[n]["calibration"] for n in pair if (mem.get(n) or {}).get("calibration")}}
         elif pz:
             fusion[c] = pz
         print(c, json.dumps({k: v for k, v in report[c].items() if k != "search_fast_iou"}), flush=True)
@@ -849,7 +896,7 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "tail", "gate", "sparse"])
+    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "tail", "gate", "sparse", "extend"])
     ap.add_argument("model_dir")
     ap.add_argument("--pred", action="append", default=[], help="member=predictions.json (merge)")
     ap.add_argument("--out", default=None)
@@ -870,6 +917,8 @@ def main():
                                                           "budget (S7.6): the floor's AP loss is also bounded on the pooled frames")
     ap.add_argument("--swap-to", nargs="*", default=[], help="fuse (S7.6): extended bags (plain member keys) swapped into each "
                                                              "incumbent fusion in place of their seeds or 3-seed bag; no search")
+    ap.add_argument("--swap-variant", default=None, help="fuse (S8): the incumbent fusions with their TTA members swapped "
+                    "for the siblings with this tta_tag (e.g. tta12), one candidate per class")
     ap.add_argument("--pooled-rule", action="store_true", help="fuse: the 6.0 pooled rule (pooled A+B P(gain) >= 0.9, neither split "
                                                                  "down by more than 0.005, no +0.01 on B; docs/decisions/README.md 3.2)")
     ap.add_argument("--frames", default="kit", help="merge: frames whose points the S7 sparse stage counts ('kit' or a dataset)")
@@ -916,6 +965,9 @@ def main():
     if a.mode == "validate":
         validate(model_dir, card, track)
         return
+    if a.mode == "extend":
+        extend_table(model_dir, card, track)
+        return
     if a.mode == "budget":
         budget_select(model_dir, card, track, pooled=a.pooled)
         _, card, _ = model_info(model_dir)
@@ -937,7 +989,8 @@ def main():
         return
     if a.mode == "fuse":
         fuse_select(model_dir, card, track, a.bootstrap, a.seed, a.classes, max_members=a.max_members, pooled=a.pooled,
-                    late_rank=a.late_rank, gate_top=a.gate_top, judge=a.judge, pooled_rule=a.pooled_rule, swap_to=a.swap_to)
+                    late_rank=a.late_rank, gate_top=a.gate_top, judge=a.judge, pooled_rule=a.pooled_rule, swap_to=a.swap_to,
+                    swap_variant=a.swap_variant)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion")
         return

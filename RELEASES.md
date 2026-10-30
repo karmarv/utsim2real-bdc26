@@ -43,9 +43,50 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 5.1 | 2026-10-13 | R3 | 986489: 0.5169 | 986496: 0.8789 | no | `routed-g6/test/reproduce_r3.sh` |
 | 5.2 | 2026-10-15 | R5 | 990245: 0.5198 | 990255: 0.8852 | no | `routed-g7/test/reproduce_r5.sh` |
 | 6.0 | 2026-10-17 | S6 | 995869: 0.5228 (0.522754) | 995877: 0.8931 | **yes**: 21 checkpoints + 2 zips ([`releases/6.0/weights.json`](releases/6.0/weights.json)), published 2026-10-18 ([`github.json`](releases/6.0/github.json)) | `routed-g8/test/reproduce_s6.sh` (LUMPI), `routed-g8b/test/reproduce_s6b.sh` (V2X) |
-| **7.0** | 2026-10-27 | **S7** (the entries, F1) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)), published 2026-10-28 ([`github.json`](releases/7.0/github.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
+| 7.0 | 2026-10-27 | S7 (the entries until S8; the F1 fallback) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)), published 2026-10-28 ([`github.json`](releases/7.0/github.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
+| **8.0** | 2026-10-30 | **S8** (the entries, F1) | **1022250: 0.5239** (0.523901, S8 U2) | **1022246: 0.9022** (0.902153, S8 V2X U2) | **yes**: 25 checkpoints + 2 zips ([`releases/8.0/weights.json`](releases/8.0/weights.json)), every checkpoint byte-identical to its 7.0 asset | `routed-g11b/test/reproduce_s8b.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 
 The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0 and 7.0 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+
+## 8.0 (pre-release, 2026-10-30)
+
+**Leaderboard** (development phase, its last day; public leaderboards checked 2026-10-30, 20:09 UTC): S8 on both tracks, rank 1 on both. These two zips are F1 for the final phase, unless an S8.2 version (8.1) scores higher before the phase closes.
+
+| Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | S8 U2 | 1022250 | 2026-10-30 19:57 | **0.5239** (0.523901) | 0.1762 | 0.9323 | **1 of 22** (next 0.5118) | [`lumpi_s8b_submission.zip`](model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/lumpi_s8b_submission.zip) (`c85189b48795db4647119189f7a5a2d3`) | [s8 last day](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
+| 2 V2X-Real (16685) | S8 V2X U2 | 1022246 | 2026-10-30 19:52 | **0.9022** (0.902153) | 0.6170 | 0.9332 | **1 of 25** (next 0.8112) | [`v2x_s8v_submission.zip`](model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip) (`b9c82e3de0c37babf146549eeedabbf6`) | same |
+
+Server records: [`codabench_1022250.json`](model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/codabench_1022250.json), [`codabench_1022246.json`](model-v2x-track/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json) (scores from the scoring output, ranks and times from the public API).
+- **LUMPI against S7.6 (1014495): +0.00106.** Person 0.1802 -> 0.1865 (+0.0063), Truck 0.0632 -> 0.0653 (+0.0021), Motorcycle +0.0003. Car, Bicycle, Bus, Van and the realism are identical.
+- **V2X against S7.6 (1014682): +0.00398.** Pedestrian 0.4288 -> 0.4428 (+0.0139); vehicle, truck and the realism are identical.
+- Both projections had the right sign: LUMPI +0.0011 projected, +0.00106 scored; V2X +0.0015 projected, +0.0040 scored. `s8a` (LUMPI U1, the completion alone) was built and not uploaded; `s8b` contains it.
+
+**Release assets: everything needed to replicate the two versions.** The two submission zips and the 25 checkpoints they use (4.44 GB; LUMPI 15, V2X 10), named and mapped as in 7.0 in [`releases/8.0/weights.json`](releases/8.0/weights.json). **All 25 checkpoints are byte-identical to 7.0 assets** (same md5): S8 changes only test-time views (`flip4+yaw+z+scale`), post-processing (`test/postprocess_tta12.yaml` of the 12-view members) and the merge (floors, copies, fusions), all in git. From a fresh clone at this tag:
+```bash
+python common/tools/release_weights.py fetch --tag 8.0 --version lumpi:s8b                 # or v2x:s8v; md5-verified, placed under train/output/
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g11b/test/reproduce_s8b.sh             # test frames: predictions and frames against the scored zip
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g13/test/reproduce_s8v.sh                # V2X entry
+```
+Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): both test-frame scripts reproduce their scored zips **IDENTICAL** from these weights. Predictions match with maximum difference 0.0 and 0 frames differing, and all 50 realism frames are byte-identical. The kit scorer is valid: LUMPI `s8b` 329 s and 32,038 boxes, V2X `s8v` 131 s and 21,354 boxes. The first attempts ran next to the S8.2 GPU jobs and came back EQUIVALENT: LUMPI differed in 9 Car boxes, from one seed of the 6-seed PV-RCNN++ bag, and V2X in all 50 frames. As in 6.0 and 7.0, bit-identity needs an idle GPU. The validation scripts (`reproduce_s8b_validation.sh`, `reproduce_s8v_validation.sh`) were not dry-run for 8.0: they repeat every member's inference on realval-A and B, several GPU-hours that S8.2 used on the last day. Their checkpoints are the ones 7.0's validation dry-run checked (EQUIVALENT), and the 12-view members' validation files are in the tree.
+
+**Publishing (the entrant).** Steps 5-8 of "Making a release": push `main` and the tag, `release_weights.py publish --tag 8.0`, the fresh-clone fetch, then `releases/8.0/github.json`.
+
+**What 8.0 contains**
+- Strategy S8 ([record](docs/decisions/2026-10-29-s8-last-day-strategy.md), [`docs/02-STRATEGY.md` Section 8.13](docs/02-STRATEGY.md#813-s8-last-day-tta-and-completion-2026-10-30)):
+  - the 12-view view set (`bdc26.detect.tta`, part `scale`);
+  - views in chunks of 8 and `--from-raw` in `pcdet_predict.py`;
+  - a second TTA variant per member: `tune_and_eval.sh --tta-tag tta12 --reuse-raw` and `member_tag` `tta_tag`;
+  - tail copies with `min_score`, and `fuse --swap-variant`;
+  - `common/pipeline/s8_portfolio.sh`;
+  - LUMPI `routed-g11` (U1, `s8a`, not uploaded) and `routed-g11b` (U2, `s8b`, 1022250), V2X `routed-g13` (`s8v`, 1022246);
+  - the kit-time fallback that moved the Person copies to boxes scored >= 0.274.
+- S8.2 (record Section 9): the pre-registered rules and their tooling are in 8.0:
+  - `bag_predictions.py --tags/--variant tta12`;
+  - `route_predictions.py extend`;
+  - the `u3` and `v2x2` stages.
+
+  Its runs (the 12-view seed bags) and versions (`routed-g11c`, `routed-g14`) are not, and go to 8.1.
 
 ## 7.0 (pre-release, 2026-10-27)
 

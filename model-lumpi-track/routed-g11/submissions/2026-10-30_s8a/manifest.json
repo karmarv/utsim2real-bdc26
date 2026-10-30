@@ -1,0 +1,94 @@
+{
+  "model": "routed-g11",
+  "ckpt": "routed: {'Person': 'ppros4_tta', 'Car': 'pv_tta', 'Bicycle': 'vrros_tta', 'Motorcycle': 'g1v3', 'Bus': 'pp4_tta', 'Truck': 'pvros4d2_tta', 'Van': 'g1', 'Unknown': 'g1'}",
+  "predictions": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/routed-g11/test/output/predictions.json",
+  "synthetic_source": "pcdet/g1-v4",
+  "synthetic_selection": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/routed-g11/test/synthetic_ids.txt",
+  "synthetic_from_zip": null,
+  "null_fraction": 0.0,
+  "local_scores": {
+    "run": "routed (official metric) + fusion (Bicycle, Bus, Car, Person, Truck, Van) + budget",
+    "realval_A_mAP_3d_0.5_R40": 0.3890602933807767,
+    "realval_A_per_class": {
+      "Person": 0.46918108610407894,
+      "Car": 0.9047729461152253,
+      "Bicycle": 0.600858753080846,
+      "Motorcycle": 0.008014745550644643,
+      "Bus": 0.07928881338541838,
+      "Truck": 0.4873267958926176,
+      "Van": 0.17397891353660602,
+      "Unknown": 0.001572798082684242
+    },
+    "realval_B_mAP_3d_0.5_R40": 0.22622158087059066,
+    "realval_B_per_class": {
+      "Person": 0.16653266582860193,
+      "Car": 0.7983207340389284,
+      "Bicycle": 0.26401955909727576,
+      "Motorcycle": 0.014525425873763684,
+      "Bus": 0.1340344918507738,
+      "Truck": 0.20453914455833705,
+      "Van": 0.0015790448464537508,
+      "Unknown": null
+    }
+  },
+  "track": "lumpi-track",
+  "created": "2026-10-30 09:21",
+  "git_sha": "6b08711",
+  "zip_md5": "055507e5c90c00b257dd0763413086ad",
+  "validation_errors": [],
+  "info": {
+    "uncompressed_bytes": 36394172,
+    "points_per_frame": [
+      50000,
+      50000
+    ],
+    "null_fraction": 0.0,
+    "in_range_fraction": 1.0,
+    "n_boxes": 32079,
+    "boxes_per_class": {
+      "Unknown": 82,
+      "Motorcycle": 2357,
+      "Car": 12748,
+      "Bicycle": 4753,
+      "Bus": 489,
+      "Van": 2247,
+      "Person": 8358,
+      "Truck": 1045
+    },
+    "team": "KarmaRV",
+    "zip_roots": [
+      "declaration.txt",
+      "predictions.json",
+      "synthetic/"
+    ]
+  },
+  "codabench_submission_id": null,
+  "leaderboard": null,
+  "upload_file": {
+    "name": "lumpi_s8a_submission.zip",
+    "md5": "055507e5c90c00b257dd0763413086ad"
+  },
+  "history": [
+    {
+      "time": "2026-10-30 09:22",
+      "action": "check_submission (team=None)"
+    }
+  ],
+  "official_local_eval": {
+    "valid": true,
+    "error": null,
+    "stand_in_gt_boxes": 3652,
+    "score_realism": 0.934434,
+    "CD": 1.519986,
+    "MMD": 3.224e-05,
+    "EMD": 1.282469,
+    "FPD": 0.285202,
+    "wall_s": 318.2,
+    "peak_rss_mb": 5941,
+    "budget_s": 1200,
+    "returncode": 0,
+    "stderr_tail": "",
+    "time": "2026-10-30 09:27",
+    "n_boxes": 32079
+  }
+}

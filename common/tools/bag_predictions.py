@@ -9,6 +9,7 @@ so a box only one seed finds is demoted) of the seeds' own post-processed predic
 
     python common/tools/bag_predictions.py model-lumpi-track/bag-voxelrcnn-ros-g1v4            # realval A/B, plain + TTA
     CUDA_VISIBLE_DEVICES=0 python common/tools/bag_predictions.py <bag> --kit --variant tta --out predictions_x.json [--refresh]
+    python common/tools/bag_predictions.py <bag> --tags _tta12                                     # S8: the 12-view bag
 
 Realval: writes validation/output/<data>_<split>_bag_checkpoint_epoch_40[_tta].json, the names a routed model reads for
 a member {model: bag-..., ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth[, tta: ...]} (the ckpt
@@ -28,6 +29,7 @@ from _common import REPO, load_track
 CK = "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth"
 TAG = "bag_checkpoint_epoch_40"
 TTA = "flip4+yaw+z"
+VIEWS = {"tta": TTA, "tta12": "flip4+yaw+z+scale"}          # kit variant -> views (S8: tta12, the seeds' --tta-tag)
 
 
 def bag_card(bag: Path) -> dict:
@@ -44,7 +46,7 @@ def fuse_files(files: list[Path], iou: dict) -> dict:
     return {i: fuse_dets([p.get(i, []) for p in preds], iou) for i in ids}
 
 
-def realval(bag: Path, card: dict, track) -> None:
+def realval(bag: Path, card: dict, track, tags=("", "_tta")) -> None:
     from bdc26 import scorecard as sc
     from bdc26.evalap import evaluate
     data = card["data"]["realval"]
@@ -54,8 +56,8 @@ def realval(bag: Path, card: dict, track) -> None:
     res.mkdir(parents=True, exist_ok=True)
     root = track.pcdet / data.replace("pcdet/", "")
     cwg = list(track["classes_with_test_gt"])
-    for suf in ("", "_tta"):
-        scores = {"run": f"bag of {len(card['members'])} seeds{' (TTA)' if suf else ''}", "members": card["members"]}
+    for suf in tags:
+        scores = {"run": f"bag of {len(card['members'])} seeds{f' (TTA {suf[1:]})' if suf else ''}", "members": card["members"]}
         for split, k in (("val", "A"), ("valB", "B")):
             files = [bag.parent / m / "validation" / "output" / f"{D}_{split}_run1_checkpoint_epoch_40{suf}.json" for m in card["members"]]
             missing = [str(f) for f in files if not f.exists()]
@@ -80,14 +82,14 @@ def kit(bag: Path, card: dict, variant: str, out_path: Path, cache_dir: Path | N
     cache_dir = cache_dir or bag / "test" / "output"
     for m in card["members"]:
         md = bag.parent / m
-        pp = md / "test" / ("postprocess_tta.yaml" if variant == "tta" else "postprocess.yaml")
-        f = cache_dir / f"kit_{m}{'_tta' if variant == 'tta' else ''}.json"
+        pp = md / "test" / (f"postprocess_{variant}.yaml" if variant in VIEWS else "postprocess.yaml")
+        f = cache_dir / f"kit_{m}{'_' + variant if variant in VIEWS else ''}.json"
         if refresh or not f.exists() or f.stat().st_mtime < max((md / CK).stat().st_mtime, pp.stat().st_mtime):
             f.parent.mkdir(parents=True, exist_ok=True)
             cmd = [sys.executable, str(REPO / "common" / "tools" / "pcdet_predict.py"), str(md), "--ckpt", str(md / CK), "--frames", "kit",
                    "--postprocess", str(pp), "--out", str(f)]
-            if variant == "tta":
-                cmd += ["--tta", TTA]
+            if variant in VIEWS:
+                cmd += ["--tta", VIEWS[variant]]
             subprocess.run(cmd, check=True)
         files.append(f)
     fused = fuse_files(files, card["iou"])
@@ -100,7 +102,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("bag")
     ap.add_argument("--kit", action="store_true", help="predict the 50 kit frames with every seed and fuse")
-    ap.add_argument("--variant", choices=["plain", "tta"], default="plain")
+    ap.add_argument("--variant", choices=["plain", *VIEWS], default="plain")
+    ap.add_argument("--tags", nargs="*", default=["", "_tta"], help="realval: file suffixes of the seed predictions to fuse "
+                    "('' plain, _tta, _tta12)")
     ap.add_argument("--out", default=None)
     ap.add_argument("--cache-dir", default=None, help="kit mode: where the seed predictions are kept (default <bag>/test/output)")
     ap.add_argument("--refresh", action="store_true", help="kit mode: predict every seed again even if a cache exists")
@@ -112,7 +116,7 @@ def main():
         kit(bag, card, a.variant, Path(a.out) if a.out else bag / "test" / "output" / f"predictions_kit_{a.variant}.json",
             Path(a.cache_dir) if a.cache_dir else None, a.refresh)
     else:
-        realval(bag, card, track)
+        realval(bag, card, track, a.tags)
 
 
 if __name__ == "__main__":

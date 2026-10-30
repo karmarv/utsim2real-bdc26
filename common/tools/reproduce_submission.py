@@ -68,13 +68,15 @@ def members_inventory(model_dir: Path, card: dict, cache: dict) -> list[dict]:
         md = model_dir.parent / m["model"]
         mcard = yaml.safe_load((md / "model.yaml").read_text())
         tta = m.get("tta")
+        variant = (m.get("tta_tag") or "tta") if tta else "plain"            # S8: tta12 for the 12-view variant
         if mcard.get("type") == "bag":
             seeds = []
             for s in mcard["members"]:
                 ck = model_dir.parent / s / "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth"
                 seeds.append({"model": f"{model_dir.parent.name}/{s}", "ckpt": str(ck.relative_to(REPO)), "md5": md5(ck, cache),
-                              "postprocess": f"{model_dir.parent.name}/{s}/" + (TTA_PP if tta else "test/postprocess.yaml")})
-            rows.append({"key": key, "model": f"{model_dir.parent.name}/{m['model']}", "bag": seeds, "tta": tta, "iou": mcard["iou"]})
+                              "postprocess": f"{model_dir.parent.name}/{s}/" + (f"test/postprocess_{variant}.yaml" if tta else "test/postprocess.yaml")})
+            rows.append({"key": key, "model": f"{model_dir.parent.name}/{m['model']}", "bag": seeds, "tta": tta, "variant": variant,
+                         "iou": mcard["iou"]})
             continue
         ck = md / m["ckpt"]
         pp = m.get("postprocess", TTA_PP) if tta else "test/postprocess.yaml"
@@ -144,7 +146,7 @@ def write_script(model_dir: Path, card: dict, track, tag: str, rows: list[dict],
             lines.append(f"# member {r['key']}: seed bag {r['model']} ({len(r['bag'])} seeds, TTA {r['tta'] or 'off'}); seeds: " +
                          ", ".join(f"{s['ckpt']} (md5 {s['md5']})" for s in r["bag"]))
             lines.append(f"python common/tools/bag_predictions.py {r['model'].replace(model_dir.parent.name, 'model-' + t + '-track', 1)} "
-                         f"--kit --variant {'tta' if r['tta'] else 'plain'} --refresh --cache-dir $OUT/bag_{r['key']} "
+                         f"--kit --variant {r['variant']} --refresh --cache-dir $OUT/bag_{r['key']} "
                          f"--out $OUT/predictions_{r['key']}.json")
         else:
             md = r["model"]

@@ -3,6 +3,7 @@
 #   bash validation/tune_and_eval.sh train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth [--no-size]
 #   bash validation/tune_and_eval.sh <ckpt> --eval-only      # steps 3-4 only (keep the current post-processing)
 #   bash validation/tune_and_eval.sh <ckpt> --tta flip4+yaw  # the test-time-augmentation variant (strategy S3)
+#   bash validation/tune_and_eval.sh <ckpt> --tta flip4+yaw+z+scale --tta-tag tta12 --reuse-raw   # S8 second variant
 # 1. raw predictions on realval A (select) and B (check)   -> validation/output/raw_<data>_<split>_<run>[_tta].json
 # 2. tune_postprocess.py on A, report on B                  -> test/postprocess.yaml (+ .report.json); old kept as .prev
 # 3. challenge-style evaluation with the tuned config on A and B (registry rows) -> validation/results/
@@ -10,15 +11,20 @@
 # --tta VIEWS: predictions are fused over the views (pcdet_predict.py --tta), tuned into test/postprocess_tta.yaml
 # from the neutral start test/postprocess.yaml.prev, and every file gets the suffix _tta (local_scores_tta.json);
 # a routed model's member with `tta: VIEWS` reads them (common/tools/_common.py member_tag).
+# --tta-tag T (S8): suffix _T and test/postprocess_T.yaml instead of _tta, for a second view set next to the first;
+# a member with `tta_tag: T` reads them. --reuse-raw: step 3 post-processes the raw predictions of step 1
+# (pcdet_predict.py --from-raw) instead of running the model again (same boxes, half the GPU time).
 set -euo pipefail
 MODEL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$MODEL_DIR/../../common/env/activate.sh"      # .venv_ut if set up, else conda bdc-train
 CKPT=$(realpath "$1"); shift
-EVAL_ONLY=0; TTA=""
+EVAL_ONLY=0; TTA=""; TTAG="tta"; REUSE=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --eval-only) EVAL_ONLY=1; shift ;;
     --tta) TTA="$2"; shift 2 ;;
+    --tta-tag) TTAG="$2"; shift 2 ;;
+    --reuse-raw) REUSE=1; shift ;;
     *) break ;;
   esac
 done
@@ -27,7 +33,7 @@ TRACK=$(card "d['track']"); DATA=$(card "d['data']['realval']"); NAME=$(card "d[
 RUN=$(basename "$(dirname "$(dirname "$CKPT")")")_$(basename "$CKPT" .pth)
 D=$(echo "$DATA" | tr '/' '_'); OUT="$MODEL_DIR/validation/output"; RES="$MODEL_DIR/validation/results"
 SUF=""; PP="$MODEL_DIR/test/postprocess.yaml"; PRED=()
-if [ -n "$TTA" ]; then SUF="_tta"; PP="$MODEL_DIR/test/postprocess_tta.yaml"; PRED=(--tta "$TTA"); fi
+if [ -n "$TTA" ]; then SUF="_$TTAG"; PP="$MODEL_DIR/test/postprocess_$TTAG.yaml"; PRED=(--tta "$TTA"); fi
 mkdir -p "$OUT" "$RES"
 cd "$BDC_REPO/common/tools"
 if [ "$EVAL_ONLY" = 0 ]; then
@@ -44,7 +50,8 @@ if [ "$EVAL_ONLY" = 0 ]; then
     --data "$DATA" --start "$START" --out "$PP" "$@"
 fi
 for S in val valB; do
-  python pcdet_predict.py "$MODEL_DIR" --ckpt "$CKPT" --frames "$DATA" --split $S "${PRED[@]}" --postprocess "$PP" --out "$OUT/${D}_${S}_${RUN}${SUF}.json"
+  SRC=("${PRED[@]}"); [ "$REUSE" = 1 ] && SRC=(--from-raw "$OUT/raw_${D}_${S}_${RUN}${SUF}.json")
+  python pcdet_predict.py "$MODEL_DIR" --ckpt "$CKPT" --frames "$DATA" --split $S "${SRC[@]}" --postprocess "$PP" --out "$OUT/${D}_${S}_${RUN}${SUF}.json"
   python eval_predictions.py --track "$TRACK" --pred "$OUT/${D}_${S}_${RUN}${SUF}.json" --data "$DATA" --split $S \
     --out "$RES/${D}_${S}_${RUN}${SUF}.json" --model "$NAME" --run "${RUN}${SUF}"
 done

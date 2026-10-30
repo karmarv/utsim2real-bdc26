@@ -1,0 +1,203 @@
+{
+  "vehicle": {
+    "incumbent": "fusion bagvr5_tta+pvros4s2_tta@0.7",
+    "incumbent_A": 0.8654479516582698,
+    "incumbent_B": 0.8693467434481645,
+    "best": {
+      "members": [
+        "bagvr5_tta",
+        "pvros4s2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8654479516582698,
+      "B": 0.8693467434481645
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bagvr5_tta+pvros4s2_tta12@0.7": {
+        "val": 0.8651961303477591,
+        "valB": 0.8617209443334112
+      },
+      "bagvr5_tta+pvros4s2_tta@0.7": {
+        "val": 0.8652815194245747,
+        "valB": 0.8693467434481645
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bagvr5_tta",
+          "pvros4s2_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bagvr5_tta",
+        "pvros4s2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8652815194245747,
+      "B": 0.8693467434481645
+    }
+  },
+  "pedestrian": {
+    "incumbent": "fusion vrros_tta+vrros4_tta@0.5",
+    "incumbent_A": 0.37028597319738193,
+    "incumbent_B": 0.4081384224365614,
+    "best": {
+      "members": [
+        "vrros_tta12",
+        "vrros4_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.377693945383381,
+      "B": 0.42072715275138817
+    },
+    "dB": 0.012588730314826768,
+    "p_gain": 1.0,
+    "ci90": [
+      0.007696276993771259,
+      0.018630171564563893
+    ],
+    "dA": 0.00740797218599909,
+    "pooled": {
+      "delta": 0.007421413861381954,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "vrros_tta12+vrros4_tta12@0.5": {
+        "val": 0.3779520420012858,
+        "valB": 0.4211031685708647
+      },
+      "vrros_tta+vrros4_tta@0.5": {
+        "val": 0.37085374068408833,
+        "valB": 0.4085149735614005
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vrros_tta12",
+          "vrros4_tta12"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.012588730314826768,
+        "p_gain": 1.0,
+        "dA": 0.00740797218599909,
+        "pooled": {
+          "delta": 0.007421413861381954,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrros_tta12",
+        "vrros4_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.3779520420012858,
+      "B": 0.4211031685708647
+    }
+  },
+  "truck": {
+    "incumbent": "fusion pp5_tta+bagvr5_tta+bagpv5@0.5",
+    "incumbent_A": 0.9355914484395431,
+    "incumbent_B": 0.8481127581754194,
+    "best": {
+      "members": [
+        "pp5_tta",
+        "bagvr5_tta",
+        "bagpv5"
+      ],
+      "iou": 0.5,
+      "A": 0.9355914484395431,
+      "B": 0.8481127581754194
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "pp5_tta12+bagvr5_tta+bagpv5@0.5": {
+        "val": 0.9339707496811223,
+        "valB": 0.8478390762358732
+      },
+      "pp5_tta+bagvr5_tta+bagpv5@0.5": {
+        "val": 0.9355914484395431,
+        "valB": 0.8481127581754194
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "pp5_tta",
+          "bagvr5_tta",
+          "bagpv5"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "pp5_tta",
+        "bagvr5_tta",
+        "bagpv5"
+      ],
+      "iou": 0.5,
+      "A": 0.9355914484395431,
+      "B": 0.8481127581754194
+    }
+  }
+}

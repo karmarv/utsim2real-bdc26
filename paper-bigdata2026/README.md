@@ -1,6 +1,6 @@
 # paper-bigdata2026: the challenge report and the BigData Cup paper
 
-> Scope: the system that produced the challenge entries, strategies S1-S7 (the S7.6 entries of both tracks) and the final-phase submissions, as recorded in [`docs/01`](../docs/01-CHALLENGE-FACTS.md) to [`docs/07`](../docs/07-LITERATURE.md), the [decision records](../docs/decisions/README.md) and the track READMEs. Every number in the paper comes from a record in this repository; nothing is re-run for the paper. Sections 3-4 hold the report material on the final development-phase entries: the approach in the challenge's four steps, and the score breakdown of both tracks.
+> Scope: the system that produced the challenge entries, strategies S1-S8 (the S8 entries of both tracks) and the final-phase submissions, as recorded in [`docs/01`](../docs/01-CHALLENGE-FACTS.md) to [`docs/07`](../docs/07-LITERATURE.md), the [decision records](../docs/decisions/README.md) and the track READMEs. Every number in the paper comes from a record in this repository; nothing is re-run for the paper. Sections 3-4 hold the report material on the final development-phase entries: the approach in the challenge's four steps, and the score breakdown of both tracks.
 
 ## 1. Deliverables and dates
 
@@ -16,18 +16,18 @@ The final phase closes Sat Nov 14, 16:00 PST, so the report's final-phase number
 
 ## 2. Contributions (what the paper claims)
 
-1. **A rule-compliant synthetic-only pipeline** that ranks first on both tracks (development phase: LUMPI 0.5228, S7.6, rank 1 of 22; V2X 0.8982, S7, rank 1 of 24; final phase: to add on Nov 15). The real data enters only as statistics for the generator and as labelled validation; no detector sees a real frame in training.
+1. **A rule-compliant synthetic-only pipeline** that ranks first on both tracks (development phase: LUMPI 0.5239, S8, rank 1 of 22; V2X 0.9022, S8, rank 1 of 25; final phase: to add on Nov 15). The real data enters only as statistics for the generator and as labelled validation; no detector sees a real frame in training.
 2. **Generator side:** completing the organizers' twins with what they miss (walkers and riders ray-cast with the real sensors, real-size actors, static clutter, calibrated background density and field of view), and realism-frame selection against a legal real proxy. Leaderboard realism from the first upload to S7 (unchanged since R5 on V2X and R3 on LUMPI): LUMPI 0.891 -> 0.932, V2X 0.920 -> 0.933 (the organizers' raw LUMPI frames score about 0.60 on our held-out proxy; `data-lumpi-track/README.md` Section 8).
 3. **Detector side:** a routed per-class portfolio built from four trained architectures (PointPillars, CenterPoint, Voxel R-CNN, PV-RCNN++; the final entries route three, and CenterPoint's head remains the first stage of the two-stage members) with test-time augmentation, cross-architecture box fusion, class-wise object scaling, seed and generator-draw bags, a ranking rule matched to the real annotators' visibility cut (V2X) and per-class post-processing. Measured on the leaderboard: detection +0.126 (V2X) and +0.034 (LUMPI) of combined score since S1.
 4. **Validation practice under a 100-frame hidden test:** two disjoint real validation splits (realval-A and realval-B), pre-registered gates and the pooled rule, and bit-exact reproduction of both entries from the released weights.
 
 ## 3. The approach in the challenge's four steps
 
-The challenge website describes the protocol in four steps: get the data, synthesize, train sim-only, submit. This section maps the system behind the final development-phase entries onto those steps (material for paper Sections 3-6). Both entries are S7.6, rank 1, and F1 of the final phase:
-- Track 1, LUMPI: [`routed-g10`](../model-lumpi-track/routed-g10/model.yaml), CodaBench 1014495, combined 0.5228, 15 checkpoints.
-- Track 2, V2X-Real: [`routed-g12`](../model-v2x-track/routed-g12/model.yaml), CodaBench 1014682, combined 0.8982, 10 checkpoints. It is identical in every metric to 1001919 (S7 step 1, [`routed-g9`](../model-v2x-track/routed-g9/model.yaml)), which stays the listed leaderboard row.
+The challenge website describes the protocol in four steps: get the data, synthesize, train sim-only, submit. This section maps the system behind the final development-phase entries onto those steps (material for paper Sections 3-6). Both entries are S8 (2026-10-30): the S7.6 system plus 12-view TTA fusions of the walker class and, on LUMPI, the non-negative completion; rank 1 on both, and F1 of the final phase:
+- Track 1, LUMPI: [`routed-g11b`](../model-lumpi-track/routed-g11b/model.yaml), CodaBench 1022250, combined 0.5239, 15 checkpoints (the S7.6 ones; S7.6 was [`routed-g10`](../model-lumpi-track/routed-g10/model.yaml), 1014495, 0.5228).
+- Track 2, V2X-Real: [`routed-g13`](../model-v2x-track/routed-g13/model.yaml), CodaBench 1022246, combined 0.9022, 10 checkpoints (the S7.6 ones; S7.6 was [`routed-g12`](../model-v2x-track/routed-g12/model.yaml), 1014682, 0.8982, identical to 1001919).
 
-The checkpoints of both are the assets of release 7.0 ([`releases/7.0/weights.json`](../releases/7.0/weights.json)).
+The checkpoints of both are the assets of release 8.0 ([`releases/8.0/weights.json`](../releases/8.0/weights.json)), byte-identical to release 7.0: S8 adds test-time views and post-processing only.
 
 ### 3.1 Get the data
 
@@ -121,14 +121,14 @@ Sources: track model READMEs Sections 2-3 and 7; the two `model.yaml` files; [`d
 
 Each zip holds three members:
 - `synthetic/0001.bin ... 0050.bin` (float32 N x 3, 50,000 points): chosen from the generator output, never modified. `select_realism_frames.py` swaps frames greedily to minimize FPD (from R5 on, EMD + FPD) against proxies 1-3, then scores the choice on the held-out proxies 4-5. Local held-out R: LUMPI 0.934, V2X 0.935-0.937 (V2X frames with the 31% nulls).
-- `predictions.json`: 23,270 boxes (LUMPI) and 24,284 boxes (V2X) on the 50 kit frames.
+- `predictions.json`: 32,038 boxes (LUMPI) and 21,354 boxes (V2X) on the 50 kit frames (S7.6: 23,270 and 24,284).
 - `declaration.txt`: the required declaration word for word, team KarmaRV.
 
-Before each upload, `check_submission.py --official` validates the zip, runs the kit scorer under the server's 1,200 s limit (LUMPI 271 s, V2X 153 s) and records the zip's md5. The entrant uploads the zip unchanged, and the server record is kept as `codabench_<id>.json`. `reproduce_s7s.sh` rebuilds each zip from the release 7.0 weights (IDENTICAL).
+Before each upload, `check_submission.py --official` validates the zip, runs the kit scorer under the server's 1,200 s limit (S8: LUMPI 328 s, V2X 128 s) and records the zip's md5. The entrant uploads the zip unchanged, and the server record is kept as `codabench_<id>.json`. `reproduce_s8b.sh` and `reproduce_s8v.sh` (S7.6: `reproduce_s7s.sh`) rebuild each zip from the release 7.0 weights (IDENTICAL).
 
 ## 4. Score breakdown of the final entries (development phase)
 
-Server records: [`codabench_1014495.json`](../model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json) and [`codabench_1014682.json`](../model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json). Recomputing the combined score from the per-class AP and the four realism distances, with the kit's formula and normalization (`config.json`), reproduces both to six decimals:
+The final development entries are S8 (2026-10-30, release 8.0). Server records: [`codabench_1022250.json`](../model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/codabench_1022250.json) and [`codabench_1022246.json`](../model-v2x-track/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json); the S7.6 entries before them were [`codabench_1014495.json`](../model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json) and [`codabench_1014682.json`](../model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json). Recomputing the combined score from the per-class AP and the four realism distances, with the kit's formula and normalization (`config.json`), reproduces both to six decimals:
 
 ```
 combined = 0.6 * clip(mAP / 0.7)  +  0.4 * R
@@ -137,17 +137,18 @@ R = 1 - mean( clip((CD-2)/28), clip(MMD/0.5), clip(EMD/5), clip(FPD/50) )
 
 The site's "norm" of a realism term is 1 minus its normalized distance, and a CD below 2.0 counts as perfect.
 
-| | LUMPI 1014495 | V2X 1014682 |
+| | LUMPI 1022250 (S8) | V2X 1022246 (S8) |
 |---|---|---|
-| 3D mAP@0.5 (R40) | 0.1749 | 0.6124 |
-| Detection = clip(mAP / 0.7) | 0.2499 | 0.8748 |
+| 3D mAP@0.5 (R40) | 0.1762 | 0.6170 |
+| Detection = clip(mAP / 0.7) | 0.2516 | 0.8814 |
 | Realism R | 0.9323 | 0.9332 |
-| 0.6 x detection | 0.1499 | 0.5249 |
+| 0.6 x detection | 0.1510 | 0.5289 |
 | 0.4 x realism | 0.3729 | 0.3733 |
-| **Combined** | **0.5228** | **0.8982** |
-| Still available: detection / realism | 0.450 / 0.027 | 0.075 / 0.027 |
-| Change since S1: detection / realism | +0.034 / +0.016 | +0.126 / +0.005 |
-| Next team (2026-10-27) | 0.4960 | 0.7937 |
+| **Combined** | **0.5239** | **0.9022** |
+| Still available: detection / realism | 0.449 / 0.027 | 0.071 / 0.027 |
+| Change since S1: detection / realism | +0.035 / +0.016 | +0.130 / +0.005 |
+| Change since S7.6 (1014495, 1014682) | +0.0011 (detection only) | +0.0040 (detection only) |
+| Next team (2026-10-30) | 0.5118 | 0.8112 |
 | ECCV 2026 winner (same scorer and test data) | 0.479 | 0.746 |
 
 ### 4.1 Realism: near its ceiling on both tracks
@@ -167,32 +168,32 @@ The site's "norm" of a realism term is 1 minus its normalized distance, and a CD
 
 | | Person | Car | Bicycle | Motorcycle | Bus | Truck | Van |
 |---|---|---|---|---|---|---|---|
-| AP | 0.180 | 0.648 | 0.188 | 0.001 | 0.003 | 0.063 | 0.141 |
+| AP | 0.187 | 0.648 | 0.188 | 0.001 | 0.003 | 0.065 | 0.141 |
 | Test boxes | 512 | 1,258 | 82 | 27 | 25 | 192 | 79 |
 
-- Car supplies 53% of the mAP (0.093 of 0.175); Motorcycle and Bus are near zero, yet they are 2/7 of the metric.
+- Car supplies 53% of the mAP (0.093 of 0.176); Motorcycle and Bus are near zero, yet they are 2/7 of the metric.
 - Detection is at 25% of its cap, so realism supplies 71% of the combined score. Each +0.01 mAP is worth +0.0086 combined: the remaining LUMPI points are in detection.
-- Local splits overstate the test level: mAP 0.388 on realval-A and 0.225 on realval-B against 0.175. Person falls 0.465 -> 0.180, Bicycle 0.600 -> 0.188, Truck 0.487 -> 0.063. The test frames come from the last 20% of Measurement4, which is excluded, and its labels have another provenance.
-- BEV mAP 0.188 against 0.175 in 3D: height costs only 0.013. The losses are in finding and classifying objects; 3D mAP@0.7 is 0.085.
-- Against S6 (995869): +0.00009 (Car -0.004, Truck +0.005), a tie.
+- Local splits overstate the test level: mAP 0.391 on realval-A and 0.227 on realval-B against 0.176. Person falls 0.482 -> 0.187, Bicycle 0.600 -> 0.188, Truck 0.487 -> 0.063. The test frames come from the last 20% of Measurement4, which is excluded, and its labels have another provenance.
+- BEV mAP 0.189 against 0.176 in 3D: height costs only 0.013. The losses are in finding and classifying objects; 3D mAP@0.7 is 0.085.
+- Against S7.6 (1014495): +0.0011 (Person +0.006 from the 12-view fusion and the tail copies, Truck +0.002 and Motorcycle +0.0003 from the lowered floors). S7.6 against S6 (995869) was +0.00009, a tie.
 
 ### 4.3 Detection, V2X (mean over 3 classes)
 
 | | vehicle | pedestrian | truck |
 |---|---|---|---|
-| AP | 0.737 | 0.429 | 0.671 |
+| AP | 0.737 | 0.443 | 0.671 |
 | Test boxes | 470 | 953 | 124 |
 
-- mAP 0.612 is 87.5% of the 0.7 cap, so detection can add at most +0.075.
-- Pedestrian is the weakest class: 62% of the test objects, one third of the metric. Its gains drove S5, R5 and S7 (0.235 at S1 -> 0.429).
-- BEV 0.666 against 0.612 in 3D: height on the sloped campus costs 0.054 mAP (0.105 at S1).
+- mAP 0.617 is 88.1% of the 0.7 cap, so detection can add at most +0.071.
+- Pedestrian is the weakest class: 62% of the test objects, one third of the metric. Its gains drove S5, R5, S7 and S8 (0.235 at S1 -> 0.443; S8's 12-view fusion added +0.014).
+- BEV 0.667 against 0.617 in 3D: height on the sloped campus costs 0.050 mAP (0.105 at S1).
 - 3D mAP@0.7 is 0.165: boxes are found but placed loosely; localization is the residual error.
-- Local splits overstate the test level by about 0.11 (realval-A 0.734, realval-B 0.721).
+- Local splits overstate the test level by about 0.11 (realval-A 0.736, realval-B 0.724).
 
 ### 4.4 Reading for the paper
 
-- Since S1, LUMPI rose 0.4728 -> 0.5228 (detection +0.034, realism +0.016) and V2X 0.7665 -> 0.8982 (detection +0.126, realism +0.005).
-- The V2X lead over the next team (+0.105) is detection; the LUMPI lead (+0.027) is smaller, and the open LUMPI points are almost all in detection of the rare classes (Bus, Motorcycle, Truck; paper Section 8, limitations).
+- Since S1, LUMPI rose 0.4728 -> 0.5239 (detection +0.035, realism +0.016) and V2X 0.7665 -> 0.9022 (detection +0.130, realism +0.005).
+- The V2X lead over the next team (+0.091) is detection; the LUMPI lead (+0.012) is smaller, and the LUMPI challengers' realism is higher (EMD 1.10 against our 1.30), and the open LUMPI points are almost all in detection of the rare classes (Bus, Motorcycle, Truck; paper Section 8, limitations).
 - Paper use: the first table is T1, the per-class tables are T2, the realism table feeds T4 ([Section 6](#6-tables-and-figures)).
 
 ## 5. Outline and page budget
