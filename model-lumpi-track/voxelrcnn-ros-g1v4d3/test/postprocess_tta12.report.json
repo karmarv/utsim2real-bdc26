@@ -1,0 +1,172 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.43517582199223526,
+    "A_behaviour": 0.4357603863093322,
+    "A_tuned": 0.4588811071128605,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5,
+      "size_scale": [
+        0.92,
+        0.92,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        0.85,
+        0.85,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.12141515862568183,
+    "B_behaviour": 0.12178509728398867,
+    "B_tuned": 0.10149355674361878,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.46541452205820966
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8789029873591631,
+    "A_behaviour": 0.8789029873591631,
+    "A_tuned": 0.8789029873591631,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 25573,
+    "B_start": 0.7537961101603762,
+    "B_behaviour": 0.7537961101603762,
+    "B_tuned": 0.7537961101603762,
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.898507035663916
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.5047117192386136,
+    "A_behaviour": 0.5067493286722229,
+    "A_tuned": 0.5067493286722229,
+    "behaviour_cfg": {
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.21392377821514877,
+    "B_behaviour": 0.21369776910466828,
+    "B_tuned": 0.21369776910466828,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.5426508379935125
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.030295589030461804,
+    "A_behaviour": 0.030295589030461804,
+    "A_tuned": 0.030295589030461804,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.25
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.03360945567755303,
+    "B_behaviour": 0.03360945567755303,
+    "B_tuned": 0.03360945567755303
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.03021589392569633,
+    "A_behaviour": 0.030563373275557127,
+    "A_tuned": 0.030563373275557127,
+    "behaviour_cfg": {
+      "nms_iou": 0.6
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.022699475198711325,
+    "B_behaviour": 0.022775328926519005,
+    "B_tuned": 0.022775328926519005,
+    "hedge_from_Truck": {
+      "factor": 0.1,
+      "A": 0.03388896388336181
+    }
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.3316678787295436,
+    "A_behaviour": 0.3319255087725789,
+    "A_tuned": 0.33634474310610973,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": -0.2,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.08
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.12570891684425306,
+    "B_behaviour": 0.12551698732708635,
+    "B_tuned": 0.13775968509937747,
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.3397616578012769
+    }
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.10289460125705512,
+    "A_behaviour": 0.10289460125705512,
+    "A_tuned": 0.10289460125705512,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.00029557744331614366,
+    "B_behaviour": 0.00029557744331614366,
+    "B_tuned": 0.00029557744331614366,
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.11725763660337116
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Truck": {
+      "factor": 0.1,
+      "A": 0.003997181121864885
+    }
+  }
+}

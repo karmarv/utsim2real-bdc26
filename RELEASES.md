@@ -44,9 +44,36 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 5.2 | 2026-10-15 | R5 | 990245: 0.5198 | 990255: 0.8852 | no | `routed-g7/test/reproduce_r5.sh` |
 | 6.0 | 2026-10-17 | S6 | 995869: 0.5228 (0.522754) | 995877: 0.8931 | **yes**: 21 checkpoints + 2 zips ([`releases/6.0/weights.json`](releases/6.0/weights.json)), published 2026-10-18 ([`github.json`](releases/6.0/github.json)) | `routed-g8/test/reproduce_s6.sh` (LUMPI), `routed-g8b/test/reproduce_s6b.sh` (V2X) |
 | 7.0 | 2026-10-27 | S7 (the entries until S8; the F1 fallback) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)), published 2026-10-28 ([`github.json`](releases/7.0/github.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
-| **8.0** | 2026-10-30 | **S8** (the entries, F1) | **1022250: 0.5239** (0.523901, S8 U2) | **1022246: 0.9022** (0.902153, S8 V2X U2) | **yes**: 25 checkpoints + 2 zips ([`releases/8.0/weights.json`](releases/8.0/weights.json)), every checkpoint byte-identical to its 7.0 asset | `routed-g11b/test/reproduce_s8b.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
+| 8.0 | 2026-10-30 | S8 (V2X entry and F1; LUMPI until 8.1) | **1022250: 0.5239** (0.523901, S8 U2) | **1022246: 0.9022** (0.902153, S8 V2X U2) | **yes**: 25 checkpoints + 2 zips ([`releases/8.0/weights.json`](releases/8.0/weights.json)), every checkpoint byte-identical to its 7.0 asset | `routed-g11b/test/reproduce_s8b.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
+| **8.1** | 2026-10-30 | **S8.2, S8.3** (LUMPI entry and F1; V2X unchanged) | **1022492: 0.5257** (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 
 The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0 and 8.0 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+
+## 8.1 (pre-release, 2026-10-30)
+
+**Leaderboard** (development phase, its last day; LUMPI checked 2026-10-30, 23:13 UTC): S8.3 on LUMPI, rank 1 of 22 (next 0.5118), after S8.2. V2X is unchanged from 8.0: S8.2 and S8.3 change no V2X class, so no V2X version was built. F1: `lumpi_s8d_submission.zip` and `v2x_s8v_submission.zip`.
+
+| Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | S8.3 | 1022492 | 2026-10-30 23:09 | **0.5257** (0.525688) | 0.1782 | 0.9323 | **1 of 22** | [`lumpi_s8d_submission.zip`](model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip) (`d5bd41769788c902b6e49095236aafd6`) | [s8 last day, Section 10](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
+| 1 LUMPI (16684) | S8.2 | 1022399 | 2026-10-30 21:37 | **0.5254** (0.525439) | 0.1779 | 0.9323 | **1 of 22** | [`lumpi_s8c_submission.zip`](model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip) (`ead9da5ec4eb683e526efe4b72483dfc`) | [s8 last day, Section 9](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
+| 2 V2X-Real (16685) | S8 V2X U2 (as 8.0) | 1022246 | 2026-10-30 19:52 | **0.9022** (0.902153) | 0.6170 | 0.9332 | **1 of 25** | [`v2x_s8v_submission.zip`](model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip) (`b9c82e3de0c37babf146549eeedabbf6`) | same |
+
+Server records: [`codabench_1022492.json`](model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/codabench_1022492.json), [`codabench_1022399.json`](model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/codabench_1022399.json).
+- **LUMPI S8.3 against S8.2 (1022399): +0.00025, as projected (+0.0002).** Person 0.1865 -> 0.1876 and Bus 0.0028 -> 0.0037, from the copies (which cannot lower AP); every other class and the realism are identical.
+- **LUMPI against S8 U2 (1022250): +0.00154.** Car 0.6482 -> 0.6608 (+0.0126); every other class and the realism are identical.
+- The local evidence was a pooled +0.0007 (A +0.0018, B -0.0010) and a projection of +0.00003. LUMPI Car's local splits did not predict the test result, here upward; in S7.6 they missed downward.
+
+**Release assets.** The three zips (`s8d`, `s8c`, `s8v`) and the same 25 checkpoints as 8.0 (4.44 GB, byte-identical; S8.2 adds no checkpoint, only 12-view variants of existing ones), in [`releases/8.1/weights.json`](releases/8.1/weights.json). New in the tree:
+- the `_tta12` post-processing and validation files of the 19 bag seeds;
+- the 12-view bag outputs (`bag_predictions.py --tags _tta12`);
+- `routed-g11c` (`s8c`), `routed-g11d` (`s8d`; S8.3, the merge only) and `routed-g14` (V2X, not built);
+- `route_predictions.py` `final_copies` (copies after the sparse stage) and the `u4`/`v2x3` stages of `s8_portfolio.sh`.
+```bash
+python common/tools/release_weights.py fetch --tag 8.1 --version lumpi:s8d                 # or lumpi:s8c, v2x:s8v
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g11d/test/reproduce_s8d.sh
+```
+Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): `reproduce_s8c.sh` rebuilds the scored zip **IDENTICAL** from these weights, with predictions at maximum difference 0.0 and the 50 realism frames byte-identical. The 12-view bag is recomputed from its six seeds (`--refresh`). `reproduce_s8v.sh` is the 8.0 dry-run (IDENTICAL). `reproduce_s8d.sh` (the same members as `s8c`, merged with the S8.3 copies) also rebuilds its scored zip **IDENTICAL**: 37,396 boxes, maximum difference 0.0, kit scorer valid in 368 s.
 
 ## 8.0 (pre-release, 2026-10-30)
 

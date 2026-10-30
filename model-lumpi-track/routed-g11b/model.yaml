@@ -277,10 +277,10 @@ data:
   train: pcdet/g1-v2
   realval: pcdet/realval-v1
 realism_frames: pcdet/g1-v4
-status: 'S8 U2, the LUMPI entry and F1 (release 8.0): submitted 1022250, combined
-  0.523901 (mAP 0.1762), rank 1 of 22 (2026-10-30); +0.00106 over 1014495 (Person
-  +0.0063, Truck +0.0021, Motorcycle +0.0003); the S7.6 entry with the non-negative
-  completion and Person fused from 12-view members (docs/decisions/2026-10-29-s8-last-day-strategy.md)'
+status: 'S8 U2, the LUMPI entry until S8.2 (1022399) and its fallback (release 8.0):
+  submitted 1022250, combined 0.523901 (mAP 0.1762), rank 1 of 22 (2026-10-30); +0.00106
+  over 1014495 (Person +0.0063, Truck +0.0021, Motorcycle +0.0003); the S7.6 entry
+  with the non-negative completion and Person fused from 12-view members (docs/decisions/2026-10-29-s8-last-day-strategy.md)'
 notes: 'S8 U2 (docs/decisions/2026-10-29-s8-last-day-strategy.md, rules 3, 4 and 8).
 
   '

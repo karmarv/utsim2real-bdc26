@@ -1,0 +1,25 @@
+{
+  "run": "routed (official metric) + fusion (Bicycle, Bus, Car, Person, Truck, Van) + budget",
+  "realval_A_mAP_3d_0.5_R40": 0.3914418665668589,
+  "realval_A_per_class": {
+    "Person": 0.4834810712114832,
+    "Car": 0.9065291957889571,
+    "Bicycle": 0.600858753080846,
+    "Motorcycle": 0.008014745550644643,
+    "Bus": 0.07990359090685772,
+    "Truck": 0.4873267958926176,
+    "Van": 0.17397891353660602,
+    "Unknown": 0.001572798082684242
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.22699773243347593,
+  "realval_B_per_class": {
+    "Person": 0.1715002767378959,
+    "Car": 0.797300827998405,
+    "Bicycle": 0.26401955909727576,
+    "Motorcycle": 0.014525425873763684,
+    "Bus": 0.13551984792220034,
+    "Truck": 0.20453914455833705,
+    "Van": 0.0015790448464537508,
+    "Unknown": null
+  }
+}

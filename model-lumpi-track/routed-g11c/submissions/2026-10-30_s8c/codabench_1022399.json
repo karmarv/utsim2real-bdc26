@@ -1,0 +1,62 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S8.2 (docs/decisions/2026-10-29-s8-last-day-strategy.md Section 9): s8b with Car fused from the 12-view PV-RCNN++ member and the 12-view 6-seed PV-RCNN++ bag (pvros_tta12 + bagpv4x_tta12 @ 0.7); rule 4 in full (extend, fuse up to 3), final check against s8b; passed bar (b) by its letter (projection +0.00003)",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 1022399,
+  "uploaded_file": "lumpi_s8c_submission.zip of this folder (md5 ead9da5ec4eb683e526efe4b72483dfc, as in manifest.json)",
+  "submitted": "2026-10-30 21:37 UTC (16:37 CDT; leaderboard created_when 2026-10-30T21:37:11Z)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 22,
+  "leaderboard_checked": "2026-10-30 21:44 UTC (public get_leaderboard API)",
+  "runner_up_at_check": {
+    "owner": "Raj Patil",
+    "id": 1021347,
+    "combined": 0.5118
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005290070873853157
+  },
+  "scores": {
+    "score_combined": 0.525439,
+    "score_detection": 0.254207,
+    "score_realism": 0.932287,
+    "mAP_3d_0.5_R40": 0.177945,
+    "mAP_3d_0.5_R11": 0.180238,
+    "mAP_3d_0.7_R40": 0.085142,
+    "mAP_bev_0.5_R40": 0.190658,
+    "CD": 1.593929,
+    "MMD": 3.071e-05,
+    "EMD": 1.302012,
+    "FPD": 0.519356,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.186502,
+    "AP_3d_0.5_R40_Car": 0.660792,
+    "AP_3d_0.5_R40_Bicycle": 0.188193,
+    "AP_3d_0.5_R40_Motorcycle": 0.001182,
+    "AP_3d_0.5_R40_Bus": 0.002778,
+    "AP_3d_0.5_R40_Truck": 0.065273,
+    "AP_3d_0.5_R40_Van": 0.140894,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.5939288476319815, MMD 3.070874668242851e-05, EMD 1.3020122538945853, FPD 0.5193563285015443",
+    "[scoring] mAP_3d_0.5_R40 = 0.17794483346309858",
+    "(scoring output pasted by the entrant)"
+  ],
+  "vs_previous": {
+    "previous": "1022250 (S8 U2, routed-g11b)",
+    "delta": {
+      "score_combined": 0.001538,
+      "score_detection": 0.002563,
+      "mAP_3d_0.5_R40": 0.001794,
+      "mAP_3d_0.5_R11": 0.001417,
+      "mAP_3d_0.7_R40": 0.000161,
+      "mAP_bev_0.5_R40": 0.001776,
+      "AP_3d_0.5_R40_Car": 0.012559
+    }
+  }
+}

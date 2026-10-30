@@ -282,7 +282,9 @@ def merge_card(card: dict, preds: dict, points_of=None) -> dict:
         for f in ids:
             out.setdefault(f, []).extend(fuse_dets([s_[f] for s_ in srcs], fz["iou"], fz.get("weights")))
     out = apply_tail_copies(apply_budget(out, card.get("budget")), card.get("tail_copies"))
-    return apply_sparse_demotion(out, card.get("sparse_demotion"), points_of)
+    # S8.3 `final_copies` (same spec as tail_copies), after the sparse stage: scored below every box of the class,
+    # demoted ones included, so they cannot lower AP even where the S7 stage reorders the tail
+    return apply_tail_copies(apply_sparse_demotion(out, card.get("sparse_demotion"), points_of), card.get("final_copies"))
 
 
 def frame_points(track, data: str | None = "kit"):

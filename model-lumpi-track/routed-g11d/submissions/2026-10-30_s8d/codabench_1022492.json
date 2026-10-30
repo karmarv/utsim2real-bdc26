@@ -1,0 +1,63 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S8.3 (docs/decisions/2026-10-29-s8-last-day-strategy.md Section 10): s8c with the non-negative completion up to the kit budget: Person tail copies of boxes scored >= 0.0841 (q0.6, 387 s timed) and Bus copies (r 1.0 m); passed bar (b), projection +0.0002",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 1022492,
+  "uploaded_file": "lumpi_s8d_submission.zip of this folder (md5 d5bd41769788c902b6e49095236aafd6, as in manifest.json)",
+  "submitted": "2026-10-30 23:09 UTC (18:09 CDT; leaderboard created_when 2026-10-30T23:09:47Z)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 22,
+  "leaderboard_checked": "2026-10-30 23:13 UTC (public get_leaderboard API)",
+  "runner_up_at_check": {
+    "owner": "Raj Patil",
+    "id": 1021347,
+    "combined": 0.5118
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005290070873853157
+  },
+  "scores": {
+    "score_combined": 0.525688,
+    "score_detection": 0.254622,
+    "score_realism": 0.932287,
+    "mAP_3d_0.5_R40": 0.178235,
+    "mAP_3d_0.5_R11": 0.18089,
+    "mAP_3d_0.7_R40": 0.085182,
+    "mAP_bev_0.5_R40": 0.190977,
+    "CD": 1.593929,
+    "MMD": 3.071e-05,
+    "EMD": 1.302012,
+    "FPD": 0.519356,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.187565,
+    "AP_3d_0.5_R40_Car": 0.660792,
+    "AP_3d_0.5_R40_Bicycle": 0.188193,
+    "AP_3d_0.5_R40_Motorcycle": 0.001182,
+    "AP_3d_0.5_R40_Bus": 0.003749,
+    "AP_3d_0.5_R40_Truck": 0.065273,
+    "AP_3d_0.5_R40_Van": 0.140894,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.5939288476319815, MMD 3.070874668242851e-05, EMD 1.3020122538945853, FPD 0.5193563285015443",
+    "[scoring] mAP_3d_0.5_R40 = 0.17823538199741754",
+    "(scoring output pasted by the entrant)"
+  ],
+  "vs_previous": {
+    "previous": "1022399 (S8.2, routed-g11c)",
+    "delta": {
+      "score_combined": 0.000249,
+      "score_detection": 0.000415,
+      "mAP_3d_0.5_R40": 0.00029,
+      "mAP_3d_0.5_R11": 0.000652,
+      "mAP_3d_0.7_R40": 4e-05,
+      "mAP_bev_0.5_R40": 0.000319,
+      "AP_3d_0.5_R40_Person": 0.001063,
+      "AP_3d_0.5_R40_Bus": 0.000971
+    }
+  }
+}

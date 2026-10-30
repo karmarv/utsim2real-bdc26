@@ -1,0 +1,384 @@
+{
+  "tag": "8.1",
+  "repository": "karmarv/utsim2real-bdc26",
+  "created": "2026-10-30",
+  "versions": [
+    {
+      "version": "lumpi:s8d",
+      "model": "model-lumpi-track/routed-g11d",
+      "strategy": "S8",
+      "submission_zip": "model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip",
+      "zip_md5": "d5bd41769788c902b6e49095236aafd6",
+      "codabench_id": "1022492",
+      "leaderboard_combined": 0.525688,
+      "reproduce_test": "model-lumpi-track/routed-g11d/test/reproduce_s8d.sh",
+      "reproduce_validation": "model-lumpi-track/routed-g11d/test/reproduce_s8d_validation.sh",
+      "checkpoints": [
+        "lumpi.pointpillars-g1.epoch40.pth",
+        "lumpi.pointpillars-g1v3.epoch40.pth",
+        "lumpi.pointpillars-g1v4.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4-s3.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4-s4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4d3.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v4-s2.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v4.epoch40.pth"
+      ]
+    },
+    {
+      "version": "lumpi:s8c",
+      "model": "model-lumpi-track/routed-g11c",
+      "strategy": "S8",
+      "submission_zip": "model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip",
+      "zip_md5": "ead9da5ec4eb683e526efe4b72483dfc",
+      "codabench_id": "1022399",
+      "leaderboard_combined": 0.525439,
+      "reproduce_test": "model-lumpi-track/routed-g11c/test/reproduce_s8c.sh",
+      "reproduce_validation": "model-lumpi-track/routed-g11c/test/reproduce_s8c_validation.sh",
+      "checkpoints": [
+        "lumpi.pointpillars-g1.epoch40.pth",
+        "lumpi.pointpillars-g1v3.epoch40.pth",
+        "lumpi.pointpillars-g1v4.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4-s3.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4-s4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4d3.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v4-s2.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v4.epoch40.pth"
+      ]
+    },
+    {
+      "version": "v2x:s8v",
+      "model": "model-v2x-track/routed-g13",
+      "strategy": "S8",
+      "submission_zip": "model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip",
+      "zip_md5": "b9c82e3de0c37babf146549eeedabbf6",
+      "codabench_id": "1022246",
+      "leaderboard_combined": 0.902153,
+      "reproduce_test": "model-v2x-track/routed-g13/test/reproduce_s8v.sh",
+      "reproduce_validation": "model-v2x-track/routed-g13/test/reproduce_s8v_validation.sh",
+      "checkpoints": [
+        "v2x.pointpillars-g1v5.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v4.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v5.epoch40.pth"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "name": "lumpi.pointpillars-g1.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "bytes": 59012833,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "bytes": 59012833,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "46e9f504fd05e90f72272387a102eeb0",
+      "bytes": 59324259,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "590e9f16fe22d1f429d4827392c1f0ba",
+      "bytes": 59010233,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "97be701cb39c8b56c663acee56cc7bf7",
+      "bytes": 59324377,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "66c1f05a2e602113dd011d96a22ec334",
+      "bytes": 200583607,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "07b8df1f669ba02d513a37418c5ae0f7",
+      "bytes": 200582553,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4-s3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "990dee15be6b53131fd20831dddf3d24",
+      "bytes": 200583347,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4-s4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4-s4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "c1f8401d4f6cff38906165bd86f4f067",
+      "bytes": 200583597,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3fffacf2d0baab79eb5cd12676ea591f",
+      "bytes": 200583329,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "695362e328dbecea9ac802796b6d59c0",
+      "bytes": 200583361,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4d3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "0cb2e5d4039ec05b490e6f80ee219233",
+      "bytes": 200583345,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+      "bytes": 231954827,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v4-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "4d877e50e45311ece0284cca946d4e37",
+      "bytes": 231954967,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5c061261f002f5e04eaec1d4704b937f",
+      "bytes": 231954967,
+      "used_by": [
+        "lumpi:s8d",
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "v2x.pointpillars-g1v5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pointpillars-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "62070b22bce0641b803187bda4b113e9",
+      "bytes": 58418223,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "30b8d6036c6f2c4b8d9de562d0f2e6a5",
+      "bytes": 198248942,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "f36f0300036e489bde87e30fd17e694d",
+      "bytes": 198248868,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "106fcb7d15e72ef1efcb10bfc90b543c",
+      "bytes": 198248724,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "4bceaa59aeb5c62520b334a0c20525d5",
+      "bytes": 198248952,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5677c039b8cc33a058b045f732c687de",
+      "bytes": 229620302,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "b85264eaec17f167f34b0185acce9313",
+      "bytes": 229620302,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "be6acbf7d91fea91235ff2d89fc8dbae",
+      "bytes": 229620302,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3a4f716b778dc88d4b030e8c2f3ac756",
+      "bytes": 229620292,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "a90a13b7e29706bb06b8a435bf0b3eac",
+      "bytes": 229620004,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    },
+    {
+      "name": "lumpi_s8c_submission.zip",
+      "kind": "submission",
+      "path": "model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip",
+      "md5": "ead9da5ec4eb683e526efe4b72483dfc",
+      "bytes": 24938957,
+      "used_by": [
+        "lumpi:s8c"
+      ]
+    },
+    {
+      "name": "lumpi_s8d_submission.zip",
+      "kind": "submission",
+      "path": "model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip",
+      "md5": "d5bd41769788c902b6e49095236aafd6",
+      "bytes": 25119848,
+      "used_by": [
+        "lumpi:s8d"
+      ]
+    },
+    {
+      "name": "v2x_s8v_submission.zip",
+      "kind": "submission",
+      "path": "model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip",
+      "md5": "b9c82e3de0c37babf146549eeedabbf6",
+      "bytes": 21383740,
+      "used_by": [
+        "v2x:s8v"
+      ]
+    }
+  ],
+  "total_bytes": 4466589891
+}

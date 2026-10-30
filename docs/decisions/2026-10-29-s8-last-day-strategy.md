@@ -1,6 +1,6 @@
 # 2026-10-29 S8 last-day strategy: what the last 21 hours of the development phase and the final phase can still buy
 
-**Result (2026-10-30, release 8.0): both uploads confirmed, rank 1 on both tracks.** LUMPI `s8b` 1022250 **0.523901** (+0.00106 over 1014495), V2X `s8v` 1022246 **0.902153** (+0.00398 over 1014682); Section 8.5. S8.2 (Section 9) is still running and will be 8.1.
+**Result (2026-10-30): LUMPI `s8d` (S8.3) 1022492 scored 0.525688, rank 1, the LUMPI entry and F1 (Section 10.3); before it S8.2 `s8c` 1022399 0.525439 (+0.00154 over `s8b`; Car +0.0126). V2X stays `s8v`.** Release 8.0, both uploads confirmed, rank 1 on both tracks: LUMPI `s8b` 1022250 **0.523901** (+0.00106 over 1014495), V2X `s8v` 1022246 **0.902153** (+0.00398 over 1014682); Section 8.5. S8.2 (Section 9) is 8.1.
 
 **Status: adopted 2026-10-30, 09:44 CDT** (the entrant's go: build S8 on LUMPI, U1 then U2, V2X U2 second priority, upload bar (b); Section 7 decisions 1-3). Rule 8 below narrows U2 for the late go and was written before any 12-view result existed. The measurements in Section 4 ran on legal validation frames only, from the session scratchpad, with no change to the repository.
 
@@ -315,7 +315,7 @@ The entrant uploaded `s8v` and `s8b` unchanged; `s8a` (U1) was not uploaded, bec
 - **Every change transferred with the sign the local checks gave.** LUMPI projected +0.0011 and scored +0.00106. V2X projected +0.0015 and scored +0.0040: pedestrian gained +0.0139 on the test frames against +0.0103 on realval-B and +0.0070 on realval-A.
 - **The non-negative completion did what the proof says.** The lowered floors added Truck +0.0021 and Motorcycle +0.0003 on the test frames, where realval had measured 0 and +0.0015. No class lost.
 - The Person gain (+0.0063) mixes the copies and the 12-view fusion; `s8a` would have separated them, and it stays local.
-- **F1 (rule 6): `lumpi_s8b_submission.zip` and `v2x_s8v_submission.zip`**, unless an S8.2 version scores higher before the phase closes. The S7.6 zips are the fallback.
+- **F1 (rule 6): `lumpi_s8b_submission.zip` and `v2x_s8v_submission.zip`** at release 8.0. LUMPI F1 became `lumpi_s8c_submission.zip` once S8.2 scored higher (Section 9.1). The S7.6 zips are the fallback.
 - **Budget used:** LUMPI 9 of 100, V2X 12 of 100.
 
 ## 9. S8.2: the dropped 12-view scope (pre-registered 2026-10-30, 13:15 CDT, before any S8.2 result)
@@ -346,3 +346,78 @@ The entrant asked, at 12:50 CDT, for the 12-view approach in the scope rule 8 ha
    | both | -0.0043 / -0.0062 / -0.0051 | 1,515 |
 
    Vehicle and truck are unchanged. The completion loses on V2X because of the S7 sparse stage, which ranks low-point boxes below every other box: new low-score boxes then outrank the demoted true positives. The proof that a box scored below every other box cannot lower AP assumes nothing sits under it. LUMPI has no sparse stage, so U1's argument holds there.
+
+### 9.1 S8.2 results (2026-10-30, 16:35 CDT)
+
+- **12-view bags (realval-A / B).** LUMPI `bagpv4x_tta12` 0.3633 / 0.2010, `bagvr4x_tta12` 0.3606 / 0.2006. V2X `bagvr5x_tta12` 0.7131 / 0.7044, `bagpv5x_tta12` 0.7082 / 0.6988. Every bag seed gained at 12 views on A (LUMPI +0.005 to +0.008 mAP, Person +0.013 to +0.020).
+- **LUMPI `routed-g11c` / `s8c`: built.**
+  - Fuse (pairs and triples of the top 4 per class):
+    - Person, Truck and Van keep their `s8b` fusions; the `s8b` Person fusion still ranks first on late-A.
+    - Car moves to `pvros_tta12` + `bagpv4x_tta12` @ 0.7 (pooled +0.0007 at P 0.925).
+  - Final check against `s8b`: Car is kept (dA +0.0018, dB -0.0010, train split +0.0018).
+  - Local A 0.3911, B 0.2265; **projection against `s8b` +0.00003**, above 0, so `s8c` passes bar (b) by its letter.
+  - Kit check valid: 319 s, 31,048 boxes. Only Car differs from `s8b` (12,748 -> 11,758 boxes), and the realism frames are byte-identical.
+  - Zip `model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip`, md5 `ead9da5ec4eb683e526efe4b72483dfc`.
+  - **Reading:** a near-zero local change in the class whose local gains did not transfer in S7.6 (Car +0.006 on both splits, -0.004 on the leaderboard). The expected leaderboard change is within noise either way.
+- **Leaderboard: `s8c` uploaded by the entrant, 1022399 (2026-10-30 21:37 UTC): 0.525439**, rank 1 of 22 (Raj Patil 0.5118).
+  - Against `s8b` (1022250): +0.00154. Car 0.6482 -> 0.6608 (+0.0126); every other class and the realism are identical.
+  - **The Car change transferred far above its local evidence**: +0.0018 on A, -0.0010 on B, +0.0126 on the test frames. In S7.6 a LUMPI Car change went the other way (+0.006 on both splits, -0.004 on the leaderboard). On LUMPI Car the local splits do not predict the test sign; the pooled rule and the final check bound the downside, not the size.
+  - **LUMPI F1 is now `lumpi_s8c_submission.zip`** (rule 6), with `s8b` and then `s7s` as fallbacks. Budget used: LUMPI 10 of 100.
+- **V2X `routed-g14`: not built.** Every candidate lost to its incumbent, and the re-derived floors, copies and sparse stage equal `s8v`'s, so every class is frozen at `s8v`.
+
+## 10. S8.3: the completion up to the kit budget (pre-registered 2026-10-30, 17:12 CDT, before any S8.3 result)
+
+The entrant asked at 17:00 CDT for a last rule-aligned increment that fits the remaining 1 h 50 min.
+
+**Why this lever.** On realval-B the largest residual error is localization for the walker classes: LUMPI Person 0.260, V2X pedestrian 0.273. It is also large for LUMPI Truck (0.094) and Bus (0.098). Tail copies target localization, and a copy scored below every box of its class cannot lower AP on any frame set (`apply_tail_copies`). Kit time limits them: LUMPI `s8c` takes 319 s, V2X `s8v` 128 s, against the 400 s rule. No GPU is needed: the merge runs on the members' saved predictions.
+
+1. **LUMPI `routed-g11d` / `s8d`, from `s8c`.**
+   - (a) Person copies on more boxes: t from 0.274 (q0.8) down to the lowest realval-A quantile in {0.7, 0.6, 0.5} whose kit check stays at or under 390 s.
+   - (b) Copies (4) for Truck and Bus, each with the radius in {0.2, 0.5, 1.0} m that is best on realval-A. A class is kept only if realval-B and the pooled frames gain, as R5's `tail_select`. Bus is frozen, but rule 2 exempts changes that cannot lower AP.
+   - Nothing else changes.
+2. **V2X `routed-g13x` / `s8x`, from `s8v`.**
+   - Copies applied **after** the sparse stage (`final_copies`), scored below every box of the class including the demoted ones, so the argument holds again.
+   - Pedestrian: a second ring, radius in {0.3, 0.45} m, for boxes scored at or above the realval-A median of its final pedestrian scores.
+   - Vehicle and truck: copies with radius in {0.2, 0.5, 1.0} m.
+   - Each class is kept as in 1(b), with the kit check under 390 s.
+3. **Bar (b)** against `s8c` / `s8v`: projection above 0. Every change cannot lower AP, so no per-class final check beyond the gains above.
+4. **Cut-off.** Packaged by 18:20 CDT (23:20 UTC), or not offered.
+
+### 10.1 S8.3 probe (realval, against `s8c` / `s8v`) and the choice
+
+| Track | Variant | Class | A | B | Pooled (P) | Test boxes | Rule outcome |
+|---|---|---|---|---|---|---|---|
+| LUMPI | Person t q0.7 (0.1513) | Person | +0.0000 | +0.0011 | +0.0014 (0.99) | 33,116 | candidate |
+| LUMPI | Person t q0.6 (0.0841) | Person | +0.0014 | +0.0020 | +0.0014 (1.00) | 35,440 | candidate if the kit check fits |
+| LUMPI | Person t q0.5 (0.0508) | Person | +0.0014 | +0.0020 | +0.0024 (1.00) | 37,292 | over the kit budget (U1 measured 437 s) |
+| LUMPI | Truck r 0.2 (best on A) | Truck | +0.0009 | +0.0012 | +0.0012 (0.79) | 35,228 | **dropped** (pooled P < 0.9) |
+| LUMPI | Bus r 1.0 (best on A) | Bus | +0.0006 | +0.0015 | +0.0010 (1.00) | 33,004 | **kept** |
+| V2X | pedestrian ring r 0.3 (best on A) | pedestrian | +0.0009 | +0.0007 | +0.0005 (0.89) | 49,122 | **dropped** (pooled P < 0.9) |
+| V2X | vehicle r 0.2 / 0.5 / 1.0 | vehicle | 0 / +0.0005 / 0 | 0 | 0 | 47,542 | dropped |
+| V2X | truck r 0.2 / 0.5 / 1.0 | truck | 0 | 0 | 0 | 26,102 | dropped |
+
+- **V2X:** no class passes, so `s8x` is not built and `s8v` stays.
+- **LUMPI:** `s8d` = `s8c` + Bus copies (r 1.0) + Person copies at q0.7 or q0.6, whichever is the lowest quantile with a kit check at or under 390 s. Both were timed in parallel (q0.7 + Bus 35,072 boxes, q0.6 + Bus 37,396). The build started with q0.7, the interpolated fit (about 360 s against about 400 s for q0.6).
+
+### 10.2 LUMPI `routed-g11d` / `s8d`: built, passes bar (b)
+
+- **Kit timings** (two in parallel): q0.7 + Bus 351 s (35,072 boxes), q0.6 + Bus 387 s (37,396 boxes). Both fit the 390 s bound, so rule 1(a) takes **q0.6** (t = 0.0841). The q0.7 build, started before the timings were in, was stopped and rebuilt.
+- **`s8d` = `s8c` with Person copies at t = 0.0841 and Bus copies (r 1.0 m, 4 copies).** Every other class is identical to `s8c`, every `s8c` box is kept, and the realism frames and declaration are byte-identical. The test predictions are `s8c`'s verified member predictions, merged again (no inference).
+- **Local:**
+  - realval-A 0.3914 (+0.0003), realval-B 0.2270 (+0.0005);
+  - Person +0.0015 / +0.0020, Bus +0.0006 / +0.0015;
+  - **projection +0.0002** against `s8c`.
+- **Kit check** valid: 361 s, 37,396 boxes.
+- **Zip:** `model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip`, md5 `d5bd41769788c902b6e49095236aafd6`.
+
+### 10.3 Leaderboard: `s8d` (the LUMPI entry and F1)
+
+- **Upload.** `s8d` uploaded by the entrant as 1022492 (2026-10-30 23:09 UTC): **0.525688**, rank 1 of 22 (Raj Patil 0.5118).
+- **Against `s8c` (1022399): +0.00025, as projected (+0.0002).**
+  - Person 0.1865 -> 0.1876 (+0.0011), Bus 0.0028 -> 0.0037 (+0.0010).
+  - Every other class and the realism are identical, as the construction says.
+- **Against S7.6 (1014495), the whole S8 line on LUMPI: +0.0028.**
+  - Person +0.0073, Car +0.0126, Truck +0.0021, Bus +0.0010, Motorcycle +0.0003; nothing lost.
+- **The completion transferred in full each time it was uploaded:** the floors in `s8b`, the copies in `s8b` and `s8d`. It is the one lever of the last day whose test-frame gain was never negative and always close to its local size.
+- **F1 (rule 6): `lumpi_s8d_submission.zip` and `v2x_s8v_submission.zip`**; LUMPI fallbacks `s8c`, then `s8b`.
+- **Budget used:** LUMPI 11 of 100, V2X 12 of 100.

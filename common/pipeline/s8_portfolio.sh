@@ -7,6 +7,8 @@
 #   bash common/pipeline/launch.sh <run> s8_v2x common/pipeline/s8_portfolio.sh <run> v2x
 #   bash common/pipeline/launch.sh <run> s8_u3 common/pipeline/s8_portfolio.sh <run> u3       # S8.2 LUMPI s8c
 #   bash common/pipeline/launch.sh <run> s8_v2x2 common/pipeline/s8_portfolio.sh <run> v2x2   # S8.2 V2X s8w
+#   bash common/pipeline/launch.sh <run> s8_u4 common/pipeline/s8_portfolio.sh <run> u4 <spec.json>     # S8.3 LUMPI s8d
+#   bash common/pipeline/launch.sh <run> s8_v2x3 common/pipeline/s8_portfolio.sh <run> v2x3 <spec.json> # S8.3 V2X s8x
 # u1: routed-g11 = the entry routed-g10 plus the non-negative completion (floors above 0.01 lowered to 0.01, Person
 #     tail copies of the boxes scored >= t); package s8a, official kit check, scorecard, reproduction scripts
 # u2: routed-g11b = routed-g11 plus the _tta12 siblings of the 7 TTA members in the unfrozen classes' fusions
@@ -254,6 +256,54 @@ PY
   NC=$(python -c "import sys;sys.path.insert(0,'common');from bdc26.config import load_track;print(len(load_track('$T')['classes_with_test_gt']))")
   if [ "$(echo $FROZEN | wc -w)" -ge "$NC" ]; then st "every class frozen: $(basename $M) equals $(basename $REF); $TAG is not built"; st "DONE"; exit 0; fi
   package $M $TAG $REF $T
+  st "projection vs $(basename $REF): $(python common/tools/s7_check.py projection $T $M $REF)"
+  st "DONE"
+  exit 0
+fi
+# S8.3 (record Section 10): the completion up to the kit budget, no GPU. u4: LUMPI routed-g11d (s8d) from routed-g11c;
+# v2x3: V2X routed-g13x (s8x) from routed-g13. $3 = a JSON file {"tail_copies": {...}} (LUMPI) or {"final_copies": {...}}
+# (V2X) chosen by the probe; the test predictions are the reference's verified member predictions, merged again.
+if [ "$STAGE" = u4 ] || [ "$STAGE" = v2x3 ]; then
+  SPEC=$3
+  if [ "$STAGE" = u4 ]; then T=lumpi; REF=$L/routed-g11c; M=$L/routed-g11d; TAG=s8d; RTAG=s8c
+  else T=v2x; REF=model-v2x-track/routed-g13; M=model-v2x-track/routed-g13x; TAG=s8x; RTAG=s8v; fi
+  mkdir -p $M/test/output $M/validation/results $M/train $M/submissions
+  cp $REF/test/make_submission.sh $REF/test/synthetic_ids.txt $M/test/
+  cp $REF/validation/results/route_table.json $M/validation/results/
+  python - "$REF" "$M" "$SPEC" > "$RUN/s8_${STAGE}_card.log" 2>&1 <<'PY' || { st "card FAILED"; exit 1; }
+import json, sys
+from pathlib import Path
+import yaml
+src, m, spec = sys.argv[1:4]
+d = yaml.safe_load(Path(src, "model.yaml").read_text())
+d.update(json.loads(Path(spec).read_text()))
+d["name"] = Path(m).name
+d["status"] = (f"S8.3: {Path(src).name} with the completion up to the kit budget ({json.loads(Path(spec).read_text())}) "
+               "(docs/decisions/2026-10-29-s8-last-day-strategy.md Section 10)")
+d["notes"] = "S8.3 (docs/decisions/2026-10-29-s8-last-day-strategy.md, Section 10).\n"
+Path(m, "model.yaml").write_text(yaml.safe_dump(d, sort_keys=False))
+print(f"{Path(m).name}: " + json.dumps(json.loads(Path(spec).read_text())))
+PY
+  st "$(basename $M) created ($(tr '\n' ';' < "$RUN/s8_${STAGE}_card.log"))"
+  run validate python common/tools/route_predictions.py validate $M &
+  USED=$(python -c "import sys,yaml;sys.path.insert(0,'common/tools');from route_predictions import used_members;print(' '.join(used_members(yaml.safe_load(open('$M/model.yaml')))))")
+  PRED=(); for N in $USED; do PRED+=(--pred "$N=$REF/test/output/predictions_$N.json"); done
+  run merge python common/tools/route_predictions.py merge $M "${PRED[@]}" --out $M/test/output/predictions.json
+  wait                                                  # validation first: the manifest records its local scores
+  grep -q "S8 $STAGE: validate done" "$RUN/events.txt" || { st "validate FAILED"; exit 1; }
+  SYN=$(python -c "import yaml;print(yaml.safe_load(open('$M/model.yaml'))['realism_frames'])")
+  run package python common/tools/package_submission.py $M --tag $TAG --pred $M/test/output/predictions.json --synthetic "$SYN" \
+    --syn-split val --syn-list $M/test/synthetic_ids.txt --ckpt "S8.3: $(basename $REF) members, merged again" --team "${BDC_TEAM:-KarmaRV}" \
+    --local-scores $M/validation/results/local_scores.json
+  Z=$(ls -d $M/submissions/*_$TAG | tail -n 1)/submission.zip
+  st "packaged $Z"
+  python common/tools/check_submission.py --track $T $Z --official > "$RUN/s8_${STAGE}_check.log" 2>&1 \
+    && st "kit check: $(grep -E '"wall_s"|"n_boxes"|"valid"' "$RUN/s8_${STAGE}_check.log" | tr -s ' ' | tr '\n' ' ')" || st "kit check FAILED"
+  SCX=(); [ "$T" = lumpi ] && SCX=(--judge Van)
+  python common/tools/scorecard.py $M --vs $REF --bootstrap 200 --realism-from $REF "${SCX[@]}" > "$RUN/s8_${STAGE}_scorecard.log" 2>&1 \
+    && st "scorecard done" || st "scorecard FAILED"
+  python common/tools/reproduce_submission.py $M --tag $TAG --write-script > "$RUN/s8_${STAGE}_reproduce.log" 2>&1 || true
+  python common/tools/reproduce_validation.py $M --tag $TAG --write-script > "$RUN/s8_${STAGE}_reproduce_val.log" 2>&1 || true
   st "projection vs $(basename $REF): $(python common/tools/s7_check.py projection $T $M $REF)"
   st "DONE"
   exit 0
