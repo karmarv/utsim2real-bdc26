@@ -47,7 +47,7 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 8.0 | 2026-10-30 | S8 (V2X entry and F1; LUMPI until 8.1) | **1022250: 0.5239** (0.523901, S8 U2) | **1022246: 0.9022** (0.902153, S8 V2X U2) | **yes**: 25 checkpoints + 2 zips ([`releases/8.0/weights.json`](releases/8.0/weights.json)), every checkpoint byte-identical to its 7.0 asset | `routed-g11b/test/reproduce_s8b.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 | **8.1** | 2026-10-30 | **S8.2, S8.3** (LUMPI entry and F1; V2X unchanged) | **1022492: 0.5257** (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 
-The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0 and 8.0 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0 and 8.1 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
 
 ## 8.1 (pre-release, 2026-10-30)
 
@@ -74,6 +74,8 @@ python common/tools/release_weights.py fetch --tag 8.1 --version lumpi:s8d      
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g11d/test/reproduce_s8d.sh
 ```
 Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): `reproduce_s8c.sh` rebuilds the scored zip **IDENTICAL** from these weights, with predictions at maximum difference 0.0 and the 50 realism frames byte-identical. The 12-view bag is recomputed from its six seeds (`--refresh`). `reproduce_s8v.sh` is the 8.0 dry-run (IDENTICAL). `reproduce_s8d.sh` (the same members as `s8c`, merged with the S8.3 copies) also rebuilds its scored zip **IDENTICAL**: 37,396 boxes, maximum difference 0.0, kit scorer valid in 368 s.
+
+**Published** by the entrant on 2026-10-30 ([`releases/8.1/github.json`](releases/8.1/github.json)): [release 8.1](https://github.com/karmarv/utsim2real-bdc26/releases/tag/8.1) on commit `e5b090f`. `main` and the tag were pushed from the entrant's terminal, and `release_weights.py publish` uploaded the 28 assets, ending with "all assets uploaded and sizes match". Every checkpoint and the V2X zip equal their 8.0 assets by sha256 (26 of 26 shared names); the two LUMPI zips are new. Not done yet, as for 8.0: the GitHub-side sha256 and the label, read from the release page in the entrant's browser, and the fresh-clone fetch.
 
 ## 8.0 (pre-release, 2026-10-30)
 
