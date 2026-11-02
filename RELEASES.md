@@ -48,7 +48,7 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 8.1 | 2026-10-30 | S8.2, S8.3 (LUMPI entry until 9.1; V2X unchanged) | 1022492: 0.5257 (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 | **9.1** | 2026-11-02 | **S9** (the entries on both tracks; the F1 candidates) | **1028541: 0.5357** (0.535667, `s9a2`) | **1028491: 0.9030** (0.902971, `s9a`) | **yes**: 27 checkpoints + 2 zips ([`releases/9.1/weights.json`](releases/9.1/weights.json)); 4 checkpoints new since 8.1 | `routed-g12/test/reproduce_s9a2.sh` (LUMPI), `routed-g15/test/reproduce_s9a.sh` (V2X) |
 
-The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0 and 8.1 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0, 8.1 and 9.1 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
 
 ## 9.1 (pre-release, 2026-11-02)
 
@@ -79,6 +79,8 @@ Dry run on 2026-11-02 (`$BDC_DATA/logs/s9/r91`), each script on its own GPU, but
 - **Both:** the 50 realism frames are byte-identical and the kit check is valid (LUMPI 400.5 s and V2X 236.2 s on the loaded machine).
 - **The reported maximum difference of about 78** comes from comparing boxes by position in each frame's list once the counts differ. It is not a box offset.
 - **The same pattern** was seen in 8.0, where the shared-GPU attempts were EQUIVALENT and the idle-GPU runs IDENTICAL. **Still to do:** the idle-GPU run, once a GPU is free of training.
+
+**Published** by the entrant on 2026-11-02 ([`releases/9.1/github.json`](releases/9.1/github.json)): [release 9.1](https://github.com/karmarv/utsim2real-bdc26/releases/tag/9.1) on commit `009b1db`. `main` (e520d6c..009b1db) and the tag were pushed from the entrant's terminal, and `release_weights.py publish` uploaded the 29 assets, ending with "all assets uploaded and sizes match". The 23 asset names shared with 8.1 are byte-identical to their 8.1 assets by sha256. New: the checkpoints of LUMPI `voxelrcnn-ros-g1v6` and `voxelnext-ros-g1v6`, and of V2X `pvrcnnpp-ros-g1v5d2` and `pvrcnnpp-ros-g1v5d3`, plus the two zips. Not done yet, as for 8.0 and 8.1: the GitHub-side sha256 and the label, read from the release page in the entrant's browser, and the fresh-clone fetch check, which needs a token on this server.
 
 ## 8.1 (pre-release, 2026-10-30)
 

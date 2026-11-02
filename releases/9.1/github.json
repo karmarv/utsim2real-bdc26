@@ -1,0 +1,210 @@
+{
+ "tag": "9.1",
+ "url": "https://github.com/karmarv/utsim2real-bdc26/releases/tag/9.1",
+ "title": "9.1 (pre-release)",
+ "commit": "009b1db2162d68ce715145eb6773d3868ad87a31",
+ "published": "2026-11-02, by the entrant (git push of main and the tag, then release_weights.py publish, in the entrant's terminal)",
+ "label": "created as a pre-release by release_weights.py publish; the label as GitHub shows it is the entrant's setting and was not read back",
+ "uploaded_assets": 29,
+ "checked": "2026-11-02",
+ "check": "release_weights.py publish ended with 'all assets uploaded and sizes match' (29 of 29); the sha256 below are of the local files used by the dry runs; 23 of 23 names shared with 8.1 are byte-identical to their 8.1 assets; new: lumpi.voxelnext-ros-g1v6.epoch40.pth, lumpi.voxelrcnn-ros-g1v6.epoch40.pth, v2x.pvrcnnpp-ros-g1v5d2.epoch40.pth, v2x.pvrcnnpp-ros-g1v5d3.epoch40.pth, lumpi_s9a2_submission.zip, v2x_s9a_submission.zip; the sha256 GitHub shows for the 9.1 assets was not read back (the repository is private and this server has no token)",
+ "assets": [
+  {
+   "name": "lumpi.pointpillars-g1.epoch40.pth",
+   "bytes": 59012833,
+   "md5": "16e68b8b9142688967e4b3d006ac9d54",
+   "sha256": "3a0b76aeeb25c7beea5fd58b43b363c261d6e69f24140edc667b28e73c22f091",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pointpillars-g1v3.epoch40.pth",
+   "bytes": 59012833,
+   "md5": "e403acdc3ae30a84de3989da34619440",
+   "sha256": "351f1bb4bee8a55475d379ae5324139209945063133c9cd53c1c34ae189822d6",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pointpillars-g1v4.epoch40.pth",
+   "bytes": 59324259,
+   "md5": "46e9f504fd05e90f72272387a102eeb0",
+   "sha256": "18ab8f2cb0fa6b259fcdadb5939e00bfb89114ffba8926789a328317b39c70ea",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+   "bytes": 59010233,
+   "md5": "590e9f16fe22d1f429d4827392c1f0ba",
+   "sha256": "212efd0183beb1f19246070f7668b1ad2725f3d3682d3c322d8cca1e1f7bf477",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+   "bytes": 59324377,
+   "md5": "97be701cb39c8b56c663acee56cc7bf7",
+   "sha256": "b48b51acc032d2cba3129e27b03c2559f43141f0229aee037b33a1b545a2252d",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+   "bytes": 200583607,
+   "md5": "66c1f05a2e602113dd011d96a22ec334",
+   "sha256": "8adcde2896c47fdfbbb5df42d32acd26f48978b55652e9370554df05fcfc3301",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+   "bytes": 200582553,
+   "md5": "07b8df1f669ba02d513a37418c5ae0f7",
+   "sha256": "ffa39563b33ee3fc14da9ad8485410a476ce47cbfb9104d61ac67b0572dfc65b",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v4-s3.epoch40.pth",
+   "bytes": 200583347,
+   "md5": "990dee15be6b53131fd20831dddf3d24",
+   "sha256": "cd343b01b5fecfa6354620a0d79abec1bad7e16eaeab6fc3a47c162d25f187c7",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v4-s4.epoch40.pth",
+   "bytes": 200583597,
+   "md5": "c1f8401d4f6cff38906165bd86f4f067",
+   "sha256": "11f6d55f78e81d945aac52cf767d28f3c4704b0249f0dbee104208784dd357a2",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+   "bytes": 200583329,
+   "md5": "3fffacf2d0baab79eb5cd12676ea591f",
+   "sha256": "7092292c241b1711ad63e706b5cef5465f0c6593277713f84cb9f33be510c596",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+   "bytes": 200583361,
+   "md5": "695362e328dbecea9ac802796b6d59c0",
+   "sha256": "575883928b12bd8fc11a2ab0cbe9ba044e2b5035c62e2343c2631b498d9518e2",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.pvrcnnpp-ros-g1v4d3.epoch40.pth",
+   "bytes": 200583345,
+   "md5": "0cb2e5d4039ec05b490e6f80ee219233",
+   "sha256": "7eeec971ce3f6ba992bbd891ac482d3ff0e6dc545fe481d3a23908a2f49ff73f",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.voxelnext-ros-g1v6.epoch40.pth",
+   "bytes": 92696086,
+   "md5": "181f67acfcc56d83fa1acc196393b9fc",
+   "sha256": "e0f0b4d984efb41f6f6d332eef7a80e0c0044219d12ba176721d545fdfa544e4"
+  },
+  {
+   "name": "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+   "bytes": 231954827,
+   "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+   "sha256": "a4f2437d2f6b0f2c92750bf60601343eee146dd05dcda84c92f1ac9858c32f1b",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
+   "bytes": 231954967,
+   "md5": "5c061261f002f5e04eaec1d4704b937f",
+   "sha256": "6080c56f490886a8bff28b8439b60807194c9ce72cca61d2e6c79e2b6f299bd1",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi.voxelrcnn-ros-g1v6.epoch40.pth",
+   "bytes": 231954977,
+   "md5": "71eeb17664da198f4b23ecdf167f86db",
+   "sha256": "7ba8159b859ca6c76b905d86440961c968108be786f215b34adbb2c1ea300533"
+  },
+  {
+   "name": "v2x.pointpillars-g1v5.epoch40.pth",
+   "bytes": 58418223,
+   "md5": "62070b22bce0641b803187bda4b113e9",
+   "sha256": "463679b021e4c9eec0aafe428318efb6a6811053fc2c1b7bb3539c2e6989b44a",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+   "bytes": 198248942,
+   "md5": "30b8d6036c6f2c4b8d9de562d0f2e6a5",
+   "sha256": "09fdb1bce18c538cec664d4f67b67fc4382f17fcc66c5c9d21ef24a15b265a05",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
+   "bytes": 198248868,
+   "md5": "f36f0300036e489bde87e30fd17e694d",
+   "sha256": "ecaa71acdc01acf1548ffcd64d1743797e3a864797f6a2df2a671d0bbd4b4f71",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
+   "bytes": 198248724,
+   "md5": "106fcb7d15e72ef1efcb10bfc90b543c",
+   "sha256": "0c5d2b1abde6db74359cd2a5fbdd58e848bbc2f8019d6319f1916f5d8d176228",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
+   "bytes": 198248952,
+   "md5": "4bceaa59aeb5c62520b334a0c20525d5",
+   "sha256": "a613bbba41d9d386bfd84947c9676832619f44bd956ba57f0db108157d73d325",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.pvrcnnpp-ros-g1v5d2.epoch40.pth",
+   "bytes": 198248638,
+   "md5": "0b79f7c65fa3abd157d6f688b54b9d66",
+   "sha256": "7a870ec57d44e8ae050d41235c96fa0bdcde038d346c9b3ea3df4805255a7297"
+  },
+  {
+   "name": "v2x.pvrcnnpp-ros-g1v5d3.epoch40.pth",
+   "bytes": 198248724,
+   "md5": "c4ba5929c1b6072411442645538fcc0c",
+   "sha256": "c3aec25b38c89ca6dce234b2915f181592b475b850be519e782c65ad3850279b"
+  },
+  {
+   "name": "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
+   "bytes": 229620302,
+   "md5": "5677c039b8cc33a058b045f732c687de",
+   "sha256": "9bee96c5588b20be14a5e3ba13ec4b8a2044b06f309143fb9bd32ad05d37bb05",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
+   "bytes": 229620302,
+   "md5": "be6acbf7d91fea91235ff2d89fc8dbae",
+   "sha256": "ed5b7681e64c71cb77941b77f7ab2c07d9e353241af85ad266b8b9967449da6f",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
+   "bytes": 229620292,
+   "md5": "3a4f716b778dc88d4b030e8c2f3ac756",
+   "sha256": "fa00e348dbd55a180632f1c25a60a5eeb0baa2afc599321b558e10347b226e99",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "v2x.voxelrcnn-ros-g1v5.epoch40.pth",
+   "bytes": 229620004,
+   "md5": "a90a13b7e29706bb06b8a435bf0b3eac",
+   "sha256": "eb998649da8f1cc011aa17596fe027f480c0a52ce6b040574d4f397160889229",
+   "same_as_8.1_asset": true
+  },
+  {
+   "name": "lumpi_s9a2_submission.zip",
+   "bytes": 26102061,
+   "md5": "45e4eda799949770cece154a990eb979",
+   "sha256": "a00f5f9d00cd348b76de963ef7d5234ae1770b2bd2e29b934308424d97552bf6"
+  },
+  {
+   "name": "v2x_s9a_submission.zip",
+   "bytes": 22128040,
+   "md5": "3e59e5b3c76b440bd11aeba0304cc75e",
+   "sha256": "12825f31efc63f1bf39745faf29a674258e5320e076692799eeac891f8eff86c"
+  }
+ ]
+}
