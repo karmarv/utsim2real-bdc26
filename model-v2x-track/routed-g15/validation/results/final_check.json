@@ -1,0 +1,29 @@
+{
+  "vs": "routed-g13",
+  "classes": {
+    "vehicle": {
+      "dA": 0.0,
+      "dB": 0.0,
+      "pooled_delta": 0.0,
+      "p_gain": 0.0,
+      "train_split_delta": 0.0,
+      "kept": false
+    },
+    "pedestrian": {
+      "dA": 0.006078745566230115,
+      "dB": 0.001660525335417884,
+      "pooled_delta": 0.004079902765066645,
+      "p_gain": 0.965,
+      "train_split_delta": 0.013245915227632798,
+      "kept": true
+    },
+    "truck": {
+      "dA": 0.0,
+      "dB": 0.0,
+      "pooled_delta": 0.0,
+      "p_gain": 0.0,
+      "train_split_delta": 0.0,
+      "kept": false
+    }
+  }
+}

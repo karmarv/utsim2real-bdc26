@@ -45,9 +45,40 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 6.0 | 2026-10-17 | S6 | 995869: 0.5228 (0.522754) | 995877: 0.8931 | **yes**: 21 checkpoints + 2 zips ([`releases/6.0/weights.json`](releases/6.0/weights.json)), published 2026-10-18 ([`github.json`](releases/6.0/github.json)) | `routed-g8/test/reproduce_s6.sh` (LUMPI), `routed-g8b/test/reproduce_s6b.sh` (V2X) |
 | 7.0 | 2026-10-27 | S7 (the entries until S8; the F1 fallback) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)), published 2026-10-28 ([`github.json`](releases/7.0/github.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
 | 8.0 | 2026-10-30 | S8 (V2X entry and F1; LUMPI until 8.1) | **1022250: 0.5239** (0.523901, S8 U2) | **1022246: 0.9022** (0.902153, S8 V2X U2) | **yes**: 25 checkpoints + 2 zips ([`releases/8.0/weights.json`](releases/8.0/weights.json)), every checkpoint byte-identical to its 7.0 asset | `routed-g11b/test/reproduce_s8b.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
-| **8.1** | 2026-10-30 | **S8.2, S8.3** (LUMPI entry and F1; V2X unchanged) | **1022492: 0.5257** (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
+| 8.1 | 2026-10-30 | S8.2, S8.3 (LUMPI entry until 9.1; V2X unchanged) | 1022492: 0.5257 (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
+| **9.1** | 2026-11-02 | **S9** (the entries on both tracks; the F1 candidates) | **1028541: 0.5357** (0.535667, `s9a2`) | **1028491: 0.9030** (0.902971, `s9a`) | **yes**: 27 checkpoints + 2 zips ([`releases/9.1/weights.json`](releases/9.1/weights.json)); 4 checkpoints new since 8.1 | `routed-g12/test/reproduce_s9a2.sh` (LUMPI), `routed-g15/test/reproduce_s9a.sh` (V2X) |
 
 The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0 and 8.1 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+
+## 9.1 (pre-release, 2026-11-02)
+
+**Leaderboard** (development phase, extended to 2026-11-06 04:59 UTC; public leaderboards checked 2026-11-02, 19:20 UTC): S9 on both tracks, rank 1 on both. These two zips are the F1 candidates for the final phase, unless a later S9 version scores higher before the development phase closes.
+
+| Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | S9 `s9a2` | 1028541 | 2026-11-02 19:11 | **0.5357** (0.535667) | 0.1890 | 0.9342 | **1 of 24** (next 0.5132) | [`lumpi_s9a2_submission.zip`](model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip) (`45e4eda799949770cece154a990eb979`) | [s9 clean twin, Section 14.9](docs/decisions/2026-11-02-s9-clean-twin-plan.md#149-leaderboard-s9a2-and-s9a-release-91) |
+| 2 V2X-Real (16685) | S9 `s9a` | 1028491 | 2026-11-02 18:24 | **0.9030** (0.902971) | 0.6180 | 0.9332 | **1 of 28** (next 0.8112) | [`v2x_s9a_submission.zip`](model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip) (`3e59e5b3c76b440bd11aeba0304cc75e`) | same |
+
+Server records: [`codabench_1028541.json`](model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/codabench_1028541.json), [`codabench_1028491.json`](model-v2x-track/routed-g15/submissions/2026-11-02_s9a/codabench_1028491.json).
+- **LUMPI against S8.3 (1022492): +0.00998.** Person 0.188 -> 0.262 (+0.0745) from two members trained on the label-free corpus `g1-v6`. Realism 0.9323 -> 0.9342 from the `g1-v6` frames (EMD 1.302 -> 1.272). Every other class is within 0.0008.
+- **V2X against S8 (1022246): +0.00082.** Pedestrian 0.443 -> 0.446, from a re-fusion of existing members; everything else is identical.
+- Both projections had the right sign. LUMPI +0.0049 detection plus about +0.002 realism was projected, +0.0100 scored. V2X +0.0007 was projected, +0.0008 scored.
+
+**Release assets.** The two zips and the 27 checkpoints they use (4.70 GB; LUMPI 16, V2X 11), in [`releases/9.1/weights.json`](releases/9.1/weights.json). New since 8.1: LUMPI `voxelrcnn-ros-g1v6` and `voxelnext-ros-g1v6` (trained on `g1-v6`), and V2X `pvrcnnpp-ros-g1v5d2` and `pvrcnnpp-ros-g1v5d3` (the seeds of `bag-pvrcnnpp-ros-g1v5x`, which the V2X pedestrian fusion now uses). The other checkpoints are 8.1 assets. New in the tree:
+- engine v6: `common/bdc26/render/scene_map.py` (static scene map from the twin's own semantic tags, label-free walker sampler, map ground), `common/bdc26/render/v6.py` (size quantiles, the LUMPI vehicle size convention), map-placed structures in `render/g2.py`, and the v6 flags of both `prepare_g1.py`;
+- `common/tools/s9_calibrate.py` and `s9_member_check.py`, `common/pipeline/s9_portfolio.sh` (with seed and draw bags), the `bdc_world_tilt` augmentor and the VoxelNeXt head fix in `pcdet_patches.py`;
+- the S9 member folders (VoxelNeXt, Voxel R-CNN and PV-RCNN++ on `g1-v6` and `g1-v6d2`), the draw bags `bag-*-g1v6x`, and `routed-g12` (LUMPI) and `routed-g15` (V2X).
+```bash
+python common/tools/release_weights.py fetch --tag 9.1 --version lumpi:s9a2                # or v2x:s9a
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g12/test/reproduce_s9a2.sh
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g15/test/reproduce_s9a.sh
+```
+Dry run on 2026-11-02 (`$BDC_DATA/logs/s9/r91`), each script on its own GPU, but **next to the S9 training jobs** (no GPU is idle until training ends on Nov 5). Both test-frame scripts come back **EQUIVALENT** (GPU nondeterminism), not IDENTICAL:
+- **LUMPI `reproduce_s9a2.sh`:** 38,471 against 38,466 boxes. 38,427 boxes are matched, with centres within 0.010 m at the 99th percentile (median 1.5e-8 m) and scores within 0.0003. All 83 unmatched boxes score below 0.3.
+- **V2X `reproduce_s9a.sh`:** 38,794 against 38,824 boxes. 38,779 are matched (centres within 0.003 m at the 99th percentile). All 60 unmatched boxes score below 0.3.
+- **Both:** the 50 realism frames are byte-identical and the kit check is valid (LUMPI 400.5 s and V2X 236.2 s on the loaded machine).
+- **The reported maximum difference of about 78** comes from comparing boxes by position in each frame's list once the counts differ. It is not a box offset.
+- **The same pattern** was seen in 8.0, where the shared-GPU attempts were EQUIVALENT and the idle-GPU runs IDENTICAL. **Still to do:** the idle-GPU run, once a GPU is free of training.
 
 ## 8.1 (pre-release, 2026-10-30)
 

@@ -43,6 +43,7 @@ from bdc26.pcdet_export import write_card, write_frame, write_splits  # noqa: E4
 from bdc26.prep import UTConvertParams, convert_ut_frame  # noqa: E402
 from bdc26.render.g1 import LocalGround, WalkerInserter  # noqa: E402
 from bdc26.render.pedsim import InsertParams, Sensor  # noqa: E402
+from bdc26.render import scene_map as smap, v6  # noqa: E402
 
 T = load_track("v2x-track")
 PRIOR = T.gen / "walker_prior_v1.npz"
@@ -51,6 +52,41 @@ HULL_BANK = T.gen / "hull_bank_g2.npz"
 BANK_CLASSES = ("truck",)
 DROP = {"clutter": 0.10}   # per-ray drop of re-cast objects (R3 calibration, docs/02-STRATEGY.md Section 8.7.1)
 SIZE_FILTERS = {"truck": (5.0, 22.0)}
+SCENE_MAP = T.gen / "scene_map_v1.npz"
+WALKER_SCALARS = T.gen / "walker_scalars_v6.json"
+SIZE_SCALARS = T.gen / "size_scalars_v6.json"
+MAP_WEIGHTS = {"curb": 0.30, "open": 0.05, "road": 0.45, "beyond": 0.20}   # S9: as LUMPI (points per walker checked per track)
+
+
+class MapThenLocalGround:
+    """S9: the scene map's ground height where the twin has ground (the map aggregates raw UT frames, so it also
+    covers the FOV-masked area near the pole), else the local estimate from the frame's points."""
+
+    def __init__(self, scene):
+        self.map, self.local = smap.MapGround(scene, default=None, max_step=1e9), LocalGround(1.5, 8)
+
+    def __call__(self, points, x, y):
+        z = self.map.at(x, y)
+        return z if z is not None else self.local(points, x, y)
+
+
+def map_pose(scene, weights=None):
+    w = json.loads(WALKER_SCALARS.read_text())
+    return smap.WalkerSampler(scene, smap.WalkerConfig(weights=weights or MAP_WEIGHTS, range_bins=tuple(w["range_bins"]),
+                                                       range_share=tuple(w["range_share"]), boxes=tuple(map(tuple, w["boxes"])),
+                                                       pc_range=tuple(T.pc_range), range_from=((0.0, 0.0),),
+                                                       map_ground=True, max_step=1e9))
+
+
+def structure_table(scene):
+    xy, _ = smap.structure_points(scene, pc_range=tuple(T.pc_range))
+    dirs = np.full(len(xy), np.nan)
+    i, j = scene.index(xy[:, 0], xy[:, 1])
+    for k in range(len(xy)):
+        d = scene.axial_dir_near(int(i[k]), int(j[k]), radius=12)
+        if d is not None:
+            dirs[k] = np.arctan2(d[1], d[0])
+    return xy, dirs
 
 
 def build_hull_bank(params, val_from: int, stride: int = 90) -> Path:
@@ -181,21 +217,34 @@ _INS = None
 _G2 = None
 
 
-def make_g2(sensor, ins_params, clutter: float, truck_size: str, drop: dict):
+def make_g2(sensor, ins_params, clutter: float, truck_size: str, drop: dict, v6opt: dict | None = None):
     from bdc26.render.g2 import G2Config, G2Pass, HullBank, size_prior_from_labels
-    sizes = size_prior_from_labels(T.pcdet / "realval-v1", ["val", "valB"], SIZE_FILTERS, cache=SIZE_PRIOR)
+    v6opt = v6opt or {}
+    if v6opt.get("size_source") == "quantiles":
+        sizes = {"truck": v6.QuantileSizes(json.loads(SIZE_SCALARS.read_text())["truck"]).sample(20000, np.random.default_rng(4321))}
+    else:
+        sizes = size_prior_from_labels(T.pcdet / "realval-v1", ["val", "valB"], SIZE_FILTERS, cache=SIZE_PRIOR)
+    scene = smap.SceneMap.load(SCENE_MAP) if (v6opt.get("clutter_anchors") == "map" or v6opt.get("structure", 0) > 0) else None
+    anchors = smap.anchor_points(scene, pc_range=tuple(T.pc_range)) if v6opt.get("clutter_anchors") == "map" else np.load(PRIOR)["xy"]
+    sxy, sdir = structure_table(scene) if v6opt.get("structure", 0) > 0 else (None, None)
     cfg = G2Config(recast={"truck": "box"}, resize={"truck": sizes["truck"]} if truck_size == "real" else {},
                    stretch={"truck": {"prob": 0.5, "lengths": sizes["truck"][:, 0]}} if truck_size == "stretch" else {},
-                   clutter_mean=clutter, clutter_anchor_xy=np.load(PRIOR)["xy"], drop=drop, params=ins_params,
-                   bank=HullBank.load(HULL_BANK) if HULL_BANK.exists() else None)
-    return G2Pass([sensor], cfg, ground=LocalGround(1.5, 8), pc_range=T.pc_range)
+                   clutter_mean=clutter, clutter_anchor_xy=anchors, drop=drop, params=ins_params,
+                   bank=HullBank.load(HULL_BANK) if HULL_BANK.exists() else None,
+                   structure_mean=float(v6opt.get("structure", 0.0)), structure_xy=sxy, structure_dir=sdir)
+    ground = MapThenLocalGround(scene) if scene is not None else LocalGround(1.5, 8)
+    return G2Pass([sensor], cfg, ground=ground, pc_range=T.pc_range)
 
 
 def init(walkers, cols, gain, walker="v1", placement="free", fov=False, g2=False, clutter=30.0, truck_size="real",
-         g2_drop=None):
+         g2_drop=None, v6opt=None):
     global _INS, _G2
+    v6opt = v6opt or {}
     w = WALKERS[walker]
-    if placement == "prior":
+    if placement == "map":
+        pose = map_pose(smap.SceneMap.load(SCENE_MAP), json.loads(v6opt["map_weights"]) if v6opt.get("map_weights") else None)
+        body, ground = body_from_box_prior, LocalGround(1.5, 8)
+    elif placement == "prior":
         pose, body, ground = PriorPose(PRIOR), body_from_box_prior, LocalGround(1.5, 8)
     else:
         pose, body, ground = FreeGroundPose(2.0, 40.0), body_from_box, LocalGround(1.5, 8)
@@ -209,7 +258,7 @@ def init(walkers, cols, gain, walker="v1", placement="free", fov=False, g2=False
         _INS = FovThenWalkers(_INS, sensor.elev_deg)
     if g2:
         ins = {k: tuple(v) if isinstance(v, list) else v for k, v in w["insert"].items()}
-        _G2 = make_g2(sensor, InsertParams(**ins), clutter, truck_size, g2_drop_table(g2_drop))
+        _G2 = make_g2(sensor, InsertParams(**ins), clutter, truck_size, g2_drop_table(g2_drop), v6opt)
 
 
 def work(args):
@@ -226,8 +275,13 @@ if __name__ == "__main__":
     ap.add_argument("--walker", default="v1", choices=sorted(WALKERS), help="walker preset (see WALKERS)")
     ap.add_argument("--fov-mask", action="store_true",
                     help="mask UT points to the measured OS1-64 field of view and cast walkers with its beam table (g1-v3)")
-    ap.add_argument("--placement", default="free", choices=["free", "prior"],
-                    help="free: uniform free ground, KITTI-like boxes (g1-v1/v2); prior: legal real walker rows (g1-v3)")
+    ap.add_argument("--placement", default="free", choices=["free", "prior", "map"],
+                    help="free: uniform free ground, KITTI-like boxes (g1-v1/v2); prior: legal real walker rows (g1-v3); "
+                         "map: the twin's own scene map with scalar box and range statistics (S9, gen/walker_scalars_v6.json)")
+    ap.add_argument("--clutter-anchors", default="prior", choices=["prior", "map"], help="S9: G2 clutter anchor source")
+    ap.add_argument("--size-source", default="rows", choices=["rows", "quantiles"], help="S9: G2 truck size source")
+    ap.add_argument("--structure", type=float, default=0.0, help="S9: mean map-placed structures per frame (G2)")
+    ap.add_argument("--map-weights", default=None, help="S9: JSON walker area shares (scene_map.WalkerConfig.weights)")
     ap.add_argument("--cols", type=int, default=T["real"]["sensor"]["cols"])
     ap.add_argument("--density-gain", type=float, default=1.5)
     ap.add_argument("--n-valid", type=int, default=T["resample"]["n_valid_points"])
@@ -245,6 +299,8 @@ if __name__ == "__main__":
                          "lengthened to a real length (stretch)")
     ap.add_argument("--g2-drop", default=None, help='G2: JSON overrides of DROP, e.g. {"Car": 0.2}')
     a = ap.parse_args()
+    v6opt = {"placement": a.placement, "map_weights": a.map_weights, "clutter_anchors": a.clutter_anchors,
+             "size_source": a.size_source, "structure": a.structure}
     out = T.pcdet / a.name
     if a.placement == "prior":
         build_prior()
@@ -254,7 +310,7 @@ if __name__ == "__main__":
     if a.g2:
         build_hull_bank(params, a.val_from)
     with Pool(a.workers, initializer=init, initargs=(a.walkers, a.cols, a.density_gain, a.walker, a.placement, a.fov_mask,
-                                                     a.g2, a.clutter, a.truck_size, a.g2_drop)) as pool:
+                                                     a.g2, a.clutter, a.truck_size, a.g2_drop, v6opt)) as pool:
         stats = pool.map(work, [(i, out, params) for i in frames], chunksize=4)
     ids = [f"{i:06d}" for i in frames]
     write_splits(out, {"train": [i for i in ids if int(i) < a.val_from], "val": [i for i in ids if int(i) >= a.val_from]})
@@ -269,16 +325,19 @@ if __name__ == "__main__":
                                 "cols": a.cols, "density_gain": a.density_gain, "walker": a.walker, "placement": a.placement,
                                 "fov_mask": a.fov_mask, "g2": a.g2, "clutter": a.clutter if a.g2 else 0.0,
                                 "truck_size": a.truck_size if a.g2 else None,
-                                "g2_drop": g2_drop_table(a.g2_drop) if a.g2 else None},
+                                "g2_drop": g2_drop_table(a.g2_drop) if a.g2 else None, "v6": v6opt},
                      "class_map": T["ut"]["class_map"],
                      "real_data_use": "; ".join(u for u in (     # every real-derived generator input (FAQ review 2026-10-27)
                          "legal V2X-Real walker label rows (placement, box sizes; gen/walker_prior_v1.npz)" if a.placement == "prior" else "",
+                         "walker box mixture and range histogram as scalars (gen/walker_scalars_v6.json); placement on the twin's own scene map" if a.placement == "map" else "",
+                         ("legal V2X-Real walker positions as clutter anchors" if a.clutter_anchors == "prior" else "clutter anchors at map curbside cells") if a.g2 else "",
                          "OS1-64 beam table measured on legal unlabeled frames (gen/os1_64_calib_v1.npz)" if a.fov_mask else "",
-                         "legal realval truck label sizes (gen/size_prior_g2.npz)" if a.g2 and a.truck_size == "real" else "",
+                         ("19 size quantiles per dimension of legal realval truck labels (gen/size_scalars_v6.json)" if a.size_source == "quantiles"
+                          else "legal realval truck label sizes (gen/size_prior_g2.npz)") if a.g2 and a.truck_size == "real" else "",
                          "background density prior from legal unlabeled realval-A frames disjoint from the realism proxies"
                          f" ({Path(a.density_prior).name})" if a.density_prior else "") if u)
                          or "none (sensor spec and KITTI-like box convention)",
-                     "g2_stats": {k: float(np.mean([s.get(k, 0) for s in stats])) for k in ("g2_recast", "g2_resized", "g2_grown", "g2_completed", "g2_clutter", "g2_hits_median", "g2_occluded_removed")} if a.g2 else None,
+                     "g2_stats": {k: float(np.mean([s.get(k, 0) for s in stats])) for k in ("g2_recast", "g2_resized", "g2_grown", "g2_completed", "g2_clutter", "g2_structures", "g2_hits_median", "g2_occluded_removed")} if a.g2 else None,
                      "mean_boxes_per_frame": sum(s["n_boxes"] for s in stats) / max(len(stats), 1),
                      "mean_walkers_per_frame": sum(s.get("n_walkers", 0) for s in stats) / max(len(stats), 1),
                      "walker_hits_median_raw": float(np.median([s.get("walker_hits_median", 0) for s in stats])),

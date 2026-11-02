@@ -1,0 +1,57 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S9 s9a (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 14.6): routed-g13 with a pedestrian re-fusion of existing members under the pooled rule (bagvr5_tta+bagpv5x_tta+vrros_tta12@0.7); vehicle and truck as the entry; routed-g13's realism frames (no g1-v6 member used, rule 4); projection +0.0007",
+  "codabench_competition": 16685,
+  "codabench_submission_id": 1028491,
+  "uploaded_file": "v2x_s9a_submission.zip of this folder (md5 3e59e5b3c76b440bd11aeba0304cc75e, as in manifest.json)",
+  "submitted": "2026-11-02 18:24 UTC (12:24 CST; leaderboard created_when 2026-11-02T18:24:58Z)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 28,
+  "leaderboard_checked": "2026-11-02 19:20 UTC (public get_leaderboard API)",
+  "runner_up_at_check": {
+    "owner": "Raj Patil",
+    "id": 1016446,
+    "combined": 0.8112
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.001764598910258975
+  },
+  "scores": {
+    "score_combined": 0.902971,
+    "score_detection": 0.882793,
+    "score_realism": 0.933237,
+    "mAP_3d_0.5_R40": 0.617955,
+    "mAP_3d_0.5_R11": 0.62266,
+    "mAP_3d_0.7_R40": 0.164445,
+    "mAP_bev_0.5_R40": 0.667826,
+    "CD": 1.985873,
+    "MMD": 0.00063035,
+    "EMD": 1.182178,
+    "FPD": 1.467728,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.737224,
+    "AP_3d_0.5_R40_pedestrian": 0.44562,
+    "AP_3d_0.5_R40_truck": 0.671021
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.9858730070063668, MMD 0.0006303514120418185, EMD 1.1821778412756239, FPD 1.46772753949125",
+    "[scoring] mAP_3d_0.5_R40 = 0.6179548929378277",
+    "(scoring output pasted by the entrant)"
+  ],
+  "vs_previous": {
+    "previous": "1022246 (S8 V2X U2, routed-g13)",
+    "delta": {
+      "score_combined": 0.000818,
+      "score_detection": 0.001363,
+      "mAP_3d_0.5_R40": 0.000954,
+      "mAP_3d_0.5_R11": -0.00055,
+      "mAP_3d_0.7_R40": -0.00099,
+      "mAP_bev_0.5_R40": 0.000397,
+      "AP_3d_0.5_R40_pedestrian": 0.002862
+    }
+  }
+}

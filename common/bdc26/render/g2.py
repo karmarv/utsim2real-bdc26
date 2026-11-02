@@ -273,6 +273,47 @@ def clutter_footprint(kind) -> float:
     return {"pole": 0.4, "tree": 1.0, "bollard": 0.3, "utility_box": 0.8, "bin": 0.5, "barrier": 1.1}[kind]
 
 
+# S9 (engine v6): map-placed static structure. The twin has ground classes only (no building, vegetation, fence or
+# wall); real frames have such mass, and it is where real false positives stand. Placed on terrain and beyond the
+# twin's modelled ground by bdc26.render.scene_map.structure_points, never from real positions.
+STRUCTURE_KINDS = {"hedge": 0.30, "fence": 0.25, "low_wall": 0.15, "bush": 0.20, "shelter": 0.05, "kiosk": 0.05}
+
+
+def structure_mesh(kind, rng):
+    """(V, F, (l, w)) in the local frame (base at z = 0, long side along +x); (l, w) is the BEV footprint."""
+    if kind == "hedge":                                       # a bumpy row of ellipsoids
+        L, h, d = rng.uniform(2.0, 12.0), rng.uniform(0.8, 1.8), rng.uniform(0.6, 1.2)
+        n = max(2, int(np.ceil(L / 1.0)))
+        parts = [ellipsoid_mesh([-L / 2 + (k + 0.5) * L / n + rng.normal(0, 0.1), rng.normal(0, 0.05), h / 2],
+                                [L / n * rng.uniform(0.6, 0.9), d / 2 * rng.uniform(0.8, 1.1), h / 2 * rng.uniform(0.85, 1.05)], n=6)
+                 for k in range(n)]
+        return (*merge(parts), (L, d))
+    if kind == "fence":
+        L, h = rng.uniform(3.0, 15.0), rng.uniform(1.0, 2.0)
+        if rng.uniform() < 0.5:                               # solid panels
+            return (*box_mesh(L, 0.05, h), (L, 0.3))
+        n = max(2, int(L / rng.uniform(2.0, 2.5)) + 1)        # posts and two rails
+        parts = [cylinder_mesh(0.04, h, x0=-L / 2 + k * L / (n - 1), n=6) for k in range(n)]
+        parts += [box_mesh(L, 0.04, 0.08, z0=z) for z in (0.25 * h, 0.85 * h)]
+        return (*merge(parts), (L, 0.3))
+    if kind == "low_wall":
+        L, w, h = rng.uniform(2.0, 10.0), rng.uniform(0.25, 0.4), rng.uniform(0.4, 1.2)
+        return (*box_mesh(L, w, h), (L, w))
+    if kind == "bush":
+        r, h = rng.uniform(0.4, 1.0), rng.uniform(0.5, 1.5)
+        return (*ellipsoid_mesh([0, 0, h / 2], [r, r * rng.uniform(0.7, 1.0), h / 2], n=8), (2 * r, 2 * r))
+    if kind == "shelter":                                     # bus stop: posts, roof, back panel and an ad board
+        L, d, h = rng.uniform(3.0, 5.0), rng.uniform(1.3, 1.8), rng.uniform(2.3, 2.7)
+        parts = [cylinder_mesh(0.05, h, x0=sx * (L / 2 - 0.1), y0=sy * (d / 2 - 0.1), n=6) for sx in (-1, 1) for sy in (-1, 1)]
+        parts += [box_mesh(L, d, 0.1, z0=h), box_mesh(L, 0.04, 0.4, y0=-d / 2 + 0.05),
+                  box_mesh(0.05, 1.2, 1.8, z0=0.3, x0=L / 2 - 0.05)]
+        return (*merge(parts), (L, d))
+    if kind == "kiosk":
+        L, w, h = rng.uniform(1.5, 3.0), rng.uniform(1.5, 2.5), rng.uniform(2.2, 3.0)
+        return (*box_mesh(L, w, h), (L, w))
+    raise ValueError(kind)
+
+
 # --------------------------------------------------------------------------------------------
 # Ray-consistent mesh insertion
 # --------------------------------------------------------------------------------------------
@@ -416,6 +457,10 @@ class G2Config:
     fit_step: float = 0.5                               # m: a real-size actor without room is shortened in these steps
     min_hull_points: int = 40
     params: InsertParams = field(default_factory=InsertParams)
+    structure_mean: float = 0.0                         # S9: mean map-placed structures per frame (STRUCTURE_KINDS)
+    structure_xy: np.ndarray | None = None              # (N, 2) candidate centres (scene_map.structure_points)
+    structure_dir: np.ndarray | None = None             # (N,) axial road direction near each centre (nan: none)
+    structure_kinds: dict | None = None                 # kind -> probability (default STRUCTURE_KINDS)
 
 
 @dataclass
@@ -493,12 +538,46 @@ class G2Pass:
                 V, F = clutter_mesh(kind, rng)
                 objects.append(MeshObj(place_mesh(V, x, y, z, rng.uniform(-np.pi, np.pi)), F, -1, self.cfg.drop.get("clutter")))
                 st["g2_clutter"] += 1
+        if self.cfg.structure_mean > 0 and self.cfg.structure_xy is not None and len(self.cfg.structure_xy):
+            for V, F in self._structures(pts[~drop], boxes, rng):
+                objects.append(MeshObj(V, F, -1, self.cfg.drop.get("clutter")))
+                st["g2_structures"] = st.get("g2_structures", 0) + 1
         base = pts[~drop]
         sensor_of = sensor_candidates(base, self.sensors, self.assign_tol_deg)
         out, keep, oid, hits = insert_meshes(base, sensor_of, self.sensors, objects, rng, self.cfg.params)
         st["g2_hits_median"] = float(np.median(hits)) if len(hits) else 0.0
         st["g2_occluded_removed"] = int((~keep).sum())
         return out.astype(np.float32), boxes, names, st
+
+    def _structures(self, pts, boxes, rng):
+        """S9: Poisson(structure_mean) structures at map candidates (jittered), long kinds along the local road
+        direction, clear of labeled boxes and of each other in BEV, standing on free ground. Returns [(V, F)]."""
+        kinds = self.cfg.structure_kinds or STRUCTURE_KINDS
+        names, probs = list(kinds), np.array(list(kinds.values()), float)
+        XY, D = self.cfg.structure_xy, self.cfg.structure_dir
+        n = int(rng.poisson(self.cfg.structure_mean))
+        sensor_xy = np.array([s.origin[:2] for s in self.sensors])
+        placed, out, tries = [], [], 0
+        while len(out) < n and tries < 6 * n:
+            tries += 1
+            k = int(rng.integers(len(XY)))
+            x, y = XY[k] + rng.uniform(-0.25, 0.25, 2)
+            if np.min(np.hypot(*(sensor_xy - [x, y]).T)) < 3.0:
+                continue
+            kind = str(rng.choice(names, p=probs / probs.sum()))
+            V, F, (L, W) = structure_mesh(kind, rng)
+            d = D[k] if D is not None else np.nan
+            yaw = (d + rng.normal(0, 0.1) if np.isfinite(d) and kind in ("hedge", "fence", "low_wall", "shelter")
+                   else rng.uniform(-np.pi, np.pi))
+            probe = np.array([x, y, 0.0, L + 0.4, W + 0.4, 1.0, yaw])
+            if bev_overlaps(probe, boxes, 0.3) or (placed and bev_overlaps(probe, np.array(placed), 0.1)):
+                continue
+            z = self.ground(pts, x, y)
+            if z is None or not is_free(pts, x, y, z, radius=0.4):
+                continue
+            placed.append(probe)
+            out.append((place_mesh(V, x, y, z, yaw), F))
+        return out
 
     def _clutter_poses(self, pts, boxes, rng):
         x0, y0, _, x1, y1, _ = self.pc_range

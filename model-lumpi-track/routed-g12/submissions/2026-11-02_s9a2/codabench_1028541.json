@@ -1,0 +1,72 @@
+{
+  "phase": "Development",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S9 s9a2 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Sections 14.8-14.9): routed-g11d with LUMPI Person from the fusion of two members trained on the label-free g1-v6 corpus (vrros6_tta+vn6_tta@0.5), Person copies for boxes scored >= 0.6511 (q0.95, kit 388 s timed), g1-v6 realism frames (rule 4); other classes as the entry; projection +0.0049 detection plus about +0.002 realism",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 1028541,
+  "uploaded_file": "lumpi_s9a2_submission.zip of this folder (md5 45e4eda799949770cece154a990eb979, as in manifest.json)",
+  "submitted": "2026-11-02 19:11 UTC (13:11 CST; leaderboard created_when 2026-11-02T19:11:43Z)",
+  "leaderboard_rank_at_submission": 1,
+  "leaderboard_rows_at_check": 24,
+  "leaderboard_checked": "2026-11-02 19:20 UTC (public get_leaderboard API)",
+  "runner_up_at_check": {
+    "owner": "dipper13579",
+    "id": 1028228,
+    "combined": 0.5132
+  },
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005234408773852402
+  },
+  "scores": {
+    "score_combined": 0.535667,
+    "score_detection": 0.269979,
+    "score_realism": 0.9342,
+    "mAP_3d_0.5_R40": 0.188986,
+    "mAP_3d_0.5_R11": 0.198144,
+    "mAP_3d_0.7_R40": 0.085281,
+    "mAP_bev_0.5_R40": 0.200619,
+    "CD": 1.510278,
+    "MMD": 0.00010173,
+    "EMD": 1.272009,
+    "FPD": 0.42977,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.262104,
+    "AP_3d_0.5_R40_Car": 0.660709,
+    "AP_3d_0.5_R40_Bicycle": 0.188955,
+    "AP_3d_0.5_R40_Motorcycle": 0.001182,
+    "AP_3d_0.5_R40_Bus": 0.003751,
+    "AP_3d_0.5_R40_Truck": 0.065267,
+    "AP_3d_0.5_R40_Van": 0.140932,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.5102775686468233, MMD 0.00010173495982623848, EMD 1.2720093968576371, FPD 0.42977002998350144",
+    "[scoring] mAP_3d_0.5_R40 = 0.1889855032425691",
+    "(scoring output pasted by the entrant; it completed in about 4 minutes)"
+  ],
+  "vs_previous": {
+    "previous": "1022492 (S8.3, routed-g11d)",
+    "delta": {
+      "score_combined": 0.009979,
+      "score_detection": 0.015357,
+      "score_realism": 0.001913,
+      "mAP_3d_0.5_R40": 0.010751,
+      "mAP_3d_0.5_R11": 0.017254,
+      "mAP_3d_0.7_R40": 9.9e-05,
+      "mAP_bev_0.5_R40": 0.009642,
+      "CD": -0.083651,
+      "MMD": 7.1e-05,
+      "EMD": -0.030003,
+      "FPD": -0.089586,
+      "AP_3d_0.5_R40_Person": 0.074539,
+      "AP_3d_0.5_R40_Car": -8.3e-05,
+      "AP_3d_0.5_R40_Bicycle": 0.000762,
+      "AP_3d_0.5_R40_Bus": 2e-06,
+      "AP_3d_0.5_R40_Truck": -6e-06,
+      "AP_3d_0.5_R40_Van": 3.8e-05
+    }
+  }
+}

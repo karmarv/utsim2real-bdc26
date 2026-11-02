@@ -1,0 +1,86 @@
+# S9 arm M1 (docs/decisions/2026-11-02-s9-clean-twin-plan.md): VoxelNeXt, a fully sparse centre-based detector (OpenPCDet
+# 0.6 mainline cfgs/nuscenes_models/cbgs_voxel0075_voxelnext.yaml, 233f849), as a new family for fusion diversity: seeds and
+# generator draws of Voxel R-CNN and PV-RCNN++ add under 0.002 inside the fused portfolio (S6, S7.4-7.5). Same data and
+# augmentation as the parent voxelrcnn-ros-g1v4 (pcdet_dataset.yaml: ROS, flips, +/-10 deg yaw, scaling; voxels 0.1 x 0.1 x 0.25 m),
+# xyz only, synthetic data only. Changes from mainline: our class names and head groups (as the S2 CenterPoint; the
+# VoxelNeXtHead relabeling bug is fixed at runtime in common/bdc26/detect/pcdet_patches.py), no velocity head, near-raw
+# outputs (score 0.01, NMS 0.9 inside each head; per-class NMS and box calibration by bdc26.detect.postprocess), and the
+# optimizer of our CenterPoint members (adam_onecycle 0.003, 40 epochs, batch 16).
+CLASS_NAMES: ['Person', 'Car', 'Bicycle', 'Motorcycle', 'Bus', 'Truck', 'Van', 'Unknown']
+
+DATA_CONFIG:
+    _BASE_CONFIG_: pcdet_dataset.yaml
+
+MODEL:
+    NAME: VoxelNeXt
+
+    VFE:
+        NAME: MeanVFE
+
+    BACKBONE_3D:
+        NAME: VoxelResBackBone8xVoxelNeXt
+
+    DENSE_HEAD:
+        NAME: VoxelNeXtHead
+        CLASS_AGNOSTIC: False
+        INPUT_FEATURES: 128
+
+        CLASS_NAMES_EACH_HEAD: [['Person'], ['Bicycle', 'Motorcycle'], ['Car', 'Van', 'Unknown'], ['Truck', 'Bus']]
+
+        SHARED_CONV_CHANNEL: 128
+        KERNEL_SIZE_HEAD: 1
+
+        USE_BIAS_BEFORE_NORM: True
+        NUM_HM_CONV: 2
+        SEPARATE_HEAD_CFG:
+            HEAD_ORDER: ['center', 'center_z', 'dim', 'rot']
+            HEAD_DICT: {
+                'center': {'out_channels': 2, 'num_conv': 2},
+                'center_z': {'out_channels': 1, 'num_conv': 2},
+                'dim': {'out_channels': 3, 'num_conv': 2},
+                'rot': {'out_channels': 2, 'num_conv': 2},
+            }
+
+        TARGET_ASSIGNER_CONFIG:
+            FEATURE_MAP_STRIDE: 8
+            NUM_MAX_OBJS: 500
+            GAUSSIAN_OVERLAP: 0.1
+            MIN_RADIUS: 2
+
+        LOSS_CONFIG:
+            LOSS_WEIGHTS: {
+                'cls_weight': 1.0,
+                'loc_weight': 0.25,
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+            }
+
+        POST_PROCESSING:
+            SCORE_THRESH: 0.01
+            POST_CENTER_LIMIT_RANGE: [-40.0, -40.0, -5.0, 40.0, 40.0, 5.0]
+            MAX_OBJ_PER_SAMPLE: 500
+            NMS_CONFIG:
+                NMS_TYPE: nms_gpu
+                NMS_THRESH: 0.9                # near-duplicates only; per-class NMS is selected on real validation
+                NMS_PRE_MAXSIZE: 4096
+                NMS_POST_MAXSIZE: 500
+
+    POST_PROCESSING:
+        RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
+        EVAL_METRIC: kitti
+
+OPTIMIZATION:
+    BATCH_SIZE_PER_GPU: 4
+    NUM_EPOCHS: 40
+    OPTIMIZER: adam_onecycle
+    LR: 0.003
+    WEIGHT_DECAY: 0.01
+    MOMENTUM: 0.9
+    MOMS: [0.95, 0.85]
+    PCT_START: 0.4
+    DIV_FACTOR: 10
+    DECAY_STEP_LIST: [35, 45]
+    LR_DECAY: 0.1
+    LR_CLIP: 0.0000001
+    LR_WARMUP: False
+    WARMUP_EPOCH: 1
+    GRAD_NORM_CLIP: 10

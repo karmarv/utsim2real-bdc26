@@ -1,0 +1,19 @@
+name: voxelnext-ros-g1v5
+strategy: S9
+track: v2x-track
+module: M10 (detector) / S9 arm M1
+derived_from: voxelrcnn-ros-g1v5
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: VoxelNeXt (fully sparse, centre-based) with the ROS augmentation of
+  voxelrcnn-ros-g1v5
+data:
+  train: pcdet/g1-v5
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v5
+postprocess: test/postprocess.yaml
+status: planned (S9 arm M1, training seed 666)
+expected: a fusion member with errors decorrelated from the two-stage families
+notes: 'S9 arm M1 (docs/decisions/2026-11-02-s9-clean-twin-plan.md, Section 7): joins
+  the g1-v6 waves only if it passes the S6 member check against its family incumbent.
+
+  '

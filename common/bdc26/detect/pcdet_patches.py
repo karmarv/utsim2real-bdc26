@@ -86,4 +86,28 @@ def apply() -> None:
 
     assign_targets.__doc__ = "bdc26 fix: " + (original.__doc__ or "")
     CenterHead.assign_targets = assign_targets
+
+    # S9 (VoxelNeXt members): VoxelNeXtHead.assign_targets has the same in-place relabeling; same fix, one call per head
+    from pcdet.models.dense_heads.voxelnext_head import VoxelNeXtHead
+
+    original_vn = VoxelNeXtHead.assign_targets
+
+    def assign_targets_vn(self, gt_boxes, *args, **kwargs):
+        heads = self.class_names_each_head
+        out = None
+        try:
+            for cur in heads:
+                self.class_names_each_head = [cur]
+                r = original_vn(self, gt_boxes.clone(), *args, **kwargs)
+                if out is None:
+                    out = {k: list(v) for k, v in r.items()}
+                else:
+                    for k, v in r.items():
+                        out[k].extend(v)
+        finally:
+            self.class_names_each_head = heads
+        return out
+
+    assign_targets_vn.__doc__ = "bdc26 fix: " + (original_vn.__doc__ or "")
+    VoxelNeXtHead.assign_targets = assign_targets_vn
     _APPLIED = True

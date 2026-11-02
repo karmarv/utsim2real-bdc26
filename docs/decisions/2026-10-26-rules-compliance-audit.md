@@ -50,7 +50,7 @@
    - (e) frame-independent constants are preferred for new score scaling.
 3. **The entrant's action:** the email (Appendix A), recommended before the final phase opens on Nov 1 so that a ruling can arrive in time (no rule sets a date for it). ~~The LOI (item 1), before Oct 30, 20:00 EDT~~: closed on 2026-10-28, the LOI is on record since 2026-08-26 ([Addendum 2026-10-28](#addendum-2026-10-28-the-letter-of-intent-is-on-record)).
 
-**Outcome.** Pending: the organizers' reply to the email. The LOI needs no action (Addendum 2026-10-28).
+**Outcome.** Pending: the organizers' reply to the email. The LOI needs no action (Addendum 2026-10-28). **2026-10-31:** the S8 entries were reviewed against every item ([S8 review](2026-10-31-s8-compliance-review-and-final-phase.md)); the email gains item (h), the test-time processing, and Q5.
 
 ## Addendum 2026-10-27: the organizers' forum FAQ
 

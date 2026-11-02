@@ -78,6 +78,29 @@ def object_scaling(gt_boxes: np.ndarray, gt_names, points: np.ndarray, config, r
     return boxes, pts
 
 
+def world_tilt(gt_boxes: np.ndarray, points: np.ndarray, config, rng=np.random) -> tuple:
+    """S9 (docs/decisions/2026-11-02-s9-clean-twin-plan.md, arm M1): rotate the whole scene by a small random pitch
+    and roll about the frame origin, so the detector does not memorize the twin's flat ground and exact sensor pose
+    (the real LUMPI ground lies 0.12-0.17 m lower than the twin's beyond 20 m). Box centres rotate with the points;
+    sizes and heading stay (a 7-DoF box cannot tilt; at 1.5 deg the corner error is under 3 cm per metre).
+
+    - NAME: bdc_world_tilt
+      MAX_DEG: 1.5          # pitch and roll each uniform in [-MAX_DEG, MAX_DEG]
+      PROB: 1.0
+    """
+    if rng.rand() >= float(config.get("PROB", 1.0)):
+        return gt_boxes, points
+    m = np.deg2rad(float(config.get("MAX_DEG", 1.5)))
+    a, b = rng.uniform(-m, m), rng.uniform(-m, m)                     # roll about x, pitch about y
+    ca, sa, cb, sb = np.cos(a), np.sin(a), np.cos(b), np.sin(b)
+    rot = np.array([[1, 0, 0], [0, ca, -sa], [0, sa, ca]]) @ np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
+    pts, boxes = points.copy(), gt_boxes.copy()
+    pts[:, :3] = pts[:, :3] @ rot.T
+    if len(boxes):
+        boxes[:, :3] = boxes[:, :3] @ rot.T
+    return boxes, pts
+
+
 def register() -> None:
     from pcdet.datasets.augmentor.data_augmentor import DataAugmentor
 
@@ -88,4 +111,11 @@ def register() -> None:
                                                                     data_dict["points"], config)
         return data_dict
 
+    def bdc_world_tilt(self, data_dict=None, config=None):
+        if data_dict is None:
+            return partial(self.bdc_world_tilt, config=config)
+        data_dict["gt_boxes"], data_dict["points"] = world_tilt(data_dict["gt_boxes"], data_dict["points"], config)
+        return data_dict
+
     DataAugmentor.bdc_object_scaling = bdc_object_scaling
+    DataAugmentor.bdc_world_tilt = bdc_world_tilt
