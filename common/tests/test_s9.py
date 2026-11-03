@@ -83,3 +83,17 @@ def test_world_tilt_moves_points_and_box_centres_together():
     nb, np_ = world_tilt(b, p, {"MAX_DEG": 1.5, "PROB": 1.0}, rng)
     assert np.allclose(nb[0, :3], np_[0]) and np.allclose(np_[1], 0)
     assert np.allclose(nb[0, 3:], b[0, 3:]) and abs(np.linalg.norm(np_[0]) - np.linalg.norm(p[0])) < 1e-9
+
+
+def test_torch_scatter_stand_in_matches_a_loop():
+    import torch
+    from bdc26.detect.pcdet_patches import _TorchScatter
+    g = torch.Generator().manual_seed(0)
+    src, idx = torch.randn(500, 3, generator=g), torch.randint(0, 40, (500,), generator=g)
+    mean, mx = _TorchScatter.scatter_mean(src, idx), _TorchScatter.scatter_max(src, idx)[0]
+    for k in range(int(idx.max()) + 1):
+        sel = src[idx == k]
+        if len(sel):
+            assert torch.allclose(mean[k], sel.mean(0), atol=1e-6) and torch.allclose(mx[k], sel.max(0).values)
+        else:
+            assert torch.all(mean[k] == 0) and torch.all(mx[k] == 0)

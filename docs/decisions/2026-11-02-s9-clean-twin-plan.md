@@ -682,3 +682,311 @@ The entrant uploaded both zips unchanged. Both were checked on the public `get_l
 - Both scripts are EQUIVALENT: 99.9% of the boxes are matched, centres within 1 cm and 3 mm at the 99th percentile, and every unmatched box scores below 0.3.
 - The frames are byte-identical.
 - An idle-GPU IDENTICAL run is still open (RELEASES.md 9.1).
+
+### 15.1 Item 6 result: the realism over-prediction is not session-specific (2026-11-02, 21:10 UTC)
+
+**New proxies.** Three realism proxies were built from legal realval-B frames, a different recording session from the Measurement4 proxies and from the density-prior frames: `pcdet/realism-proxy-b-m5`, `-b-m6` and `-b-mix`. Each has 50 frames, and each has a `card.json` naming the source split, seed and use. Three frame sets whose server realism is known were scored against them (`$BDC_DATA/logs/s9/probes/realism_b/`):
+
+| Frames | Proxy 4 | Proxy 5 | B-M5 | B-M6 | B-mix | Server R (EMD) |
+|---|---|---|---|---|---|---|
+| S1 (`routed-g1`) | 0.9057 | 0.9049 | 0.9080 | 0.9064 | 0.9040 | 0.8912 (1.647) |
+| R3 to S8 (`g1-v4`) | 0.9344 | 0.9330 | 0.9337 | 0.9341 | 0.9346 | 0.9323 (1.302) |
+| `s9a2` (`g1-v6`) | 0.9404 | 0.9394 | 0.9391 | 0.9385 | 0.9381 | 0.9342 (1.272) |
+
+**Reading:**
+- **All legal proxies agree within about 0.001 R**, across Measurement4, 5 and 6. The `g1-v6` gain over the S8 frames is +0.004 to +0.006 on every one of them.
+- **The server transfer differs by step.**
+
+  | Step | Server gain | Legal-proxy gain | Ratio | Server EMD |
+  |---|---|---|---|---|
+  | S1 to R3 | +0.041 | +0.028 to +0.031 | 1.4x | 1.647 -> 1.302 |
+  | R3 to `g1-v6` | +0.0019 | +0.004 to +0.006 | 0.35x | 1.302 -> 1.272 |
+
+- **What this means.** The `g1-v6` levers lower EMD by about 0.09 against every legal session, and by 0.03 against the hidden reference. Those levers are fine-grained: structures in empty map cells and a cell-wise density refit. R3's coarse levers transferred fully: real-size actors and the first density prior. This confirms the R1-R2 finding (Section 8.7 of `docs/02-STRATEGY.md`) that the hidden reference differs in content from every legal frame. It is not session-specific overfitting.
+
+**Consequences:**
+- Rule 4 cannot see this gap, because no legal proxy disagrees.
+- The remaining realism distance to the LUMPI challengers (server EMD about 1.10 against our 1.27) is not reachable by more legal-proxy fitting.
+- Further work on the same lever has a low expected value. The `s9b` versions keep the `g1-v6` frames, which scored +0.0019, and no new frame selection is planned.
+- The detection levers transfer at about 1x or better: Person +0.0745 on the server against +0.061 pooled locally. They get the GPUs.
+- **A realism-only test, if wanted later:** the same predictions as `s9a2` with frames chosen for coarse statistics (radial and height profiles) instead of cell densities. This is a complete system, so one development upload judged on the combined score alone is allowed (rule 6). It needs frames from a corpus that trains a used member (rule 4): `g1-v4`, `g1-v6` or `g1-v6d2`. It is not scheduled. The entrant decides.
+
+### 15.2 V2X `s9b`: not built, every class keeps its fusion (2026-11-03, 01:51 UTC)
+
+**Member checks (rule 3):**
+
+| Member | Against | Result |
+|---|---|---|
+| `bag-voxelnext-ros-g1v6x` (plain A 0.6009 / B 0.5653, 8-view 0.6350 / 0.5952) | `voxelnext-ros-g1v6` | PASS vehicle, pedestrian, truck, vehicle 8-view, pedestrian 8-view |
+| `bag-voxelrcnn-ros-g1v6x` (plain 0.6700 / 0.6627, 8-view 0.6944 / 0.6760) | `bag-voxelrcnn-ros-g1v5` | FAIL |
+| `voxelnext-ros-g1v6` | `voxelnext-ros-g1v5` | PASS vehicle, truck, vehicle 8-view, truck 8-view |
+| `voxelrcnn-rosf-g1v6` | `voxelrcnn-ros-g1v6` | PASS pedestrian, truck 8-view |
+
+**Fusion:**
+- On all three classes, the fuse step kept the incumbent fusion of `routed-g15` (`s9a`) as the best candidate:
+  - vehicle `bagvr5_tta+pvros4s2_tta@0.7`
+  - pedestrian `bagvr5_tta+bagpv5x_tta+vrros_tta12@0.7`
+  - truck `pp5_tta+bagvr5_tta+bagpv5@0.5`
+- The final check against `routed-g15` found no change on any class, so `routed-g16` equals `routed-g15` and no `s9b` zip was built.
+- No used member is trained on `g1-v6`, so the `g1-v6` frames cannot ship on V2X (rule 4).
+
+**Consequences:**
+- V2X stays at the 9.1 entry (`s9a`, 1028491, 0.902971). There is no V2X upload from `s9b`.
+- **What V2X still has:**
+  - The Voxel R-CNN `g1-v6` bag fails against the `g1-v5` bag. The incumbent fusions lean on `g1-v5` bags (`bagvr5`, `bagpv5x`, `bagpv5`).
+  - The open V2X paths are therefore W4 joint-draw training and a PV-RCNN++ `g1-v6` bag. `v2x:pvrcnnpp-ros-g1v6d2` is next in the train queue, and its bag partner `pvros6` failed alone (14.6). DSVT V2X applies only if D1 passes.
+  - A bag that mixes `g1-v5` and `g1-v6` draws is not pre-registered and is not planned.
+- **GPU order:** LUMPI items come first (16.2). V2X items fill free workers.
+
+### 15.3 LUMPI `s9b`: a new Person route, built and kit-checked (2026-11-03, 04:47 UTC)
+
+**Member checks (rule 3), all against the family incumbents of Section 15:**
+
+| Member | Against | Passes on |
+|---|---|---|
+| `bag-voxelrcnn-ros-g1v6x` | `voxelrcnn-ros-g1v6` | Person, Car, Bicycle, Motorcycle, Van (plain); Person, Car, Bicycle, Motorcycle, Truck, Van (8-view) |
+| `voxelrcnn-rosf-g1v6` | `voxelrcnn-ros-g1v6` | Person, Car, Motorcycle, Van (plain and 8-view) |
+| `pvrcnnpp-ros-g1v6` | `pvrcnnpp-ros-g1v4` | Person, Bicycle (plain); Person, Truck (8-view) |
+| `voxelrcnn-ros-g1v6` | `voxelrcnn-ros-g1v4` | Person, Bicycle (plain); Person (8-view) |
+| `voxelnext-ros-g1v6` | `voxelnext-ros-g1v4` | Person, Bicycle, Bus (plain and 8-view) |
+
+**Fusion and gates:**
+- **Person:** the fuse step picked `vrrosf6_tta+pvros6_tta@0.5` (the pooled rule, ranked on late-A). It replaces the `s9a2` route `vrros6_tta+vn6_tta`.
+  - The draw bag `bag-voxelrcnn-ros-g1v6x` passed rule 3 but is not in the chosen set.
+  - The 12-view siblings of `vrros6` and `vn6` were added, and the swap stage ran. Neither is in the new Person route. The swap stage tested Bicycle, Truck and Van, and none of its changes reached the zip.
+- **Frozen classes (rule 2):** Motorcycle (a fusion with `vrrosf6_tta`) and Bicycle (a 12-view swap) passed the pooled rule, but both stay at their S8 configuration. Truck kept its fusion because the pooled condition failed. Car and Van kept theirs.
+- **Final check against `routed-g12`:** before the copy fit, Person changed by A +0.0100, B +0.0187, pooled +0.0170, P 1.00. Every other class is unchanged.
+- **Rule 1(b):** the copy fit re-derived the Person threshold for the new route, from t 0.6511 to **0.7311** (q0.95, 29,132 kit boxes).
+  - The new route keeps far fewer Person boxes: 4,451 against 13,789 in `s9a2`.
+  - Even the lowest rung (q0.95) is well under the 38,466 bound.
+  - After the fit, Person changed by A +0.0065, B +0.0147, pooled +0.0116, P 1.00, with neither split down. The train-split result is A +0.0065.
+
+**The zip:** `model-lumpi-track/routed-g13/submissions/2026-11-02_s9b/lumpi_s9b_submission.zip`
+
+| Check | Result |
+|---|---|
+| md5 | `0341c5943d77a2a16082645f7eb579e0` |
+| sha256 | `4f694e36...b74cd1e2` |
+| Boxes | 29,131 |
+| Kit check | valid, **248 s** (`s9a2`: 388-417 s) |
+| Realism frames | the same 50 `g1-v6` ids as `s9a2` |
+| Rule 4 | both Person members are trained on `g1-v6` |
+
+**Local scores:**
+- mAP: A 0.4051 (+0.0009), B 0.2353 (+0.0021).
+- Person: A 0.579, B 0.230, late-A 0.459.
+
+**Projection:**
+- Against `routed-g12`: **+0.0008 combined**. Bar (b), projection > 0, is met. The +0.003 notice bar is not met (as V2X `s9a`, 14.6).
+- Expected server score: about 0.5365 (the `s9a2` 0.535667 plus 0.0008). Realism is unchanged, because the frames are the same.
+- **Recommendation: upload.** It passes rules 1-4 and 1(b), its kit time is about 150 s inside the bound, and it is one of the 3 LUMPI uploads for Nov 3.
+
+**What follows from `s9b`:**
+- **`g1-v6d3` is not built:** the 2-draw Voxel R-CNN bag is not used (16.2, synthesis item 1).
+- **LUMPI `s9c` amendment** (written 2026-11-03 at about 04:55 UTC, before any `s9c` result). The Person route now rests on `vrrosf6` and `pvros6`, so `s9c` adds:
+  - `bag-voxelnext-ros-g1v6x` against `voxelnext-ros-g1v6` (as planned in Section 15);
+  - **`bag-pvrcnnpp-ros-g1v6x`** (`pvros6` + `pvros6d2`) against `pvrcnnpp-ros-g1v6`. `pvros6d2` was trained as a bag partner (14.7). The bag uses the iou of the track's earlier PV-RCNN++ bags.
+  - **12-view siblings of `vrrosf6` and `pvros6`** (`S9_TTA12`, the S8 swap rule). They run on GPUs 4 and 7, from about 04:51 UTC, for about 1.5 h.
+  - **Settings:** `routed-g14` from `routed-g13`, with rule 1(b) (`S9_MAX_BOXES=38466`) and the `g1-v6` frames under rule 4. Expected about 08:00-10:00 UTC.
+- **For `s9d`:** `lumpi:voxelrcnn-rosf-g1v6d2` (the `vrrosf6` config on draw 2, seed 666) is queued for trainB after `v2x:pvrcnnpp-ros-g1v6d2`, to make a `vrrosf6` draw bag. It is trained at about 06:30-10:30 UTC and tuned by about 13:30 UTC.
+- All member choices above come from local validation results. No generator parameter is involved (rule 5), and no leaderboard number is involved (rule 6).
+
+### 15.4 LUMPI `s9c`: the 12-view Person route, built and kit-checked (2026-11-03, 10:32 UTC)
+
+**Member checks (rule 3):** all four pass.
+
+| Member | Against | Passes on |
+|---|---|---|
+| `voxelrcnn-rosf-g1v6` | `voxelrcnn-ros-g1v6` | Person, Car, Motorcycle, Van (plain and 8-view) |
+| `pvrcnnpp-ros-g1v6` | `pvrcnnpp-ros-g1v4` | Person, Bicycle (plain); Person, Truck (8-view) |
+| `bag-voxelnext-ros-g1v6x` | `voxelnext-ros-g1v6` | every class (plain and 8-view) |
+| `bag-pvrcnnpp-ros-g1v6x` | `pvrcnnpp-ros-g1v6` | Person, Car, Bicycle, Truck, Van (plain); the same plus Motorcycle (8-view) |
+
+**Fusion and gates:**
+- **Main fuse:** every class kept its `routed-g13` fusion. Neither draw bag entered a fusion. Motorcycle passed the pooled rule but is frozen (rule 2).
+- **12-view swap stage:** Person moved to `vrrosf6_tta12+pvros6_tta12@0.5`. This is the `s9b` pair with 12 views instead of 8. Bicycle also passed, but is frozen (rule 2). Truck kept its fusion because the pooled condition failed.
+- **Final check against `routed-g13`:** Person changed by A +0.0126, B -0.0013, pooled +0.0051, P 1.00. Every other class is unchanged.
+- **Rule 1(b):** the copy fit moved the Person threshold from t 0.7311 to **0.7316** (q0.95, 29,031 kit boxes). The Person deltas after the fit are the same.
+
+**The zip:** `model-lumpi-track/routed-g14/submissions/2026-11-03_s9c/lumpi_s9c_submission.zip`
+
+| Check | Result |
+|---|---|
+| md5 | `3691b1150595c45007d975097c8c2e53` |
+| sha256 | `bdc001f0...a57df85c` |
+| Boxes | 29,027 |
+| Kit check | valid, **257 s** |
+| Realism frames | the same 50 `g1-v6` ids as `s9a2` and `s9b` |
+| Rule 4 | both Person members are trained on `g1-v6` |
+
+**Local scores:**
+- mAP: A 0.4069 (+0.0018 on `s9b`), B 0.2351 (-0.0002).
+- Person: A 0.592, B 0.228.
+
+**Projection:**
+- Against `routed-g13` (`s9b`): **+0.0004 combined**. Bar (b) is met; the +0.003 notice bar is not.
+- Against `routed-g12` (`s9a2`, scored): about +0.0012. Expected server score: about 0.5369.
+- **Recommendation: upload `s9c`.** It passes rules 1-4 and 1(b), and its kit time is about 140 s inside the bound. `s9b` differs from it only by the 8-view Person variants, so `s9b` is optional.
+
+**Leaderboard read at 10:32 UTC (public API):** no new KarmaRV row on either track.
+- LUMPI: dipper13579 is at 0.5166 (1029138, 02:59 UTC Nov 3) and sadbodh at 0.5018.
+- V2X: sadbodh is at 0.8171.
+- Our leads are +0.019 on LUMPI and +0.086 on V2X.
+
+**Training since 15.3:**
+- `dsvt-ros-g1v6` (D1) finished training at 10:13 UTC, after 7.5 h, and its validation tuning started at 10:14 UTC. trainA then exited, because the queue was empty.
+- `voxelrcnn-rosf-g1v6d2` is at epoch 27 of 40 on trainB and ends at about 12:00 UTC.
+
+**What follows (written 2026-11-03 at about 10:45 UTC, before any of these results):**
+- **W4, joint-draw training (Section 7; 16.2 synthesis item 2):**
+  - **Corpus.** `pcdet/g1-v6j` is the union of the `g1-v6` and `g1-v6d2` train splits: 18,000 frames, with draw-2 ids moved up by 10000. Validation is the 1,000 `g1-v6` val frames.
+  - Points and labels are relative symlinks, so nothing is copied or changed. Infos and the GT database are rebuilt (`$BDC_DATA/logs/s9/w4_joint_build.sh`).
+  - **Members.** `voxelrcnn-rosf-g1v6j` and `pvrcnnpp-ros-g1v6j` are the two Person-route families of `s9b` and `s9c`. Each keeps its parent's configuration unchanged, with 40 epochs, which is twice the iterations of a single-draw run.
+  - `voxelrcnn-rosf-g1v6j` trains on trainA (GPUs 0-3, relaunched) from about 10:55 UTC. `pvrcnnpp-ros-g1v6j` trains on trainB after `voxelrcnn-rosf-g1v6d2`, from about 12:00 UTC.
+  - Each takes about 7.5-9 h, so both are tuned by about 00:00-02:00 UTC Nov 4.
+  - **Gates (rule 3):** against `voxelrcnn-rosf-g1v6` and `pvrcnnpp-ros-g1v6` respectively. Rule 4 holds, because `g1-v6` is in their training corpus.
+  - **They feed `s9e`**, with their 12-view siblings (`S9_TTA12`) if they pass.
+- **LUMPI `s9d`** (waiter `s9dwait`, `$BDC_DATA/logs/s9/s9d_lumpi_wait.sh`):
+  - It builds `routed-g15` from `routed-g14` (`s9c`) once `voxelrcnn-rosf-g1v6d2` is tuned and the D1 gate has decided.
+  - Its members are `brf6` = `bag-voxelrcnn-rosf-g1v6x` (`vrrosf6` + `vrrosf6d2`) against `voxelrcnn-rosf-g1v6`, and `dsvt-ros-g1v6` against `voxelnext-ros-g1v6`, but the latter only if D1 passes.
+  - Settings: rule 1(b) and the `g1-v6` frames, as for `s9c`. Expected at about 16:00-18:00 UTC.
+- **Queue order.** If D1 passes, `v2x:dsvt-ros-g1v6` goes to the front as pre-registered. With both workers on W4, it starts when the first W4 member ends (about 19:00 UTC), not at the gate. LUMPI keeps the GPUs first, because the V2X lead is +0.086.
+
+### 15.5 Leaderboard: LUMPI `s9c` and `s9b` (2026-11-03)
+
+**Uploads.** The entrant uploaded both zips unchanged:
+- `s9c` (md5 `3691b115...`) at 14:41 UTC, as submission **1030511**;
+- `s9b` (md5 `0341c594...`) at 14:56 UTC, as submission **1030540**.
+
+These are the first and second LUMPI uploads of Nov 3. Rule 6 allows at most 3 per track per day.
+
+**Checks.** One public `get_leaderboard` read after each (14:53 and 15:02 UTC) confirmed rank 1 of 24. The KarmaRV row is now 1030540. dipper13579 is next at 0.5167 (1030330, 13:34 UTC). The server records are `codabench_1030511.json` and `codabench_1030540.json`, in the two submission folders.
+
+| Score | `s9a2` (1028541) | `s9b` (1030540) | `s9c` (1030511) |
+|---|---|---|---|
+| Combined | 0.535667 | **0.541542** (+0.005875) | 0.541154 (+0.005487) |
+| Detection | 0.269979 | 0.279770 | 0.279123 |
+| Realism R | 0.9342 | 0.9342 | 0.9342 (the same frames; CD, MMD, EMD and FPD are identical) |
+| mAP 3D@0.5 R40 | 0.188986 | 0.195839 | 0.195386 |
+| mAP BEV@0.5 R40 | 0.200619 | 0.205718 | 0.206365 |
+| Person AP | 0.262104 | **0.309032** | 0.305154 |
+| Bicycle AP | 0.188955 | 0.190009 | 0.190662 |
+| Car, Motorcycle, Bus, Truck, Van AP | | each within ±0.0001 of `s9a2` | each within ±0.0001 of `s9a2` |
+
+**What it shows:**
+- **The Person pair `vrrosf6` + `pvros6` transfers well above 1x.**
+  - `s9b` raised Person by +0.047 on the server, against +0.007 (A) and +0.015 (B) locally.
+  - Its projection was +0.0008 combined, and the server gave +0.0059.
+  - This is the third LUMPI Person change in a row above 1x (`s9a2`: +0.075, 14.9). It supports the 16.2 reading that LUMPI Person is the main lever.
+- **12 views against 8 views:**
+  - Locally, the swap gained +0.0004 combined: Person A +0.013, B -0.001.
+  - On the server it lost -0.0004: Person -0.004.
+  - Only the realval-B change had the server's sign. This is one comparison, at the size of the smallest steps we upload, so it does not change any rule.
+- **The frozen classes** moved by at most 0.0017 (Bicycle), the same size of cross-class change as after `s9a2` (14.9).
+- **Server scoring time** was about 4 minutes for `s9b` and 9 for `s9c`, with almost equal box counts (29,131 and 29,027). Server time depends on its load, so the local kit check stays the rule-1 bound.
+
+**Decisions (rule 6 and audit rule d):**
+- **The best scored LUMPI system is `s9b`** (1030540, 0.541542), by the combined score only. It is the LUMPI F1 candidate unless a later development upload scores higher.
+- **`s9d` keeps its pre-registered reference `routed-g14` (`s9c`).** It started at 14:59 UTC, before the `s9b` score.
+  - `s9b` and `s9c` differ only in the Person view count. Rebasing on `s9b` because of these scores would therefore be a leaderboard-informed Person choice.
+  - `s9d`'s own fuse step re-ranks the Person candidates on local validation, and its projection and the bar (b) decision stay local.
+- **The projection method is unchanged**, since it gates only bar (b), projection > 0. No per-class choice is taken from these numbers.
+- **Release:** `s9b` and `s9c` use the `voxelrcnn-rosf-g1v6` and `pvrcnnpp-ros-g1v6` checkpoints, which are not release assets yet. A release is the entrant's call.
+
+## 16. DSVT viability and the roadmap to the development close (2026-11-02, 21:30 UTC; before any `s9b` result)
+
+### 16.1 Is DSVT the next step up?
+
+The entrant asked whether DSVT, the sparse voxel transformer in mainline OpenPCDet, can lift the evaluations beyond VoxelNeXt.
+
+**Evidence:**
+
+| Source | What it shows | Weight here |
+|---|---|---|
+| The ECCV 2026 runner-up (R20), in this exact challenge | DSVT experts (0.2 m voxels, 40-60 epochs) scored LUMPI mAP 0.126 and V2X 0.452 on the hidden test. That is below our S1 PointPillars (0.136 and 0.465). | **High**: same task and data source. Their synthetic data was older and weaker than `g1-v6`. |
+| Eskandar et al., CVPR 2024 (arXiv 2402.17562), nine OpenPCDet detectors across domain gaps | Transformer backbones generalize better **only with local point features** (VOTR-TSD). Without them, Voxel R-CNN is more robust than its transformer twin. On pedestrians, PV-RCNN and Voxel R-CNN lead (mean cross-domain AP about 30, against 25-30 for the transformers). | Medium: real-to-real shifts. DSVT has no point-feature branch. |
+| RoboSense 2025, cross-placement track (arXiv 2510.18539, 2601.05014) | The winner and runner-up both used BEVFusion-L with input invariance (GBlobs) and TTA. None used a stronger backbone. | Medium: input and data levers won, not capacity. |
+| Our S2 record | Finer-grained centre-based detectors fired on static structures the twin lacked as walkers (1.8-2.7x more static false positives). | Medium: `g1-v6` now adds hedges, fences and walls as negatives, which may reduce this. |
+| S9 so far | On `g1-v6`, Voxel R-CNN, PV-RCNN++ and VoxelNeXt all gain about +0.10 to +0.14 Person AP over their `g1-v4` versions. In the fusion, VoxelNeXt contributes as a **decorrelated** member; seeds and draws of one family had added under 0.002 (S6, S7.4-7.5). | **High**: the data drives the gain, and family diversity drives the fusion. |
+
+**Viability on our stack (measured today):**
+- **Code.** DSVT's code and Waymo configs are in our OpenPCDet checkout (`233f849`).
+- **Dependency.** Its one missing package is `torch_scatter`, which is used only by the dynamic VFEs (`scatter_mean`, `scatter_max(...)[0]`). `common/bdc26/detect/pcdet_patches.py` now supplies both with torch 2.1's `scatter_reduce`. It matches a reference loop exactly (`test_s9.py`), so no new package is needed.
+- **Member folder.** `model-lumpi-track/dsvt-ros-g1v6`: DSVT-Pillar, 0.2 m dynamic pillars on a 400 x 400 grid, a CenterPoint head with our head groups, the same data and augmentation as `voxelnext-ros-g1v6`, 40 epochs.
+- **Smoke run on `g1-v6`** (one GPU, shared with training): it builds and trains, and the loss falls from 264 to 51 in 100 iterations. Memory is about 23 GB per GPU at batch 4, and an iteration takes 1.78 s.
+- **Projection:** about 6-8 h for 40 epochs on a 4-GPU worker per track, or 2-2.5x VoxelNeXt. Its 8-view validation tuning takes about 4-5 h on LUMPI.
+
+**Assessment:**
+- **Not the next step up by itself.** No evidence says DSVT transfers better from synthetic to real. The only in-challenge evidence is negative, and the S9 gain came from data, not architecture.
+- **Its realistic value is as a fourth family in the fusions.** On LUMPI Person it would join Voxel R-CNN, PV-RCNN++ and VoxelNeXt, where VoxelNeXt showed that a new family can enter.
+- **Expected effect:**
+  - P(passes rule 3 on Person against `voxelnext-ros-g1v6`) is about 1 in 3.
+  - If it passes and is fused, about +0.005 to +0.01 Person AP, or +0.0006 to +0.0012 combined on LUMPI.
+  - **Cost:** about 8 GPU-worker-hours plus tuning on LUMPI, and again on V2X.
+- **Recommendation:** a time-boxed DSVT arm on LUMPI. V2X follows only if LUMPI passes. Pre-registered here:
+  - **D1:** train `dsvt-ros-g1v6` on LUMPI in the slot after `lumpi:pvrcnnpp-ros-g1v6d2`.
+  - **Gate (rule 3):** against `voxelnext-ros-g1v6`, per class and variant: pooled P >= 0.9, and neither split down by more than 0.005.
+  - **If it passes:** it joins the next LUMPI portfolio, and `dsvt-ros-g1v6` V2X (z range [-8, 2], our V2X classes) replaces `v2x:pvrcnnpp-ros-g1v6d2` in the queue. That job's family failed rule 3 on V2X (14.6).
+  - **If it fails:** it is recorded, and DSVT is not retried with other settings (rule 3).
+- **Launched (2026-11-03, 02:28 UTC; the entrant said "Queue DSVT on LUMPI"):**
+  - **Checks before queueing.** The inference path was tested with a randomly initialized checkpoint: plain, 8-view and kit predictions all run through `pcdet_predict.py`, the same calls as the post-processing and packaging. The V2X folder `model-v2x-track/dsvt-ros-g1v6` was built and checked in the same way.
+    - It is the V2X VoxelNeXt data, augmentation, classes, head groups and z range with the LUMPI DSVT model. These are the same three differences as between the two tracks' VoxelNeXt configs.
+    - A 4-minute V2X training smoke ran on one shared GPU: the loss fell from 270 to 29 in 150 iterations, at about 1.3 s per iteration.
+  - **Queue.** `lumpi:dsvt-ros-g1v6` is at the head of the train queue, so it takes trainA (GPUs 0-3) when `lumpi:pvrcnnpp-ros-g1v6d2` ends, at about 02:45 UTC. trainB had already taken `v2x:pvrcnnpp-ros-g1v6d2` at 02:18 UTC, before the go. If D1 passes, the V2X DSVT job therefore goes to the **front** of the queue instead of replacing that job.
+  - **Timing, corrected.** At 9,000 frames, 562 iterations per epoch on four GPUs, and 1.2-1.8 s per iteration, 40 epochs take about 8-11 h, not the 6-8 h projected above. Training ends at about 11:00-14:00 UTC. The two post steps take about 4-5 h, so the gate falls at about 15:00-19:00 UTC Nov 3.
+  - **Gate waiter.** `d1gate` (`$BDC_DATA/logs/s9/d1_dsvt_gate.sh`) waits for the LUMPI post-processing, runs `s9_member_check.py lumpi dsvt-ros-g1v6 voxelnext-ros-g1v6` and logs the result. On a PASS it pushes `v2x:dsvt-ros-g1v6` to the front of the queue. If no training worker is left by then, it logs that the job waits for a relaunch. On a training or post-processing failure it logs the failure and stops; DSVT is not retried with other settings.
+  - **On a PASS**, the LUMPI member joins `s9d` (16.2). The V2X member follows the same rule-3 check against `voxelnext-ros-g1v6` (V2X).
+- **Result (2026-11-03, 13:22 UTC): D1 passes.** Training ran 02:42-10:13 UTC (7.5 h) and tuning 10:14-13:13 UTC. Rule 3 against `voxelnext-ros-g1v6`:
+
+  | Class | Plain A / B (delta) | Pooled, P | 8-view A / B (delta) | Pooled, P |
+  |---|---|---|---|---|
+  | Person | 0.548 (+0.030) / 0.167 (-0.002) | +0.0085, 0.99 | 0.587 (+0.043) / 0.195 (+0.006) | +0.0204, 1.00 |
+  | Car | 0.838 (+0.008) / 0.737 (+0.009) | +0.0100, 1.00 | 0.860 (-0.015) / 0.751 (-0.008) | -0.0073, 0.00 |
+  | Bicycle | 0.504 (+0.088) / 0.197 (+0.022) | +0.0628, 1.00 | 0.562 (+0.093) / 0.234 (+0.038) | +0.0734, 1.00 |
+  | Van | 0.061 (+0.025) / 0.001 (+0.000) | +0.0101, 1.00 | 0.071 (+0.019) / 0.001 (+0.000) | +0.0093, 1.00 |
+  | Motorcycle, Bus, Truck | fail | | fail | |
+
+  - It passes on Person, Car, Bicycle and Van (plain), and on Person, Bicycle and Van (8-view). Its 8-view Person (A 0.587, B 0.195) is at the level of the `g1-v6` Voxel R-CNN members. This beats the prior of about 1 in 3 in the assessment above.
+  - `d1gate` pushed `v2x:dsvt-ros-g1v6` to the front of the train queue. Both workers are on W4 (15.4), so it starts when the first W4 member ends, at about 18:15 UTC.
+  - The LUMPI member enters `s9d` through `s9dwait` (15.4).
+  - **Its 12-view sibling** (`dsvt-ros-g1v6_tta12`, the S8 swap rule) runs on GPU 1 from 13:22 UTC for about 3 h. It is for `s9e`, where `dsvt6` joins `S9_TTA12` if `s9d` puts DSVT in a fusion. This was written before any `s9d` result.
+- **Not planned:**
+  - LION, SAFDNet and HEDNet: not in our checkout. They would need a second codebase or a Mamba build, against the one-environment rule.
+  - DSVT-Voxel (3D windows): heavier than the pillar variant, with no evidence of a better transfer.
+
+### 16.2 Roadmap to the development close (Nov 3-5) and the final phase
+
+**What 9.1 and the checks since then say about where the points are:**
+- **LUMPI Person** is the main lever. Local gains transfer at 1x or better.
+- **Realism** cannot be improved with legal proxies any further (15.1).
+- **V2X** gains only through bags and the `g1-v6` frames.
+- **Rule 5** forbids choosing generator parameters from detection results, so synthesis work for this phase is **new draws of the same configuration and training-data composition**. A new generator configuration is a final-phase option only.
+
+**Synthesis side:**
+1. **`g1-v6d3`, a third generator draw of the `g1-v6` configuration**, for both tracks: same flags, a new seed, the same provenance card. About 20 min of CPU, plus infos. It gives 3-draw bags of the Person members, and is built only if the 2-draw bag `bag-voxelrcnn-ros-g1v6x` is used in LUMPI `s9b`. Bag evidence on V2X so far: the VoxelNeXt 2-draw bag gains +0.05 mAP plain and +0.013 with 8 views over its single draw.
+2. **Training-data composition (W4, Section 7):** the best `g1-v6` family trained on draws 1 and 2 together (20,000 frames, 40 epochs), about 7.6 h for LUMPI Voxel R-CNN. Its frames are `g1-v6` frames, so rule 4 holds.
+3. **Realism:** no new frame selection. The optional realism-only test of 15.1 is the entrant's call.
+4. **For the final phase only**, if a version can still finish in time for F2-F4: a `g1-v7` configuration chosen on synthetic checks and proxies 1-3 only (rule 5). Candidates are coarse radial and height profile priors, and walker pose variety. Nothing is built before the development close.
+
+**Model side, in order:**
+
+| When (UTC) | Item | GPU | Feeds |
+|---|---|---|---|
+| Nov 3, about 01:00 | V2X `s9b` (VoxelNeXt and Voxel R-CNN draw bags, `vn6`, the fade recipe; `g1-v6` frames if a used member is trained on `g1-v6`). **Result 01:51: not built, every class kept its fusion (15.2)** | portfolio | upload |
+| Nov 3, about 03:30 | LUMPI `s9b` (Voxel R-CNN draw bag, PV-RCNN++ `g1-v6`, the fade recipe, 12-view `vrros6` and `vn6`, rule 1(b)). **Result 04:47: built, Person route `vrrosf6_tta+pvros6_tta`, projection +0.0008, kit 248 s (15.3). Server: 1030540, 0.541542, rank 1, the best scored LUMPI system (15.5)** | portfolio | uploaded |
+| Nov 3, 00:50-04:30 | `lumpi:voxelnext-ros-g1v6d2`, then `lumpi:pvrcnnpp-ros-g1v6d2` (queued) | trainA/B | `s9c` |
+| Nov 3, 02:42 to 10:13 (gate 13:22) | **D1: `dsvt-ros-g1v6` LUMPI** (queued 02:28, 16.1; trained in 7.5 h). **Result 13:22: PASS on Person, Car, Bicycle, Van; `v2x:dsvt-ros-g1v6` queued first (16.1)** | trainA | `s9d` |
+| Nov 3, about 05:00-09:00 | `g1-v6d3` builds; `lumpi:voxelrcnn-ros-g1v6d3`, if item 1 applies | the other worker | `s9d` |
+| Nov 3, about 08:00-10:00 | LUMPI `s9c` (adds the VoxelNeXt and PV-RCNN++ draw bags and the 12-view `vrrosf6` and `pvros6`; 15.3). **Result 10:31: built, Person route `vrrosf6_tta12+pvros6_tta12`, projection +0.0004 on `s9b`, kit 257 s (15.4). Server: 1030511, 0.541154, rank 1 (15.5)** | portfolio | uploaded |
+| Nov 3, 10:55 to about 19:00-21:00 | **W4: `voxelrcnn-rosf-g1v6j` (trainA) and `pvrcnnpp-ros-g1v6j` (trainB from about 12:00) on `g1-v6j`** (15.4); then DSVT V2X, only if D1 passes | both | `s9e` |
+| Nov 3, about 16:00-18:00 | LUMPI `s9d` (the `vrrosf6` draw bag; DSVT if D1 passes; waiter `s9dwait`, 15.4) | portfolio | upload |
+| Nov 4, about 02:00-04:00 | LUMPI `s9e` (the W4 members and their 12-view siblings) | portfolio | upload |
+| Nov 4 | `s9d` both tracks (3-draw bags, DSVT if it passed, 12-view swaps); W4 tuning | portfolio | uploads |
+| Nov 5, until 10:00 | the last training; idle-GPU IDENTICAL reproduction of 9.1 and of the newest entries | | release |
+| Nov 5, by 22:00 | the final development uploads: the best scored complete system per track (rule 6) | | F1 |
+
+**Budget:**
+- **Training:** about 106 worker-hours remain from 05:00 UTC Nov 3 to the 10:00 UTC Nov 5 stop. The table uses about 40-45, which leaves room for one more draw or family when the `s9b`/`s9c` results say where.
+- **Validation tuning** (two post workers, about 3 h per LUMPI member and 4-5 h for DSVT) is the tighter constraint. Members are queued in the order of the table.
+
+**Uploads** stay at most 3 per track per day (rule 6), each with its projection recorded first, through the 22:00 UTC Nov 5 cut-off. F1 opens on Nov 6, 05:00 UTC.

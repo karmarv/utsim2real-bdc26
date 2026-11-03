@@ -1,0 +1,185 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.4104243522913885,
+    "A_behaviour": 0.41143496150417674,
+    "A_tuned": 0.5323886867429366,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "recenter": 0.25,
+      "size_scale": [
+        0.92,
+        0.92,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.16,
+        1.16,
+        0.92
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.04889013680558746,
+    "B_behaviour": 0.04847928198534759,
+    "B_tuned": 0.178149555011445,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.539265701089059
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8643308270270378,
+    "A_behaviour": 0.8650712135822793,
+    "A_tuned": 0.8719309450937415,
+    "behaviour_cfg": {
+      "nms_iou": 0.01
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "n_gt_B": 25573,
+    "B_start": 0.762470526086909,
+    "B_behaviour": 0.7482038617918865,
+    "B_tuned": 0.7648193512409546,
+    "behaviour_kept_start": true,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.8811186997839661
+    },
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.8841552933774974
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.33391555614433477,
+    "A_behaviour": 0.33432174565229705,
+    "A_tuned": 0.33651929175846057,
+    "behaviour_cfg": {
+      "nms_iou": 0.1,
+      "recenter": 0.5,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.13262295542182487,
+    "B_behaviour": 0.13308868079255673,
+    "B_tuned": 0.13668474604683292,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.4592786301851026
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.06132232242049522,
+    "A_behaviour": 0.06132232242049522,
+    "A_tuned": 0.06132232242049522,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.25
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.04374923768125723,
+    "B_behaviour": 0.04374923768125723,
+    "B_tuned": 0.04374923768125723
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.002631578947368421,
+    "B_behaviour": 0.002631578947368421,
+    "B_tuned": 0.002631578947368421,
+    "hedge_from_Truck": {
+      "factor": 0.3,
+      "A": 0.0021497955985869234
+    }
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.2564546152035394,
+    "A_behaviour": 0.25706438825702727,
+    "A_tuned": 0.2602691201879201,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ],
+      "z_offset": -0.2
+    },
+    "convention_cfg": {
+      "z_offset": 0.0,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.162360763228454,
+    "B_behaviour": 0.1615917465936098,
+    "B_tuned": 0.1635055991363039,
+    "hedge_from_Bus": {
+      "factor": 0.6,
+      "A": 0.2625738139182756
+    }
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0022916666666666667,
+    "B_behaviour": 0.0022916666666666667,
+    "B_tuned": 0.0022916666666666667,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.041816852625969805
+    },
+    "hedge_from_Car": {
+      "factor": 0.3,
+      "A": 0.05908657050877455
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {}
+  }
+}

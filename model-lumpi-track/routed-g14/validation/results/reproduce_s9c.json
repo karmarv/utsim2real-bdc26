@@ -1,0 +1,212 @@
+{
+  "model": "routed-g14",
+  "tag": "s9c",
+  "scored_zip": "model-lumpi-track/routed-g14/submissions/2026-11-03_s9c/lumpi_s9c_submission.zip",
+  "zip_md5": "3691b1150595c45007d975097c8c2e53",
+  "codabench": null,
+  "remerge_check": {
+    "frames_equal_keys": true,
+    "boxes": [
+      29027,
+      29027
+    ],
+    "frames_differing": 0,
+    "max_abs_diff": 0.0,
+    "identical_within_tol": true
+  },
+  "members": [
+    {
+      "key": "bagpv4x_tta12",
+      "model": "model-lumpi-track/bag-pvrcnnpp-ros-g1v4x",
+      "bag": [
+        {
+          "model": "model-lumpi-track/pvrcnnpp-ros-g1v4",
+          "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+          "md5": "3fffacf2d0baab79eb5cd12676ea591f",
+          "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4/test/postprocess_tta12.yaml"
+        },
+        {
+          "model": "model-lumpi-track/pvrcnnpp-ros-g1v4-s2",
+          "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+          "md5": "07b8df1f669ba02d513a37418c5ae0f7",
+          "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4-s2/test/postprocess_tta12.yaml"
+        },
+        {
+          "model": "model-lumpi-track/pvrcnnpp-ros-g1v4-s3",
+          "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+          "md5": "990dee15be6b53131fd20831dddf3d24",
+          "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4-s3/test/postprocess_tta12.yaml"
+        },
+        {
+          "model": "model-lumpi-track/pvrcnnpp-ros-g1v4-s4",
+          "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4-s4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+          "md5": "c1f8401d4f6cff38906165bd86f4f067",
+          "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4-s4/test/postprocess_tta12.yaml"
+        },
+        {
+          "model": "model-lumpi-track/pvrcnnpp-ros-g1v4d2",
+          "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+          "md5": "695362e328dbecea9ac802796b6d59c0",
+          "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/test/postprocess_tta12.yaml"
+        },
+        {
+          "model": "model-lumpi-track/pvrcnnpp-ros-g1v4d3",
+          "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+          "md5": "0cb2e5d4039ec05b490e6f80ee219233",
+          "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4d3/test/postprocess_tta12.yaml"
+        }
+      ],
+      "tta": "flip4+yaw+z+scale",
+      "variant": "tta12",
+      "iou": {
+        "default": 0.5,
+        "Car": 0.7,
+        "Van": 0.7
+      }
+    },
+    {
+      "key": "g1",
+      "model": "model-lumpi-track/pointpillars-g1",
+      "ckpt": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/pointpillars-g1/test/postprocess.yaml"
+    },
+    {
+      "key": "g1_tta",
+      "model": "model-lumpi-track/pointpillars-g1",
+      "ckpt": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pointpillars-g1/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "g1v3",
+      "model": "model-lumpi-track/pointpillars-g1v3",
+      "ckpt": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/pointpillars-g1v3/test/postprocess.yaml"
+    },
+    {
+      "key": "pp4_tta",
+      "model": "model-lumpi-track/pointpillars-g1v4",
+      "ckpt": "model-lumpi-track/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "46e9f504fd05e90f72272387a102eeb0",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pointpillars-g1v4/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "ppros4_tta",
+      "model": "model-lumpi-track/pointpillars-ros-g1v4",
+      "ckpt": "model-lumpi-track/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "97be701cb39c8b56c663acee56cc7bf7",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pointpillars-ros-g1v4/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "ppros_tta",
+      "model": "model-lumpi-track/pointpillars-ros-g1v3",
+      "ckpt": "model-lumpi-track/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "590e9f16fe22d1f429d4827392c1f0ba",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pointpillars-ros-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "pvros4_tta",
+      "model": "model-lumpi-track/pvrcnnpp-ros-g1v4",
+      "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3fffacf2d0baab79eb5cd12676ea591f",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "pvros4d2_tta",
+      "model": "model-lumpi-track/pvrcnnpp-ros-g1v4d2",
+      "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "695362e328dbecea9ac802796b6d59c0",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "pvros6_tta12",
+      "model": "model-lumpi-track/pvrcnnpp-ros-g1v6",
+      "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "22f7189bf70847b5e441766016fa77cc",
+      "exists": true,
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v6/test/postprocess_tta12.yaml"
+    },
+    {
+      "key": "pvros_tta12",
+      "model": "model-lumpi-track/pvrcnnpp-ros-g1v3",
+      "ckpt": "model-lumpi-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "66c1f05a2e602113dd011d96a22ec334",
+      "exists": true,
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "model-lumpi-track/pvrcnnpp-ros-g1v3/test/postprocess_tta12.yaml"
+    },
+    {
+      "key": "vrros",
+      "model": "model-lumpi-track/voxelrcnn-ros-g1v3",
+      "ckpt": "model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+      "exists": true,
+      "tta": null,
+      "postprocess": "model-lumpi-track/voxelrcnn-ros-g1v3/test/postprocess.yaml"
+    },
+    {
+      "key": "vrros4_tta",
+      "model": "model-lumpi-track/voxelrcnn-ros-g1v4",
+      "ckpt": "model-lumpi-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5c061261f002f5e04eaec1d4704b937f",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/voxelrcnn-ros-g1v4/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "vrros_tta",
+      "model": "model-lumpi-track/voxelrcnn-ros-g1v3",
+      "ckpt": "model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+      "exists": true,
+      "tta": "flip4+yaw+z",
+      "postprocess": "model-lumpi-track/voxelrcnn-ros-g1v3/test/postprocess_tta.yaml"
+    },
+    {
+      "key": "vrrosf6_tta12",
+      "model": "model-lumpi-track/voxelrcnn-rosf-g1v6",
+      "ckpt": "model-lumpi-track/voxelrcnn-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "807f70a15f44f13aa365dd6db36f56a6",
+      "exists": true,
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "model-lumpi-track/voxelrcnn-rosf-g1v6/test/postprocess_tta12.yaml"
+    }
+  ],
+  "md5_cache": {
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "3fffacf2d0baab79eb5cd12676ea591f",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "07b8df1f669ba02d513a37418c5ae0f7",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v4-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "990dee15be6b53131fd20831dddf3d24",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v4-s4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "c1f8401d4f6cff38906165bd86f4f067",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "695362e328dbecea9ac802796b6d59c0",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v4d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "0cb2e5d4039ec05b490e6f80ee219233",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "16e68b8b9142688967e4b3d006ac9d54",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "e403acdc3ae30a84de3989da34619440",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "46e9f504fd05e90f72272387a102eeb0",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "97be701cb39c8b56c663acee56cc7bf7",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "590e9f16fe22d1f429d4827392c1f0ba",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "22f7189bf70847b5e441766016fa77cc",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "66c1f05a2e602113dd011d96a22ec334",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "5c061261f002f5e04eaec1d4704b937f",
+    "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/voxelrcnn-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth": "807f70a15f44f13aa365dd6db36f56a6"
+  }
+}

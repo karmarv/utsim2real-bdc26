@@ -1,0 +1,21 @@
+name: voxelrcnn-rosf-g1v6d2
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 1
+derived_from: voxelrcnn-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 deg
+  pitch/roll, the parent's config unchanged
+data:
+  train: pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 s9c amendment, training seed 666, generator draw 2)
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S9 s9c amendment (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.3): the
+  voxelrcnn-rosf-g1v6 config on the second generator draw pcdet/g1-v6d2 (prepare_g1.py
+  --seed 2234); a bag member with its g1-v6 sibling, which the LUMPI s9b Person route uses.
+
+  '

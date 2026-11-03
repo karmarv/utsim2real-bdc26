@@ -59,11 +59,42 @@ def _patch_two_stage_scores() -> None:
         head.forward = forward
 
 
+class _TorchScatter:
+    """S9 DSVT arm: the two torch_scatter calls of OpenPCDet's dynamic VFEs (scatter_mean and scatter_max(...)[0], index
+    along dim 0) in plain torch 2.1 (Tensor.scatter_reduce), so DSVT needs no extra package (one pinned environment)."""
+
+    @staticmethod
+    def _reduce(src, index, reduce, dim=0):
+        import torch
+        assert dim == 0
+        n = int(index.max()) + 1 if index.numel() else 0
+        out = torch.zeros((n,) + tuple(src.shape[1:]), dtype=src.dtype, device=src.device)
+        idx = index.long().view(-1, *([1] * (src.dim() - 1))).expand_as(src)
+        return out.scatter_reduce(0, idx, src, reduce=reduce, include_self=False)
+
+    @classmethod
+    def scatter_mean(cls, src, index, dim=0):
+        return cls._reduce(src, index, "mean", dim)
+
+    @classmethod
+    def scatter_max(cls, src, index, dim=0):
+        return cls._reduce(src, index, "amax", dim), None     # callers read [0] only
+
+
+def _patch_torch_scatter() -> None:
+    import importlib
+    for name in ("dynamic_voxel_vfe", "dynamic_pillar_vfe", "dynamic_mean_vfe"):
+        mod = importlib.import_module(f"pcdet.models.backbones_3d.vfe.{name}")
+        if not hasattr(mod, "torch_scatter"):
+            mod.torch_scatter = _TorchScatter
+
+
 def apply() -> None:
     global _APPLIED
     if _APPLIED:
         return
     _patch_two_stage_scores()
+    _patch_torch_scatter()
     from pcdet.models.dense_heads.center_head import CenterHead
 
     original = CenterHead.assign_targets

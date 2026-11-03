@@ -1,0 +1,20 @@
+name: dsvt-ros-g1v6
+strategy: S9
+track: lumpi-track
+module: M10 (detector) / S9 DSVT arm
+derived_from: voxelnext-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: DSVT-Pillar (dynamic sparse voxel transformer, 0.2 m pillars) with a
+  CenterPoint head and the ROS augmentation of voxelrcnn-ros-g1v4
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'trained and tuned (S9 D1, the entrant''s go 2026-11-03); passed rule 3 against voxelnext-ros-g1v6 on Person, Car, Bicycle, Van'
+expected: a fusion member with errors decorrelated from the convolutional families
+notes: 'S9 DSVT arm (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 16):
+  DSVT-Pillar on pcdet/g1-v6; joins a portfolio only after the S6 member check against
+  voxelnext-ros-g1v6.
+
+  '

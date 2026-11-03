@@ -1,0 +1,347 @@
+{
+  "Person": {
+    "incumbent": "fusion vrrosf6_tta+pvros6_tta@0.5",
+    "incumbent_A": 0.5792665339507448,
+    "incumbent_B": 0.2267817720320709,
+    "best": {
+      "members": [
+        "vrrosf6_tta12",
+        "pvros6_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.5914637492968116,
+      "B": 0.22591643823961371
+    },
+    "dB": -0.0008653337924571791,
+    "p_gain": 0.39,
+    "ci90": [
+      -0.002125196842021888,
+      0.0018614300228370197
+    ],
+    "dA": 0.01219721534606677,
+    "pooled": {
+      "delta": 0.005085769972756893,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "vrrosf6_tta12+pvros6_tta12@0.5": {
+        "val": 0.5916070413765079,
+        "lateA": 0.4658686080224948,
+        "valB": 0.22594885951411983
+      },
+      "vrrosf6_tta+pvros6_tta@0.5": {
+        "val": 0.5794311744206226,
+        "lateA": 0.4570060601725081,
+        "valB": 0.22688894038166368
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "late-A, top 3 through the gates",
+    "tested": [
+      {
+        "members": [
+          "vrrosf6_tta12",
+          "pvros6_tta12"
+        ],
+        "iou": 0.5,
+        "lateA": 0.4658686080224948,
+        "earlyA": null,
+        "dB": -0.0008653337924571791,
+        "p_gain": 0.39,
+        "dA": 0.01219721534606677,
+        "pooled": {
+          "delta": 0.005085769972756893,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrrosf6_tta12",
+        "pvros6_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.5916070413765079,
+      "B": 0.22594885951411983
+    }
+  },
+  "Bicycle": {
+    "incumbent": "fusion vrros_tta+pvros4_tta+pp4_tta@0.7",
+    "incumbent_A": 0.600858753080846,
+    "incumbent_B": 0.26401955909727576,
+    "best": {
+      "members": [
+        "vrros_tta",
+        "pvros4_tta12",
+        "pp4_tta12"
+      ],
+      "iou": 0.7,
+      "A": 0.6048868872911505,
+      "B": 0.2662235570594297
+    },
+    "dB": 0.002203997962153925,
+    "p_gain": 0.855,
+    "ci90": [
+      -0.000988665017035034,
+      0.004346577783140786
+    ],
+    "dA": 0.004028134210304457,
+    "pooled": {
+      "delta": 0.002986360265463339,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "vrros_tta+pvros4_tta12+pp4_tta12@0.7": {
+        "val": 0.6048868872911505,
+        "valB": 0.2662235570594297
+      },
+      "vrros_tta+pvros4_tta+pp4_tta@0.7": {
+        "val": 0.600858753080846,
+        "valB": 0.26401955909727576
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vrros_tta",
+          "pvros4_tta12",
+          "pp4_tta12"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.002203997962153925,
+        "p_gain": 0.855,
+        "dA": 0.004028134210304457,
+        "pooled": {
+          "delta": 0.002986360265463339,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrros_tta",
+        "pvros4_tta12",
+        "pp4_tta12"
+      ],
+      "iou": 0.7,
+      "A": 0.6048868872911505,
+      "B": 0.2662235570594297
+    }
+  },
+  "Motorcycle": {
+    "incumbent": "fusion vrrosf6_tta+pvros6+vn4_tta@0.7",
+    "incumbent_A": 0.16150570553902804,
+    "incumbent_B": 0.060818388410608826,
+    "best": {
+      "members": [
+        "vrrosf6_tta",
+        "pvros6",
+        "vn4_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.16150570553902804,
+      "B": 0.060818388410608826
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "vrrosf6_tta12+pvros6+vn4_tta@0.7": {
+        "val": 0.15552492531212914,
+        "valB": 0.0606558495148357
+      },
+      "vrrosf6_tta+pvros6+vn4_tta@0.7": {
+        "val": 0.16150570553902804,
+        "valB": 0.060818388410608826
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vrrosf6_tta",
+          "pvros6",
+          "vn4_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrrosf6_tta",
+        "pvros6",
+        "vn4_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.16150570553902804,
+      "B": 0.060818388410608826
+    }
+  },
+  "Truck": {
+    "incumbent": "fusion pvros4d2_tta+ppros_tta@0.3",
+    "incumbent_A": 0.4873267958926176,
+    "incumbent_B": 0.2055772068420741,
+    "best": {
+      "members": [
+        "pvros4d2_tta12",
+        "ppros_tta12"
+      ],
+      "iou": 0.3,
+      "A": 0.48630658391953097,
+      "B": 0.20818819237752423
+    },
+    "dB": 0.002610985535450139,
+    "p_gain": 0.84,
+    "ci90": [
+      -0.0012363486801887091,
+      0.005600988931299193
+    ],
+    "dA": -0.00102021197308666,
+    "pooled": {
+      "delta": 0.0010770883092670047,
+      "p_gain": 0.87
+    },
+    "decision": "kept (pooled A+B condition failed)",
+    "search_fast_iou": {
+      "pvros4d2_tta12+ppros_tta12@0.3": {
+        "val": 0.48630658391953097,
+        "valB": 0.20818819237752423
+      },
+      "pvros4d2_tta+ppros_tta@0.3": {
+        "val": 0.4873267958926176,
+        "valB": 0.2055772068420741
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "pvros4d2_tta12",
+          "ppros_tta12"
+        ],
+        "iou": 0.3,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.002610985535450139,
+        "p_gain": 0.84,
+        "dA": -0.00102021197308666,
+        "pooled": {
+          "delta": 0.0010770883092670047,
+          "p_gain": 0.87
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "pvros4d2_tta",
+        "ppros_tta"
+      ],
+      "iou": 0.3,
+      "A": 0.4873267958926176,
+      "B": 0.2055772068420741
+    }
+  },
+  "Van": {
+    "incumbent": "fusion vrros+vrros4_tta+g1_tta@0.5",
+    "incumbent_A": 0.17397891353660602,
+    "incumbent_B": 0.0015790448464537508,
+    "best": {
+      "members": [
+        "vrros",
+        "vrros4_tta",
+        "g1_tta"
+      ],
+      "iou": 0.5,
+      "A": 0.17397891353660602,
+      "B": 0.0015790448464537508
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "vrros+vrros4_tta12+g1_tta12@0.5": {
+        "val": 0.17147902223121034,
+        "lateA": 0.17497175810182003,
+        "earlyA": 0.1929095954787494,
+        "valB": 0.0016833974633421469
+      },
+      "vrros+vrros4_tta+g1_tta@0.5": {
+        "val": 0.17397891353660602,
+        "lateA": 0.17318627998381703,
+        "earlyA": 0.19641937964760536,
+        "valB": 0.0015790448464537508
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "early-A rank, late-A gate (judge), top 3",
+    "tested": [
+      {
+        "members": [
+          "vrros",
+          "vrros4_tta",
+          "g1_tta"
+        ],
+        "iou": 0.5,
+        "lateA": 0.17318627998381703,
+        "earlyA": 0.19641937964760536,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrros",
+        "vrros4_tta",
+        "g1_tta"
+      ],
+      "iou": 0.5,
+      "A": 0.17397891353660602,
+      "B": 0.0015790448464537508
+    }
+  }
+}
