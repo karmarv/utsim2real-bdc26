@@ -893,6 +893,89 @@ These are the first and second LUMPI uploads of Nov 3. Rule 6 allows at most 3 p
 - **The projection method is unchanged**, since it gates only bar (b), projection > 0. No per-class choice is taken from these numbers.
 - **Release:** `s9b` and `s9c` use the `voxelrcnn-rosf-g1v6` and `pvrcnnpp-ros-g1v6` checkpoints, which are not release assets yet. A release is the entrant's call.
 
+### 15.6 LUMPI `s9d`: a new Car route, built and kit-checked (2026-11-03, 17:09 UTC)
+
+**Build.** As pre-registered in 15.4, `s9dwait` launched the portfolio at 14:59 UTC, after `voxelrcnn-rosf-g1v6d2` was tuned (14:58) and D1 had passed (13:22). It finished at 17:08 UTC.
+- `routed-g15` is `routed-g14` (`s9c`) plus `brf6`, `brf6_tta`, `dsvt6` and `dsvt6_tta`: 100 members.
+- Rule 1(b) copies and the `g1-v6` frames, as for `s9b` and `s9c`. `S9_TTA12` was not set.
+
+**Member checks (rule 3):**
+
+| Member | Against | Passes on |
+|---|---|---|
+| `brf6` = `bag-voxelrcnn-rosf-g1v6x` (mAP A 0.3450, B 0.2062; 8-view A 0.3580, B 0.2120) | `voxelrcnn-rosf-g1v6` | Person, Car, Bicycle, Truck, Van; 8-view Person, Car, Bicycle, Van |
+| `dsvt6` = `dsvt-ros-g1v6` | `voxelnext-ros-g1v6` | Person, Car, Bicycle, Van; 8-view Person, Bicycle, Van (the D1 result, 16.1) |
+
+**Fusion (local validation, the pooled rule):**
+- **Car:** `pvros_tta12` + `vrrosf6_tta12` at IoU 0.7 replaces `pvros_tta12` + `bagpv4x_tta12`.
+  - `vrrosf6_tta12` has been a member since `s9c`, but there it only entered through the 12-view swap step, which swaps siblings into the existing sets. `s9d` is the first full fuse search with it as a Car candidate.
+  - Final check against `routed-g14`: A +0.0019, B +0.0069, pooled +0.0021, P 1.00.
+- **Person, Truck and Van** keep their `s9c` fusions.
+- **Motorcycle:** `brf6_tta` + `bpv6` passed the pooled rule in the fuse step, but Motorcycle is frozen (rule 2), so the `s9c` set stays. Bicycle and Bus are frozen too.
+- **Neither new member is in a final fused set.** The card differs from `routed-g14` only in the Car set. DSVT entered no set, so `dsvt6` does not join `S9_TTA12` in `s9e` (16.1).
+
+**Package and checks:**
+- **Copies (rule 1(b)):** the fit left the Person threshold unchanged at t = 0.7316.
+- **Kit check:** valid, 24,874 boxes, 195 s. `s9c` had 29,027 boxes: the new Car route keeps 7,599 Car boxes instead of 11,758, and every other class is within 5 boxes.
+- **Realism (rule 4):** the same 50 `g1-v6` frames, byte-identical to `s9c`'s. The local stand-in R is 0.940414, with CD, MMD, EMD and FPD identical to `s9c`. Only `predictions.json` differs between the two zips.
+- **Local mAP:** A 0.4072 (`s9c` 0.4069), B 0.2361 (0.2351).
+- **Projection against `routed-g14`:** dA +0.0003, dB +0.0010, combined +0.0003. Bar (b), projection > 0, is met. The advisory +0.003 notice bar is not.
+- **File:** `model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip`, md5 `20d2d5fac2408a2fb91d03985645b70d`, sha256 `c25f3edc...6227efc2` (identical to `submission.zip`).
+
+**Test-time re-inference.** The package step writes 14 member test predictions. Five of them differ from the `s9c` build in the last digits (`vrros_tta`, `vrros4_tta`, `pvros4_tta`, `vrrosf6_tta12`, `pvros6_tta12`), and the other nine are identical. This is the known EQUIVALENT-not-IDENTICAL behaviour of inference on shared GPUs (9.1 dry run, `gpu_queue.sh`).
+- In the four unchanged classes that use them, 97.5-100% of the test boxes are within 5 cm of an `s9c` box: Person 4,341 of 4,342, Bicycle 4,747 of 4,757, Bus 2,380 of 2,440 (fused at IoU 0.3, where small shifts regroup boxes), and Van 2,244 of 2,246. Scores differ by at most 0.004.
+- Truck, Motorcycle and Unknown are identical.
+- **Consequence:** a server difference of a few 0.0001 between two systems includes this jitter. This supports 15.5's reading of the 12-view -0.0004 as one small comparison. No rule changes.
+
+**Upload.** `s9d` would be the third and last LUMPI upload of Nov 3 UTC (rule 6). If it scores above `s9b` (0.541542), it becomes the LUMPI F1 candidate, by the combined score only.
+
+**`s9e`, pre-registered here (17:15 UTC, before any W4 result):**
+- **Reference:** `routed-g15` (`s9d`). It is the newest built system that passed bar (b), and it holds every member of `routed-g14`. The reference is fixed now and does not change with the `s9d` server score.
+- **Name:** `routed-g16` on LUMPI.
+- **Members:** `rf6j` = `voxelrcnn-rosf-g1v6j` against `voxelrcnn-rosf-g1v6`, and `pv6j` = `pvrcnnpp-ros-g1v6j` against `pvrcnnpp-ros-g1v6`. A member enters only if its training and tuning succeed. If neither does, `s9e` is not built.
+- **12-view siblings:** for each tuned W4 member, a 12-view job (`tune_and_eval.sh ... --tta flip4+yaw+z+scale --tta-tag tta12 --reuse-raw`) on a free GPU. Both keys are in `S9_TTA12`. The portfolio repeats rule 3 for each.
+- **Settings:** rule 1(b) (`S9_MAX_BOXES=38466`) and the `g1-v6` frames, as for `s9b`, `s9c` and `s9d`.
+- **Waiter:** `s9ewait` (`$BDC_DATA/logs/s9/s9e_lumpi_wait.sh`), launched at 17:15 UTC.
+- **Timing:** `pvrcnnpp-ros-g1v6j` ends training at about 19:25 UTC and `voxelrcnn-rosf-g1v6j` at about 20:15 UTC. With about 3 h of tuning and 1.5-3 h for each 12-view job, `s9e` builds at about 01:00-04:00 UTC Nov 4.
+- **A third post worker.** The post workers exit when their queue is empty and two training workers have finished. trainA exits after `voxelrcnn-rosf-g1v6j`, because trainB takes `v2x:dsvt-ros-g1v6` at about 19:25 UTC. `postC` counts three, so a post worker is still there when the V2X DSVT member finishes training.
+
+### 15.7 Leaderboard: LUMPI `s9d` (2026-11-03)
+
+**Upload.** The entrant uploaded `lumpi_s9d_submission.zip` (md5 `20d2d5fa...`) unchanged at 19:25 UTC, as submission **1031132**. This is the third LUMPI upload of Nov 3 UTC, so that day's LUMPI budget is used (rule 6). Server scoring took about 4 minutes.
+
+**Check.** One public `get_leaderboard` read at 21:11 UTC, after the entrant shared the score, confirmed rank 1 of 25 with 0.5425. dipper13579 is next at 0.5168 (1030765, 16:30 UTC), so the LUMPI lead is +0.026. The server record is `codabench_1031132.json` in the `s9d` folder.
+
+| Score | `s9b` (1030540) | `s9c` (1030511, the reference) | `s9d` (1031132) | `s9d` - `s9c` |
+|---|---|---|---|---|
+| Combined | 0.541542 | 0.541154 | **0.542490** | +0.001336 |
+| Detection | 0.279770 | 0.279123 | 0.281350 | +0.002227 |
+| Realism R | 0.9342 | 0.9342 | 0.9342 | 0 (the same frames; CD, MMD, EMD and FPD identical) |
+| mAP 3D@0.5 R40 | 0.195839 | 0.195386 | 0.196945 | +0.001559 |
+| mAP 3D@0.7 R40 | 0.085087 | 0.085150 | 0.089527 | +0.004377 |
+| mAP BEV@0.5 R40 | 0.205718 | 0.206365 | 0.207815 | +0.001450 |
+| Car AP | 0.660736 | 0.660792 | **0.673716** | **+0.012924** |
+| Person AP | 0.309032 | 0.305154 | 0.305633 | +0.000479 |
+| Bicycle AP | 0.190009 | 0.190662 | 0.188166 | -0.002496 |
+| Motorcycle, Bus, Truck, Van AP | | | | each within ±0.000003 |
+
+**What it shows:**
+- **The Car route transfers.** Locally Car gained A +0.0019 and B +0.0069; on the server it gained +0.0129. The projection was +0.0003 combined and the server gave +0.0013. 3D@0.7 rose by +0.0044, consistent with tighter Car boxes from the two-stage pair fused at IoU 0.7.
+- **Person and Bicycle moved without a configuration change** (+0.0005 and -0.0025). Both use members whose test predictions were inferred again on shared GPUs (15.6). So the server jitter of one class reaches about 0.0025 AP, or about 0.0003 combined, which is above the 0.0017 seen in 15.5.
+- **Taken together:** server differences under about 0.0005 combined between two builds are within this noise. The `s9d` gain over `s9c` (+0.0013) and over `s9b` (+0.0009) is mostly Car, which is larger than that.
+
+**Decisions (rule 6 and audit rule d):**
+- **The best scored LUMPI system is now `s9d`** (1031132, 0.542490), by the combined score only. It replaces `s9b` as the LUMPI F1 candidate, unless a later development upload scores higher.
+- **`s9e` keeps the reference `routed-g15`**, fixed in 15.6 at 17:15 UTC, before this score.
+- **No per-class choice is taken from these numbers.** The Car transfer is not used to change a route, a member or a threshold, and the projection method is unchanged, since it gates only bar (b).
+- **Shared-GPU jitter:** no rule change. The idle-GPU IDENTICAL reproduction (16.2, Nov 5) also checks that the final entries can be rebuilt exactly.
+- **Release:** `s9d` uses the `voxelrcnn-rosf-g1v6` and `pvrcnnpp-ros-g1v6` checkpoints, which are not release assets yet. A release is the entrant's call.
+
+**Training and tuning since 15.6 (UTC):**
+- `pvrcnnpp-ros-g1v6j` finished training at 19:24 and its tuning started at once.
+- `voxelrcnn-rosf-g1v6j` finished at 20:28. The epoch-40 checkpoint is verified; the non-zero exit is OpenPCDet's after-training evaluation, as before. Its tuning started at 20:28.
+- trainB took `v2x:dsvt-ros-g1v6` at 19:24. trainA and postA exited as expected (15.6), and postB and postC are tuning the two W4 members.
+- `s9ewait` runs each 12-view job when that member's tuning ends. `s9e` is expected at about 01:00-04:00 UTC Nov 4, when that day's LUMPI uploads open.
+
 ## 16. DSVT viability and the roadmap to the development close (2026-11-02, 21:30 UTC; before any `s9b` result)
 
 ### 16.1 Is DSVT the next step up?
@@ -979,8 +1062,8 @@ The entrant asked whether DSVT, the sparse voxel transformer in mainline OpenPCD
 | Nov 3, about 05:00-09:00 | `g1-v6d3` builds; `lumpi:voxelrcnn-ros-g1v6d3`, if item 1 applies | the other worker | `s9d` |
 | Nov 3, about 08:00-10:00 | LUMPI `s9c` (adds the VoxelNeXt and PV-RCNN++ draw bags and the 12-view `vrrosf6` and `pvros6`; 15.3). **Result 10:31: built, Person route `vrrosf6_tta12+pvros6_tta12`, projection +0.0004 on `s9b`, kit 257 s (15.4). Server: 1030511, 0.541154, rank 1 (15.5)** | portfolio | uploaded |
 | Nov 3, 10:55 to about 19:00-21:00 | **W4: `voxelrcnn-rosf-g1v6j` (trainA) and `pvrcnnpp-ros-g1v6j` (trainB from about 12:00) on `g1-v6j`** (15.4); then DSVT V2X, only if D1 passes | both | `s9e` |
-| Nov 3, about 16:00-18:00 | LUMPI `s9d` (the `vrrosf6` draw bag; DSVT if D1 passes; waiter `s9dwait`, 15.4) | portfolio | upload |
-| Nov 4, about 02:00-04:00 | LUMPI `s9e` (the W4 members and their 12-view siblings) | portfolio | upload |
+| Nov 3, about 16:00-18:00 | LUMPI `s9d` (the `vrrosf6` draw bag; DSVT if D1 passes; waiter `s9dwait`, 15.4). **Result 17:08: built, Car route `pvros_tta12+vrrosf6_tta12`, projection +0.0003 on `s9c`, kit 195 s; neither new member in a fused set (15.6). Server: 1031132, 0.542490, rank 1, the best scored LUMPI system (15.7)** | portfolio | uploaded |
+| Nov 4, about 02:00-04:00 | LUMPI `s9e` (the W4 members and their 12-view siblings, from `routed-g15`; waiter `s9ewait`, 15.6) | portfolio | upload |
 | Nov 4 | `s9d` both tracks (3-draw bags, DSVT if it passed, 12-view swaps); W4 tuning | portfolio | uploads |
 | Nov 5, until 10:00 | the last training; idle-GPU IDENTICAL reproduction of 9.1 and of the newest entries | | release |
 | Nov 5, by 22:00 | the final development uploads: the best scored complete system per track (rule 6) | | F1 |
