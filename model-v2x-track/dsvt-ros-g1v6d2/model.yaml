@@ -1,0 +1,22 @@
+name: dsvt-ros-g1v6d2
+strategy: S9
+track: v2x-track
+module: M10 (detector) / S9 DSVT arm
+derived_from: dsvt-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: DSVT-Pillar (dynamic sparse voxel transformer, 0.2 m pillars) with a CenterPoint head and
+  the ROS augmentation of voxelrcnn-ros-g1v5
+data:
+  train: pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 V2X DSVT twin, training seed 666, generator draw 2; queued only if V2X s9c puts dsvt6
+  in a fusion)
+expected: a fusion member with errors decorrelated from the convolutional families
+notes: 'S9 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.10, written before any V2X s9c
+  result): the V2X dsvt-ros-g1v6 config on the second generator draw pcdet/g1-v6d2 (--seed 2234), a draw-bag
+  partner of dsvt-ros-g1v6, as voxelnext-ros-g1v6d2 is for voxelnext-ros-g1v6. Realism frames stay pcdet/g1-v6
+  (rule 4).
+
+  '

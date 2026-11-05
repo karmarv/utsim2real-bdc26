@@ -592,7 +592,7 @@ def variant_candidates(card: dict, prior: dict, classes, tag: str) -> dict:
 
 
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
-                top: int = 4, workers: int = 32, max_members: int = 2, pooled: bool = False,
+                top: int = 4, workers: int = 16, max_members: int = 2, pooled: bool = False,
                 late_rank=(), gate_top: int = 1, judge=(), judge_top: int = 6, pooled_rule: bool = False,
                 swap_to=(), swap_variant=None) -> dict:
     """S3 cross-member fusion (docs/02-STRATEGY.md Section 8.3): per class, fuse each pair of the top-`top` members
@@ -618,6 +618,7 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     swap_to (S7.6): no search; the only candidate of a class is its incumbent fusion with the extended bags swapped in
     (swap_candidates), ranked and gated against the incumbent as above; the other classes keep their fusion.
     swap_variant (S8): the same with the incumbent's TTA members replaced by their `tta_tag` siblings (variant_candidates)."""
+    import gc
     import itertools
     from concurrent.futures import ProcessPoolExecutor
     import multiprocessing as mp
@@ -678,10 +679,12 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         cj = [j for j in jobs if j[0] == c]
         _FUSE["late"] = late_ids if (c in late_rank or c in judge) else None
         _FUSE["early"] = early_ids if c in judge else None
+        gc.collect(); gc.freeze()                       # S9 s9h OOM: the workers' gc no longer copies the parent's heap
         with ProcessPoolExecutor(max_workers=min(workers, len(cj)), mp_context=mp.get_context("fork")) as ex:
             for job, out in ex.map(_fuse_eval, cj):
                 results[job] = out
                 print(f"  {c:11s} {'+'.join(job[1]):24s} iou {job[2]}: A {out['val']:.4f} B {out['valB']:.4f}", flush=True)
+        gc.unfreeze()
     fusion, report = {c: fz for c, fz in prior.items() if c not in classes}, {}
     for c in classes:
         cand = {j: r for j, r in results.items() if j[0] == c}

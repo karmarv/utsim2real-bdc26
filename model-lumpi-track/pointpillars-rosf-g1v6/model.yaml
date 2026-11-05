@@ -1,0 +1,17 @@
+name: pointpillars-rosf-g1v6
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 6
+derived_from: pointpillars-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars-ROS on g1-v6 (as pointpillars-ros-g1v6) with the M1 recipe (GT-sampling fade in the last 5 epochs, +/-1.5 deg pitch/roll)
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W6 follow-up, training seed 666; queued only if pointpillars-ros-g1v6 passes rule 3 on Truck or Van)
+expected: 'the M1 recipe on a fourth family: Truck and Van at or above pointpillars-ros-g1v6'
+notes: 'S9 W6 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.12, written before any W6 result): rule 3 against pointpillars-ros-g1v6.
+
+  '

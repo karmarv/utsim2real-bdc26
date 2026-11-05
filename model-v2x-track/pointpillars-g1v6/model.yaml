@@ -1,0 +1,17 @@
+name: pointpillars-g1v6
+strategy: S9
+track: v2x-track
+module: M9 (engine v6) / S9 wave 6
+derived_from: pointpillars-g1v5
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (as pointpillars-g1v5), truck anchors at the g1-v6 training-label sizes
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W6, training seed 666)
+expected: 'the PointPillars family of the V2X truck fusion on g1-v6'
+notes: 'S9 W6 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.12, written before any W5 or W6 result): rule 3 against pointpillars-g1v5 (the truck fusion member pp5).
+
+  '

@@ -1,0 +1,20 @@
+name: dsvt-rosf-g1v6
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 5
+derived_from: dsvt-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: DSVT-Pillar with GT-sampling fade (last 5 epochs) and +/-1.5 deg pitch/roll, the parent's
+  config unchanged
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W5, the M1 recipe on a second and third family; training seed 666)
+expected: a fusion member with errors decorrelated from the convolutional families
+notes: 'S9 W5 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.8, written before any result):
+  the dsvt-ros-g1v6 config with the M1 recipe of voxelrcnn-rosf-g1v6 (GT-sampling fade, bdc_world_tilt),
+  on pcdet/g1-v6; the DSVT family that passed D1 (Section 16.1). Rule 3 against dsvt-ros-g1v6.
+
+  '

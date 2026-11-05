@@ -1,0 +1,18 @@
+name: pointpillars-g1v6d2
+strategy: S9
+track: v2x-track
+module: M9 (engine v6) / S9 wave 6
+derived_from: pointpillars-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars (as pointpillars-g1v5), truck anchors at the g1-v6 training-label sizes
+data:
+  train: pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W6 twin, training seed 666, generator draw 2; queued only if pointpillars-g1v6 passes rule 3 on truck)
+expected: 'the PointPillars family of the V2X truck fusion on g1-v6'
+notes: 'S9 W6 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.12, written before any W6 result): the pointpillars-g1v6 config on the second
+  generator draw pcdet/g1-v6d2 (same flags, --seed 2234), a draw-bag partner of pointpillars-g1v6. Realism frames stay pcdet/g1-v6 (rule 4).
+
+  '

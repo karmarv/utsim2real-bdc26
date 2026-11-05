@@ -1,0 +1,21 @@
+name: pvrcnnpp-rosf-g1v6
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 5
+derived_from: pvrcnnpp-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PV-RCNN++-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 deg pitch/roll, the parent's
+  config unchanged
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W5, the M1 recipe on a second and third family; training seed 666)
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention, map structure):
+  Truck (LUMPI) and walker gains'
+notes: 'S9 W5 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.8, written before any result):
+  the pvrcnnpp-ros-g1v6 config with the M1 recipe of voxelrcnn-rosf-g1v6 (GT-sampling fade, bdc_world_tilt),
+  on pcdet/g1-v6; the PV-RCNN++ member of the LUMPI Person route (s9b-s9d). Rule 3 against pvrcnnpp-ros-g1v6.
+
+  '

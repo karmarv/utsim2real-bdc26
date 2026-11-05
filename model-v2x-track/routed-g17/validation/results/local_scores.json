@@ -1,0 +1,15 @@
+{
+  "run": "routed (official metric) + calibration + fusion (pedestrian, truck, vehicle) + budget + sparse demotion",
+  "realval_A_mAP_3d_0.5_R40": 0.7383311732925352,
+  "realval_A_per_class": {
+    "vehicle": 0.8678221034839868,
+    "pedestrian": 0.411579967954076,
+    "truck": 0.9355914484395431
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.7245577215416713,
+  "realval_B_per_class": {
+    "vehicle": 0.8722855950592157,
+    "pedestrian": 0.45327481139037895,
+    "truck": 0.8481127581754194
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.5457219229451005,
+    "A_behaviour": 0.5457219229451005,
+    "A_tuned": 0.5457219229451005,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "recenter": 0.5,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.19962807277968148,
+    "B_behaviour": 0.19962807277968148,
+    "B_tuned": 0.19962807277968148,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.5542167008126702
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8744773963296744,
+    "A_behaviour": 0.8744773963296744,
+    "A_tuned": 0.8744773963296744,
+    "behaviour_cfg": {
+      "nms_iou": 0.6
+    },
+    "convention_cfg": {},
+    "n_gt_B": 25573,
+    "B_start": 0.757596430698793,
+    "B_behaviour": 0.757596430698793,
+    "B_tuned": 0.757596430698793,
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.8826376333089708
+    },
+    "hedge_from_Truck": {
+      "factor": 0.3,
+      "A": 0.8947328498261704
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.4522290552181921,
+    "A_behaviour": 0.45297801141233307,
+    "A_tuned": 0.4555568708909726,
+    "behaviour_cfg": {
+      "nms_iou": 0.1,
+      "recenter": 0.25,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.19956809964983563,
+    "B_behaviour": 0.19963829866732624,
+    "B_tuned": 0.20296402282238293,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.5223190532731607
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.11497554597797692,
+    "A_behaviour": 0.11497554597797692,
+    "A_tuned": 0.11497554597797692,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.25
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.03241653949476682,
+    "B_behaviour": 0.03241653949476682,
+    "B_tuned": 0.03241653949476682
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.006733311210663127,
+    "A_behaviour": 0.006733311210663127,
+    "A_tuned": 0.006733311210663127,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.006730091613812545,
+    "B_behaviour": 0.006730091613812545,
+    "B_tuned": 0.006730091613812545,
+    "hedge_from_Truck": {
+      "factor": 0.1,
+      "A": 0.009079646276858581
+    }
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.2866835191005256,
+    "A_behaviour": 0.2877024008705019,
+    "A_tuned": 0.2877024008705019,
+    "behaviour_cfg": {
+      "nms_iou": 0.01,
+      "z_offset": 0.0,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "z_offset": 0.0,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.1972869248564604,
+    "B_behaviour": 0.192996720484014,
+    "B_tuned": 0.192996720484014
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.00544705270053212,
+    "A_behaviour": 0.00544705270053212,
+    "A_tuned": 0.00544705270053212,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0024319066147859923,
+    "B_behaviour": 0.0024319066147859923,
+    "B_tuned": 0.0024319066147859923,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.06120991694778599
+    },
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.07575562629185638
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.008846226433348765
+    }
+  }
+}

@@ -1,0 +1,20 @@
+name: pointpillars-ros-g1v6d2
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 7
+derived_from: pointpillars-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars-ROS (as pointpillars-ros-g1v4), anchors at the g1-v6 training-label medians
+data:
+  train: pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W7 twin, training seed 666, generator draw 2; queued by the W7 filler)
+expected: 'a draw bag with pointpillars-ros-g1v6 (Truck pooled +0.050 plain, +0.068 8-view over g1-v4, Section 15.16): Truck at or above pp6'
+notes: 'S9 W7 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.18, written before the voxelrcnn-rosn-g1v6 and pvrcnnpp-rosn-g1v6
+  results): the pointpillars-ros-g1v6 config, anchors included, on the second generator draw pcdet/g1-v6d2
+  (same flags, --seed 2234), a draw-bag partner of pointpillars-ros-g1v6 for the Truck fusion. Realism
+  frames stay pcdet/g1-v6 (rule 4).
+
+  '

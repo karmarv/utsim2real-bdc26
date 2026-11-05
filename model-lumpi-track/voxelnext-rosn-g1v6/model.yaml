@@ -1,0 +1,17 @@
+name: voxelnext-rosn-g1v6
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 8
+derived_from: voxelnext-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: VoxelNeXt-ROS without GT sampling (all 40 epochs) and with +/-1.5 deg pitch/roll; otherwise the parent config
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W8, training seed 666; queued by the W8 filler)
+expected: 'the no-GT-sampling arm, which passed on both two-stage families (15.19, 15.22), on the decorrelated one-stage family: Car, Truck and Van at or above the fade member'
+notes: 'S9 W8 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.23, written before any voxelnext-rosn-g1v6 result): rule 3 against voxelnext-rosf-g1v6 (the fade parent).
+
+  '

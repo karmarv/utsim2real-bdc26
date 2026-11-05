@@ -181,7 +181,7 @@ MODEL:
     ROI_HEAD:
         NAME: PVRCNNHead
         CLASS_AGNOSTIC: True
-        SCORE_BLEND_ALPHA: [0.5, 0.5, 0.5]            # per class in CLASS_NAMES order, chosen on realval-A (S4 step 3; R5 seed run)
+        SCORE_BLEND_ALPHA: [0.5, 0.5, 0.5]            # per class in CLASS_NAMES order, chosen on realval-A (score_blend.py)
 
         SHARED_FC: [256, 256]
         CLS_FC: [256, 256]

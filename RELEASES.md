@@ -78,7 +78,13 @@ Dry run on 2026-11-02 (`$BDC_DATA/logs/s9/r91`), each script on its own GPU, but
 - **V2X `reproduce_s9a.sh`:** 38,794 against 38,824 boxes. 38,779 are matched (centres within 0.003 m at the 99th percentile). All 60 unmatched boxes score below 0.3.
 - **Both:** the 50 realism frames are byte-identical and the kit check is valid (LUMPI 400.5 s and V2X 236.2 s on the loaded machine).
 - **The reported maximum difference of about 78** comes from comparing boxes by position in each frame's list once the counts differ. It is not a box offset.
-- **The same pattern** was seen in 8.0, where the shared-GPU attempts were EQUIVALENT and the idle-GPU runs IDENTICAL. **Still to do:** the idle-GPU run, once a GPU is free of training.
+- **The same pattern** was seen in 8.0, where the shared-GPU attempts were EQUIVALENT and the idle-GPU runs IDENTICAL.
+
+**Idle-GPU run on 2026-11-05** (`$BDC_DATA/logs/s9/r92`, each script alone on its GPU, twice; record [`docs/decisions/2026-11-02-s9-clean-twin-plan.md` Section 15.26](docs/decisions/2026-11-02-s9-clean-twin-plan.md)). Both scripts are again **EQUIVALENT**, and this is final:
+- **LUMPI:** 58 unmatched boxes, centres within 0.015 m at the 99th percentile.
+- **V2X:** 45 unmatched boxes, centres within 0.002 m at the 99th percentile.
+- **Both:** no unmatched box scores above 0.3, the realism frames are byte-identical, and the kit check is valid.
+- **Why not IDENTICAL.** The members that differ were inferred by the package step on GPUs shared with training (no GPU was idle on Nov 2). Inference on an idle GPU is deterministic for most of them: the two V2X runs agree in every file, but the scored zip's files carry the shared-GPU variation. VoxelNeXt `vn6_tta` also varies between idle runs. So no fresh run can rebuild these zips bit for bit.
 
 **Published** by the entrant on 2026-11-02 ([`releases/9.1/github.json`](releases/9.1/github.json)): [release 9.1](https://github.com/karmarv/utsim2real-bdc26/releases/tag/9.1) on commit `009b1db`. `main` (e520d6c..009b1db) and the tag were pushed from the entrant's terminal, and `release_weights.py publish` uploaded the 29 assets, ending with "all assets uploaded and sizes match". The 23 asset names shared with 8.1 are byte-identical to their 8.1 assets by sha256. New: the checkpoints of LUMPI `voxelrcnn-ros-g1v6` and `voxelnext-ros-g1v6`, and of V2X `pvrcnnpp-ros-g1v5d2` and `pvrcnnpp-ros-g1v5d3`, plus the two zips. Not done yet, as for 8.0 and 8.1: the GitHub-side sha256 and the label, read from the release page in the entrant's browser, and the fresh-clone fetch check, which needs a token on this server.
 

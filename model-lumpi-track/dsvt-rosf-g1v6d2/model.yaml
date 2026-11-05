@@ -1,0 +1,22 @@
+name: dsvt-rosf-g1v6d2
+strategy: S9
+track: lumpi-track
+module: M9 (engine v6) / S9 wave 5
+derived_from: dsvt-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: DSVT-Pillar with GT-sampling fade (last 5 epochs) and +/-1.5 deg pitch/roll, the parent's
+  config unchanged
+data:
+  train: pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S9 W5 twin, training seed 666, generator draw 2; queued only if dsvt-rosf-g1v6 passes
+  rule 3 on Person)
+expected: a fusion member with errors decorrelated from the convolutional families
+notes: 'S9 W5 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.8, written before any result):
+  the dsvt-rosf-g1v6 config on the second generator draw pcdet/g1-v6d2 (same flags, --seed 2234), a draw-bag
+  partner of dsvt-rosf-g1v6, as voxelrcnn-rosf-g1v6d2 is for voxelrcnn-rosf-g1v6. Realism frames stay
+  pcdet/g1-v6 (rule 4).
+
+  '

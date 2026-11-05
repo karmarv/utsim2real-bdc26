@@ -976,6 +976,747 @@ These are the first and second LUMPI uploads of Nov 3. Rule 6 allows at most 3 p
 - trainB took `v2x:dsvt-ros-g1v6` at 19:24. trainA and postA exited as expected (15.6), and postB and postC are tuning the two W4 members.
 - `s9ewait` runs each 12-view job when that member's tuning ends. `s9e` is expected at about 01:00-04:00 UTC Nov 4, when that day's LUMPI uploads open.
 
+### 15.8 Wave 5: the M1 recipe on the other three families (2026-11-04, 01:05 UTC; before any W5 result)
+
+**Idle GPUs.** No new training had been queued after W4 and V2X DSVT, so the GPUs ran out of work:
+- GPUs 0-3 had no training from 20:28 UTC Nov 3. The W4 tuning and 12-view jobs used two of them until 23:21.
+- GPUs 4-7 ran V2X DSVT training until 00:51.
+- All eight were idle from 00:52 to 01:00 UTC Nov 4, while the `s9e` fuse and the V2X DSVT tuning ran on CPU.
+
+About 4.5 four-GPU worker-hours were lost. About 33 h of training remain before the Nov 5, 10:00 UTC stop.
+
+**Why this wave:**
+- **The recipe works.** The M1 recipe (GT-sampling fade in the last 5 of 40 epochs, ±1.5° pitch and roll) is what put `voxelrcnn-rosf-g1v6` into the LUMPI Person route of `s9b`-`s9d`. Against `voxelrcnn-ros-g1v6` it passed rule 3 on Person, Car, Motorcycle and Van, plain and 8-view.
+- **It has not been tried on the other three `g1-v6` families:**
+  - PV-RCNN++, the other member of the Person route;
+  - DSVT, which passed D1 with 8-view Person A +0.043 over VoxelNeXt (16.1);
+  - VoxelNeXt, the decorrelated family.
+- **Joint draws are a weaker lever.** In the `s9e` member checks (local validation), `rf6j` passed on Truck, Van, Car (8-view), Truck (8-view) and Van (8-view), but not on Person. `pv6j` passed on Person only in its 8-view variant.
+- **Rule 5 is untouched.** The recipe is a training choice, and the corpus stays `g1-v6`.
+
+**Members.** Each keeps its parent's configuration, data (`pcdet/g1-v6`) and seed 666. Only the `DisableAugmentationHook` block and the `bdc_world_tilt` augmentor are added, exactly as in `voxelrcnn-rosf-g1v6`.
+
+| Member | Rule-3 reference | Worker | Training (UTC Nov 4) |
+|---|---|---|---|
+| `dsvt-rosf-g1v6` | `dsvt-ros-g1v6` | trainA (GPUs 0-3) | 01:00 to about 08:30 |
+| `pvrcnnpp-rosf-g1v6` | `pvrcnnpp-ros-g1v6` | trainB (GPUs 4-7) | 01:00 to about 05:15 |
+| `voxelnext-rosf-g1v6` | `voxelnext-ros-g1v6` | trainB, next | about 05:15 to 09:30 |
+
+**Draw-2 twins (gate `w5gate`, `$BDC_DATA/logs/s9/w5_gate.sh`):**
+- Once a W5 member is tuned, the gate runs its rule-3 check against the parent.
+- If it passes on Person, plain or 8-view, its twin `<member>d2` is queued: the same configuration and seed on `pcdet/g1-v6d2`, as a draw-bag partner, as `voxelrcnn-rosf-g1v6d2` is for `voxelrcnn-rosf-g1v6`.
+- The gate relaunches any training worker that has exited. The twin folders are built now, before any result.
+
+**Post-processing:**
+- `postC` finishes the V2X DSVT tuning.
+- `postE` replaces `postD` (stopped by PID while idle) and does not exit on its own, so relaunched training workers always have a post worker.
+
+**`s9f` (LUMPI), pre-registered:**
+- **Reference:** the newest built LUMPI system that passed bar (b) when it launches: `routed-g16` (`s9e`) if it is built and passes, otherwise `routed-g15` (`s9d`). This is decided by the local projection only.
+- **Members:** the W5 members that pass rule 3, with their 12-view siblings (`S9_TTA12`), and their draw bags if the twins are tuned in time.
+- **Settings:** rule 1(b) and the `g1-v6` frames.
+- **Timing:** about 14:00-18:00 UTC Nov 4, with Nov 5 for anything that ends later.
+
+### 15.9 LUMPI `s9e`: not built, the joint-draw members change no open class (2026-11-04, 01:45 UTC)
+
+`s9ewait` ran both 12-view jobs (done at 23:21 and 23:23 UTC) and launched the portfolio at 23:23 UTC Nov 3. It finished at 01:44 UTC Nov 4.
+
+**Member checks (rule 3):**
+
+| Member | Against | Passes on |
+|---|---|---|
+| `rf6j` = `voxelrcnn-rosf-g1v6j` | `voxelrcnn-rosf-g1v6` | Truck, Van; 8-view Car, Truck, Van |
+| `pv6j` = `pvrcnnpp-ros-g1v6j` | `pvrcnnpp-ros-g1v6` | Car, Bicycle; 8-view Person, Car, Bicycle |
+
+**Fusion (local validation):**
+- Person, Car, Truck, Van and Bus kept their `s9d` sets in the fuse step.
+- Motorcycle (`vrrosf6_tta12` + `rf6j_tta` + `bpv6`) and the 12-view Bicycle swap passed the pooled rule, but both classes are frozen (rule 2). Truck's 12-view swap failed the pooled condition.
+- The final check against `routed-g15` found no change in any class that is not frozen.
+- `routed-g16` is therefore equal to `routed-g15`, and `s9e` is not built. There is nothing to upload from it.
+
+**Reading.** Training on both draws together (W4) adds nothing to the LUMPI routes beyond the frozen classes. This matches 15.8's reason for putting the remaining GPU time into the M1 recipe on the other families.
+
+**Consequences (pre-registered in 15.8):**
+- `s9f` builds from `routed-g15` (`s9d`), as `routed-g17` on LUMPI. Its waiter `s9fwait` (`$BDC_DATA/logs/s9/s9f_lumpi_wait.sh`) started at 01:47 UTC:
+  - for each W5 member that `w5gate` passes on rule 3, it runs the 12-view job;
+  - once all three have resolved, it launches the portfolio with the passing members and their 12-view siblings;
+  - rule 1(b) and the `g1-v6` frames apply.
+- The draw-bag twins feed a later LUMPI portfolio, if they are tuned in time.
+- The `routed-g16` folder stays as the record of this build. It has no zip.
+- The Nov 4 LUMPI uploads stay open for `s9f`.
+
+### 15.10 V2X `s9c` with DSVT, pre-registered (2026-11-04, 01:55 UTC; before any V2X DSVT result)
+
+V2X DSVT trained from 19:24 to 00:51 UTC (5.5 h) and is being tuned. Its plain step finished at 01:15 UTC.
+
+**Waiter.** `s9cwait_v2x` (`$BDC_DATA/logs/s9/s9c_v2x_wait.sh`) waits for the tuning. It then runs the 12-view job on the GPU with the most free memory and launches the portfolio.
+
+**The portfolio:**
+- **Name and reference:** `routed-g17` from `routed-g15`, which is V2X `s9a`, the scored V2X entry (1028491, 0.902971).
+- **Members:**
+  - `dsvt6` = `dsvt-ros-g1v6`, against `voxelnext-ros-g1v6` (rule 3, the D1 rule), with its 12-view sibling;
+  - the `s9b` members that passed rule 3 (`bvn6`, `vn6`, `vrrosf6`), so that the fuse step can combine DSVT with them. Alone, they changed no V2X fusion (15.2).
+- **Realism frames:** as for V2X `s9a` and `s9b`. The `g1-v6` frames are used only if a member trained on `g1-v6` enters a fusion (rule 4).
+- **Timing:** expected at about 06:00-08:00 UTC Nov 4.
+- **If no fusion changes,** `s9c` is not built, as with V2X `s9b`.
+
+**Tuning result (02:02 UTC; preview of the rule-3 check, which the portfolio repeats).** V2X DSVT passes on every class against `voxelnext-ros-g1v6`:
+
+| Class | Plain A / B (delta) | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|
+| vehicle | 0.784 (+0.069) / 0.790 (+0.052) | 0.830 (+0.051) / 0.841 (+0.052) | +0.0509, 1.00 |
+| pedestrian | 0.297 (+0.079) / 0.288 (+0.061) | 0.341 (+0.048) / 0.326 (+0.041) | +0.0462, 1.00 |
+| truck | 0.738 (+0.019) / 0.677 (+0.064) | 0.828 (+0.037) / 0.705 (+0.031) | +0.0362, 1.00 |
+
+- Alone, it is still below the fused V2X entry: `s9a` scores A / B 0.868 / 0.872 on vehicle, 0.412 / 0.453 on pedestrian and 0.936 / 0.848 on truck. Its value is as a new family in the fusions.
+- Its 12-view job runs on GPU 4 from 02:03 UTC.
+
+**Twin, pre-registered (gate `v2xtwingate`, `$BDC_DATA/logs/s9/v2x_dsvt_twin_gate.sh`):**
+- If a `dsvt6` variant is in a final V2X `s9c` fused set, `v2x:dsvt-ros-g1v6d2` is queued: the same configuration and seed on `pcdet/g1-v6d2`, about 5.5 h of training.
+- It is a draw-bag partner. On V2X, the VoxelNeXt 2-draw bag gained +0.05 mAP plain over its single draw.
+- The gate relaunches any training worker that has exited. The folder is built now, before any `s9c` result.
+
+### 15.11 V2X `s9c`: not built, DSVT enters no fusion (2026-11-04, 04:30 UTC)
+
+`s9cwait_v2x` ran the DSVT 12-view job (02:03-02:31 UTC) and launched the portfolio at 02:33 UTC. It finished at 04:30 UTC.
+
+**Member checks (rule 3).** All four pass on at least one class:
+
+| Member | Against | Passes on |
+|---|---|---|
+| `dsvt6` = `dsvt-ros-g1v6` | `voxelnext-ros-g1v6` | vehicle, pedestrian, truck; 8-view vehicle, pedestrian, truck |
+| `bvn6` = `bag-voxelnext-ros-g1v6x` | `voxelnext-ros-g1v6` | vehicle, pedestrian, truck; 8-view vehicle, pedestrian |
+| `vn6` = `voxelnext-ros-g1v6` | `voxelnext-ros-g1v5` | vehicle, truck; 8-view vehicle, truck |
+| `vrrosf6` = `voxelrcnn-rosf-g1v6` | `voxelrcnn-ros-g1v6` | pedestrian; 8-view truck |
+
+**Fusion (local validation):**
+- Every class kept its `s9a` set as the best candidate:
+  - vehicle `bagvr5_tta+pvros4s2_tta@0.7`;
+  - pedestrian `bagvr5_tta+bagpv5x_tta+vrros_tta12@0.7`;
+  - truck `pp5_tta+bagvr5_tta+bagpv5@0.5`.
+- The 12-view swap stage (`dsvt6_tta12`) changed nothing.
+- The final check against `routed-g15` found no changed class. `routed-g17` (V2X) is therefore equal to `routed-g15`, and `s9c` is not built. There is nothing to upload from it.
+- The twin gate logged "s9c not built", so `v2x:dsvt-ros-g1v6d2` is not queued.
+
+**Reading:**
+- DSVT is the strongest single V2X member trained on `g1-v6`, but it adds nothing to fusions built from the `g1-v3` to `g1-v5` bags.
+- No `g1-v6` member has entered a V2X fusion in `s9a`, `s9b` or `s9c`.
+- The V2X entry stays `s9a` (1028491, 0.902971).
+
+### 15.12 Wave 6: the no-GT-sampling arm and PointPillars on `g1-v6` (2026-11-04, 04:40 UTC; before any W5 or W6 result)
+
+**Why a wave now.** The training queue held only `voxelnext-rosf-g1v6` (trainB, from about 05:10 UTC).
+- trainA finishes `dsvt-rosf-g1v6` at about 08:30 UTC.
+- The W5 twins are gated on results that arrive at about 08:30 UTC (PV-RCNN++) and about 13:00 UTC (DSVT and VoxelNeXt).
+- Without a wave, trainA would idle from 08:30 UTC.
+- About 50 worker-hours remain before the Nov 5, 10:00 UTC stop.
+
+**Corpus: `g1-v6` only.** The recipe could also go on the older route members:
+- Car `pvros_tta12` (`g1-v3`);
+- Truck `pvros4d2_tta` (`g1-v4d2`);
+- Van `vrros` and `vrros4_tta` (`g1-v3`, `g1-v4`).
+
+It is not used on them. Their corpora place walkers from jittered real label rows (audit item 4, moderate risk), and Section 6 rejected plan B because "every new member deepens it". New members therefore train on `g1-v6` (or `g1-v6d2`) only.
+
+**Members (training seed 666; only the stated change from the parent):**
+
+| Member | Parent | Change | Rule-3 reference | Source of the arm |
+|---|---|---|---|---|
+| `voxelrcnn-rosn-g1v6` | `voxelrcnn-rosf-g1v6` | no GT sampling in any epoch (`DISABLE_AUG_LIST: ['gt_sampling']`); fade hook removed; tilt kept | `voxelrcnn-rosf-g1v6` | Section 12: "if fade passes, a 'no GT sampling' arm is the next recipe test" (fade passed, 15.3) |
+| `pvrcnnpp-rosn-g1v6` | `pvrcnnpp-rosf-g1v6` | the same | `pvrcnnpp-ros-g1v6` (the Person-route member) | the same arm, on the second Person-route family |
+| `pointpillars-ros-g1v6` (LUMPI) | `pointpillars-ros-g1v4` | anchors refit to the `g1-v6` training-label medians, by the parent's own rule (class medians; Truck short and long half medians and the l >= 10 m median) | `pointpillars-ros-g1v4` | Section 7 W3 (never run). PointPillars members are in the Truck, Van and Bus fusions. `g1-v6` changed the LUMPI vehicle convention: Truck median 6.18 m, Van 5.57 x 2.15 x 2.05 m |
+| `pointpillars-g1v6` (V2X) | `pointpillars-g1v5` | truck anchors refit to the `g1-v6` labels by the parent's rule (length terciles, the long one at the l >= 10 m median) | `pointpillars-g1v5` (`pp5`, in the truck fusion) | the V2X truck fusion family |
+
+The anchors come from synthetic training labels only. The parent's rule reproduces its own `g1-v4` anchors to 0.01 m.
+
+**Queue (04:40 UTC), after `lumpi:voxelnext-rosf-g1v6`:**
+1. `lumpi:voxelrcnn-rosn-g1v6` (trainA, about 08:30-12:30);
+2. `lumpi:pointpillars-ros-g1v6` (trainB, about 09:30-12:00);
+3. `v2x:pointpillars-g1v6` (about 12:00-13:30);
+4. `lumpi:pvrcnnpp-rosn-g1v6` (about 12:30-16:30).
+
+The W5 twins join behind these when `w5gate` queues them. W6 goes first because the recipe-and-corpus axis is what moved the LUMPI routes in S9 (`s9b`, `s9d`). Draw bags have not entered a LUMPI fusion: `bagpv6x` in `s9c` and `brf6` in `s9d` were both left out.
+
+**Follow-ups (gate `w6gate`, `$BDC_DATA/logs/s9/w6_gate.sh`):**
+- Once each W6 member is tuned, the gate runs its rule-3 check. On a pass on the named classes (plain or 8-view), it queues the follow-up and relaunches any exited training worker:
+
+| Member | Pass on | Follow-up |
+|---|---|---|
+| `voxelrcnn-rosn-g1v6` | Person or Car | `voxelrcnn-rosn-g1v6d2` (draw-2 twin) |
+| `pvrcnnpp-rosn-g1v6` | Person or Car | `pvrcnnpp-rosn-g1v6d2` |
+| `pointpillars-ros-g1v6` | Truck or Van | `pointpillars-rosf-g1v6` (the M1 recipe on a fourth family) |
+| `pointpillars-g1v6` (V2X) | truck | `pointpillars-g1v6d2` (V2X) |
+
+- All follow-up folders are built now, before any result.
+
+**Operations:**
+- **A second post worker, `postF`,** started at 04:40 UTC next to `postE`, so that tuning keeps up with two trainers.
+- **Training-stop guard `cutoff`** (`$BDC_DATA/logs/s9/train_cutoff.sh`): until Nov 5, 10:00 UTC, it removes every queued job that could not finish by then even if it started at once. The durations come from the S9 runs, with margin (for example LUMPI DSVT 470 min, LUMPI PointPillars 150 min). Each removal is logged.
+
+**Portfolios, pre-registered:**
+- **LUMPI `s9g`:**
+  - **Reference:** the newest built LUMPI system that passed bar (b): `s9f` if built, else `routed-g15` (`s9d`).
+  - **Members:** the W6 members and follow-ups that pass rule 3, with their 12-view siblings for the Person- and Car-route families, and the draw bags of the W5 and W6 twins that are tuned in time.
+  - **Settings:** rule 1(b) and the `g1-v6` frames.
+  - **Timing:** Nov 5 morning. Its waiter is written once `s9f` resolves.
+- **V2X `s9d`:**
+  - Built from `routed-g15` (`s9a`) with `pp6` = `pointpillars-g1v6` if it passes rule 3, plus its draw bag if the twin is tuned in time.
+  - The `s9c` members enter as well, so the fuse step can combine them.
+  - Realism frames as for V2X `s9a`-`s9c` (rule 4).
+  - If no fusion changes, `s9d` is not built.
+
+### 15.13 W5: the M1 recipe passes on PV-RCNN++ (2026-11-04, 08:20 UTC)
+
+`pvrcnnpp-rosf-g1v6` trained from 01:00 to 05:04 UTC and was tuned by 08:16 UTC. `w5gate` ran its rule-3 check against `pvrcnnpp-ros-g1v6` at 08:20 UTC.
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| Person | 0.527 (+0.023) / 0.200 (+0.029) | +0.0244, 1.00 | 0.554 (+0.003) / 0.218 (+0.008) | +0.0040, 0.99 |
+| Car | 0.876 (+0.020) / 0.767 (+0.018) | +0.0222, 1.00 | 0.895 (+0.028) / 0.779 (+0.033) | +0.0327, 1.00 |
+| Van | 0.070 (+0.027) / 0.003 (+0.000) | +0.0121, 1.00 | 0.076 (+0.018) / 0.003 (+0.002) | +0.0086, 1.00 |
+| Truck | 0.255 (-0.050) / 0.166 (-0.026) | -0.0400, 0.00 | 0.288 (-0.083) / 0.193 (-0.026) | -0.0515, 0.00 |
+
+- **Passes on** Person, Car and Van, plain and 8-view.
+- **Truck fails.** The recipe costs PV-RCNN++ about 0.04-0.05 on Truck. Truck keeps its `s9d` set unless the fuse step finds otherwise.
+- **Frozen classes (rule 2):** Bicycle, Motorcycle and Bus are reported by the check but do not count.
+- **As in 15.8:**
+  - the twin `lumpi:pvrcnnpp-rosf-g1v6d2` was queued at 08:20 UTC, fifth behind the four W6 members (about 13:30-17:30 UTC on trainB);
+  - `s9fwait` runs the 12-view job of `pvf6`. `s9f` launches once `dsf6` and `vnf6` have also resolved, at about 13:00 UTC.
+- The `pvf6` 12-view job ran on GPU 7 from 08:21 to 09:44 UTC.
+
+### 15.14 W5: DSVT passes on Car and Van, not on Person (2026-11-04, 11:57 UTC)
+
+`dsvt-rosf-g1v6` trained from 01:00 to 08:31 UTC.
+- **Training exit.** Training exited 1 after the epoch-40 save. This is the race the train worker already guards against (as in V2X DSVT): OpenPCDet's after-training evaluation on rank 1 read the checkpoint while rank 0 was still writing it. The checkpoint passed the worker's load check, and the evaluation on rank 0 loaded 503/503 parameters.
+- **Tuning.** The 8-view step ran out of memory on GPU 7 at 10:27 UTC: PointPillars training (W6, from 10:18 UTC) grew to 40 GB there. The retry ran on GPU 1. Tuning finished at 11:52 UTC.
+
+`w5gate` ran the rule-3 check against `dsvt-ros-g1v6` at 11:57 UTC:
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| Person | 0.515 (-0.032) / 0.211 (+0.044) | +0.0100, 1.00 | 0.555 (-0.032) / 0.222 (+0.027) | -0.0011, 0.17 |
+| Car | 0.846 (+0.008) / 0.743 (+0.006) | +0.0068, 0.98 | 0.863 (+0.003) / 0.755 (+0.004) | +0.0036, 1.00 |
+| Van | 0.101 (+0.040) / 0.001 (-0.000) | +0.0125, 1.00 | 0.107 (+0.037) / 0.001 (-0.000) | +0.0118, 1.00 |
+| Truck | 0.196 (-0.035) / 0.123 (-0.037) | -0.0377, 0.00 | 0.202 (-0.044) / 0.112 (-0.064) | -0.0546, 0.00 |
+
+- **Passes on** Car and Van, plain and 8-view.
+- **Fails on Person:** A is down 0.032, beyond the 0.005 limit. The gain on B does not offset this under rule 3.
+- **Frozen classes (rule 2):** Bicycle and Motorcycle pass the check but do not count.
+- **Truck fails** for DSVT, as for PV-RCNN++ (15.13). Both families lose about 0.04-0.05 on Truck with the fade recipe.
+- **As in 15.8:**
+  - there is no twin, because DSVT does not pass on Person;
+  - `s9fwait` runs the `dsf6` 12-view job on GPU 1 from 11:57 UTC;
+  - `dsf6` enters `s9f` as a candidate for Car and Van.
+- The `dsf6` 12-view job ran on GPU 1 from 11:57 to 13:19 UTC.
+
+### 15.15 W5: VoxelNeXt passes on Car, Truck and Van (2026-11-04, 13:43 UTC)
+
+`voxelnext-rosf-g1v6` trained from 05:04 to 10:18 UTC (5.2 h, slowed by the tuning jobs sharing its GPUs) and was tuned by 13:32 UTC. `w5gate` ran the rule-3 check against `voxelnext-ros-g1v6` at 13:43 UTC:
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| Person | 0.514 (-0.003) / 0.173 (+0.005) | -0.0050, 0.01 | 0.549 (+0.005) / 0.193 (+0.003) | -0.0012, 0.20 |
+| Car | 0.873 (+0.043) / 0.764 (+0.037) | +0.0390, 1.00 | 0.891 (+0.016) / 0.779 (+0.020) | +0.0204, 1.00 |
+| Truck | 0.280 (+0.034) / 0.174 (+0.031) | +0.0204, 1.00 | 0.304 (+0.015) / 0.195 (+0.034) | +0.0093, 0.99 |
+| Van | 0.057 (+0.021) / 0.002 (+0.001) | +0.0107, 1.00 | 0.061 (+0.010) / 0.002 (+0.000) | +0.0082, 1.00 |
+
+- **Passes on** Car, Truck and Van, plain and 8-view. Motorcycle (8-view) is frozen.
+- **Person does not pass,** so there is no twin.
+- **Truck gains,** unlike PV-RCNN++ and DSVT, where the fade recipe cost about 0.04-0.05.
+- **`s9fwait`** runs the `vnf6` 12-view job on GPU 0 from 13:43 UTC. It then launches `s9f` with all three W5 members:
+  - `pvf6` (passes Person, Car, Van);
+  - `dsf6` (Car, Van);
+  - `vnf6` (Car, Truck, Van).
+
+### 15.16 W6: LUMPI PointPillars on `g1-v6` passes on Truck and Person (2026-11-04, 14:10 UTC)
+
+`pointpillars-ros-g1v6` trained from 10:18 to 12:23 UTC and was tuned by 14:05 UTC. `w6gate` ran the rule-3 check against `pointpillars-ros-g1v4` at 14:10 UTC:
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| Person | 0.431 (+0.097) / 0.170 (+0.063) | +0.0774, 1.00 | 0.429 (+0.027) / 0.138 (-0.017) | -0.0062, 0.01 |
+| Car | 0.860 (-0.016) / 0.752 (+0.000) | -0.0014, 0.01 | 0.882 (-0.004) / 0.775 (-0.001) | -0.0045, 0.00 |
+| Truck | 0.324 (+0.036) / 0.188 (+0.037) | +0.0498, 1.00 | 0.337 (+0.032) / 0.212 (+0.085) | +0.0680, 1.00 |
+| Van | 0.082 (-0.041) / 0.001 (+0.000) | -0.0112, 0.00 | 0.083 (-0.052) / 0.002 (+0.001) | -0.0142, 0.00 |
+
+- **Passes on** Truck (plain and 8-view) and Person (plain). Bicycle and Motorcycle are frozen.
+- **Van fails.** Both the corpus and the Van anchor (now 5.57 x 2.15 x 2.05 m) changed from `g1-v4`, so the check cannot separate the two.
+- **Truck** is the class whose LUMPI route has a PointPillars member (`ppros_tta`, `g1-v3`). The 8-view Truck gain over the `g1-v4` member is the largest gain in W6 so far.
+- **As in 15.12:**
+  - `lumpi:pointpillars-rosf-g1v6` (the M1 recipe) was queued at 14:10 UTC. It trains when a worker frees, at about 18:00 UTC.
+  - `pp6` enters LUMPI `s9g`, not `s9f`, whose members are the W5 members only (15.8).
+
+### 15.17 W6: V2X PointPillars on `g1-v6` fails; V2X `s9d` is not built (2026-11-04, 14:13 UTC)
+
+`pointpillars-g1v6` (V2X) trained from 12:23 to 13:31 UTC and was tuned by 14:11 UTC. `w6gate` ran the rule-3 check against `pointpillars-g1v5` at 14:13 UTC:
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| vehicle | 0.583 (-0.079) / 0.566 (-0.026) | -0.0635, 0.00 | 0.641 (-0.068) / 0.615 (-0.042) | -0.0574, 0.00 |
+| pedestrian | 0.205 (-0.088) / 0.193 (-0.071) | -0.0832, 0.00 | 0.220 (-0.092) / 0.209 (-0.075) | -0.0871, 0.00 |
+| truck | 0.879 (+0.008) / 0.788 (-0.017) | -0.0006, 0.43 | 0.893 (-0.009) / 0.797 (-0.030) | -0.0174, 0.00 |
+
+- **Fails on every class.** No follow-up is queued, so `pointpillars-g1v6d2` (V2X) is not trained.
+- **V2X `s9d` (15.12) is not built.** Its only new member was `pp6`. The `s9c` members alone changed no V2X fusion (15.11).
+- The V2X entry stays `s9a` (1028491, 0.902971). No `g1-v6` member has passed into a V2X fusion.
+- The remaining S9 GPU time goes to LUMPI.
+
+### 15.18 Wave 7: the twins of the non-Person passers, on GPUs that would otherwise idle (2026-11-04, 14:17 UTC; before the `voxelrcnn-rosn-g1v6` and `pvrcnnpp-rosn-g1v6` results)
+
+**Why.** After `pointpillars-rosf-g1v6`, the training queue is empty. If neither no-GT member passes its gate, trainA idles from about 18:10 UTC and trainB from about 20:30 UTC, with the training stop at Nov 5, 10:00 UTC.
+
+**Members (draw-bag twins: the same configuration and seed 666 on `pcdet/g1-v6d2`):**
+
+| Member | Partner | Partner passes on | Training |
+|---|---|---|---|
+| `pointpillars-ros-g1v6d2` (new folder, built from the `pp6` configuration with the untuned post-processing files) | `pointpillars-ros-g1v6` | Truck (+0.050 plain, +0.068 8-view), Person plain (15.16) | about 2.2 h |
+| `voxelnext-rosf-g1v6d2` (the W5 folder, re-labelled) | `voxelnext-rosf-g1v6` | Car, Truck and Van (15.15) | about 4.5-5 h |
+
+- **Why these two.** The W5 twin rule (15.8) queues twins only for Person passers. These two partners passed only on other open classes, and both pass on Truck, whose route has a PointPillars member.
+- **Expected value: low.** Draw bags have not yet entered a LUMPI fusion (15.12). The twins use otherwise idle GPUs, and the fuse step decides.
+
+**Filler `w7fill`** (`$BDC_DATA/logs/s9/w7_fill.sh`):
+- Every 120 s, it queues the next W7 item only when the training queue is empty and a training worker has exited, then relaunches that worker.
+- Gate follow-ups (the no-GT twins) therefore always go first.
+- An item that could not finish by the training stop is dropped, as by `cutoff`.
+
+**Use.** The twins enter LUMPI `s9g` as draw bags with their partners (15.12), if both are tuned in time.
+
+### 15.19 W6: no GT sampling passes on Voxel R-CNN for Person and Car (2026-11-04, 17:03 UTC)
+
+`voxelrcnn-rosn-g1v6` trained from 08:31 to 13:40 UTC and was tuned by 16:59 UTC. Training exited with code 1 because of the after-training eval race; the epoch-40 checkpoint was verified. `w6gate` ran the rule-3 check against the fade member `voxelrcnn-rosf-g1v6` at 17:03 UTC:
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| Person | 0.562 (+0.023) / 0.206 (+0.015) | +0.0200, 1.00 | 0.584 (+0.015) / 0.216 (+0.005) | +0.0108, 1.00 |
+| Car | 0.880 (-0.004) / 0.784 (-0.001) | -0.0037, 0.00 | 0.893 (+0.006) / 0.790 (+0.020) | +0.0170, 1.00 |
+| Truck | 0.257 (-0.006) / 0.170 (+0.003) | -0.0037, 0.20 | 0.275 (-0.011) / 0.188 (+0.010) | +0.0015, 0.79 |
+| Van | 0.054 (-0.005) / 0.003 (-0.001) | -0.0018, 0.01 | 0.062 (-0.003) / 0.003 (+0.002) | -0.0003, 0.40 |
+
+- **Passes on** Person (plain and 8-view) and Car (8-view). Bicycle loses 0.045-0.050 pooled, but it is frozen (rule 2).
+- **Against the fade member,** which itself passed against the GT-sampling member (15.3): removing GT sampling in every epoch gains again on Person, on both splits.
+- **As in 15.12:**
+  - `lumpi:voxelrcnn-rosn-g1v6d2` (the draw-2 twin) was queued at 17:03 UTC, behind `pointpillars-rosf-g1v6`. It trains when the second worker frees, at about 18:10 UTC. At the W6 duration (309 min), it ends at about 23:20 UTC.
+  - Voxel R-CNN members are in both the Person route (`vrrosf6_tta12`) and the Car route. The 12-view job of `voxelrcnn-rosn-g1v6` (key `vrn6`) started on GPU 0 at 17:04 UTC, for `s9g`.
+- **The W7 items** now train after both gate follow-ups, when a worker exits with an empty queue (15.18).
+- **The `cutoff` guard** counts 250 min for LUMPI members other than DSVT, VoxelNeXt and PointPillars. This member took 309 min. The guard matters only for a Voxel R-CNN or PV-RCNN++ job that starts between about 04:50 and 05:50 UTC. The current queue order is not expected to start one that late.
+
+### 15.20 LUMPI `s9f` is not built (2026-11-04, 18:04 UTC)
+
+`pf_lumpi_s9f` ran from 15:17 to 18:04 UTC. It built `routed-g17` from `routed-g15` (`s9d`) with the three W5 members and their 12-view siblings:
+- **Member checks:** all three passed (as in 15.13-15.15).
+- **Main fuse:** every open class kept its `routed-g15` fusion. Motorcycle fused (`vnf6_tta` + `bpv6`), but it is frozen (rule 2).
+- **12-view swap stage:** Bicycle fused (`pvros4_tta12` and `pp4_tta12` in place of their 8-view siblings), but it is frozen. Truck failed the pooled A+B condition. Motorcycle and Van kept their sets.
+- **Final check against `routed-g15`:** every open class is identical (all deltas 0.0), so every class is frozen at the reference. `routed-g17` equals `routed-g15`, and `s9f` is not built.
+
+**Reading.** The M1 recipe gains on PV-RCNN++, DSVT and VoxelNeXt as single members (15.13-15.15), but no fusion of the `s9d` routes improves when they are added. The LUMPI candidate stays `s9d` (1031132, 0.542490).
+
+### 15.21 LUMPI `s9g` and `s9h`: the W5 and W6 members together, then the late draw bags (2026-11-04, 18:20 UTC; before the `pvrcnnpp-rosn-g1v6`, `pointpillars-rosf-g1v6` and twin results)
+
+**Reference.** `s9f` is not built, so the reference is `routed-g15` (`s9d`), as 15.12 states.
+
+**Change from 15.12.**
+- **The W5 members enter `s9g` too.** 15.12 lists the W6 members, their follow-ups and the twin bags. The W5 members passed rule 3 but were fused only against the `s9d` routes (15.20), never together with the W6 members. For example, `vrn6` and `pvf6` both gain on Person over the members of the `s9d` Person set. The fuse step and the final check judge every combination, as before.
+- **The build is split in two,** so that a LUMPI system is ready early on Nov 5:
+  - `s9g` uses the members that are tuned by Nov 5, 00:00 UTC.
+  - `s9h` adds the bags whose twins finish overnight.
+- Neither change uses any leaderboard information.
+
+**`s9g` (`routed-g18`, waiter `s9gh` = `$BDC_DATA/logs/s9/s9gh_lumpi_wait.sh`):**
+
+| Key | Member | Rule-3 reference | 12-view sibling | Enters when |
+|---|---|---|---|---|
+| `pvf6`, `dsf6`, `vnf6` | the W5 members | their parents (15.13-15.15) | yes (done) | now |
+| `pp6` | `pointpillars-ros-g1v6` | `pointpillars-ros-g1v4` | no (not a Person- or Car-route family) | now |
+| `vrn6` | `voxelrcnn-rosn-g1v6` | `voxelrcnn-rosf-g1v6` | yes (running, 15.19) | its 12-view job ends |
+| `pvn6` | `pvrcnnpp-rosn-g1v6` | `pvrcnnpp-ros-g1v6` | yes, if its W6 check passes | its W6 check, then its 12-view job |
+| `ppf6` | `pointpillars-rosf-g1v6` | `pointpillars-ros-g1v6` | no | it is tuned |
+| `bpvf6` | `bag-pvrcnnpp-rosf-g1v6x` (`pvf6` + `pvrcnnpp-rosf-g1v6d2`) | `pvrcnnpp-rosf-g1v6` | no | the twin is tuned |
+| `bpp6` | `bag-pointpillars-ros-g1v6x` (`pp6` + `pointpillars-ros-g1v6d2`) | `pointpillars-ros-g1v6` | no | the W7 twin is tuned |
+
+- A member whose training, tuning or W6 check fails, or whose twin was dropped, is left out.
+- **Launch:** when every key has resolved, or at Nov 5, 00:00 UTC, whichever comes first. A key that has not resolved by then moves to `s9h`.
+
+**`s9h` (`routed-g19`, the same waiter, after `s9g` is DONE):**
+- **Reference:** `routed-g18` if `s9g` is built with projection > 0 (bar (b)), else `routed-g15`.
+- **Members:** the `s9g` keys, plus:
+  - `brn6` = `bag-voxelrcnn-rosn-g1v6x` (`vrn6` + `voxelrcnn-rosn-g1v6d2`), against `voxelrcnn-rosn-g1v6`;
+  - `bpvn6` = `bag-pvrcnnpp-rosn-g1v6x` (`pvn6` + `pvrcnnpp-rosn-g1v6d2`), against `pvrcnnpp-rosn-g1v6`, only if the W6 gate queued that twin;
+  - `bvnf6` = `bag-voxelnext-rosf-g1v6x` (`vnf6` + `voxelnext-rosf-g1v6d2`), against `voxelnext-rosf-g1v6`;
+  - any `s9g` key that resolved only after the `s9g` launch.
+- **Launch:** when every key has resolved, or at Nov 5, 08:00 UTC, whichever comes first. If no key is new to `s9h`, it is not built.
+
+**Common settings, as in `s9b`-`s9f`:** rule 1(b) (`S9_MAX_BOXES=38466`) and the `g1-v6` realism frames (rule 4).
+
+**Bags.** The five new bag folders use the track's bag settings (iou 0.5, Car and Van 0.7) and have no tuned knob of their own (as in `bag-voxelrcnn-rosf-g1v6x`).
+
+**Timing (estimated).**
+- `s9g` launches at about 23:30 UTC (the last item is `pp6d2`, tuned at about 23:15) and is done at about 03:30 UTC on Nov 5.
+- `s9h` launches at about 06:00 UTC (the last item is `vnf6d2`) and is done at about 10:00 UTC.
+- Both leave the user time to upload before the Nov 5, 22:00 UTC close. They are 2 of the 3 LUMPI uploads allowed that day.
+
+### 15.22 W6: no GT sampling passes on PV-RCNN++ for Person, Car and Van; the M1 recipe fails on PointPillars (2026-11-04, 21:03 UTC)
+
+**`pvrcnnpp-rosn-g1v6` (`pvn6`).** It trained from 13:32 to 17:05 UTC (213 min; exit code 1 from the after-training eval race, and the epoch-40 checkpoint was verified) and was tuned by 20:57 UTC.
+- **Tuning.** The 8-view step ran out of memory on GPU 1 at 19:35 UTC: the W7 PointPillars twin had started there and held 30 GB (as in 15.14). The retry ran on GPU 4.
+- **Rule 3.** `w6gate` ran the check against `pvrcnnpp-ros-g1v6` at 21:02 UTC:
+
+| Class | Plain A / B (delta) | Pooled plain, P | 8-view A / B (delta) | Pooled 8-view, P |
+|---|---|---|---|---|
+| Person | 0.528 (+0.024) / 0.208 (+0.037) | +0.0275, 1.00 | 0.556 (+0.005) / 0.224 (+0.014) | +0.0058, 1.00 |
+| Car | 0.878 (+0.021) / 0.774 (+0.025) | +0.0262, 1.00 | 0.886 (+0.019) / 0.782 (+0.036) | +0.0341, 1.00 |
+| Van | 0.081 (+0.038) / 0.001 (-0.001) | +0.0154, 1.00 | 0.090 (+0.032) / 0.001 (+0.000) | +0.0130, 1.00 |
+| Truck | 0.277 (-0.029) / 0.192 (-0.000) | -0.0155, 0.01 | 0.305 (-0.066) / 0.218 (-0.001) | -0.0287, 0.00 |
+
+- **Passes on** Person, Car and Van, plain and 8-view. Truck fails, as for the fade recipe on this family (15.13). Bicycle, Motorcycle and Bus are frozen (rule 2).
+- **Compared with the fade member `pvf6`** (15.13, same reference), the no-GT member is about equal on split A and higher on split B: Person B 0.208 against 0.200 plain, 0.224 against 0.218 with 8 views.
+- **As in 15.12 and 15.21:**
+  - `lumpi:pvrcnnpp-rosn-g1v6d2` was queued at 21:02 UTC. trainA takes it when `pointpillars-ros-g1v6d2` ends, at about 21:45 UTC. Between the `pvn6` duration (213 min) and that of the PV-RCNN++ fade twin (354 min), it ends at about 01:20-03:40 UTC on Nov 5.
+  - `s9gh` started the `pvn6` 12-view job on GPU 5 at 21:03 UTC (about 80 min). `pvn6` then enters `s9g`.
+
+**`pointpillars-rosf-g1v6` (`ppf6`)** was tuned by 20:58 UTC, and `s9gh` took it in. It has no gate. A read-only rule-3 check against `pointpillars-ros-g1v6` (21:00 UTC) fails on every open class:
+- Person: plain pooled +0.0013 (P 0.74), A down 0.024; 8-view P 1.00, but A down 0.025.
+- Car: -0.011 plain and -0.022 8-view (P 0.00).
+- Truck: +0.0026 plain (P 0.68), -0.0014 8-view (P 0.34).
+- Van: -0.006 and -0.007 (P 0.00).
+
+The `s9g` member check, which runs the same check, will therefore leave `ppf6` out. On PointPillars the M1 recipe does not pass, unlike on the four voxel families (15.3, 15.13-15.15).
+
+**Expected timing (UTC), from the training and tuning durations so far:**
+
+| Key | Resolves | Portfolio |
+|---|---|---|
+| `pvn6` | about 22:25 (12-view job) | `s9g` |
+| `bpp6` | about 23:30 (`pp6d2` tuned) | `s9g` |
+| `bpvf6` | about 00:30-01:00 Nov 5 (`pvf6d2` tuning started at 20:57) | `s9h` (misses the `s9g` deadline) |
+| `brn6` | about 05:00 (`vrn6d2` training ends at about 01:30) | `s9h` |
+| `bpvn6` | about 05:00-07:15 | `s9h` |
+| `bvnf6` | about 09:15-10:00 (`vnf6d2` trains from about 01:30, on the first worker to exit) | misses the `s9h` deadline |
+
+So `s9g` launches at its deadline, Nov 5 00:00 UTC.
+
+### 15.23 Wave 8 and LUMPI `s9i`: no GT sampling on VoxelNeXt, and the keys that miss `s9h` (2026-11-04, 21:10 UTC; before any `voxelnext-rosn-g1v6`, `s9g` or `s9h` result)
+
+**Why.** trainB ends `voxelrcnn-rosn-g1v6d2` at about 01:30 UTC, and trainA ends `pvrcnnpp-rosn-g1v6d2` at about 01:20-03:40 UTC. `w7fill` gives `voxelnext-rosf-g1v6d2` to the first worker to exit. The second then idles until the 10:00 UTC stop, for about 6-8.5 h on 4 GPUs.
+
+**W8 member (training seed 666; only the stated change from the parent):**
+
+| Member | Parent | Change | Rule-3 reference | Source of the arm |
+|---|---|---|---|---|
+| `voxelnext-rosn-g1v6` (`vnn6`) | `voxelnext-rosf-g1v6` | no GT sampling in any epoch; fade hook removed; tilt kept | `voxelnext-rosf-g1v6` (the fade parent, as for `vrn6`) | the no-GT arm passed on both two-stage families (15.19, 15.22). VoxelNeXt is the decorrelated one-stage family; its fade member passed on Car, Truck and Van (15.15) |
+
+- **Folder.** It is built from the untrained W5 twin folder `voxelnext-rosf-g1v6d2`: the train files equal the parent's, and the post-processing files are the parent's pre-tuning files. The corpus is back to `pcdet/g1-v6`. The config parses with `gt_sampling` disabled and no hook.
+- **Not considered:**
+  - DSVT without GT sampling: 470 min, so it could not finish by the stop.
+  - PointPillars without GT sampling: the fade recipe already fails on PointPillars (15.22).
+  - A twin of `vnn6`: no worker is free early enough.
+- **Expected value: low to moderate.** No VoxelNeXt member is in a `s9d` fusion, and `vnf6` entered none in `s9f` (15.20). The member uses a worker that would otherwise idle.
+
+**Filler `w8fill`** (`$BDC_DATA/logs/s9/w8_fill.sh`):
+- It waits until `w7fill` is DONE, so the W7 twins and the gate follow-ups always go first.
+- Then it works as `w7fill` does: every 120 s, if the training queue is empty and a training worker has exited, it queues `lumpi:voxelnext-rosn-g1v6` and relaunches that worker.
+- It drops the item if it could not finish by the stop (270 min, as `cutoff` counts VoxelNeXt), that is, if no worker frees before about 05:30 UTC.
+- **Expected:** the second worker to exit, at about 01:30-03:40 UTC. Training ends at about 06:00-08:50 and tuning at about 09:30-12:15 UTC.
+
+**LUMPI `s9i` (`routed-g20`, waiter `s9i` = `$BDC_DATA/logs/s9/s9i_lumpi_wait.sh`):**
+- **Keys:** the `s9g` and `s9h` keys (15.21) and `vnn6`.
+  - `vnn6` enters only if its own rule-3 check against `voxelnext-rosf-g1v6` passes. The waiter runs and logs the check once `vnn6` is tuned.
+  - `vnn6` enters with its 12-view sibling (VoxelNeXt is in the `S9_TTA12` families). The waiter runs that job only after a pass.
+  - The other keys resolve as in 15.21. `s9gh` keeps running the 12-view jobs of its own keys.
+- **Reference:**
+  - `routed-g19` if `s9h` is built (no failure, every step and the kit check valid) with projection combined > 0 (bar (b));
+  - else `routed-g18` if `s9g` is;
+  - else `routed-g15` (`s9d`).
+- **Launch:** after `s9h` is done, when every key has resolved, or at Nov 5, 15:00 UTC, whichever comes first.
+- **Not built** if no key is new to the last system launched (`s9h`, or `s9g` if `s9h` was not launched).
+- **Settings:** rule 1(b) (`S9_MAX_BOXES=38466`) and the `g1-v6` realism frames (rule 4), as `s9b`-`s9h`.
+- **Expected:** launch at about 12:00-14:00 UTC, once `s9h` is done and the `vnn6` 12-view job has finished. Done at about 15:00-17:00 UTC, which leaves 5-7 h before the 22:00 UTC close.
+- **Uploads.** `s9g`, `s9h` and `s9i` would be the 3 LUMPI uploads allowed on Nov 5. Only the systems that are built with projection > 0 reach the entrant.
+- **Dry run.** The waiter ran in two scenarios on scratch copies of the event logs, with the launches replaced by `echo`:
+  - (a) `s9h` built with projection > 0: reference `routed-g19`. The `vnn6` 12-view job launches, and the new keys are counted against the `s9h` launch set.
+  - (b) `s9h` not built and the `vnn6` check fails: `vnn6` is out, and the reference is `routed-g18`.
+  - The s9gh message "s9h: s9g not built or failed", which carries the `s9h` tag, does not mark `s9h` as not built.
+
+**After the training stop (Nov 5, 10:00 UTC):** the idle-GPU IDENTICAL reproduction of 9.1 and of the newest entries (16.2) runs on GPUs that tuning, 12-view and portfolio jobs leave free.
+
+### 15.24 LUMPI `s9g` is not built (2026-11-05, 03:05 UTC)
+
+`s9gh` launched `pf_lumpi_s9g` at its deadline, 00:01 UTC Nov 5, from `routed-g15` (`s9d`), with eight keys and the 12-view siblings of `pvf6`, `dsf6`, `vnf6`, `vrn6` and `pvn6`. `bpvf6` was still being tuned and moved to `s9h`. The portfolio finished at 02:56 UTC.
+
+**Member checks (rule 3):**
+
+| Key | Member | Against | Passes on |
+|---|---|---|---|
+| `pvf6` | `pvrcnnpp-rosf-g1v6` | `pvrcnnpp-ros-g1v6` | Person, Car, Van; 8-view the same |
+| `dsf6` | `dsvt-rosf-g1v6` | `dsvt-ros-g1v6` | Car, Van, Bicycle, Motorcycle; 8-view Car, Van |
+| `vnf6` | `voxelnext-rosf-g1v6` | `voxelnext-ros-g1v6` | Car, Truck, Van; 8-view Car, Truck, Van, Motorcycle |
+| `pp6` | `pointpillars-ros-g1v6` | `pointpillars-ros-g1v4` | Person, Truck, Bicycle, Motorcycle; 8-view Truck, Bicycle, Motorcycle |
+| `vrn6` | `voxelrcnn-rosn-g1v6` | `voxelrcnn-rosf-g1v6` | Person; 8-view Person, Car |
+| `pvn6` | `pvrcnnpp-rosn-g1v6` | `pvrcnnpp-ros-g1v6` | Person, Car, Van; 8-view the same |
+| `ppf6` | `pointpillars-rosf-g1v6` | `pointpillars-ros-g1v6` | none (FAIL, as the read-only check in 15.22) |
+| `bpp6` | `bag-pointpillars-ros-g1v6x` (built at 00:08: 8-view A 0.3316, B 0.2164) | `pointpillars-ros-g1v6` | Person, Car, Van, Bicycle, Motorcycle, Bus; 8-view Person, Car, Bicycle, Motorcycle, Bus |
+
+The `bpp6` bag passes on Car (pooled 8-view +0.0041, P 1.00), and its single seed does not. Truck fails on the bag (pooled -0.0055 plain, -0.0063 8-view), although the single seed passes on it.
+
+**Fusion (local validation):**
+- **Open classes.** Person, Car, Truck and Van each kept their `routed-g15` fusion: the incumbent was the best candidate.
+  - Person ranks on late-A, top 3 through the gates (S8 rule). The incumbent `vrrosf6_tta12+pvros6_tta12@0.5` (A 0.5915, B 0.2259, late-A 0.4659) ranked first, so no challenger was tested.
+  - For information only, the best fused set on split A alone was `vrn6_tta+vrros6_tta12+vrrosf6_tta12@0.5` (A 0.5997, B 0.2262). The selection rule is pre-registered, and this build does not change it.
+- **Frozen classes (rule 2).** Bicycle (`bagpv4_tta12+bpp6_tta`) and Motorcycle (`vrn6_tta+vnf6_tta`) passed the pooled rule, but both classes are frozen. Bus kept its set.
+- **12-view swaps.** Motorcycle and Truck failed the pooled A+B condition, and Van kept its set.
+- **Final check against `routed-g15`.** All deltas are 0.0 on Person, Car and Truck, and Van's late-A delta is 0.0. Every class is therefore frozen at the reference: `routed-g18` equals `routed-g15`, and `s9g` is not built. There is nothing to upload from it.
+
+**Reading.** This is the third LUMPI portfolio in a row (`s9e`, `s9f`, `s9g`; 15.9, 15.20) where members pass rule 3 against their family but change no open route. The routes of `s9d` are the binding constraint, not the single members. The LUMPI candidate stays `s9d` (1031132, 0.542490).
+
+**Consequences (pre-registered in 15.21 and 15.23):**
+- **`s9h`.** At 02:57 UTC, `s9gh` logged "s9g not built or failed; reference routed-g15". `s9h` builds `routed-g19` from `routed-g15` with every key that is in. Its new keys are `bpvf6` (in at 00:29), `brn6` and `bpvn6`. `bvnf6` cannot resolve before the 08:00 UTC deadline, so `s9h` launches at 08:00.
+- **`s9i`.** Its reference is `routed-g15`, unless `s9h` is built with projection > 0. It adds `vnn6` and `bvnf6`.
+- **Uploads.** The 3 LUMPI uploads of Nov 5 stay open for `s9h` and `s9i`.
+
+**W7 and W8 workers (Nov 5, UTC):**
+- **01:09.** trainB ended `voxelrcnn-rosn-g1v6d2`, which had trained from 19:19 UTC (350 min, slowed while a tuning job shared GPU 4; exit code 1 from the after-training eval race; checkpoint verified). Its tuning started at 01:10.
+- **01:11.** `w7fill` queued `voxelnext-rosf-g1v6d2` on trainB.
+- **01:13.** trainA ended `pvrcnnpp-rosn-g1v6d2`, in 213 min (same exit code; checkpoint verified). Its tuning started at 01:13, and `w7fill` was DONE.
+- **01:15.** `w8fill` queued `voxelnext-rosn-g1v6` on trainA. `w8fill` was DONE at 01:17.
+
+**Expected timing (UTC), from the durations so far:**
+
+| Key | Resolves | Portfolio |
+|---|---|---|
+| `brn6` | about 04:30 (`vrn6d2` tuning, about 3.3 h) | `s9h` |
+| `bpvn6` | about 04:45-05:15 (`pvn6d2` tuning, about 3.5-4 h) | `s9h` |
+| `bvnf6` | about 09:40 (`vnf6d2` trains to about 06:25, then about 3.25 h of tuning) | `s9i` |
+| `vnn6` | about 11:10 (trains to about 06:30, tuning to about 09:45, then the rule-3 check and, after a pass, the 12-view job of about 80 min) | `s9i` |
+
+- `s9h` runs from 08:00 to about 11:30 UTC. With 11 keys it takes longer than `s9g` (8 keys, 2 h 55 min).
+- `s9i` launches when `s9h` is done, at about 11:30, and is done at about 14:30-15:00 UTC.
+
+**Idle GPUs from about 06:30 UTC.** After both training workers exit, no training item is left before the 10:00 UTC stop. The idle-GPU IDENTICAL reproduction (16.2) can then start earlier than planned. The waiter `r92wait` (`$BDC_DATA/logs/s9/r92_wait.sh`, started 03:00 UTC) waits for both workers to end their items. It then runs, each alone on a GPU with no other process (`gpu_queue.sh`, run directory `$BDC_DATA/logs/s9/r92`):
+- `routed-g12/test/reproduce_s9a2.sh` (LUMPI 9.1);
+- V2X `routed-g15/test/reproduce_s9a.sh` (9.1);
+- `routed-g15/test/reproduce_s9d.sh` (the LUMPI candidate).
+
+Each must report IDENTICAL: the 9.1 dry run, which shared GPUs with training, came back EQUIVALENT (RELEASES.md). A tuning job that later lands on the same GPU can still make a run EQUIVALENT. In that case the script is rerun.
+
+### 15.25 Wave 9 and V2X `s9e`: no GT sampling on the V2X Voxel R-CNN fade member (2026-11-05, 04:55 UTC; before any V2X `voxelrcnn-rosn-g1v6` result)
+
+**Why.**
+- trainB ended `voxelnext-rosf-g1v6d2` at 04:46 UTC, after 215 min. No training item was left, so GPUs 4-7 would idle until the 10:00 UTC stop, for about 5 h.
+- V2X has had no new member since the `s9b`-`s9d` checks (15.2, 15.11, 15.17). All three V2X fusions still use `g1-v5` (and older) bags.
+- The no-GT-sampling arm passed rule 3 on both two-stage LUMPI families (15.19, 15.22) and has not been tried on V2X.
+- A V2X Voxel R-CNN on `g1-v6` trains in about 216 min (the fade member: 04:17-07:54 UTC Nov 2) and tunes in about 74 min, so it fits before the stop.
+
+**W9 member (only the stated change from the parent; training seed as the parent, the train queue's default):**
+
+| Member | Parent | Change | Rule-3 reference |
+|---|---|---|---|
+| V2X `voxelrcnn-rosn-g1v6` (`vrn6`) | V2X `voxelrcnn-rosf-g1v6` | no GT sampling in any epoch; fade hook removed; tilt kept | `voxelrcnn-rosf-g1v6` (the fade parent, as for LUMPI `vrn6`, 15.19) |
+
+- **Folder.** The parent's files, with the parent's pre-tuning `test/postprocess.yaml.prev` as the neutral start of tuning. The `train/` diff against the parent is exactly the LUMPI W6 change (15.12). The config parses with `gt_sampling` disabled and no hook.
+- **Queued** at 04:49 UTC on trainB (GPUs 4-7), which then started it. Expected: training ends at about 08:25 UTC, before the stop with margin (`cutoff` counts 220 min). Tuning ends at about 09:40.
+- **Expected value: low.** The V2X fade member passed rule 3 on pedestrian (15.2), but no `g1-v6` member has entered a V2X fusion. The member uses GPUs that would otherwise idle.
+
+**V2X `s9e` (`routed-g18`, waiter `s9e_v2x` = `$BDC_DATA/logs/s9/s9e_v2x_wait.sh`), pre-registered as V2X `s9c` (15.10):**
+- **Gate.** Once `vrn6` is tuned, the waiter runs its rule-3 check against `voxelrcnn-rosf-g1v6`. If it fails, or if training or tuning fails, `s9e` is not built.
+- **12-view.** After a pass, the waiter runs the 12-view job on the GPU with the most free memory. The Voxel R-CNN 12-view sibling `vrros_tta12` is in the V2X pedestrian fusion. If the job fails, `vrn6` enters without it.
+- **Build.** `routed-g18` from `routed-g15` (`s9a`), with `vrn6` and the members that passed rule 3 in `s9b` and `s9c`: `dsvt6` (with its 12-view sibling), `bvn6`, `vn6` and `vrrosf6`. The fuse step can then combine them.
+- **Frames.** The realism frames as for V2X `s9c` (`g1-v6` frames only if a member trained on `g1-v6` is used, rule 4).
+- **Not built** if no class changes (as in `s9b` and `s9c`), or if the waiter cannot launch the portfolio by Nov 5, 17:00 UTC. A V2X portfolio takes about 2 h, and uploads close at 22:00 UTC.
+- **Expected.** Launch at about 10:30-11:00 UTC and done at about 12:30-13:00 UTC. It would be the only V2X upload of Nov 5, and only if it is built with projection combined > 0.
+- **Dry run.** The waiter ran on scratch event logs, with the launches replaced by `echo`, in three cases: a pass (12-view, then launch), a failed rule-3 check (not built), and the deadline passing before tuning (not built).
+
+**Reproduction waiter.** `r92wait` (15.24) waited until no training worker was alive, so it would have waited for this member. It was stopped by PID at 04:49 UTC and relaunched from an edited copy. The copy waits only for `lumpi:voxelnext-rosn-g1v6` (trainA, about 05:02 UTC) and then takes the GPUs that are idle at that moment. The reproductions then run on GPUs 0-3 while trainB holds GPUs 4-7.
+
+### 15.26 Idle-GPU reproduction of 9.1 and `s9d`: EQUIVALENT, and why IDENTICAL is out of reach (2026-11-05, 06:00 UTC)
+
+`r92wait` started the three test-frame reproduction scripts at 05:03 UTC on GPUs 1-3, each alone on its GPU. trainA had just ended, and trainB held GPUs 4-7. Each script was then run a second time on an idle GPU, after copying the first run's outputs to `test/output/repro_<tag>_idle1/` (git-ignored). Run directory: `$BDC_DATA/logs/s9/r92`.
+
+| Script | Boxes (repro / scored) | Unmatched (none above score 0.3) | Centre / score p99 | Realism frames | Kit check | Member files equal to the scored build | Idle run 1 vs run 2 |
+|---|---|---|---|---|---|---|---|
+| LUMPI `routed-g12/test/reproduce_s9a2.sh` (9.1) | 38,474 / 38,466 | 58 | 0.015 m / 0.0003 | byte-identical | valid, 429 s and 402 s | 8 of 15 | equal except `vn6_tta` |
+| V2X `routed-g15/test/reproduce_s9a.sh` (9.1) | 38,809 / 38,824 | 45 | 0.002 m / 0.0001 | byte-identical | valid, 264 s and 242 s | 4 of 6 | all files equal |
+| LUMPI `routed-g15/test/reproduce_s9d.sh` (`s9d`) | 24,870 / 24,874 | 10, then 8 | 0.001 m / 0.0002 | byte-identical | valid, 243 s and 217 s | 11 of 14, then 12 of 14 | equal except `vrros` |
+
+**Reading:**
+- **All three are EQUIVALENT, not IDENTICAL**, by the tool's tolerances (no unmatched box above score 0.3; 99% of matched boxes within 0.1 m and 0.01 in score).
+- **Why not IDENTICAL.** Every member file that differs from the scored build was written by the package step on GPUs shared with training (Nov 2 and Nov 3: no GPU was idle).
+  - Most of those members give the same output on both idle runs (for example `pvros4_tta` and `pvros6_tta12` in `s9d`, and every V2X member). So idle inference is deterministic for them, and the scored files carry the shared-GPU variation.
+  - Two members vary even between idle runs: the plain Voxel R-CNN `vrros` (`s9d`) and VoxelNeXt `vn6_tta` (`s9a2`). In `s9d`, the second idle run of `vrros` equals the scored file byte for byte.
+  - A fresh run therefore cannot rebuild these zips bit for bit. EQUIVALENT is their final reproduction status. The 8.0 IDENTICAL result came from zips whose members had been inferred on idle GPUs.
+- **No consequence for the entries.** The scored zips are the committed ones, their md5s are in the manifests, and the realism frames are byte-identical. The variation is at the level of a few low-score boxes per 25,000-38,000.
+
+**For the final entries:** a zip packaged after 10:00 UTC today, on GPUs with no training, would have IDENTICAL members except `vrros` and `vn6_tta`. That changes nothing for upload; it only affects how the zip can be reproduced later.
+
+### 15.27 LUMPI `s9h` fails in the fuse step (out of memory); `s9i` carries its keys; V2X `s9e` launched (2026-11-05, 10:20 UTC)
+
+**Launches (UTC):**
+- **07:28.** `voxelnext-rosf-g1v6d2` was tuned, so `bvnf6` resolved. That was the last open `s9h` key, and `s9gh` launched `pf_lumpi_s9h` at 07:29 from `routed-g15`, ahead of the 08:00 deadline. Its new keys were `bpvf6`, `brn6`, `bpvn6` and `bvnf6`; `s9i` therefore adds only `vnn6`.
+- **07:35.** `voxelnext-rosn-g1v6` (W8, `vnn6`) was tuned. At 07:47 its rule-3 check against `voxelnext-rosf-g1v6` passed on Person (pooled +0.0156, P 1.00) and Car (+0.0042, P 0.99), plain view. Its 12-view job ran 07:47-09:03 on GPU 1.
+- **07:41.** trainB ended V2X `voxelrcnn-rosn-g1v6` (W9) after 172 min (exit code 1 from the after-training eval race; checkpoint verified). This was the last training item: no member fits before the 10:00 cutoff.
+- **08:41.** V2X `voxelrcnn-rosn-g1v6` was tuned. At 08:44 its rule-3 check against `voxelrcnn-rosf-g1v6` passed on vehicle only (pooled +0.0113, P 1.00). Pedestrian (-0.0051) and truck (-0.0163) fail. Its 12-view job ran 08:44-09:10 on GPU 0, and `s9e_v2x` launched `pf_v2x_s9e` at 09:10 (15.25).
+
+**`s9h` member checks (rule 3).** Every key passes except `ppf6` (FAIL, as in 15.22 and 15.24). The four bags were built in the portfolio:
+
+| Key | Bag (8-view A / B) | Passes on (plain) |
+|---|---|---|
+| `bpvf6` | `bag-pvrcnnpp-rosf-g1v6x` (0.3604 / 0.2177) | Person, Car, Bicycle, Motorcycle |
+| `brn6` | `bag-voxelrcnn-rosn-g1v6x` (0.3564 / 0.2124) | Person, Car, Bicycle, Truck, Van |
+| `bpvn6` | `bag-pvrcnnpp-rosn-g1v6x` (0.3594 / 0.2158) | Person, Car, Bicycle, Motorcycle, Bus |
+| `bvnf6` | `bag-voxelnext-rosf-g1v6x` (0.3576 / 0.2117) | every class |
+
+**The failure.** `routed-g19` (122 members) was created at 09:28. The fuse step started at 09:32 and evaluated the 22 Person candidates. At 10:01 the kernel's global out-of-memory killer ended one fuse worker (72 GB resident), and the step stopped at 10:03 with `BrokenProcessPool`. The V2X `s9e` fuse (86 members) was running at the same time. The fuse forks one worker per candidate (up to 32). User and system CPU time were about equal (42 and 44 min), which is the mark of copy-on-write copying: Python's cyclic garbage collector writes to every tracked object's header, so each forked worker copies most of the parent's heap, about 20 GB here. `s9g` (114 members) had fused alone without this. `s9h` is not built, and there is nothing to upload from it.
+
+**What follows (pre-registered in 15.21 and 15.23).** `s9h` is not built, so at 10:05 `s9i` launched `pf_lumpi_s9i` from `routed-g15` with every key that is in: the 12 keys of `s9h` and `vnn6` with its 12-view sibling. `s9i` is therefore `s9h` plus `vnn6`, and it is the only LUMPI system left for Nov 5. I did not relaunch `s9h`. A second copy would overlap the `s9i` fuse and repeat the memory risk, and `s9i` contains every `s9h` key.
+
+**The fix (10:10, before the `s9i` fuse step starts at about 12:00).** `common/tools/route_predictions.py` `fuse_select`:
+- **Worker cap.** The default cap on workers per class drops from 32 to 16.
+- **Garbage collection.** It calls `gc.collect(); gc.freeze()` before each class's pool is forked and `gc.unfreeze()` after the pool ends. The workers' garbage collector then no longer touches the parent's objects (Python documents `gc.freeze` for this use).
+
+Both changes leave the results unchanged:
+- Each candidate is evaluated independently, and the results are stored by candidate.
+- The ranking and gates run after the pool ends.
+- The order of evaluation does not enter the selection.
+
+The only cost is time. Classes with 17-32 candidates now take two rounds instead of one, so the `s9i` fuse takes about 1.5-2.5 h, against 77 min for `s9g`.
+
+The running V2X `s9e` fuse keeps the old code; its 12-view fuse step will use the new code. A memory sampler logs the host's used memory every 30 s until both portfolios end.
+
+**Expected (UTC).** V2X `s9e` from 09:10 to about 11:30-12:00. `s9i` member checks to about 12:00, then the fuse, then the 12-view fuse, the kit check and the projection, ending about 15:00-16:30. Both are before the 22:00 close.
+
+### 15.28 V2X `s9e` is not built (2026-11-05, 11:25 UTC)
+
+`s9e_v2x` launched `pf_v2x_s9e` at 09:10 UTC from `routed-g15` (`s9a`, the scored V2X entry). It had five keys, plus the 12-view siblings of `dsvt6` and `vrn6`, and finished at 11:22.
+
+**Member checks (rule 3).** Every key passes:
+
+| Key | Member | Against | Passes on |
+|---|---|---|---|
+| `vrn6` | `voxelrcnn-rosn-g1v6` (W9) | `voxelrcnn-rosf-g1v6` | vehicle |
+| `dsvt6` | `dsvt-ros-g1v6` | `voxelnext-ros-g1v6` | vehicle, pedestrian, truck; 4-view the same |
+| `bvn6` | `bag-voxelnext-ros-g1v6x` | `voxelnext-ros-g1v6` | vehicle, pedestrian, truck; 4-view vehicle, pedestrian |
+| `vn6` | `voxelnext-ros-g1v6` | `voxelnext-ros-g1v5` | vehicle, truck; 4-view the same |
+| `vrrosf6` | `voxelrcnn-rosf-g1v6` | `voxelrcnn-ros-g1v6` | pedestrian; 4-view truck |
+
+**Fusion.** `routed-g18` had 86 members. In the fuse step (54 min) and in the 12-view fuse step, vehicle, pedestrian and truck each kept its `routed-g15` fusion, because the incumbent was the best candidate:
+- vehicle `bagvr5_tta+pvros4s2_tta@0.7`
+- pedestrian `bagvr5_tta+bagpv5x_tta+vrros_tta12@0.7`
+- truck `pp5_tta+bagvr5_tta+bagpv5@0.5`
+
+In the final check against `routed-g15`, every delta is 0.0. So `routed-g18` equals `routed-g15`, and `s9e` is not built. There is nothing to upload from it.
+
+**Reading.** This is the same result as LUMPI `s9e`, `s9f` and `s9g`: the `g1-v6` members pass rule 3 against their own family, but they do not beat the incumbent fusions, which are built on the `g1-v5` bags. This was the last V2X system pre-registered for the development phase. The V2X entry stays `s9a` (1028491, 0.902971), which is the V2X F1 zip under Section 9: the best confirmed development zip per track.
+
+### 15.29 LUMPI `s9i` is not built; the development phase ends with `s9d` and `s9a` (2026-11-05, 13:35 UTC)
+
+`pf_lumpi_s9i` ran from 10:05 to 13:28 UTC from `routed-g15`, with the 12 keys of `s9h` and `vnn6` (15.27). `routed-g20` had 124 members.
+
+**Member checks (rule 3).** The results are as in `s9h`: every key passes except `ppf6`. `vnn6` passes on Person and Car.
+
+**Fusion (local validation):**
+- **Open classes.** Person, Car, Truck and Van each kept their `routed-g15` fusion, because the incumbent was the best candidate.
+  - Person ranks on late-A, top 3 through the gates (S8 rule), and the incumbent `vrrosf6_tta12+pvros6_tta12@0.5` ranked first.
+  - In the 12-view swap, Truck failed the pooled A+B condition, and Motorcycle and Van kept their sets.
+- **Frozen classes (rule 2).**
+  - Bicycle `bagpv4_tta12+bpp6_tta@0.5` passed the pooled rule (dB +0.0116, P 1.00).
+  - Motorcycle `vnn6_tta+vrrosf6_tta12@0.7` passed the pooled rule (dB +0.049, P 1.00).
+  - Both classes are frozen, so `freeze_rare` restored them.
+- **Final check against `routed-g15`.** Every delta is 0.0. So `routed-g20` equals `routed-g15`, and `s9i` is not built. There is nothing to upload from it.
+
+**The memory fix (15.27) held:**
+- The fuse step took 84 min with 16 workers, and the 12-view fuse step took 42 min.
+- The host's used memory peaked at 126 GB, at 11:45 with 17 python processes, against about 500 GB when `s9h` was killed.
+- The largest single process was 81 GB.
+
+**Reading.** Five LUMPI portfolios in a row (`s9e` to `s9i`) and V2X `s9e` (15.28) were not built for the same reason. Their members pass rule 3 against their own family, but no open-class route of `s9d` (LUMPI) or `s9a` (V2X) changes. The binding constraint is the incumbent fusions, not the single members. No pre-registered development system remains. Training stopped at the 10:00 cutoff, and the next dev upload would need a new system, which there is no time to pre-register, build and check before 22:00.
+
+**The development phase ends with these entries (rank 1 on both tracks):**
+
+| Track | Entry | Submission | Combined | Zip (md5 verified 13:30 UTC) |
+|---|---|---|---|---|
+| LUMPI | `s9d` | 1031132 | 0.542490 | `model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip` (`20d2d5fac2408a2fb91d03985645b70d`, 25,112,078 bytes) |
+| V2X | `s9a` | 1028491 | 0.902971 | `model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip` (`3e59e5b3c76b440bd11aeba0304cc75e`, 22,128,040 bytes) |
+
+**F1 (Section 9).** F1 is these two zips, unchanged, uploaded once the final phase opens (Nov 6, 05:00 UTC). Both kit checks ran in about 220-265 s on this machine, well inside the 1,200 s limit. F5 is the same zips again on the last full day, unless the organizers answer Q3 "best counts".
+
+### 15.30 Diagnostic `s9iu`: `s9i` without the rare-class freeze, information only (2026-11-05, 16:05 UTC; written before the build)
+
+**Request.** The entrant asked for the best-performing system built after `s9d` (LUMPI) and `s9a` (V2X), as a zip per track. It is to be scored on the development leaderboard, to gauge the S9 gains for the analysis and the paper, and it is not for a release.
+
+**V2X.** There is no such system. V2X `s9b`, `s9c`, `s9d` and `s9e` (15.2, 15.11, 15.17, 15.28) each changed no class: in every fuse step, the incumbent was the best candidate on local validation. V2X has no frozen class. So no V2X system built after `s9a` is better than `s9a` locally, and there is nothing to upload.
+
+**LUMPI.** The best system on local validation is `s9i` before its rare-class freeze. In the `s9i` fuse step (15.29), two frozen classes passed the pooled rule, and `freeze_rare` (rule 2) restored the `s9d` configuration:
+
+| Class | `s9d` (incumbent) | `s9i` fuse step | dA | dB | P(gain) |
+|---|---|---|---|---|---|
+| Bicycle | `vrros_tta+pvros4_tta+pp4_tta@0.7` (A 0.6009, B 0.2640) | `bagpv4_tta12+bpp6_tta@0.5` (A 0.6132, B 0.2756) | +0.012 | +0.012 | 1.00 |
+| Motorcycle | `g1v3` (A 0.0080, B 0.0145) | `vnn6_tta+vrrosf6_tta12@0.7` (A 0.2125, B 0.0639) | +0.204 | +0.049 | 1.00 |
+
+**The diagnostic, `s9iu` (`routed-g21`).** It is `routed-g20`, which equals `routed-g15` (`s9d`) in every class, with these two fusions as the `s9i` fuse step wrote them: equal weights, no calibration. Everything else is `s9d`'s:
+- the other classes' routes and fusions;
+- the floors and tail copies;
+- the realism frames (`pcdet/g1-v6`, the same ids).
+
+The build follows the `s9_portfolio.sh` LUMPI steps after the fuse, without `freeze_rare` and without the final freeze (waiter `$BDC_DATA/logs/s9/s9iu_build.sh`):
+1. validate;
+2. the final check against `routed-g15`, recorded for information;
+3. package;
+4. the rule 1(b) copy fit at 38,466 boxes, packaging again if it changes the Person copy threshold;
+5. the official kit check;
+6. the scorecard and the reproduction scripts;
+7. the projection against `routed-g15`.
+
+**Status, fixed before any score:**
+- **Not an F1 candidate.** `s9iu` breaks rule 2. Adopting it after seeing its score would be a leaderboard-informed choice of two classes (audit rule d). It is therefore not an F1 candidate, whatever it scores: F1 stays `s9d` (15.29), and `s9iu` is not added to a release.
+- **Uploads.** It would be the first LUMPI upload of Nov 5 UTC (rule 6: at most 3). Its projection is recorded before the upload.
+- **Leaderboard.** The development phase ranks by `Force_Best` (docs/01-CHALLENGE-FACTS.md), so a lower score does not replace the displayed `s9d` entry.
+- **Reading.** Compare the combined score with `s9d` (0.542490). Any difference comes from Bicycle and Motorcycle, plus the Person copy threshold if the copy fit moves it. The per-class numbers may be read for the analysis; they choose nothing.
+- **What it tests.** Rule 2's premise, held since R5 and S6: LUMPI's rare classes follow no local split. The Motorcycle gain is the largest local change S9 found.
+
+**Build (16:06-16:36 UTC, waiter `s9iu`):**
+- **Steps.** Validate passed. The final check against `routed-g15` is for information only: open classes all 0.0, and Bicycle, Motorcycle and Bus are reported as frozen (S6 rule 4). Packaging ran on an idle GPU.
+- **Copy fit.** UNCHANGED (t = 0.7316), so the Person copy threshold is `s9d`'s.
+- **Kit check.** Valid, 22,901 boxes, 188.6 s.
+- **Projection against `routed-g15`.** dA +0.0307, dB +0.0087, combined **+0.0101** (bar +0.003: passed). This is recorded before any upload (rule 6).
+- **File.** `model-lumpi-track/routed-g21/submissions/2026-11-05_s9iu/lumpi_s9iu_submission.zip`, md5 `44c6b91f1429ba787cdbbf9eead162af`, sha256 `f01d5e62...7601eab`, 24,961,966 bytes (identical to `submission.zip`).
+
+**Against the scored `s9d` zip:**
+- **Unchanged.** The 50 realism frames are byte-identical. Car, Bus, Truck, Van and Unknown are identical in every frame.
+- **Person** is EQUIVALENT: 4,341 of 4,342 boxes match within 0.1 m and 0.01 in score (p99 centre distance 0.003 m), and the one unmatched box scores below 0.3. This is the same inference variation as in the reproductions (15.26).
+- **Bicycle** has 2,492 boxes against 4,753, and **Motorcycle** 2,649 against 2,357.
+
+**Local scores (A / B / late-A):**
+
+| Class | `s9d` | `s9iu` |
+|---|---|---|
+| Bicycle | 0.601 / 0.264 / 0.458 | 0.611 / 0.275 / 0.474 |
+| Motorcycle | 0.008 / 0.015 / 0.002 | 0.212 / 0.064 / 0.000 |
+
+**Caveat, recorded before the score.** The Motorcycle gain is all in early-A and B. On late-A, the window most like the test (the R5 rule), Motorcycle is 0.000 against 0.002, so the projection may overstate the gain. This is the premise of rule 2 that the upload tests.
+
+**Server result (2026-11-05, 17:35 UTC).** The entrant uploaded `lumpi_s9iu_submission.zip` (md5 `44c6b91f...`) unchanged at 17:26 UTC, as submission **1035970**. It scored in about 4 minutes and was the first LUMPI upload of Nov 5 UTC.
+- **Score: combined 0.540033**, 0.002457 below `s9d` (0.542490). The projection was +0.0101.
+- **Leaderboard.** One public `get_leaderboard` read at 17:32 UTC showed the KarmaRV row still at 1031132 (`s9d`, 0.5425), rank 1 of 25, since the board keeps the best row (`Force_Best`). The runner-up is now sadbodh at 0.5196 (1035689, 15:25 UTC), so the LUMPI lead is +0.0229.
+- **Records.** The scores come from the entrant's scoring log. The server record is `codabench_1035970.json` in the `s9iu` folder, with the deltas to `s9d`.
+
+| | Local A | Local B | Local late-A | Server (test) |
+|---|---|---|---|---|
+| Bicycle AP | 0.601 -> 0.611 (+0.010) | 0.264 -> 0.275 (+0.011) | 0.458 -> 0.474 (+0.016) | 0.1882 -> 0.1512 (**-0.0369**) |
+| Motorcycle AP | 0.008 -> 0.212 (+0.204) | 0.015 -> 0.064 (+0.049) | 0.002 -> 0.000 (-0.002) | 0.0012 -> 0.0182 (**+0.0170**) |
+| Person AP (EQUIVALENT boxes) | equal | equal | equal | 0.3056 -> 0.3054 (-0.0002) |
+| mAP (7 classes) | +0.0307 | +0.0087 | | 0.196945 -> 0.194078 (-0.0029) |
+| Combined | | | | 0.542490 -> 0.540033 (-0.0025; projection +0.0101) |
+
+Car, Bus, Truck and Van are identical on the server (0.673716, 0.003749, 0.065273, 0.140894), and so are all four realism metrics (R 0.9342). The upload is therefore a clean two-class ablation on the test set.
+
+**Reading:**
+- **Bicycle reverses.** All three local splits gain (+0.010 to +0.016, P 1.00), yet the test AP drops by 0.037, a fifth of its value.
+- **Motorcycle keeps its sign.** The test gain is about a third of the split-B gain. Late-A, which ranks Person correctly (R5), predicted no Motorcycle gain, and the test gained.
+- **Net effect.** The two errors do not cancel, and the projection misses by -0.0126 combined.
+
+So on LUMPI's rare classes no local split predicts the test, neither the pooled A+B rule nor late-A. That is the premise of rule 2 (R5, S6 rule 4), now measured on the server with every other class held fixed. As pre-registered, nothing changes: F1 stays `s9d` (15.29), rule 2 stays for any final-phase candidate, and the per-class numbers choose nothing (audit rule d).
+
+**For the paper.** On a frequent class the local gate transferred: the `s9d` Car route gained B +0.0069 locally and +0.0129 on the server (15.7). On the two rare classes it did not. These two single-change uploads, `s9d` (Car, against `s9c`) and `s9iu` (Bicycle and Motorcycle, against `s9d`), are the measured case for gating frequent classes locally and freezing rare ones.
+
 ## 16. DSVT viability and the roadmap to the development close (2026-11-02, 21:30 UTC; before any `s9b` result)
 
 ### 16.1 Is DSVT the next step up?
@@ -1064,9 +1805,21 @@ The entrant asked whether DSVT, the sparse voxel transformer in mainline OpenPCD
 | Nov 3, 10:55 to about 19:00-21:00 | **W4: `voxelrcnn-rosf-g1v6j` (trainA) and `pvrcnnpp-ros-g1v6j` (trainB from about 12:00) on `g1-v6j`** (15.4); then DSVT V2X, only if D1 passes | both | `s9e` |
 | Nov 3, about 16:00-18:00 | LUMPI `s9d` (the `vrrosf6` draw bag; DSVT if D1 passes; waiter `s9dwait`, 15.4). **Result 17:08: built, Car route `pvros_tta12+vrrosf6_tta12`, projection +0.0003 on `s9c`, kit 195 s; neither new member in a fused set (15.6). Server: 1031132, 0.542490, rank 1, the best scored LUMPI system (15.7)** | portfolio | uploaded |
 | Nov 4, about 02:00-04:00 | LUMPI `s9e` (the W4 members and their 12-view siblings, from `routed-g15`; waiter `s9ewait`, 15.6) | portfolio | upload |
-| Nov 4 | `s9d` both tracks (3-draw bags, DSVT if it passed, 12-view swaps); W4 tuning | portfolio | uploads |
-| Nov 5, until 10:00 | the last training; idle-GPU IDENTICAL reproduction of 9.1 and of the newest entries | | release |
-| Nov 5, by 22:00 | the final development uploads: the best scored complete system per track (rule 6) | | F1 |
+| Nov 4, 01:00 to about 09:30 | **W5: the M1 recipe on PV-RCNN++, DSVT and VoxelNeXt** (`*-rosf-g1v6`), then the draw-2 twins of those that pass on Person (gate `w5gate`, 15.8) | trainA/B | `s9f` |
+| Nov 4, 02:33-04:30 | V2X `s9c` (DSVT and the `s9b` members, from `routed-g15`, 15.10). **Result 04:30: not built, every class kept its `s9a` fusion (15.11)** | portfolio | - |
+| Nov 4, about 08:30 to Nov 5, 10:00 | **W6: no GT sampling on Voxel R-CNN and PV-RCNN++, PointPillars on `g1-v6` (both tracks), and their gated follow-ups** (gate `w6gate`, guard `cutoff`, 15.12) | trainA/B | `s9g`, V2X `s9d` |
+| Nov 4, 15:17-18:04 | LUMPI `s9f` (the W5 members and their 12-view siblings, from `routed-g15`, 15.8-15.9). **Result: not built, every open class kept its `s9d` fusion (15.20)** | portfolio | - |
+| Nov 4, 14:13 | V2X `s9d` (`pp6` and its bag with the `s9c` members, 15.12). **Result: not built, `pp6` fails rule 3 on every class (15.17)** | - | - |
+| Nov 4, about 18:00 to Nov 5, 10:00 | **W7: the draw-2 twins of `pp6` and `vnf6`, only on workers the queue leaves idle** (filler `w7fill`, 15.18) | trainA/B | `s9g` |
+| Nov 4, 21:02 | W6 `pvrcnnpp-rosn-g1v6`. **Result: passes on Person, Car and Van; twin `pvrcnnpp-rosn-g1v6d2` queued (15.22).** `pointpillars-rosf-g1v6` fails every open class (read-only check, 15.22) | trainA | `s9g`, `s9h` |
+| Nov 5, 00:01-02:56 | LUMPI `s9g` (the W5 and W6 members, the bags of the twins tuned by 00:00 UTC, from `routed-g15`; waiter `s9gh`, 15.21). **Result: not built, every open class kept its `s9d` fusion; `ppf6` fails rule 3 (15.24)** | portfolio | - |
+| Nov 5, 01:15 to about 06:30 | **W8: `voxelnext-rosn-g1v6`** on the worker the queue leaves idle (filler `w8fill`, 15.23; queued on trainA at 01:15, 15.24) | trainA | `s9i` |
+| Nov 5, 07:29 to about 10:30 | LUMPI `s9h` (`s9g` plus the late twin bags `bpvf6`, `brn6`, `bpvn6` and `bvnf6`, from `routed-g15`, since `s9g` is not built; waiter `s9gh`, 15.21, 15.24). **Launched at 07:29, when `vnf6d2` was tuned and `bvnf6` resolved the last key, ahead of the 08:00 deadline. Result: fuse step killed by the out-of-memory killer at 10:01; not built (15.27)** | portfolio | upload |
+| Nov 5, 04:49 to 07:41 | **W9: V2X `voxelrcnn-rosn-g1v6`** on the idle trainB (15.25). Trained in 172 min; tuning from 07:41 | trainB | V2X `s9e` |
+| Nov 5, 09:10 to 11:22 | V2X `s9e` (`vrn6` if it passes rule 3, with the `s9b`/`s9c` members, from `routed-g15`; waiter `s9e_v2x`, 15.25). **Result: every class kept its `routed-g15` fusion; not built. V2X F1 = `s9a` (15.28)** | portfolio | upload |
+| Nov 5, 10:05 to about 15:00-16:30 | LUMPI `s9i` (`vnn6`, from the newest system that passes bar (b); `bvnf6` entered `s9h`; waiter `s9i`, 15.23, 15.24). **Launched at 10:05 from `routed-g15` with every key, since `s9h` failed: `s9i` = `s9h` plus `vnn6`; fuse runs with 16 workers and `gc.freeze` (15.27). Result: every open class kept its `routed-g15` fusion; not built (15.29)** | portfolio | upload |
+| Nov 5, until 10:00 | the last training (trainA ended 05:02; trainB ended 07:41 with V2X W9, and no member fits before the cutoff); idle-GPU reproduction of 9.1 and `s9d`, 05:03-05:58 on GPUs 1-3. **Result: EQUIVALENT, final; IDENTICAL is out of reach because the scored members were inferred on shared GPUs (15.26)** | GPUs 1-3 | release |
+| Nov 5, by 22:00 | the final development uploads: the best scored complete system per track (rule 6). **Result: no system was built on Nov 5 (`s9h` failed, `s9i` and V2X `s9e` equal their references); the entries stay LUMPI `s9d` and V2X `s9a`, and these are the F1 zips (15.29). Diagnostic `s9iu` (information only): 1035970, 0.540033, below `s9d`; Bicycle -0.037, Motorcycle +0.017 on the server (15.30)** | | F1 |
 
 **Budget:**
 - **Training:** about 106 worker-hours remain from 05:00 UTC Nov 3 to the 10:00 UTC Nov 5 stop. The table uses about 40-45, which leaves room for one more draw or family when the `s9b`/`s9c` results say where.
