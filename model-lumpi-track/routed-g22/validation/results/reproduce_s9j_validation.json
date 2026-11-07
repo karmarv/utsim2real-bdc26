@@ -1,0 +1,295 @@
+{
+  "model": "routed-g22",
+  "tag": "s9j",
+  "predictions": "model-lumpi-track/routed-g22/validation/output/repro_s9j",
+  "jobs": [
+    {
+      "id": "pointpillars-g1",
+      "model": "pointpillars-g1",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": null,
+      "postprocess": "test/postprocess.yaml"
+    },
+    {
+      "id": "pointpillars-g1_tta",
+      "model": "pointpillars-g1",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "pointpillars-g1v3",
+      "model": "pointpillars-g1v3",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": null,
+      "postprocess": "test/postprocess.yaml"
+    },
+    {
+      "id": "pointpillars-g1v4_tta",
+      "model": "pointpillars-g1v4",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "pointpillars-ros-g1v4_tta",
+      "model": "pointpillars-ros-g1v4",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "pointpillars-ros-g1v3_tta",
+      "model": "pointpillars-ros-g1v3",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v4_tta",
+      "model": "pvrcnnpp-ros-g1v4",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v4d2_tta",
+      "model": "pvrcnnpp-ros-g1v4d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v6_tta",
+      "model": "pvrcnnpp-ros-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v3_tta",
+      "model": "pvrcnnpp-ros-g1v3",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v3",
+      "model": "voxelrcnn-ros-g1v3",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": null,
+      "postprocess": "test/postprocess.yaml"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v4_tta",
+      "model": "voxelrcnn-ros-g1v4",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v3_tta",
+      "model": "voxelrcnn-ros-g1v3",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml"
+    },
+    {
+      "id": "voxelrcnn-rosf-g1v6_tta",
+      "model": "voxelrcnn-rosf-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml"
+    }
+  ],
+  "A_mAP": 0.40784812081787397,
+  "B_mAP": 0.23699518184466745,
+  "lateA_mAP": 0.3745835895630094,
+  "recorded": {
+    "A_mAP": 0.4078903547264699,
+    "B_mAP": 0.23700467382845328,
+    "lateA_mAP": 0.3746214162987361
+  },
+  "per_class": [
+    {
+      "class": "Person",
+      "split": "A",
+      "reproduced": 0.5951029360614323,
+      "recorded": 0.5952130788251772,
+      "diff": -0.00011014276374488041
+    },
+    {
+      "class": "Person",
+      "split": "B",
+      "reproduced": 0.23129636867096476,
+      "recorded": 0.23133868002994493,
+      "diff": -4.2311358980168245e-05
+    },
+    {
+      "class": "Person",
+      "split": "lateA",
+      "reproduced": 0.47049922942889033,
+      "recorded": 0.4702408851149723,
+      "diff": 0.00025834431391802415
+    },
+    {
+      "class": "Car",
+      "split": "A",
+      "reproduced": 0.9099391608950513,
+      "recorded": 0.9099366052925406,
+      "diff": 2.555602510723176e-06
+    },
+    {
+      "class": "Car",
+      "split": "B",
+      "reproduced": 0.8075149344733955,
+      "recorded": 0.8075110144711974,
+      "diff": 3.920002198065653e-06
+    },
+    {
+      "class": "Car",
+      "split": "lateA",
+      "reproduced": 0.8833140051247892,
+      "recorded": 0.8833022820705525,
+      "diff": 1.1723054236689734e-05
+    },
+    {
+      "class": "Bicycle",
+      "split": "A",
+      "reproduced": 0.600858753080846,
+      "recorded": 0.600858753080846,
+      "diff": 0.0
+    },
+    {
+      "class": "Bicycle",
+      "split": "B",
+      "reproduced": 0.26401955909727576,
+      "recorded": 0.26401955909727576,
+      "diff": 0.0
+    },
+    {
+      "class": "Bicycle",
+      "split": "lateA",
+      "reproduced": 0.458233506366191,
+      "recorded": 0.458233506366191,
+      "diff": 0.0
+    },
+    {
+      "class": "Motorcycle",
+      "split": "A",
+      "reproduced": 0.008014745550644643,
+      "recorded": 0.008014745550644643,
+      "diff": 0.0
+    },
+    {
+      "class": "Motorcycle",
+      "split": "B",
+      "reproduced": 0.014525425873763684,
+      "recorded": 0.014525425873763684,
+      "diff": 0.0
+    },
+    {
+      "class": "Motorcycle",
+      "split": "lateA",
+      "reproduced": 0.0019230769230769232,
+      "recorded": 0.0019230769230769232,
+      "diff": 0.0
+    },
+    {
+      "class": "Bus",
+      "split": "A",
+      "reproduced": 0.07990359090685772,
+      "recorded": 0.07990359090685772,
+      "diff": 0.0
+    },
+    {
+      "class": "Bus",
+      "split": "B",
+      "reproduced": 0.13551984792220034,
+      "recorded": 0.13551984792220034,
+      "diff": 0.0
+    },
+    {
+      "class": "Bus",
+      "split": "lateA",
+      "reproduced": 0.003147118506931987,
+      "recorded": 0.003147118506931987,
+      "diff": 0.0
+    },
+    {
+      "class": "Truck",
+      "split": "A",
+      "reproduced": 0.48718689494596157,
+      "recorded": 0.4873267958926176,
+      "diff": -0.00013990094665605746
+    },
+    {
+      "class": "Truck",
+      "split": "B",
+      "reproduced": 0.20451109202861847,
+      "recorded": 0.20453914455833705,
+      "diff": -2.8052529718575192e-05
+    },
+    {
+      "class": "Truck",
+      "split": "lateA",
+      "reproduced": 0.631969596831756,
+      "recorded": 0.6325864044008727,
+      "diff": -0.0006168075691166397
+    },
+    {
+      "class": "Van",
+      "split": "A",
+      "reproduced": 0.17393076428432472,
+      "recorded": 0.17397891353660602,
+      "diff": -4.814925228130429e-05
+    },
+    {
+      "class": "Van",
+      "split": "B",
+      "reproduced": 0.0015790448464537508,
+      "recorded": 0.0015790448464537508,
+      "diff": 0.0
+    },
+    {
+      "class": "Van",
+      "split": "lateA",
+      "reproduced": 0.17299859375943077,
+      "recorded": 0.17291664070855478,
+      "diff": 8.195305087599358e-05
+    }
+  ],
+  "max_abs_diff": 0.0006168075691166397,
+  "member_files_identical_to_recorded": {
+    "pointpillars-g1_val": true,
+    "pointpillars-g1_valB": true,
+    "pointpillars-g1_tta_val": true,
+    "pointpillars-g1_tta_valB": true,
+    "pointpillars-g1v3_val": true,
+    "pointpillars-g1v3_valB": true,
+    "pointpillars-g1v4_tta_val": true,
+    "pointpillars-g1v4_tta_valB": true,
+    "pointpillars-ros-g1v4_tta_val": true,
+    "pointpillars-ros-g1v4_tta_valB": true,
+    "pointpillars-ros-g1v3_tta_val": true,
+    "pointpillars-ros-g1v3_tta_valB": true,
+    "pvrcnnpp-ros-g1v4_tta_val": true,
+    "pvrcnnpp-ros-g1v4_tta_valB": true,
+    "pvrcnnpp-ros-g1v4d2_tta_val": false,
+    "pvrcnnpp-ros-g1v4d2_tta_valB": false,
+    "pvrcnnpp-ros-g1v6_tta_val": false,
+    "pvrcnnpp-ros-g1v6_tta_valB": false,
+    "pvrcnnpp-ros-g1v3_tta_val": false,
+    "pvrcnnpp-ros-g1v3_tta_valB": false,
+    "voxelrcnn-ros-g1v3_val": true,
+    "voxelrcnn-ros-g1v3_valB": true,
+    "voxelrcnn-ros-g1v4_tta_val": false,
+    "voxelrcnn-ros-g1v4_tta_valB": true,
+    "voxelrcnn-ros-g1v3_tta_val": true,
+    "voxelrcnn-ros-g1v3_tta_valB": true,
+    "voxelrcnn-rosf-g1v6_tta_val": false,
+    "voxelrcnn-rosf-g1v6_tta_valB": false
+  },
+  "max_split_mAP_diff": 4.223390859592335e-05,
+  "verdict": "EQUIVALENT"
+}

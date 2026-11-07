@@ -1,0 +1,47 @@
+{
+  "vs": "routed-g15",
+  "classes": {
+    "Person": {
+      "dA": 0.0033160391375568476,
+      "dB": 0.003041077715067564,
+      "pooled_delta": 0.0032925019441100156,
+      "p_gain": 1.0,
+      "train_split_delta": 0.0033160391375568476,
+      "kept": true
+    },
+    "Car": {
+      "dA": 0.0015022829855043662,
+      "dB": 0.0032796353332754657,
+      "pooled_delta": 0.0036769443063219276,
+      "p_gain": 1.0,
+      "train_split_delta": 0.0015022829855043662,
+      "kept": true
+    },
+    "Bicycle": {
+      "kept": false,
+      "note": "frozen (S6 rule 4)"
+    },
+    "Motorcycle": {
+      "kept": false,
+      "note": "frozen (S6 rule 4)"
+    },
+    "Bus": {
+      "kept": false,
+      "note": "frozen (S6 rule 4)"
+    },
+    "Truck": {
+      "dA": 0.0,
+      "dB": 0.0,
+      "pooled_delta": 0.0,
+      "p_gain": 0.0,
+      "train_split_delta": 0.0,
+      "kept": false
+    },
+    "Van": {
+      "dA": 0.0,
+      "late_A_delta": 0.0,
+      "p_gain": 0.0,
+      "kept": false
+    }
+  }
+}

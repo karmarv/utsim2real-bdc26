@@ -1,0 +1,206 @@
+{
+  "model": "routed-g19",
+  "track": "v2x-track",
+  "strategy": "S9",
+  "time": "2026-11-05 10:26",
+  "iou": "exact (official)",
+  "A_mAP": 0.7427274737935692,
+  "B_mAP": 0.7260778529823947,
+  "lateA_mAP": null,
+  "lateA_frames": 0,
+  "B_over_A": 0.9775831359433433,
+  "B_bev_3d_gap": 0.0485073762531294,
+  "B_3d07_mAP": 0.23567824315564898,
+  "A_bev_3d_gap": 0.057722168795670936,
+  "per_class": {
+    "vehicle": {
+      "A": 0.8750650052072348,
+      "B": 0.8789434693859427,
+      "lateA": null,
+      "B_bev": 0.9160108983527426,
+      "B_3d07": 0.4227274474397846,
+      "n_gt_A": 5570,
+      "n_gt_B": 2407
+    },
+    "pedestrian": {
+      "A": 0.41752596773392964,
+      "B": 0.4511773313858221,
+      "lateA": null,
+      "B_bev": 0.5569001096902765,
+      "B_3d07": 0.020233994696004592,
+      "n_gt_A": 11138,
+      "n_gt_B": 3584
+    },
+    "truck": {
+      "A": 0.9355914484395431,
+      "B": 0.8481127581754194,
+      "lateA": null,
+      "B_bev": 0.8508446796635534,
+      "B_3d07": 0.26407328733115776,
+      "n_gt_A": 1140,
+      "n_gt_B": 500
+    }
+  },
+  "realism": {
+    "per_proxy": {
+      "pcdet/realism-proxy-4": 0.9353950260562234,
+      "pcdet/realism-proxy-5": 0.9377682727655322
+    },
+    "R": 0.9365816494108778,
+    "source": "same 50 frames as routed-g13: same 50 frames as routed-g12: same 50 frames as routed-g9: same 50 frames as routed-g8b: same 50 frames as routed-g7: /home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/routed-g7/submissions/2026-10-14_r5/submission.zip (exact EMD)"
+  },
+  "estimate_B": 0.9746326597643511,
+  "estimate_B_unclipped": 0.9969851051778322,
+  "estimate_A": 0.9746326597643511,
+  "judge": null,
+  "B_mAP_judged": null,
+  "server_check": {
+    "valid": true,
+    "error": null,
+    "stand_in_gt_boxes": 1134,
+    "score_realism": 0.935395,
+    "CD": 1.930078,
+    "MMD": 0.00059805,
+    "EMD": 1.173886,
+    "FPD": 1.122331,
+    "wall_s": 220.1,
+    "peak_rss_mb": 5958,
+    "budget_s": 1200,
+    "returncode": 0,
+    "stderr_tail": "",
+    "time": "2026-11-05 10:26",
+    "n_boxes": 38824
+  },
+  "estimate_B_judged_unclipped": null,
+  "leaderboard": null,
+  "B_ap_loss": {
+    "vehicle": {
+      "AP_3d50": 0.8789434693859427,
+      "AP_3d25": 0.9265536937391694,
+      "recall50": 0.9605317823016203,
+      "recall25": 0.9966763606148733,
+      "oracle25": 0.975,
+      "loss_localization": 0.047610224353226704,
+      "loss_ranking": 0.048446306260830574,
+      "loss_miss": 0.025000000000000022,
+      "n_gt": 2407
+    },
+    "pedestrian": {
+      "AP_3d50": 0.4515592204396487,
+      "AP_3d25": 0.7291168753515626,
+      "recall50": 0.837890625,
+      "recall25": 0.9924665178571429,
+      "oracle25": 0.975,
+      "loss_localization": 0.27755765491191386,
+      "loss_ranking": 0.24588312464843742,
+      "loss_miss": 0.025000000000000022,
+      "n_gt": 3584
+    },
+    "truck": {
+      "AP_3d50": 0.8481127581754194,
+      "AP_3d25": 0.8511646375691886,
+      "recall50": 0.956,
+      "recall25": 0.982,
+      "oracle25": 0.975,
+      "loss_localization": 0.0030518793937691635,
+      "loss_ranking": 0.12383536243081139,
+      "loss_miss": 0.025000000000000022,
+      "n_gt": 500
+    }
+  },
+  "B_static_fp": {
+    "pedestrian": {
+      "score_min": 0.5,
+      "boxes_per_frame": 13.526845637583893,
+      "unmatched_per_frame": 3.976510067114094,
+      "static_per_frame": 1.9932885906040267,
+      "static_share": 0.5012658227848101
+    }
+  },
+  "B_static_fp_ranked": {
+    "pedestrian": {
+      "score_min": 0.01689236005561603,
+      "boxes_per_frame": 80.21476510067114,
+      "unmatched_per_frame": 52.369127516778526,
+      "static_per_frame": 45.38590604026846,
+      "static_share": 0.8666538510829168
+    }
+  },
+  "vs": {
+    "model": "routed-g15",
+    "bootstrap": 200,
+    "A": {
+      "vehicle": {
+        "delta": 0.007242901723248041,
+        "p_gain": 1.0,
+        "ci90": [
+          0.0041875573953569665,
+          0.010965989302184669
+        ]
+      },
+      "pedestrian": {
+        "delta": 0.005945999779853661,
+        "p_gain": 1.0,
+        "ci90": [
+          0.0029981429279634154,
+          0.008694441106036274
+        ]
+      },
+      "truck": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "mAP": {
+        "delta": 0.004396300501034012,
+        "p_gain": 1.0,
+        "ci90": [
+          0.0030789199832197355,
+          0.005858953263862043
+        ]
+      }
+    },
+    "B": {
+      "vehicle": {
+        "delta": 0.006657874326727042,
+        "p_gain": 1.0,
+        "ci90": [
+          0.0024311653572305857,
+          0.013464510290450041
+        ]
+      },
+      "pedestrian": {
+        "delta": -0.00209748000455684,
+        "p_gain": 0.245,
+        "ci90": [
+          -0.007832663103463974,
+          0.002564497900959284
+        ]
+      },
+      "truck": {
+        "delta": 0.0,
+        "p_gain": 0.0,
+        "ci90": [
+          0.0,
+          0.0
+        ]
+      },
+      "mAP": {
+        "delta": 0.0015201314407233824,
+        "p_gain": 0.91,
+        "ci90": [
+          -0.0002480542875703539,
+          0.0042828637624026545
+        ]
+      }
+    },
+    "class_gate": {
+      "vehicle": false,
+      "pedestrian": false,
+      "truck": false
+    }
+  }
+}

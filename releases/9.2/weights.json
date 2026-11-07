@@ -1,0 +1,356 @@
+{
+  "tag": "9.2",
+  "repository": "karmarv/utsim2real-bdc26",
+  "created": "2026-11-06",
+  "versions": [
+    {
+      "version": "lumpi:s9j",
+      "model": "model-lumpi-track/routed-g22",
+      "strategy": "S9",
+      "submission_zip": "model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip",
+      "zip_md5": "60d6d37a1dc4de5dc5bd28490e4a4b60",
+      "codabench_id": "1038963",
+      "leaderboard_combined": 0.542809,
+      "reproduce_test": "model-lumpi-track/routed-g22/test/reproduce_s9j.sh",
+      "reproduce_validation": "model-lumpi-track/routed-g22/test/reproduce_s9j_validation.sh",
+      "checkpoints": [
+        "lumpi.pointpillars-g1.epoch40.pth",
+        "lumpi.pointpillars-g1v3.epoch40.pth",
+        "lumpi.pointpillars-g1v4.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6.epoch40.pth"
+      ]
+    },
+    {
+      "version": "v2x:s9f",
+      "model": "model-v2x-track/routed-g19",
+      "strategy": "S9",
+      "submission_zip": "model-v2x-track/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip",
+      "zip_md5": "ae8ceb825b0eb04e64cfd9ab3e54d8ec",
+      "codabench_id": "1038966",
+      "leaderboard_combined": 0.903777,
+      "reproduce_test": "model-v2x-track/routed-g19/test/reproduce_s9f.sh",
+      "reproduce_validation": "model-v2x-track/routed-g19/test/reproduce_s9f_validation.sh",
+      "checkpoints": [
+        "v2x.pointpillars-g1v5.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5d2.epoch40.pth",
+        "v2x.pvrcnnpp-ros-g1v5d3.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v5.epoch40.pth"
+      ]
+    },
+    {
+      "version": "lumpi:s9d",
+      "model": "model-lumpi-track/routed-g15",
+      "strategy": "S9",
+      "submission_zip": "model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip",
+      "zip_md5": "20d2d5fac2408a2fb91d03985645b70d",
+      "codabench_id": 1031132,
+      "leaderboard_combined": 0.54249,
+      "reproduce_test": "model-lumpi-track/routed-g15/test/reproduce_s9d.sh",
+      "reproduce_validation": "model-lumpi-track/routed-g15/test/reproduce_s9d_validation.sh",
+      "checkpoints": [
+        "lumpi.pointpillars-g1.epoch40.pth",
+        "lumpi.pointpillars-g1v3.epoch40.pth",
+        "lumpi.pointpillars-g1v4.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+        "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6.epoch40.pth"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "name": "lumpi.pointpillars-g1.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "16e68b8b9142688967e4b3d006ac9d54",
+      "bytes": 59012833,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "e403acdc3ae30a84de3989da34619440",
+      "bytes": 59012833,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "46e9f504fd05e90f72272387a102eeb0",
+      "bytes": 59324259,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "590e9f16fe22d1f429d4827392c1f0ba",
+      "bytes": 59010233,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "97be701cb39c8b56c663acee56cc7bf7",
+      "bytes": 59324377,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "66c1f05a2e602113dd011d96a22ec334",
+      "bytes": 200583607,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3fffacf2d0baab79eb5cd12676ea591f",
+      "bytes": 200583329,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "695362e328dbecea9ac802796b6d59c0",
+      "bytes": 200583361,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "22f7189bf70847b5e441766016fa77cc",
+      "bytes": 200583607,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
+      "bytes": 231954827,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5c061261f002f5e04eaec1d4704b937f",
+      "bytes": 231954967,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-rosf-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "807f70a15f44f13aa365dd6db36f56a6",
+      "bytes": 231954959,
+      "used_by": [
+        "lumpi:s9j",
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "v2x.pointpillars-g1v5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pointpillars-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "62070b22bce0641b803187bda4b113e9",
+      "bytes": 58418223,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "30b8d6036c6f2c4b8d9de562d0f2e6a5",
+      "bytes": 198248942,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "f36f0300036e489bde87e30fd17e694d",
+      "bytes": 198248868,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "106fcb7d15e72ef1efcb10bfc90b543c",
+      "bytes": 198248724,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "4bceaa59aeb5c62520b334a0c20525d5",
+      "bytes": 198248952,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "0b79f7c65fa3abd157d6f688b54b9d66",
+      "bytes": 198248638,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.pvrcnnpp-ros-g1v5d3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/pvrcnnpp-ros-g1v5d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "c4ba5929c1b6072411442645538fcc0c",
+      "bytes": 198248724,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5677c039b8cc33a058b045f732c687de",
+      "bytes": 229620302,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "be6acbf7d91fea91235ff2d89fc8dbae",
+      "bytes": 229620302,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3a4f716b778dc88d4b030e8c2f3ac756",
+      "bytes": 229620292,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "a90a13b7e29706bb06b8a435bf0b3eac",
+      "bytes": 229620004,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    },
+    {
+      "name": "lumpi_s9d_submission.zip",
+      "kind": "submission",
+      "path": "model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip",
+      "md5": "20d2d5fac2408a2fb91d03985645b70d",
+      "bytes": 25112078,
+      "used_by": [
+        "lumpi:s9d"
+      ]
+    },
+    {
+      "name": "lumpi_s9j_submission.zip",
+      "kind": "submission",
+      "path": "model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip",
+      "md5": "60d6d37a1dc4de5dc5bd28490e4a4b60",
+      "bytes": 25112126,
+      "used_by": [
+        "lumpi:s9j"
+      ]
+    },
+    {
+      "name": "v2x_s9f_submission.zip",
+      "kind": "submission",
+      "path": "model-v2x-track/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip",
+      "md5": "ae8ceb825b0eb04e64cfd9ab3e54d8ec",
+      "bytes": 22127572,
+      "used_by": [
+        "v2x:s9f"
+      ]
+    }
+  ],
+  "total_bytes": 4032626939
+}

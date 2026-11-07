@@ -46,9 +46,43 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 7.0 | 2026-10-27 | S7 (the entries until S8; the F1 fallback) | **1014495: 0.5228** (0.522846, S7.6) | **1014682: 0.8982** (0.898172, S7.6) = 1001919 (S7 step 1) | **yes**: 25 checkpoints + 3 zips ([`releases/7.0/weights.json`](releases/7.0/weights.json)), published 2026-10-28 ([`github.json`](releases/7.0/github.json)) | `routed-g10/test/reproduce_s7s.sh` (LUMPI), `routed-g12/test/reproduce_s7s.sh` and `routed-g9/test/reproduce_s7.sh` (V2X) |
 | 8.0 | 2026-10-30 | S8 (V2X entry and F1; LUMPI until 8.1) | **1022250: 0.5239** (0.523901, S8 U2) | **1022246: 0.9022** (0.902153, S8 V2X U2) | **yes**: 25 checkpoints + 2 zips ([`releases/8.0/weights.json`](releases/8.0/weights.json)), every checkpoint byte-identical to its 7.0 asset | `routed-g11b/test/reproduce_s8b.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 | 8.1 | 2026-10-30 | S8.2, S8.3 (LUMPI entry until 9.1; V2X unchanged) | 1022492: 0.5257 (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
-| **9.1** | 2026-11-02 | **S9** (the entries on both tracks; the F1 candidates) | **1028541: 0.5357** (0.535667, `s9a2`) | **1028491: 0.9030** (0.902971, `s9a`) | **yes**: 27 checkpoints + 2 zips ([`releases/9.1/weights.json`](releases/9.1/weights.json)); 4 checkpoints new since 8.1 | `routed-g12/test/reproduce_s9a2.sh` (LUMPI), `routed-g15/test/reproduce_s9a.sh` (V2X) |
+| **9.2** | 2026-11-07 | **S9 close-out** (the entries on both tracks, final phase; LUMPI development entry `s9d`) | **1038963: 0.5428** (0.542809, `s9j`, final phase); 1031132: 0.5425 (0.542490, `s9d`, development) | **1038966: 0.9038** (0.903777, `s9f`, final phase) | **yes**: 23 checkpoints + 3 zips ([`releases/9.2/weights.json`](releases/9.2/weights.json)); 2 checkpoints new since 9.1 | `routed-g22/test/reproduce_s9j.sh`, `routed-g15/test/reproduce_s9d.sh` (LUMPI), `routed-g19/test/reproduce_s9f.sh` (V2X) |
+| 9.1 | 2026-11-02 | S9 (the entries until the close-out) | **1028541: 0.5357** (0.535667, `s9a2`) | **1028491: 0.9030** (0.902971, `s9a`) | **yes**: 27 checkpoints + 2 zips ([`releases/9.1/weights.json`](releases/9.1/weights.json)); 4 checkpoints new since 8.1 | `routed-g12/test/reproduce_s9a2.sh` (LUMPI), `routed-g15/test/reproduce_s9a.sh` (V2X) |
 
 The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0, 8.1 and 9.1 ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+
+## 9.2 (pre-release, 2026-11-07)
+
+**Leaderboard.** The S9 close-out on both tracks. The entrant uploaded both zips unchanged in the final phase (the F2 uploads, after the development close at 2026-11-06 04:59 UTC). The final leaderboard hides ranks until the close, but each scoring output shows its score. The public leaderboard API returned a bot-check page on 2026-11-07 at 03:31 UTC, so the scores below come from the scoring outputs the entrant shared.
+
+| Track | Version | CodaBench id | Phase | Combined | 3D mAP@0.5 | Realism R | Submission file (md5) | Decision record |
+|---|---|---|---|---|---|---|---|---|
+| 1 LUMPI (16684) | S9 close-out `s9j` | 1038963 | final (F2) | **0.5428** (0.542809) | 0.1973 | 0.9342 | [`lumpi_s9j_submission.zip`](model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip) (`60d6d37a1dc4de5dc5bd28490e4a4b60`) | [s9 clean twin, Sections 15.31-15.32](docs/decisions/2026-11-02-s9-clean-twin-plan.md#1532-final-phase-s9j-and-s9f-score-above-the-development-entries-release-92-2026-11-07-0345-utc) |
+| 2 V2X-Real (16685) | S9 close-out `s9f` | 1038966 | final (F2) | **0.9038** (0.903777) | 0.6189 | 0.9332 | [`v2x_s9f_submission.zip`](model-v2x-track/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip) (`ae8ceb825b0eb04e64cfd9ab3e54d8ec`) | same |
+| 1 LUMPI (16684) | S9 `s9d` | 1031132 | development (rank 1 of 25 at the close) | 0.5425 (0.542490) | 0.1969 | 0.9342 | [`lumpi_s9d_submission.zip`](model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip) (`20d2d5fac2408a2fb91d03985645b70d`) | [s9 clean twin, Sections 15.6-15.7](docs/decisions/2026-11-02-s9-clean-twin-plan.md) |
+
+Server records: [`codabench_1038963.json`](model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/codabench_1038963.json), [`codabench_1038966.json`](model-v2x-track/routed-g19/submissions/2026-11-05_s9f/codabench_1038966.json), [`codabench_1031132.json`](model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/codabench_1031132.json).
+- **What changed.** One new last stage of the merge: an anchored box-size calibration (`size_calibration` in `model.yaml`, `route_predictions.apply_size_calibration`). It keeps the box end nearest a sensor, moves the far end, and keeps the box bottom. The constants were selected on realval A and B with a pre-registered grid and the 6.0 pooled rule (`common/tools/size_calibration.py`). Each zip was packaged from its development entry's cached member predictions, so only the calibrated classes' box geometry differs from the scored entries.
+- **LUMPI `s9j` against `s9d`: +0.00032** (projected +0.0004). Person +0.0036, Car -0.0010, 3D mAP@0.7 +0.0070; every other class and the realism are identical.
+- **V2X `s9f` against `s9a` (1028491, 0.902971): +0.00081** (projected +0.0015). Vehicle +0.0078, pedestrian -0.0050, truck identical, 3D mAP@0.7 +0.0338; the realism is identical.
+- **`s9d`** is in the release as the development entry at the close (rank 1 of 25), and its members are the same as `s9j`'s. LUMPI `s9b` (1030540, 0.5415), `s9c` (1030511, 0.5412) and the diagnostic `s9iu` (1035970, 0.5400) have their zips and scripts in the tree but no weights in a release.
+
+**Release assets.** The three zips and the 23 checkpoints they use (4.03 GB; LUMPI 12, V2X 11), in [`releases/9.2/weights.json`](releases/9.2/weights.json). 21 checkpoints are 9.1 assets, byte-identical by md5. New: LUMPI `pvrcnnpp-ros-g1v6` and `voxelrcnn-rosf-g1v6`, the `g1-v6` members of the `s9d` Person and Car routes. New in the tree since 9.1:
+- the size-calibration stage and its selection tool;
+- the S9 portfolio folders `routed-g13`, `routed-g14` and `routed-g15` (LUMPI `s9b`, `s9c`, `s9d`), `routed-g16`-`routed-g21`, `routed-g22` (`s9j`) and V2X `routed-g16`-`routed-g19` (`s9f`);
+- the S9 members trained after 9.1, and the fuse fix (16 workers and `gc.freeze`).
+```bash
+python common/tools/release_weights.py fetch --tag 9.2 --version lumpi:s9j                 # or v2x:s9f, lumpi:s9d
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g22/test/reproduce_s9j.sh
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g19/test/reproduce_s9f.sh
+```
+Dry run on 2026-11-07 (`$BDC_DATA/logs/s9/r920`, each test-frame script alone on an idle GPU). Both test-frame scripts come back **EQUIVALENT**, the same result as 9.1 and `s9d` (record Section 15.26):
+- **LUMPI `reproduce_s9j.sh`:** 24,870 against 24,874 boxes. 24,868 are matched, with centres within 0.0006 m at the 99th percentile. All 8 unmatched boxes score below 0.3. Kit check valid in 209 s.
+- **V2X `reproduce_s9f.sh`:** 38,809 against 38,824 boxes. 38,794 are matched (centres within 0.002 m at the 99th percentile). All 45 unmatched boxes score below 0.3. Kit check valid in 230 s.
+- **Both:** the 50 realism frames are byte-identical. The calibration stage is deterministic, so the variation is the members' GPU inference, as in 9.1: the cached member predictions behind the scored zips came from shared-GPU runs that no fresh run repeats bit for bit.
+The validation scripts were dry-run the same day: the realval-A/B inference was spread over the 8 idle GPUs (47 jobs, none failed), then each script scored on its own GPU. Both pass:
+- **LUMPI `reproduce_s9j_validation.sh`: EQUIVALENT.** A 0.4078 (recorded 0.4079), B 0.2370, late-A 0.3746. Every class is within 6.2e-4 AP. 19 of 28 member files are bit-identical; the other 9 differ in the last digits.
+- **V2X `reproduce_s9f_validation.sh`: IDENTICAL** (within 1e-4 per class). A 0.7427, B 0.7261, both as recorded. Every class is within 4.0e-5 AP. 17 of 28 member files are bit-identical; the other 11 differ in the last digits.
 
 ## 9.1 (pre-release, 2026-11-02)
 

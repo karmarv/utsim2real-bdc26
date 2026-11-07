@@ -1,5 +1,6 @@
 """S9 engine v6: the LUMPI vehicle size convention, the quantile size sampler, the walker sampler on a scene map, the
-map-placed structure meshes and the world tilt augmentation (docs/decisions/2026-11-02-s9-clean-twin-plan.md)."""
+map-placed structure meshes, the world tilt augmentation and the anchored size calibration
+(docs/decisions/2026-11-02-s9-clean-twin-plan.md)."""
 import sys
 from pathlib import Path
 
@@ -97,3 +98,20 @@ def test_torch_scatter_stand_in_matches_a_loop():
             assert torch.allclose(mean[k], sel.mean(0), atol=1e-6) and torch.allclose(mx[k], sel.max(0).values)
         else:
             assert torch.all(mean[k] == 0) and torch.all(mx[k] == 0)
+
+
+def test_size_calibration_keeps_the_near_end_and_the_bottom():
+    sys.path.insert(0, str(REPO / "common" / "tools"))
+    from route_predictions import apply_size_calibration
+    preds = {"f": [{"box": [10.0, 0.0, 0.75, 4.0, 2.0, 1.5, 0.0], "score": 0.9, "class": "vehicle"},
+                   {"box": [-6.0, 3.0, 0.75, 4.0, 2.0, 1.5, np.pi], "score": 0.8, "class": "vehicle"},
+                   {"box": [5.0, 5.0, 0.5, 1.0, 1.0, 1.0, 0.0], "score": 0.5, "class": "truck"}]}
+    out = apply_size_calibration(preds, {"anchors": [[0.0, 0.0]], "classes": {"vehicle": {"dl": -0.4, "dh": 0.1}}})["f"]
+    for d, before in zip(out[:2], preds["f"][:2]):
+        b, a = np.array(d["box"]), np.array(before["box"])
+        u = np.array([np.cos(a[6]), np.sin(a[6])])
+        near = lambda x: min((x[:2] + x[3] / 2 * u, x[:2] - x[3] / 2 * u), key=np.linalg.norm)
+        assert np.allclose(near(b), near(a)) and np.isclose(b[3], 3.6)                 # the observed face stays
+        assert np.isclose(b[2] - b[5] / 2, a[2] - a[5] / 2) and np.isclose(b[5], 1.6)   # the bottom stays
+    assert out[2] == preds["f"][2] and len(out) == 3                                    # other classes untouched
+    assert apply_size_calibration(preds, None) is preds

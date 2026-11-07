@@ -284,7 +284,37 @@ def merge_card(card: dict, preds: dict, points_of=None) -> dict:
     out = apply_tail_copies(apply_budget(out, card.get("budget")), card.get("tail_copies"))
     # S8.3 `final_copies` (same spec as tail_copies), after the sparse stage: scored below every box of the class,
     # demoted ones included, so they cannot lower AP even where the S7 stage reorders the tail
-    return apply_tail_copies(apply_sparse_demotion(out, card.get("sparse_demotion"), points_of), card.get("final_copies"))
+    out = apply_tail_copies(apply_sparse_demotion(out, card.get("sparse_demotion"), points_of), card.get("final_copies"))
+    return apply_size_calibration(out, card.get("size_calibration"))
+
+
+def apply_size_calibration(preds: dict, spec: dict | None) -> dict:
+    """S9 close-out anchored size calibration (model.yaml `size_calibration: {anchors: [[x, y], ...], classes:
+    {class: {dl, dw, dh}}}`; record Section 15.31), the last stage: l += dl, w += dw, h += dh, z += dh / 2 (the box
+    bottom stays) and, with dl set, the box end nearest an anchor (a sensor's xy, the face the LiDAR sees) stays, so
+    the centre moves by dl / 2 along the heading axis. No box is added or removed."""
+    if not spec or not spec.get("classes"):
+        return preds
+    anchors = np.asarray(spec.get("anchors") or [[0.0, 0.0]], dtype=np.float64).reshape(-1, 2)
+    cal = spec["classes"]
+    out = {}
+    for fid, dets in preds.items():
+        new = []
+        for d in dets:
+            k = cal.get(d["class"])
+            if k:
+                dl, dw, dh = float(k.get("dl", 0.0)), float(k.get("dw", 0.0)), float(k.get("dh", 0.0))
+                b = np.array(d["box"], dtype=np.float64)
+                if dl:
+                    u = np.array([np.cos(b[6]), np.sin(b[6])])
+                    ends = np.stack([b[:2] + b[3] / 2 * u, b[:2] - b[3] / 2 * u])     # front, back
+                    dist = np.linalg.norm(ends[:, None, :] - anchors[None], axis=2).min(1)
+                    b[:2] += (-1.0 if dist[0] < dist[1] else 1.0) * dl / 2 * u
+                b[3] = max(0.05, b[3] + dl); b[4] = max(0.05, b[4] + dw); b[5] = max(0.05, b[5] + dh); b[2] += dh / 2
+                d = dict(d, box=b.tolist())
+            new.append(d)
+        out[fid] = new
+    return out
 
 
 def frame_points(track, data: str | None = "kit"):

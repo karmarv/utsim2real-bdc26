@@ -376,12 +376,15 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | 2026-10-27 | `routed-g12` / `s7s` (S7.6), uploaded unchanged as `v2x_s7s_submission.zip` | 1014682 | 0.734 / 0.721 | 0.937 | **0.6124** | **0.9332** | **0.8982** | S7.6 (no class changed; the entrant's upload so that both tracks carry S7.6); **identical to 1001919 in every metric** (0.898172); the leaderboard keeps listing 1001919 (rank 1 of 24, next 0.7937); kit scorer 153 s, 24,284 boxes; server record [`codabench_1014682.json`](routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json) |
 | 2026-10-30 | `routed-g13` / `s8v` (S8 V2X U2: 12-view pedestrian), uploaded unchanged as `v2x_s8v_submission.zip` (last-day bar (b), projection +0.0015) | 1022246 | 0.736 / 0.724 | 0.937 | **0.6170** | **0.9332** | **0.9022** | strategy S8; **rank 1 of 25** (next 0.8112); +0.00398 over 1014682: pedestrian 0.429 -> 0.443 (+0.0139; local +0.0070 / +0.0103), vehicle, truck and realism identical; kit scorer 128 s, 21,354 boxes; server record [`codabench_1022246.json`](routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json); [decision record](../docs/decisions/2026-10-29-s8-last-day-strategy.md) |
 | 2026-11-02 | `routed-g15` / `s9a` (S9: pedestrian re-fused from existing members, `bagvr5_tta+bagpv5x_tta+vrros_tta12@0.7`; vehicle and truck as s8v; s8v's frames, no `g1-v6` member used), uploaded unchanged as `v2x_s9a_submission.zip` (S9 rules 1-3, projection +0.0007; the entrant's call) | 1028491 | 0.738 / 0.725 | 0.937 | **0.6180** | 0.9332 | **0.9030** | strategy S9; **rank 1 of 28** (next 0.8112); +0.00082 over 1022246: pedestrian 0.443 -> 0.446 (+0.0029), the rest identical (1.17 x the projection); kit scorer 221 s, 38,824 boxes; server record [`codabench_1028491.json`](routed-g15/submissions/2026-11-02_s9a/codabench_1028491.json) |
+| 2026-11-06 | `routed-g19` / `s9f` (S9 close-out: `s9a` with the anchored box-size calibration, vehicle dl -0.3, pedestrian dh +0.03), uploaded unchanged as `v2x_s9f_submission.zip` in the **final phase** (F2; bar (b), projection +0.0015) | 1038966 | 0.743 / 0.726 | 0.937 | **0.6189** | 0.9332 | **0.9038** | strategy S9 close-out; final phase (ranks hidden until the close); +0.00081 over 1028491: vehicle 0.737 -> 0.745, pedestrian 0.446 -> 0.441, truck identical, 3D mAP@0.7 0.164 -> 0.198; kit scorer 220 s, 38,824 boxes; server record [`codabench_1038966.json`](routed-g19/submissions/2026-11-05_s9f/codabench_1038966.json) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | vehicle | pedestrian | truck | BEV mAP@0.5 |
 |---|---|---|---|---|---|
-| **1028491 leaderboard (S9 `s9a`, the entry)** | **0.6180** | **0.737** | **0.446** | **0.671** | 0.6678 |
+| **1038966 final phase (S9 `s9f`, the entry)** | **0.6189** | **0.745** | 0.441 | **0.671** | 0.6673 |
+| S9 `s9f` realval-A / realval-B | 0.743 / 0.726 | 0.875 / 0.879 | 0.418 / 0.451 | 0.936 / 0.848 | |
+| **1028491 leaderboard (S9 `s9a`, the development entry)** | **0.6180** | **0.737** | **0.446** | **0.671** | 0.6678 |
 | S9 `s9a` realval-A / realval-B | 0.738 / 0.725 | 0.868 / 0.872 | 0.412 / 0.453 | 0.936 / 0.848 | |
 | **1022246 leaderboard (S8 V2X U2, the entry until S9)** | 0.6170 | **0.737** | **0.443** | **0.671** | 0.6674 |
 | S8 realval-A / realval-B | 0.736 / 0.724 | 0.868 / 0.872 | 0.406 / 0.452 | 0.936 / 0.848 | |

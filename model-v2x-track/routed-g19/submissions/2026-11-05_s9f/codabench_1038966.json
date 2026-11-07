@@ -1,0 +1,58 @@
+{
+  "phase": "Final (the entrant's F2 upload, after the development close at 2026-11-06 04:59 UTC; the entrant's report)",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S9 close-out s9f (docs/decisions/2026-11-02-s9-clean-twin-plan.md Sections 15.31 and 15.32): routed-g19 = routed-g15 (s9a) with the anchored box-size calibration selected on realval A and B (vehicle dl -0.3 anchored; pedestrian dh +0.03); packaged from s9a's cached member test predictions, so only vehicle and pedestrian box geometry differs from 1028491; projection +0.0015",
+  "codabench_competition": 16685,
+  "codabench_submission_id": 1038966,
+  "uploaded_file": "v2x_s9f_submission.zip of this folder (md5 ae8ceb825b0eb04e64cfd9ab3e54d8ec, as in manifest.json)",
+  "submitted": "between 2026-11-06 04:59 UTC and 2026-11-07 03:31 UTC (the entrant's message); exact time not read",
+  "leaderboard_checked": "not read: on 2026-11-07 03:31 UTC the public get_leaderboard API of both tracks returned a bot-check page instead of JSON; it was not bypassed. The final phase's leaderboard hides scores until the close.",
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.001764598910258975
+  },
+  "scores": {
+    "score_combined": 0.903777,
+    "score_detection": 0.884137,
+    "score_realism": 0.933237,
+    "mAP_3d_0.5_R40": 0.618896,
+    "mAP_3d_0.5_R11": 0.622931,
+    "mAP_3d_0.7_R40": 0.198273,
+    "mAP_bev_0.5_R40": 0.667333,
+    "CD": 1.985873,
+    "MMD": 0.00063035,
+    "EMD": 1.182178,
+    "FPD": 1.467728,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.745031,
+    "AP_3d_0.5_R40_pedestrian": 0.440635,
+    "AP_3d_0.5_R40_truck": 0.671021
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.9858730070063668, MMD 0.0006303514120418185, EMD 1.1821778412756239, FPD 1.46772753949125",
+    "[scoring] mAP_3d_0.5_R40 = 0.6188955552953649",
+    "(scoring output pasted by the entrant; the scores are those of the scoring output)"
+  ],
+  "vs_previous": {
+    "previous": "1028491 (s9a, routed-g15: the development entry and the reference)",
+    "delta": {
+      "score_combined": 0.000806,
+      "score_detection": 0.001344,
+      "score_realism": 0.0,
+      "mAP_3d_0.5_R40": 0.000941,
+      "mAP_3d_0.5_R11": 0.000271,
+      "mAP_3d_0.7_R40": 0.033828,
+      "mAP_bev_0.5_R40": -0.000493,
+      "CD": 0.0,
+      "MMD": 0.0,
+      "EMD": 0.0,
+      "FPD": 0.0,
+      "valid_submission": 0,
+      "AP_3d_0.5_R40_vehicle": 0.007807,
+      "AP_3d_0.5_R40_pedestrian": -0.004985,
+      "AP_3d_0.5_R40_truck": 0.0
+    }
+  }
+}

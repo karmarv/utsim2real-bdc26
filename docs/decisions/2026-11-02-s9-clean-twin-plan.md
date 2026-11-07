@@ -191,6 +191,7 @@ All runs go through detached chains with an event log and a status file, as in S
 - **F2-F4:** only for versions that finish after the development close and pass every gate. Under `Force_Best` an unconfirmed candidate costs only a slot.
 - **F5:** the F1 zips again on the last full day (LUMPI Nov 15, V2X Nov 14 UTC), unless the organizers answer Q3 "best counts".
 - The final phase ends a day earlier on V2X than on LUMPI (API).
+- **Outcome (2026-11-07, Section 15.32):** the entrant uploaded `s9j` and `s9f` as F2, in place of `s9d` and `s9a`. Both scored above the development entries, so they are now the zips the final phase keeps. F5 applies only if another version is uploaded later.
 
 ## 10. Compliance: what S9 changes against the rules
 
@@ -1636,7 +1637,7 @@ In the final check against `routed-g15`, every delta is 0.0. So `routed-g18` equ
 | LUMPI | `s9d` | 1031132 | 0.542490 | `model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip` (`20d2d5fac2408a2fb91d03985645b70d`, 25,112,078 bytes) |
 | V2X | `s9a` | 1028491 | 0.902971 | `model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip` (`3e59e5b3c76b440bd11aeba0304cc75e`, 22,128,040 bytes) |
 
-**F1 (Section 9).** F1 is these two zips, unchanged, uploaded once the final phase opens (Nov 6, 05:00 UTC). Both kit checks ran in about 220-265 s on this machine, well inside the 1,200 s limit. F5 is the same zips again on the last full day, unless the organizers answer Q3 "best counts".
+**F1 (Section 9).** F1 is these two zips, unchanged, uploaded once the final phase opens (Nov 6, 05:00 UTC). Both kit checks ran in about 220-265 s on this machine, well inside the 1,200 s limit. F5 is the same zips again on the last full day, unless the organizers answer Q3 "best counts". *(Superseded on 2026-11-07: the close-out zips `s9j` and `s9f` were uploaded in the final phase and scored higher; Section 15.32.)*
 
 ### 15.30 Diagnostic `s9iu`: `s9i` without the rare-class freeze, information only (2026-11-05, 16:05 UTC; written before the build)
 
@@ -1716,6 +1717,120 @@ Car, Bus, Truck and Van are identical on the server (0.673716, 0.003749, 0.06527
 So on LUMPI's rare classes no local split predicts the test, neither the pooled A+B rule nor late-A. That is the premise of rule 2 (R5, S6 rule 4), now measured on the server with every other class held fixed. As pre-registered, nothing changes: F1 stays `s9d` (15.29), rule 2 stays for any final-phase candidate, and the per-class numbers choose nothing (audit rule d).
 
 **For the paper.** On a frequent class the local gate transferred: the `s9d` Car route gained B +0.0069 locally and +0.0129 on the server (15.7). On the two rare classes it did not. These two single-change uploads, `s9d` (Car, against `s9c`) and `s9iu` (Bicycle and Motorcycle, against `s9d`), are the measured case for gating frequent classes locally and freezing rare ones.
+
+### 15.31 S9 close-out: anchored box-size calibration, LUMPI `s9j` and V2X `s9f` (2026-11-05, 18:10 UTC; before any build)
+
+**Why now.** The CodaBench development phase was extended and closes on Nov 6 at 04:59 UTC, so about 11 hours remain. The entrant asked for one more round of improvements within the rules. Training stopped at 10:00 UTC and stays stopped: no member trained now could pass rule 3 and a portfolio in time. This round therefore uses only cached validation predictions and CPU, and packaging is the only GPU work.
+
+**Survey, on local data only** (scratchpad probes on the routed realval predictions of `s9d` and V2X `s9a`; no leaderboard number is used):
+
+| Lever | Local result | Verdict |
+|---|---|---|
+| Twin scene-map prior: demote boxes by map cell kind | 44-52% of real objects of every class stand in cells the twin does not model; every demotion lowers AP on at least one split | dropped |
+| More Person copies (q0.90 instead of q0.95, 13.6k boxes of headroom under 38,466) | Person +0.0011 A (14.8 table) | saturated |
+| Truck cross-class copies (14.1) | at most about +0.0006 combined | too small |
+| Symmetric size offsets (Wang et al., CVPR 2020: size statistics drive cross-domain 3D drops) | LUMPI Car +0.0025 pooled AP, Person +0.0032; trucks worse when shrunk | small |
+| **Anchored length offset**: keep the box end nearest a sensor, which the LiDAR sees, and move the far end | V2X vehicle -0.3 m: A +0.0073, B +0.0066, pooled +0.0079 AP; a symmetric shrink of the same size lowers AP | **the lever** |
+
+**Mechanism.** On both splits the V2X vehicles come out 0.21-0.28 m too long, and the trucks 1.5 m too long, with the centre displaced consistently (15.31 probe: dy -0.16 to -0.18 m for vehicles). The near face is observed. The far face is inferred from the twin's vehicle shapes, and that inference overshoots. A length change that keeps the observed face fixed corrects the far end only.
+
+**The stage.** `model.yaml` gets a `size_calibration: {anchors: [[x, y], ...], classes: {c: {dl, dw, dh}}}` entry. It is applied as the last stage of `merge_card`, after floors, copies and the sparse stage, so it acts on what the probe measured. For each box of class c:
+- l += dl, w += dw, h += dh;
+- z += dh / 2, so the bottom stays;
+- with dl set, the box end nearest an anchor stays, and the centre moves by dl / 2 along the heading axis.
+
+The anchors are the sensors' xy: V2X the frame origin, LUMPI the five sensors of `walker_scalars_v6.json`. The stage adds and removes no box, so box counts and kit time do not change.
+
+**Selection (pre-registered here; the grid is fixed before any build):**
+
+| Track | Class | Grid (dl anchored; dw; dh) |
+|---|---|---|
+| V2X | vehicle | dl {0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6} x dh {0, +0.03} |
+| V2X | pedestrian | dh {0, +0.03, +0.05} |
+| V2X | truck | dl {0, -0.25, -0.5} |
+| LUMPI | Car | dl {0, -0.1, -0.2} x (dw, dh) {(0, 0), (+0.04, +0.035), (+0.08, +0.07)} |
+| LUMPI | Person | dh {0, +0.03, +0.05} |
+
+- **Ranking.** Candidates rank by the mean of realval-A and realval-B AP 3D@0.5 (the route-selection convention since S3). LUMPI Person ranks on late-A (R5).
+- **Gate.** The best candidate is kept only under the 6.0 pooled rule against no calibration: pooled A+B P(gain) >= 0.9, and neither split down by more than 0.005.
+- **Excluded classes.** LUMPI Bicycle, Motorcycle and Bus stay frozen (rule 2, confirmed by 15.30). LUMPI Truck and Van are left out: every probe cell was negative or below 0.001.
+- **Disclosure.** The constants are fitted on realval labels, as with the z calibration (S1 C1), the floors and the copy thresholds. This joins the disclosure list as item (i).
+- **Honesty note.** The probes above saw A and B before this rule was written. The rule follows the existing conventions (joint ranking, the pooled gate), and the grid brackets the probed cells instead of picking the best one.
+
+**Systems:**
+- **LUMPI `s9j`** is `routed-g22`, a copy of `routed-g15` (`s9d`) with the selected `size_calibration`. The steps are the `s9_portfolio.sh` LUMPI steps after the fuse:
+  1. validate;
+  2. the final check against `routed-g15`, where failing classes keep no calibration;
+  3. package;
+  4. the rule 1(b) copy fit;
+  5. the kit check;
+  6. the scorecard;
+  7. the projection.
+
+  The realism frames are `s9d`'s.
+- **V2X `s9f`** is `routed-g19`, a copy of `routed-g15` (`s9a`) with the same treatment and `s9a`'s frames.
+- **Not built** if no class passes the gate.
+
+**Uploads and F1.**
+- **Eligibility.** Both are complete systems under every S9 rule, so unlike `s9iu` they are F1 candidates. Each is chosen against its track's entry by the combined score only (rule 6).
+- **Upload budget.** The Nov 5 UTC budget has 2 LUMPI uploads and 3 V2X uploads left. Nov 6 UTC opens a new day before the 04:59 close.
+- **If not upload-ready by 04:00 UTC,** F1 stays `s9d` and `s9a`.
+
+**Build (18:08-18:34 UTC, waiter `$BDC_DATA/logs/s9/s9jf_build.sh`).** Packaging re-used the entries' cached member test predictions. Before the build, these merged to the scored `s9d` and `s9a` zips exactly: 50 of 50 frames identical, 24,874 and 38,824 boxes. So each new zip differs from its scored entry only by the calibration.
+
+| | LUMPI `s9j` (`routed-g22`) | V2X `s9f` (`routed-g19`) |
+|---|---|---|
+| Kept by the gate and the final check | Car: dl -0.1 (anchored), dw +0.08, dh +0.07 (A +0.0015, B +0.0033, pooled +0.0037, P 1.00). Person: dh +0.03 (A +0.0033, late-A +0.0019, B +0.0030, pooled +0.0033, P 1.00) | vehicle: dl -0.3 (anchored) (A +0.0072, B +0.0067, pooled +0.0079, P 1.00). Pedestrian: dh +0.03 (A +0.0059, B -0.0021, pooled +0.0041, P 0.99) |
+| Not kept | none | truck (no grid cell beats none) |
+| Kit check | valid, 24,874 boxes, 196.5 s; copy fit UNCHANGED (t = 0.7316) | valid, 38,824 boxes, 220.1 s |
+| Projection against `routed-g15` | dA +0.0007, dB +0.0009, combined **+0.0004** | dA +0.0044, dB +0.0015, combined **+0.0015** |
+| Against the scored zip | Car and Person boxes moved; scores, order and counts identical; every other class identical; frames byte-identical | vehicle and pedestrian boxes moved; the same otherwise |
+| File | `model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip`, md5 `60d6d37a1dc4de5dc5bd28490e4a4b60`, 25,112,126 bytes | `model-v2x-track/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip`, md5 `ae8ceb825b0eb04e64cfd9ab3e54d8ec`, 22,127,572 bytes |
+
+Both pass bar (b) (projection > 0) and the kit check, so both are upload-ready. Each is an F1 candidate against its track's entry, by the combined score only (rule 6). The projections are recorded here before any upload. The code is in two places:
+- `route_predictions.apply_size_calibration`, the last stage of `merge_card`, and the selection tool `common/tools/size_calibration.py`;
+- the unit test `test_size_calibration_keeps_the_near_end_and_the_bottom`.
+
+**Outage, and the route into the final phase (2026-11-06, 04:05 UTC; before any upload of `s9j` or `s9f`).** At about 04:00 UTC the entrant reported that CodaBench would not take uploads on either track. At 04:03 UTC the public site and both phase APIs answered (HTTP 200). The upload itself was not tested, because it needs the entrant's login.
+- **If either zip uploads and scores in the development phase before 04:59 UTC,** Section 9 applies unchanged: per track, the higher combined score is F1.
+- **Otherwise both go to the final phase as F2 candidates** (Section 9: versions that finish outside a development score and pass every gate). F1 stays `s9d` and `s9a` on Nov 6 UTC, which secures the confirmed scores first. `s9j` and `s9f` follow as F2 on Nov 7 UTC (from 00:00 UTC, Nov 6 18:00 CST). F5 is the F1 zips again unless Q3 is answered "best counts".
+- **Cost and use.** Under `Force_Best` an unconfirmed candidate costs one of five slots. Final scores stay hidden until the close, so the F2 result informs no later choice; it serves the paper after the close.
+
+### 15.32 Final phase: `s9j` and `s9f` score above the development entries; release 9.2 (2026-11-07, 03:45 UTC)
+
+**Uploads.** The entrant uploaded both close-out zips unchanged in the final phase, as the F2 uploads and in place of `s9d` and `s9a`. The uploads came after the development close (04:59 UTC Nov 6) and before 03:31 UTC Nov 7, and the entrant shared both scoring outputs. Two facts differ from the plan:
+- **The scoring output shows the score in the final phase,** although the final leaderboard hides scores until the close. So a final upload does give the entrant feedback.
+- **The one public leaderboard read failed.** At 03:31 UTC Nov 7 the public `get_leaderboard` API returned a bot-check page instead of JSON on both tracks. It was not bypassed, so the scores below come from the scoring outputs alone. The md5 of each committed zip still matches its manifest.
+
+| | LUMPI `s9j` (`routed-g22`) | V2X `s9f` (`routed-g19`) |
+|---|---|---|
+| CodaBench id | 1038963 | 1038966 |
+| Combined | **0.542809**: +0.000319 over `s9d` (1031132, 0.542490) | **0.903777**: +0.000806 over `s9a` (1028491, 0.902971) |
+| Projection (15.31) | +0.0004 | +0.0015 |
+| 3D mAP@0.5 R40 | 0.197318 (+0.000373) | 0.618896 (+0.000941) |
+| 3D mAP@0.7 R40 | 0.096484 (+0.006957) | 0.198273 (+0.033828) |
+| Per class, information only | Person 0.3056 -> 0.3092 (+0.0036), Car 0.6737 -> 0.6728 (-0.0010), the other classes identical | vehicle 0.7372 -> 0.7450 (+0.0078), pedestrian 0.4456 -> 0.4406 (-0.0050), truck identical |
+| Realism | identical (0.9342; the frames are byte-identical) | identical (0.933237) |
+| Server record | `routed-g22/submissions/2026-11-05_s9j/codabench_1038963.json` | `routed-g19/submissions/2026-11-05_s9f/codabench_1038966.json` |
+
+**Reading.**
+- **Both projections had the right sign.** The scored gains are 0.8 (LUMPI) and 0.5 (V2X) of the projections.
+- **The mechanism transferred.** 3D mAP@0.7 rose on both tracks (V2X +0.034, LUMPI +0.007), which is what correcting box extents should do. At the scored IoU of 0.5 the gain is smaller.
+- **Per class, the local evidence predicted the server.**
+  - V2X vehicle +0.0078 matches its local gains (A +0.0072, B +0.0067).
+  - V2X pedestrian lost 0.005, in line with its weak local evidence (B -0.0021).
+  - LUMPI Person +0.0036 matches its local gain (about +0.003).
+  - LUMPI Car -0.001 joins the earlier LUMPI Car changes that did not transfer (S5, S7.6); here the loss is small.
+- **No per-class change follows.** Removing the V2X pedestrian or LUMPI Car calibration after reading these numbers would be a class choice informed by the leaderboard (audit rule d). The systems are compared as complete systems, by the combined score only (rule 6).
+
+**The final phase from here.**
+- **The best scored system per track is now `s9j` (LUMPI, 0.542809) and `s9f` (V2X, 0.903777).** They replace `s9d` and `s9a` as the zips the final phase keeps (Section 9: the best confirmed zip per track).
+- **Uploads used:** one of five per track, as the entrant reports; `s9d` and `s9a` were not uploaded in the final phase.
+- **F5.** No further upload is planned. If another version is uploaded later, F5 is `s9j` and `s9f` again on the last full day (LUMPI Nov 15, V2X Nov 14 UTC), unless Q3 is answered "best counts".
+- **Feedback.** Because final uploads show their scores, audit rule d now also covers any further final-phase choice.
+- **Disclosure.** Item (i), the size calibration fitted on realval labels, joins the unsent disclosure list.
+
+**Release 9.2** (tag named by the entrant): the `s9j` and `s9f` zips, the `s9d` zip (the same members as `s9j`, without the calibration), and every checkpoint they use. Dry run: `$BDC_DATA/logs/s9/r920`, each script alone on an idle GPU. Both test-frame scripts are EQUIVALENT, as in 9.1 (Section 15.26). The validation scripts are LUMPI EQUIVALENT (every class within 6.2e-4 AP) and V2X IDENTICAL (within 4.0e-5). Details are in `RELEASES.md` 9.2.
 
 ## 16. DSVT viability and the roadmap to the development close (2026-11-02, 21:30 UTC; before any `s9b` result)
 
@@ -1819,7 +1934,7 @@ The entrant asked whether DSVT, the sparse voxel transformer in mainline OpenPCD
 | Nov 5, 09:10 to 11:22 | V2X `s9e` (`vrn6` if it passes rule 3, with the `s9b`/`s9c` members, from `routed-g15`; waiter `s9e_v2x`, 15.25). **Result: every class kept its `routed-g15` fusion; not built. V2X F1 = `s9a` (15.28)** | portfolio | upload |
 | Nov 5, 10:05 to about 15:00-16:30 | LUMPI `s9i` (`vnn6`, from the newest system that passes bar (b); `bvnf6` entered `s9h`; waiter `s9i`, 15.23, 15.24). **Launched at 10:05 from `routed-g15` with every key, since `s9h` failed: `s9i` = `s9h` plus `vnn6`; fuse runs with 16 workers and `gc.freeze` (15.27). Result: every open class kept its `routed-g15` fusion; not built (15.29)** | portfolio | upload |
 | Nov 5, until 10:00 | the last training (trainA ended 05:02; trainB ended 07:41 with V2X W9, and no member fits before the cutoff); idle-GPU reproduction of 9.1 and `s9d`, 05:03-05:58 on GPUs 1-3. **Result: EQUIVALENT, final; IDENTICAL is out of reach because the scored members were inferred on shared GPUs (15.26)** | GPUs 1-3 | release |
-| Nov 5, by 22:00 | the final development uploads: the best scored complete system per track (rule 6). **Result: no system was built on Nov 5 (`s9h` failed, `s9i` and V2X `s9e` equal their references); the entries stay LUMPI `s9d` and V2X `s9a`, and these are the F1 zips (15.29). Diagnostic `s9iu` (information only): 1035970, 0.540033, below `s9d`; Bicycle -0.037, Motorcycle +0.017 on the server (15.30)** | | F1 |
+| Nov 5, by 22:00 | the final development uploads: the best scored complete system per track (rule 6). **Result: no system was built on Nov 5 (`s9h` failed, `s9i` and V2X `s9e` equal their references); the entries stay LUMPI `s9d` and V2X `s9a`, and these are the F1 zips (15.29). Diagnostic `s9iu` (information only): 1035970, 0.540033, below `s9d`; Bicycle -0.037, Motorcycle +0.017 on the server (15.30). Close-out (15.31-15.32): `s9j` 1038963 0.542809 and `s9f` 1038966 0.903777, uploaded in the final phase, are now the kept zips** | | F1, F2 |
 
 **Budget:**
 - **Training:** about 106 worker-hours remain from 05:00 UTC Nov 3 to the 10:00 UTC Nov 5 stop. The table uses about 40-45, which leaves room for one more draw or family when the `s9b`/`s9c` results say where.
