@@ -40,9 +40,25 @@ def manifest_path(tag: str) -> Path:
     return REPO / "releases" / tag / "weights.json"
 
 
+def zip_assets(zips: list[dict]) -> list[dict]:
+    """Release asset names of the scored zips. A file name that several versions share (S10 uploads every version as
+    <track>_s10_submission.zip) is qualified as <track>.<model folder>.<submission tag>.<file name>, since the assets of
+    one GitHub release need unique names; `path` still places each file at its repository path."""
+    from collections import Counter
+    n = Counter(z["name"] for z in zips)
+    out = []
+    for z in zips:
+        z = dict(z)
+        q = z.pop("qualified")
+        if n[z["name"]] > 1:
+            z["name"] = q
+        out.append(z)
+    return out
+
+
 def collect(tag: str, specs: list[str]) -> dict:
     from reproduce_submission import members_inventory, scored_zip
-    assets, versions = {}, []
+    assets, versions, zips = {}, [], []
     for spec in specs:
         md, vtag = spec.rsplit(":", 1)
         model_dir, card, track = model_info(md)
@@ -62,8 +78,8 @@ def collect(tag: str, specs: list[str]) -> dict:
                 if vname not in a["used_by"]:
                     a["used_by"].append(vname)
         zrel = str(zpath.relative_to(REPO))
-        assets[zpath.name] = {"name": zpath.name, "kind": "submission", "path": zrel, "md5": md5(zpath), "bytes": zpath.stat().st_size,
-                              "used_by": [vname]}
+        zips.append({"name": zpath.name, "qualified": f"{t}.{model_dir.name}.{vtag}.{zpath.name}", "kind": "submission", "path": zrel,
+                     "md5": md5(zpath), "bytes": zpath.stat().st_size, "used_by": [vname]})
         lb = man.get("leaderboard") or {}
         rel = model_dir.relative_to(REPO)
         versions.append({"version": vname, "model": str(rel), "strategy": card.get("strategy"), "submission_zip": zrel,
@@ -71,6 +87,7 @@ def collect(tag: str, specs: list[str]) -> dict:
                          "codabench_id": man.get("codabench_submission_id"), "leaderboard_combined": lb.get("score_combined"),
                          "reproduce_test": f"{rel}/test/reproduce_{vtag}.sh", "reproduce_validation": f"{rel}/test/reproduce_{vtag}_validation.sh",
                          "checkpoints": sorted(n for n, a in assets.items() if a["kind"] == "checkpoint" and vname in a["used_by"])})
+    assets.update({z["name"]: z for z in zip_assets(zips)})
     import _github
     out = {"tag": tag, "repository": _github.repo_slug(REPO), "created": time.strftime("%Y-%m-%d"), "versions": versions,
            "assets": sorted(assets.values(), key=lambda a: (a["kind"], a["name"])),

@@ -11,7 +11,8 @@
 # (C0 LUMPI Bicycle, 2026-11-08: "need at least one array to concatenate"). The scorecard computes realism on the zip
 # (--realism): the S9 references' scorecards hold none to reuse (C0 LUMPI, 2026-11-08).
 # S10 rule 14b (C2, package A, record 15.15.7): S10_ROUTE_BAR=0 S10_GO_P=0.8 drop R3's +0.01 B bar on route changes
-# and raise rule 14's grouped P to 0.8 (default: R3 and rule 14 as in C1).
+# and raise rule 14's grouped P to 0.8 (default: R3 and rule 14 as in C1). S10 rule 15 (C2, LUMPI, record 15.15.9):
+# S10_LATE_GATE=Person adds the late-A gain condition to the final gate for Person.
 # S10_INCUMBENT=<model dir> (C1, C2): after size calibration, `gate --vs` reverts every changed class that fails R3 to
 # the incumbent's whole class configuration (size entry included), then validates and runs the rule 14 grouped gate.
 RUN=$1; T=$2; NAME=$3; REF=$4; TAG=$5; FROM=${6:-calibrate}
@@ -56,7 +57,8 @@ run size_select python common/tools/size_calibration.py $M --write
 st "size calibration: $(grep -E '^[A-Za-z]+: best' "$RUN/s10_${T}_${TAG}_size_select.log" | tr '\n' ';' | cut -c1-300)"
 run validate_size python common/tools/route_predictions.py validate $M
 if [ -n "${S10_INCUMBENT:-}" ]; then   # S10 C1 (record 15.13.7): each changed class passes R3 against the incumbent or reverts to it
-  run gate python common/tools/route_predictions.py gate $M --vs "$S10_INCUMBENT" --route-bar "${S10_ROUTE_BAR:-0.01}" "${SCX[@]}"
+  LG=(); [ -n "${S10_LATE_GATE:-}" ] && LG=(--late-gate $S10_LATE_GATE)   # S10 rule 15 (C2, LUMPI: S10_LATE_GATE=Person)
+  run gate python common/tools/route_predictions.py gate $M --vs "$S10_INCUMBENT" --route-bar "${S10_ROUTE_BAR:-0.01}" "${LG[@]}" "${SCX[@]}"
   st "class gate vs $(basename "$S10_INCUMBENT"): $(grep '^reverted' "$RUN/s10_${T}_${TAG}_gate.log" | cut -c1-200)"
   run validate_gated python common/tools/route_predictions.py validate $M
   python common/tools/s10_grouped_gate.py $M "$S10_INCUMBENT" --go-p "${S10_GO_P:-0.75}" > "$RUN/s10_${T}_${TAG}_grouped.log" 2>&1 || { st "rule 14 gate FAILED"; exit 1; }

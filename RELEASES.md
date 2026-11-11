@@ -48,12 +48,14 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | 8.1 | 2026-10-30 | S8.2, S8.3 (LUMPI entry until 9.1; V2X unchanged) | 1022492: 0.5257 (0.525688, S8.3); 1022399: 0.5254 (S8.2) | 1022246: 0.9022 (as 8.0) | **yes**: 25 checkpoints + 3 zips ([`releases/8.1/weights.json`](releases/8.1/weights.json)), every checkpoint byte-identical to its 8.0 asset | `routed-g11d/test/reproduce_s8d.sh`, `routed-g11c/test/reproduce_s8c.sh` (LUMPI), `routed-g13/test/reproduce_s8v.sh` (V2X) |
 | **9.2** | 2026-11-07 | **S9 close-out** (the entries on both tracks, final phase; LUMPI development entry `s9d`) | **1038963: 0.5428** (0.542809, `s9j`, final phase); 1031132: 0.5425 (0.542490, `s9d`, development) | **1038966: 0.9038** (0.903777, `s9f`, final phase) | **yes**: 23 checkpoints + 3 zips ([`releases/9.2/weights.json`](releases/9.2/weights.json)); 2 checkpoints new since 9.1 | `routed-g22/test/reproduce_s9j.sh`, `routed-g15/test/reproduce_s9d.sh` (LUMPI), `routed-g19/test/reproduce_s9f.sh` (V2X) |
 | 9.1 | 2026-11-02 | S9 (the entries until the close-out) | **1028541: 0.5357** (0.535667, `s9a2`) | **1028491: 0.9030** (0.902971, `s9a`) | **yes**: 27 checkpoints + 2 zips ([`releases/9.1/weights.json`](releases/9.1/weights.json)); 4 checkpoints new since 8.1 | `routed-g12/test/reproduce_s9a2.sh` (LUMPI), `routed-g15/test/reproduce_s9a.sh` (V2X) |
-| **10.0** | 2026-11-06 (tag set on 2026-11-11 on `e6c34d9`, the 9.2 commit) | S9 close-out, **removed from the boards** by the organizers (walkers placed at real label positions; their ruling of 2026-11-09) | 1038963: 0.5428 (`s9j`; removed) | 1038966: 0.9038 (`s9f`; removed) | the 9.2 assets (the same commit) | `routed-g22/test/reproduce_s9j.sh` (LUMPI), `routed-g19/test/reproduce_s9f.sh` (V2X) |
-| **10.1** | 2026-11-11 | **S10 Clean Final**: no real label in training; the organizers rank KarmaRV from 1042287 / 1042294 on | **1042287: 0.5408** (`C0`, the best clean LUMPI entry); 1047204: 0.5396 (0.539575, `c1pq`) | **1046758: 0.8889** (0.888864, `c1av5`, the best clean V2X entry); 1042294: 0.8885 (0.888471, `C0`) | not yet: the weights and dry runs follow the Nov 13 training stop | `routed-c0/test/reproduce_c0.sh` (both tracks), `routed-c1/test/reproduce_c1pq.sh` (LUMPI), `routed-c1a/test/reproduce_c1av5.sh` (V2X) |
+| **10.0** | 2026-11-06 (tag set on 2026-11-11 on `e6c34d9`, the 9.2 commit) | S9 close-out, **removed from the boards** by the organizers (walkers placed at real label positions; their ruling of 2026-11-09) | 1038963: 0.5428 (`s9j`; removed) | 1038966: 0.9038 (`s9f`; removed) | **yes**: 23 checkpoints + 2 zips ([`releases/10.0/weights.json`](releases/10.0/weights.json)), byte-identical to the 9.2 assets | `routed-g22/test/reproduce_s9j.sh` (LUMPI), `routed-g19/test/reproduce_s9f.sh` (V2X) |
+| **10.1** | 2026-11-11 | **S10 Clean Final**: no real label in training; the organizers rank KarmaRV from 1042287 / 1042294 on | **1047231: 0.5413** (0.541329, `c0pq`, the best clean LUMPI entry); 1042287: 0.5408 (`C0`); 1047204: 0.5396 (`c1pq`) | **1046758: 0.8889** (0.888864, `c1av5`, the best clean V2X entry); 1042294: 0.8885 (`C0`) | **yes**: 23 checkpoints + 5 zips ([`releases/10.1/weights.json`](releases/10.1/weights.json)); GPU dry runs after the Nov 13 training stop | `routed-c0/test/reproduce_c0.sh` (both tracks), `routed-c0/test/reproduce_c0pq.sh`, `routed-c1/test/reproduce_c1pq.sh` (LUMPI), `routed-c1a/test/reproduce_c1av5.sh` (V2X) |
 
-The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0, 8.1 and 9.1; 10.0 and 10.1 are git tags (10.0 on the 9.2 commit) ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0, 8.1 and 9.1; 10.0 and 10.1 are pre-releases to publish (10.0 on the 9.2 commit) ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
 
-## 10.1 (git tag, 2026-11-11): S10 Clean Final, the ranked entries
+## 10.1 (pre-release, 2026-11-11): S10 Clean Final, the ranked entries
+
+**In one line.** Every system the organizers rank for KarmaRV: five final-phase uploads (LUMPI 1042287, 1047204 and 1047231; V2X 1042294 and 1046758). Every detector is trained only on synthetic corpora that contain no real label row. The best entries are LUMPI **1047231 (0.541329)** and V2X **1046758 (0.888864)**.
 
 **Why 10.1 is separate from 10.0.**
 - The organizers' clarification of 2026-11-07 says that real labels, and object points cut out with real boxes, must not enter the training set.
@@ -65,23 +67,39 @@ The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [
 
 | Release | Track | Upload | Model | Members | Realism frames | Rule 1 |
 |---|---|---|---|---|---|---|
-| 10.1 | LUMPI | 1042287 (`C0`) | `routed-c0` | 13, all clean | `pcdet/g1-v6`, clean | **PASS** |
+| 10.1 | LUMPI | 1042287 (`C0`) and 1047231 (`c0pq`) | `routed-c0` | 13, all clean | `pcdet/g1-v6` (`C0`), `pcdet/g1-v6pq` (`c0pq`), both clean | **PASS** |
 | 10.1 | LUMPI | 1047204 (`c1pq`) | `routed-c1` | 12, all clean | `pcdet/g1-v6pq`, clean | **PASS** |
 | 10.1 | V2X | 1042294 (`C0`) | `routed-c0` | 5, all clean | `pcdet/g1-v6`, clean | **PASS** |
 | 10.1 | V2X | 1046758 (`c1av5`) | `routed-c1a` | 5, all clean | `pcdet/g1-v6`, clean | **PASS** |
 | 10.0 | LUMPI | 1038963 (`s9j`) | `routed-g22` | 12, 10 trained on `g1-v2`..`g1-v4d2` (real M4 Person label rows) | `pcdet/g1-v6`, clean | FAIL |
 | 10.0 | V2X | 1038966 (`s9f`) | `routed-g19` | 6, all trained on `g1-v3`..`g1-v5` (real walker label rows) | `pcdet/g1-v5`, label rows | FAIL |
 
-**Leaderboard.** All four are final-phase uploads made by the entrant, with the scores taken from the scoring outputs the entrant shared. The public leaderboard API shows a bot check, and it is not bypassed.
+**Leaderboard.** All five are final-phase uploads made by the entrant, with the scores taken from the scoring outputs the entrant shared. The public leaderboard API shows a bot check, and it is not bypassed.
 
-| Track | Version | CodaBench id | Combined | 3D mAP@0.5 | Realism R | Submission file (md5) | Decision record |
+| Track | Version | CodaBench id | Combined | 3D mAP@0.5 | Realism R (EMD) | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | `C0`, the first clean system (**the best clean LUMPI entry**) | 1042287 (2026-11-08) | **0.5408** | 0.1950 | 0.9342 | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip) (`1de9f12c1f18d045e5b0c05e08a2f793`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 1 LUMPI (16684) | `c1pq`: `C0` plus one Person route, realism frames with the PandarQT near-field re-cast | 1047204 (2026-11-11) | 0.5396 (0.539575) | 0.1929 | 0.9355 | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip) (`6c2da31f4146a174caba4923709f87c4`) | [S10 record, Sections 15.15.7-15.15.8](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 2 V2X-Real (16685) | `C0`, the first clean system | 1042294 (2026-11-08) | 0.8885 (0.888471) | 0.5976 | 0.9406 | [`v2x_s10_submission.zip`](model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip) (`c70e8a341b7647d8ae7712a09ba1baf6`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 2 V2X-Real (16685) | `c1av5`: `C0` plus the V5 overhead demotion of pedestrian boxes (**the best clean V2X entry**) | 1046758 (2026-11-10) | **0.8889** (0.888864) | 0.5981 | 0.9406 | [`v2x_s10_submission.zip`](model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip) (`2f3d80cbfed8c0f4064a8ba77aa5ecb5`) | [S10 record, Sections 15.14.6-15.14.7](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `C0`: the first clean system | 1042287 (2026-11-08) | 0.5408 | 0.1950 | 0.9342 (1.2720) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip) (`1de9f12c1f18d045e5b0c05e08a2f793`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `c1pq`: `C0` plus one Person route; frames with the PandarQT near-field re-cast | 1047204 (2026-11-11) | 0.5396 (0.539575) | 0.1929 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip) (`6c2da31f4146a174caba4923709f87c4`) | [S10 record, Sections 15.15.7-15.15.8](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `c0pq`: `C0`'s detections with the `c1pq` frames (**the best clean LUMPI entry**) | 1047231 (2026-11-11) | **0.5413** (0.541329) | 0.1950 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip) (`aa167c395f3d8c4549b063d9e269a863`) | [S10 record, Sections 15.15.9-15.15.10](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 2 V2X-Real (16685) | `C0`: the first clean system | 1042294 (2026-11-08) | 0.8885 (0.888471) | 0.5976 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip) (`c70e8a341b7647d8ae7712a09ba1baf6`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 2 V2X-Real (16685) | `c1av5`: `C0` plus the V5 overhead demotion of pedestrian boxes (**the best clean V2X entry**) | 1046758 (2026-11-10) | **0.8889** (0.888864) | 0.5981 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip) (`2f3d80cbfed8c0f4064a8ba77aa5ecb5`) | [S10 record, Sections 15.14.6-15.14.7](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
 
-Server records: `codabench_1042287.json`, `codabench_1047204.json`, `codabench_1042294.json`, `codabench_1046758.json`, each in its submission folder.
+Server records: `codabench_<id>.json` in each submission folder.
+
+**What each version is**, for the report:
+
+| Version | Change against the previous version | Members (checkpoints) | Training corpora | Test-time stages | Realism frames | Kit boxes |
+|---|---|---|---|---|---|---|
+| LUMPI `C0` (1042287) | every member retrained on the clean `g1-v6` corpus family; route, fusion and calibrations re-selected from scratch on realval A/B (S10 rules 1-3) | 13 (14) | `g1-v6`, `g1-v6d2`, `g1-v6j` | 8- and 12-view TTA; fusion of up to 3 members (Bicycle, Car, Motorcycle, Person, Truck); score floors (budget); Person and Bus low-score copies; anchored box-size calibration (Car, Person) | 50 `g1-v6` val frames chosen on fit proxies (S9 rule 4) | 24,088 |
+| LUMPI `c1pq` (1047204) | Person route `bvrrosfswa6x4_tta12` (an averaged 4-draw Voxel R-CNN bag); Unknown route; realism frames with the PandarQT re-cast | 12 (17) | adds `g1-v6d3`, `g1-v6d4` | as `C0`; Person not fused; size calibration Car only | the same 50 ids from `g1-v6pq` | 24,481 |
+| LUMPI `c0pq` (1047231) | `C0`'s detections (byte-identical predictions) with `c1pq`'s frames (byte-identical) | 13 (14) | as `C0` | as `C0` | as `c1pq` | 24,088 |
+| V2X `C0` (1042294) | every member retrained on `g1-v6`; route, fusion and calibrations re-selected | 5 (4) | `g1-v6`, `g1-v6d2` | 8- and 12-view TTA; fusion (all three classes); budget; pedestrian copies; sparse-point demotion; size calibration (vehicle) | 50 `g1-v6` frames with 31% null returns added at packaging | 41,225 |
+| V2X `c1av5` (1046758) | adds the V5 overhead demotion of pedestrian boxes with points above them (rule 11) | 5 (4) | as `C0` | as `C0`, plus V5 | as `C0` | 41,232 |
+
+**How the scores decompose.**
+- `c1pq` against `C0`: realism +0.001324 (EMD -0.026, the PandarQT re-cast) and mAP -0.002047 (the Person route; it lost on late-A locally, record 15.15.8).
+- `c0pq` against `C0`: exactly the realism gain, +0.000529 combined.
+- `c1av5` against V2X `C0`: +0.000393 (pedestrian AP +0.0014; realism identical).
 
 **Real data in 10.1, for the report.** The organizers allowed every use below on 2026-11-09, as long as none of the 100 forbidden frames is involved (`common/tools/clean_check.py` reads each corpus card's `real_data_use`).
 - Validation and model selection on non-forbidden real frames: LUMPI realval A/B; V2X infrastructure frames, including the public val and test splits.
@@ -92,29 +110,46 @@ Server records: `codabench_1042287.json`, `codabench_1047204.json`, `codabench_1
   - the anchored test-time box-size calibration.
 - Realism calibration from unlabelled real clouds: the background density prior, and the proxies that choose the 50 submitted frames.
 - Sensor metadata:
-  - the LUMPI Measurement4 rig and beam tables, including the PandarQT near-field re-cast of `pcdet/g1-v6pq` (`common/tools/s10_beamfix.py`, used by `c1pq`);
+  - the LUMPI Measurement4 rig and beam tables, including the PandarQT near-field re-cast of `pcdet/g1-v6pq` (`common/tools/s10_beamfix.py`, used by `c1pq` and `c0pq`);
   - the V2X beam elevation table.
 - Test-time post-processing of our detectors' outputs: augmentation, box fusion, score floors, low-score duplicate boxes, point-count rescoring and the V5 overhead demotion.
 - **R1** (synthetic static blocks placed where unlabelled real frames show structures the twin lacks; allowed on 2026-11-09) is in no 10.1 upload.
 
-**Reproduce.** Each script below re-merges to identical boxes from the cached member predictions (checked on 2026-11-11):
-- LUMPI `C0`: `model-lumpi-track/routed-c0/test/reproduce_c0.sh`;
-- LUMPI `c1pq`: `model-lumpi-track/routed-c1/test/reproduce_c1pq.sh`;
-- V2X `C0`: `model-v2x-track/routed-c0/test/reproduce_c0.sh`;
-- V2X `c1av5`: `model-v2x-track/routed-c1a/test/reproduce_c1av5.sh`.
+**Release assets.**
+- 23 checkpoints and the 5 scored zips, 3.47 GB, listed with md5, size and users in [`releases/10.1/weights.json`](releases/10.1/weights.json).
+- Each version shares one upload name (`<track>_s10_submission.zip`). So the zip assets are named `<track>.<model folder>.<submission tag>.<file name>`, for example `lumpi.routed-c0.c0pq.lumpi_s10_submission.zip`; `fetch` places each at its repository path.
+- Checkpoints are named `<track>.<model folder>.epoch40.pth`.
 
-The validation scripts sit beside them.
+```bash
+python common/tools/release_weights.py fetch --tag 10.1 --version lumpi:c0pq      # or lumpi:c0, lumpi:c1pq, v2x:c0, v2x:c1av5
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-c0/test/reproduce_c0pq.sh
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-c1a/test/reproduce_c1av5.sh
+```
+
+**Reproduction.**
+- The five test-frame scripts re-merge to identical boxes from the cached member predictions (CPU check, 2026-11-11): LUMPI 24,088 / 24,088 / 24,481; V2X 41,225 / 41,232.
+- The GPU dry runs (test-frame inference with the released weights, then the comparison with the scored zip) wait for idle GPUs after the Nov 13 18:00 UTC training stop. They will be written here.
+- The validation scripts (`reproduce_<tag>_validation.sh`) sit beside the test scripts.
 
 **Not yet in 10.1.**
-- The GPU dry runs and the weights (`releases/10.1/weights.json`). Training and tuning use every GPU until the Nov 13 18:00 UTC stop.
-- The GitHub release page. The entrant pushes and publishes.
+- The GitHub release page: the entrant runs `release_weights.py publish --tag 10.1`.
+- The GPU dry-run results.
 - Later uploads of the S10 strategy (`C2`) need a tag that the entrant names.
 
-## 10.0 (git tag on `e6c34d9`, set 2026-11-11): the removed first final-phase uploads
+## 10.0 (pre-release, tag on `e6c34d9`, set 2026-11-11): the removed first final-phase uploads
 
-- **What it marks.** The first final-phase uploads, LUMPI 1038963 (`s9j`, 0.5428) and V2X 1038966 (`s9f`, 0.9038). The tag sits on the commit of release 9.2 (`e6c34d9`), which holds their code, records and zips byte for byte.
-- **Why they were removed.** Their members trained on corpora whose walkers were placed at the positions, headings and sizes of real label rows. The organizers removed both uploads from the boards on 2026-11-09, and both still count toward the limit. The rule 1 table under 10.1 shows the failing members.
-- **The report** describes the change and lists both ids as removed. Their weights and dry runs are those of 9.2 (below).
+- **What it marks.** The first final-phase uploads, LUMPI 1038963 (`s9j`, 0.542809) and V2X 1038966 (`s9f`, 0.903777). The tag sits on the commit of release 9.2 (`e6c34d9`), which holds their code, records and zips byte for byte.
+- **Why they were removed.** Their members trained on corpora whose walkers were placed at the positions, headings and sizes of real label rows. The organizers removed both uploads from the boards on 2026-11-09, and both still count toward the limit. The rule 1 table under 10.1 shows the failing members: LUMPI `routed-g22`, 10 of 12 on `g1-v2`..`g1-v4d2`; V2X `routed-g19`, 6 of 6 on `g1-v3`..`g1-v5`, and its frames.
+- **What they were.** The S9 close-out: the anchored box-size calibration on the development entries `s9d` (LUMPI) and `s9a` (V2X). See 9.2 below for the change, the scores and the dry run (EQUIVALENT on 2026-11-07).
+- **Release assets.**
+  - 23 checkpoints and the 2 scored zips (4.01 GB) in [`releases/10.0/weights.json`](https://github.com/karmarv/utsim2real-bdc26/blob/main/releases/10.0/weights.json), all byte-identical by md5 to their 9.2 assets.
+  - The manifest is on `main` (it was written after the tag's commit), so fetch from a `main` checkout, then reproduce at the tag (checkpoints are git-ignored, so they stay in place across the checkout):
+
+    ```bash
+    git checkout main && python common/tools/release_weights.py fetch --tag 10.0 --version lumpi:s9j     # or v2x:s9f
+    git checkout 10.0 && CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g22/test/reproduce_s9j.sh
+    ```
+- **The report** describes the change and lists both ids as removed.
 
 ## 9.2 (pre-release, 2026-11-07)
 

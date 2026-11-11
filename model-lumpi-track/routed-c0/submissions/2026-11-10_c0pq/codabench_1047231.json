@@ -1,0 +1,69 @@
+{
+ "phase": "Final (the entrant's upload 4 of the final phase on LUMPI; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10 option 1, upload 4 (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 15.15.9): c0pq = routed-c0's detections (byte-identical to 1042287's predictions.json) with the 50 realism frames of 1047204 (pcdet/g1-v6pq, the PandarQT near-field re-cast; byte-identical); expected 0.541329 from the two server-measured terms",
+ "codabench_competition": 16684,
+ "codabench_submission_id": 1047231,
+ "uploaded_file": "lumpi_s10_submission.zip of this folder (md5 aa167c395f3d8c4549b063d9e269a863, as in manifest.json)",
+ "file_identification": "The entrant's message named model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip. The scores identify this folder's zip instead: mAP 0.194973 and every per-class AP equal 1042287 (C0's detections; the c1pq zip scored 0.192926 as 1047204), and the realism terms equal 1047204 (the g1-v6pq frames; C0's zip scored R 0.9342). Only the c0pq zip pairs the two.",
+ "submitted": "2026-11-11 UTC, before 04:35 (the entrant's message); exact time not read",
+ "leaderboard_checked": "not read: the public get_leaderboard API shows the Anubis bot check (one read on 2026-11-11); it is not bypassed. The scores are those of the scoring output the entrant pasted.",
+ "realism_detail": {
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.0005238113683432425
+ },
+ "scoring_log": [
+  "[scoring] realism: CD 1.4671736181686847, MMD 9.251067152993286e-05, EMD 1.2463894449536332, FPD 0.42213642658020945",
+  "[scoring] mAP_3d_0.5_R40 = 0.19497312784200058",
+  "(scoring output pasted by the entrant; the scores are those of the scoring output)"
+ ],
+ "scores": {
+  "score_combined": 0.541329,
+  "score_detection": 0.278533,
+  "score_realism": 0.935524,
+  "mAP_3d_0.5_R40": 0.194973,
+  "mAP_3d_0.5_R11": 0.202282,
+  "mAP_3d_0.7_R40": 0.099238,
+  "mAP_bev_0.5_R40": 0.208183,
+  "CD": 1.467174,
+  "MMD": 9.251e-05,
+  "EMD": 1.246389,
+  "FPD": 0.422136,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_Person": 0.305794,
+  "AP_3d_0.5_R40_Car": 0.683313,
+  "AP_3d_0.5_R40_Bicycle": 0.13847,
+  "AP_3d_0.5_R40_Motorcycle": 0.017905,
+  "AP_3d_0.5_R40_Bus": 0.000244,
+  "AP_3d_0.5_R40_Truck": 0.066555,
+  "AP_3d_0.5_R40_Van": 0.152531,
+  "AP_3d_0.5_R40_Unknown": null
+ },
+ "vs_previous": {
+  "previous": "1042287 (C0, routed-c0, 0.5408)",
+  "delta": {
+   "score_combined": 0.000529,
+   "score_detection": 0.0,
+   "score_realism": 0.001324,
+   "mAP_3d_0.5_R40": 0.0,
+   "mAP_3d_0.5_R11": 0.0,
+   "mAP_3d_0.7_R40": 0.0,
+   "mAP_bev_0.5_R40": 0.0,
+   "CD": -0.043104,
+   "MMD": -9e-06,
+   "EMD": -0.02562,
+   "FPD": -0.007634,
+   "valid_submission": 0,
+   "AP_3d_0.5_R40_Person": 0.0,
+   "AP_3d_0.5_R40_Car": 0.0,
+   "AP_3d_0.5_R40_Bicycle": 0.0,
+   "AP_3d_0.5_R40_Motorcycle": 0.0,
+   "AP_3d_0.5_R40_Bus": 0.0,
+   "AP_3d_0.5_R40_Truck": 0.0,
+   "AP_3d_0.5_R40_Van": 0.0
+  },
+  "note": "exactly the expected 0.541329: detection equal to 1042287, realism equal to 1047204 (+0.001324 R); the best clean LUMPI entry"
+ }
+}

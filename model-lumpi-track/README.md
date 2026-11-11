@@ -397,14 +397,16 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.6.1](../docs/02-STRATEGY.md#861-s6
 | 2026-11-06 | `routed-g22` / `s9j` (S9 close-out: `s9d` with the anchored box-size calibration, Car dl -0.1 dw +0.08 dh +0.07, Person dh +0.03), uploaded unchanged as `lumpi_s9j_submission.zip` in the **final phase** [release 10.0: removed from the board by the organizers on 2026-11-09] (F2; bar (b), projection +0.0004) | 1038963 | 0.408 / 0.237 | 0.940 | **0.1973** | 0.9342 | **0.5428** | strategy S9 close-out; final phase (ranks hidden until the close); +0.00032 over 1031132: Person 0.306 -> 0.309, Car 0.674 -> 0.673, 3D mAP@0.7 0.090 -> 0.096; kit scorer 197 s, 24,874 boxes; server record [`codabench_1038963.json`](routed-g22/submissions/2026-11-05_s9j/codabench_1038963.json) |
 | 2026-11-08 | `routed-c0` / `c0`, uploaded unchanged as `lumpi_s10_submission.zip` in the **final phase** | 1042287 | 0.415 / 0.239 | 0.940 | **0.1950** | 0.9342 | **0.5408** | strategy S10 `C0` (release 10.1): the first clean system (rule 1, 13 members); **the best clean LUMPI entry; the organizers rank KarmaRV from here on**; kit 213 s, 24,088 boxes; server record [`codabench_1042287.json`](routed-c0/submissions/2026-11-07_c0/codabench_1042287.json) |
 | 2026-11-11 | `routed-c1` / `c1pq`, uploaded unchanged as `lumpi_s10_submission.zip` in the **final phase** | 1047204 | 0.415 / 0.240 | 0.942 | **0.1929** | 0.9355 | **0.5396** | strategy S10 `C1` + L1 (release 10.1): `C0` plus the Person route `bvrrosfswa6x4_tta12`, frames from `g1-v6pq` (PandarQT near-field re-cast); -0.0012 against 1042287: realism +0.0013, Person -0.0146 (late-A -0.0055 at P 0.02 locally); kit 272 s, 24,481 boxes; server record [`codabench_1047204.json`](routed-c1/submissions/2026-11-10_c1pq/codabench_1047204.json) |
+| 2026-11-11 | `routed-c0` / `c0pq`, uploaded unchanged as `lumpi_s10_submission.zip` in the **final phase** | 1047231 | 0.415 / 0.239 | 0.942 | **0.1950** | 0.9355 | **0.5413** | strategy S10 option 1 (release 10.1): `C0`'s detections (byte-identical) with `c1pq`'s `g1-v6pq` frames; +0.000529 against 1042287, exactly the two server-measured terms; **the best clean LUMPI entry**; kit 244 s, 24,088 boxes; server record [`codabench_1047231.json`](routed-c0/submissions/2026-11-10_c0pq/codabench_1047231.json) |
 
 ### 9.1 Local vs leaderboard per class (3D AP@0.5 R40)
 
 | | mAP | Person | Car | Bicycle | Motorcycle | Bus | Truck | Van |
 |---|---|---|---|---|---|---|---|---|
-| **S10 `c1pq` final phase (1047204, below 1042287)** | **0.1929** | 0.291 | 0.683 | 0.139 | 0.018 | 0.000 | 0.067 | 0.153 |
+| **S10 `c0pq` final phase (1047231, the best clean entry)** | **0.1950** | 0.306 | 0.683 | 0.138 | 0.018 | 0.000 | 0.067 | 0.153 |
+| S10 `c1pq` final phase (1047204, below 1042287) | **0.1929** | 0.291 | 0.683 | 0.139 | 0.018 | 0.000 | 0.067 | 0.153 |
 | S10 `c1pq` realval-A / realval-B | 0.415 / 0.240 | 0.606 / 0.242 | 0.908 / 0.802 | 0.648 / 0.286 | 0.240 / 0.050 | 0.010 / 0.063 | 0.387 / 0.238 | 0.108 / 0.001 |
-| **S10 `c0` final phase (1042287, the best clean entry)** | **0.1950** | 0.306 | 0.683 | 0.138 | 0.018 | 0.000 | 0.067 | 0.153 |
+| S10 `c0` final phase (1042287) | **0.1950** | 0.306 | 0.683 | 0.138 | 0.018 | 0.000 | 0.067 | 0.153 |
 | S10 `c0` realval-A / realval-B | 0.415 / 0.239 | 0.601 / 0.232 | 0.908 / 0.802 | 0.648 / 0.286 | 0.240 / 0.050 | 0.010 / 0.063 | 0.387 / 0.238 | 0.108 / 0.001 |
 | S9 `s9j` final phase (1038963, removed: release 10.0) | **0.1973** | **0.309** | 0.673 | 0.188 | 0.001 | 0.004 | 0.065 | 0.141 |
 | S9 `s9j` realval-A / realval-B | 0.408 / 0.237 | 0.595 / 0.231 | 0.910 / 0.808 | 0.601 / 0.264 | 0.008 / 0.015 | 0.080 / 0.136 | 0.487 / 0.205 | 0.174 / 0.002 |

@@ -1125,7 +1125,16 @@ def b_bar(only_stage: bool, route_bar: float = 0.01) -> float:
     return 1e-9 if (only_stage or route_bar <= 0) else route_bar
 
 
-def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int, judge=(), route_bar: float = 0.01) -> dict:
+def late_gate_ok(delta, p_gain, min_p: float = 0.5) -> bool:
+    """S10 rule 15 (record 15.15.8-15.15.9; C2 on LUMPI Person): a changed class must also gain on late-A (Measurement4
+    4800-6399, the frames just before the test window): delta > 0 at paired-bootstrap P(gain) >= 0.5. Over 9 past LUMPI
+    Person changes, late-A > 0 with B > 0 matched the server's sign 9 times; C1's Person route (late-A -0.0055 at P 0.02)
+    lost 0.0146 on the server."""
+    return delta is not None and p_gain is not None and delta > 0 and p_gain >= min_p
+
+
+def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int, judge=(), route_bar: float = 0.01,
+               late_gate=()) -> dict:
     """R3 final gate: every class whose configuration (route, calibration, fusion, score floor) differs from the
     confirmed portfolio `vs_dir` must pass the class gate on B and the pooled A+B condition on the FINAL validation
     predictions of both (validation/output/<data>_<split>_routed.json), where the pooled rule was validated (S3-S5:
@@ -1169,6 +1178,14 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
                    "b_bar": b_bar(only_stage, route_bar),
                    "decision": "kept (class gate and pooled condition passed)" if ok else
                    ("reverted (pooled A+B condition failed)" if gate_b else "reverted (class gate failed)")}
+        if ok and c in late_gate:                       # S10 rule 15: the late-A condition on top of the class gate
+            late = sc.late_a_ids(track, list(gts["val"]))
+            bl = sc.paired_bootstrap({c: sc.subset(fl[("inc", "val")], late)[c]}, {c: sc.subset(fl[("new", "val")], late)[c]},
+                                     [c], n_boot, seed)[c]
+            lok = late_gate_ok(bl["delta"], bl["p_gain"])
+            row["late_A"] = {"delta": bl["delta"], "p_gain": bl["p_gain"], "ok": lok}
+            if not lok:
+                ok, row["decision"] = False, "reverted (rule 15: no late-A gain)"
         if not ok:
             route, cal, fus, bud, tail, sparse, overhead, prs, _ = _class_config(vs_card, c)
             need = set(fus["members"]) if fus else {route}
@@ -1214,6 +1231,8 @@ def main():
                                                           "instead of realval-B (LUMPI Van, whose B labels are not vans)")
     ap.add_argument("--gate-top", type=int, default=1, help="fuse (R5): candidates of a --late-rank class tested through the gates")
     ap.add_argument("--vs", default=None, help="gate: the confirmed portfolio to compare the final predictions with")
+    ap.add_argument("--late-gate", nargs="*", default=[], help="gate: classes that also need a late-A gain (S10 rule 15 for "
+                                                               "C2: LUMPI Person, record 15.15.9)")
     ap.add_argument("--route-bar", type=float, default=0.01, help="gate: the B gain a route change needs (R3: 0.01; S10 rule "
                                                                    "14b for C2: 0, record 15.15.7)")
     ap.add_argument("--pooled", action="store_true", help="select/fuse/calibrate: the class gate also needs a gain on the pooled "
@@ -1301,7 +1320,8 @@ def main():
     if a.mode == "gate":
         if not a.vs:
             raise SystemExit("gate needs --vs <confirmed routed model>")
-        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed, judge=a.judge, route_bar=a.route_bar)
+        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed, judge=a.judge, route_bar=a.route_bar,
+                         late_gate=a.late_gate)
         if res["reverted"]:
             _, card, _ = model_info(model_dir)
             validate(model_dir, card, track, registry_run="routed + fusion + budget + final gate")

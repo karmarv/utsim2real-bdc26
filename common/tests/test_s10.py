@@ -260,3 +260,22 @@ def test_rule_14b_drops_the_route_bar_only_when_asked():
     assert b_bar(True) == 1e-9                      # rule 11: a stage-only change needs a gain
     assert b_bar(False, 0.0) == 1e-9                # rule 14b (C2): a route change needs a gain
     assert b_bar(False, 0.02) == 0.02
+
+
+def test_rule_15_needs_a_late_a_gain():
+    from route_predictions import late_gate_ok
+    assert late_gate_ok(0.002, 0.7)
+    assert not late_gate_ok(-0.0055, 0.02)          # C1's Person route (record 15.15.8)
+    assert not late_gate_ok(0.001, 0.4)             # a gain below P 0.5
+    assert not late_gate_ok(0.0, 0.5) and not late_gate_ok(None, None)
+
+
+def test_release_zip_assets_get_unique_names_when_versions_share_a_file_name():
+    from release_weights import zip_assets
+    z = [{"name": "lumpi_s10_submission.zip", "qualified": "lumpi.routed-c0.c0.lumpi_s10_submission.zip", "path": "a"},
+         {"name": "lumpi_s10_submission.zip", "qualified": "lumpi.routed-c0.c0pq.lumpi_s10_submission.zip", "path": "b"},
+         {"name": "v2x_s9f_submission.zip", "qualified": "v2x.routed-g19.s9f.v2x_s9f_submission.zip", "path": "c"}]
+    out = zip_assets(z)
+    assert [a["name"] for a in out] == ["lumpi.routed-c0.c0.lumpi_s10_submission.zip", "lumpi.routed-c0.c0pq.lumpi_s10_submission.zip",
+                                        "v2x_s9f_submission.zip"]                    # a unique file name keeps its name
+    assert [a["path"] for a in out] == ["a", "b", "c"] and all("qualified" not in a for a in out)

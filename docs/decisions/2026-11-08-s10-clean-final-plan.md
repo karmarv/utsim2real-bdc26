@@ -1552,6 +1552,71 @@ The test window is Measurement4 frames 6497-8109, right after late-A. R3's class
 - The reproduction scripts of all four 10.1 uploads re-merge to identical boxes. The GPU dry runs and `releases/10.1/weights.json` follow the Nov 13 training stop. The entrant pushes and publishes.
 - `C2` uploads need a tag that the entrant names.
 
+#### 15.15.9 Adopted: option 1 (the entrant, 2026-11-11: "Adopt option 1")
+
+LUMPI's last two uploads:
+
+| Upload | System | Expected | Status |
+|---|---|---|---|
+| 4 | **`c0pq`**: `C0`'s detections (byte-identical to 1042287's) with the `g1-v6pq` frames (byte-identical to 1047204's) | **0.541329** = 0.6 x 0.278533 + 0.4 x 0.935524: both terms are already measured on the server, and each term depends only on its own part of the zip | packaged: `model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip`, md5 `aa167c395f3d8c4549b063d9e269a863`; kit valid (24,088 boxes, 244 s, kit R 0.942147 as `c1pq`); `test/reproduce_c0pq.sh` re-merges identical; the entrant uploads |
+| 5 | `C2` under rule 14b and **rule 15** | 0.541-0.544 (15.15.5) | after the Nov 13 18:00 UTC training stop |
+
+**Rule fit.**
+- Detection is the better-scored complete system (`C0`), so no per-class server number is used (audit rule d).
+- The frames are the adopted L1 frames.
+- S10 rule 1's frame clause is waived as for `c1pq` until the `g1-v6pq` member is used in `C2`.
+
+**Rule 15 (adopted for `C2`, LUMPI Person).**
+- `route_predictions.py gate --late-gate Person`: a changed Person configuration that passes the class gate must also gain on late-A (delta > 0 at P(gain) >= 0.5), or it reverts to the incumbent. Function `late_gate_ok`, test `test_rule_15_needs_a_late_a_gain`.
+- The tail takes `S10_LATE_GATE=Person`.
+- **Checked on a scratch copy of `C1` against `C0`:**
+  - Under rule 14b alone (route bar 0), Person is kept (B +0.0100 at P 1.00).
+  - With rule 15 it reverts: late-A -0.0055 at P 0.02.
+  - So rule 15 is needed exactly because rule 14b lowers the B bar.
+  - (Under R3's +0.01 bar, the final `C1` predictions now fail on B by 0.00002, since the copy fit after the gate moved B; C1's gate itself saw +0.0121.)
+
+**The `C2` settings, fixed now:**
+- LUMPI: `S10_INCUMBENT=model-lumpi-track/routed-c0 S10_ROUTE_BAR=0 S10_GO_P=0.8 S10_LATE_GATE=Person`, frames `pcdet/g1-v6pq`.
+- V2X: `S10_INCUMBENT=model-v2x-track/routed-c1a S10_ROUTE_BAR=0 S10_GO_P=0.8`, frames `g1-v6`.
+- The GBlobs bags carry `voxelrcnn-rosf-gblobs-g1v6pq` in place of draw 1 (15.15.7).
+
+#### 15.15.10 LUMPI upload 4 scored as expected; the 10.0 / 10.1 releases (2026-11-11, 04:35-05:10 UTC)
+
+**Score.** **1047231 = `c0pq`: 0.541329**, exactly the expected value (+0.000529 against 1042287). It is the best clean LUMPI entry. LUMPI has **1 upload left** (close 2026-11-16 04:59 UTC); V2X has 2 (close 2026-11-15 04:59 UTC).
+- **Which file was uploaded.** The entrant's message named the `c1pq` path. The scores identify the `c0pq` zip (`model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip`, md5 `aa167c395f3d...`):
+  - mAP 0.194973 and every per-class AP equal `C0`'s (the `c1pq` zip scored 0.192926 as 1047204);
+  - every realism term equals 1047204's (the `g1-v6pq` frames; `C0`'s zip scored R 0.9342).
+  - Only the `c0pq` zip pairs the two. It is recorded there (`codabench_1047231.json` with a `file_identification` note; manifest; registry).
+- **Determinism, confirmed.** Detection and realism are scored separately and exactly reproducibly: the same predictions give the same AP, and the same frames give the same R. So a combination of two scored parts is known before upload.
+
+**Releases (the entrant: weights and scripts on GitHub, each set reported separately).**
+- `releases/10.0/weights.json`: 23 checkpoints and 2 zips, all byte-identical to 9.2's assets. The tag stays on `e6c34d9`; the manifest lives on `main`.
+- `releases/10.1/weights.json`: 23 checkpoints and 5 zips (3.47 GB) for `lumpi:c0`, `lumpi:c0pq`, `lumpi:c1pq`, `v2x:c0` and `v2x:c1av5`.
+- **Bug fixed in `release_weights.py collect`.**
+  - Zips that share a file name (every S10 upload is `<track>_s10_submission.zip`) overwrote each other, so 2 of the 5 zips would have been published.
+  - They are now named `<track>.<model>.<tag>.<file>` (test `test_release_zip_assets_get_unique_names_when_versions_share_a_file_name`).
+  - `v2x:c1av5`'s manifest now carries its CodaBench id (it was recorded by hand on Nov 10).
+- `RELEASES.md` has detailed 10.0 and 10.1 sections for the report: the rule 1 table; one row per version with its change, members, corpora, test-time stages and frames; the score decomposition; the real-data uses; the assets; and the fetch and reproduce commands.
+- The tag 10.1 moves to the commit that holds all five 10.1 uploads and the manifest. The GPU dry runs follow the Nov 13 training stop.
+
+**Late-A check of the Person candidates for `C2`** (against `C0`'s Person member `voxelrcnn-rosn-g1v6` 12-view):
+
+| Candidate | A | late-A (P) | B (P) | Rule 15 |
+|---|---|---|---|---|
+| `bag-voxelrcnn-rosf-gblobs-swa-g1v6x3` 8-view | +0.0109 | **+0.0081 (0.98)** | +0.0185 (1.00) | passes |
+| `bag-voxelrcnn-rosf-gblobs-swa-g1v6x3` plain | -0.0010 | +0.0002 (0.62) | +0.0131 (1.00) | passes (barely) |
+| `bag-voxelrcnn-rosf-gblobs-g1v6x3` 8-view | -0.0037 | -0.0216 (0.00) | +0.0162 (1.00) | fails |
+| `bag-voxelrcnn-rosf-swa-g1v6x4` 12-view (`c1pq`'s route) | +0.0094 | -0.0099 (0.01) | +0.0225 (1.00) | fails (as on the server) |
+| `voxelrcnn-rosn-gblobs-swa-g1v6` 8-view | -0.0014 | -0.0012 (0.54) | +0.0133 (1.00) | fails |
+| `voxelrcnn-rosn-gblobs-g1v6` 8-view | +0.0004 | -0.0032 (0.43) | +0.0138 (1.00) | fails |
+
+- The averaged GBlobs `rosf` bag is the one Person candidate with late-A evidence.
+- So the queue moved `voxelrcnn-rosf-gblobs-g1v6d4` and `d5` behind the `g1-v6pq` member. Nothing is dropped, and everything queued still trains before the stop.
+
+**C2 rehearsals (`routed-c2r`, both tracks) launched at 04:41 UTC** with the adopted settings: LUMPI rules 14b and 15 against `routed-c0`, frames `g1-v6pq`; V2X rule 14b against `routed-c1a`.
+- Members: every clean member tuned so far. LUMPI adds 10 folders to C1's 80: the GBlobs draws, their averaged versions and bags, and the probes. V2X has C1's 65.
+- They forecast `C2` and test the new gates end to end. A V2X rehearsal that passes could take V2X upload 4.
+
 ## Appendix A. Email to the organizers (the entrant sends it)
 
 ### A.1 The short version to send (2026-11-10, at the entrant's request: "concise and pointed"; sent 2026-11-09 19:44 CST, answered 22:24 CST: Section 15.14)
