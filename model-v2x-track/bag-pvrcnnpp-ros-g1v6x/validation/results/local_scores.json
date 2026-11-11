@@ -1,0 +1,19 @@
+{
+  "run": "bag of 2 seeds",
+  "members": [
+    "pvrcnnpp-ros-g1v6",
+    "pvrcnnpp-ros-g1v6d2"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.6645882239321714,
+  "realval_A_per_class": {
+    "vehicle": 0.795620851715032,
+    "pedestrian": 0.33587535700018534,
+    "truck": 0.8622684630812969
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6462394470534244,
+  "realval_B_per_class": {
+    "vehicle": 0.8124765343809426,
+    "pedestrian": 0.3305035535213181,
+    "truck": 0.7957382532580126
+  }
+}

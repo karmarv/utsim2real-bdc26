@@ -1,0 +1,31 @@
+# Selected by common/tools/tune_postprocess.py on real validation (see report json).
+default:
+  score_floor: 0.01
+  nms_iou: 0.2
+  max_boxes: 500
+  recenter: 0.0
+classes:
+  vehicle:
+    nms_iou: 0.7
+    size_scale:
+    - 1.0
+    - 1.0
+    - 1.08
+  pedestrian:
+    nms_iou: 0.7
+    recenter: 0.25
+    z_offset: 0.0
+  truck:
+    nms_iou: 0.01
+    z_offset: 0.3
+    size_scale:
+    - 1.08
+    - 1.08
+    - 1.0
+hedge:
+  vehicle:
+  - - truck
+    - 0.1
+selected_on: pcdet/realval-v1:val (real train split, guard-allowed)
+checked_on: pcdet/realval-v1:valB
+b_guard: 0.005

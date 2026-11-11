@@ -1,0 +1,59 @@
+{
+  "phase": "Final (the entrant's upload 3 of the final phase; the entrant's report)",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S10 C1 fallback c1av5 (docs/decisions/2026-11-08-s10-clean-final-plan.md Sections 15.14.6-15.14.7): routed-c0 plus the V5 overhead demotion of pedestrian boxes; the V2X routed-c1 search equalled C0 after the class gate; rule 1 clean; g1-v6 realism frames equal to C0's; rule 14 GO (pooled +0.0009, grouped P 1.00 over 57 scenarios); projection about +0.0008 combined",
+  "codabench_competition": 16685,
+  "codabench_submission_id": 1046758,
+  "uploaded_file": "v2x_s10_submission.zip of this folder (md5 2f3d80cbfed8c0f4064a8ba77aa5ecb5, as in manifest.json)",
+  "submitted": "2026-11-10, after 19:40 UTC (the entrant's message); exact time not read",
+  "leaderboard_checked": "not read: the public get_leaderboard API shows a bot check; it is not bypassed. The scores are those of the scoring output the entrant pasted.",
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.001838611844386042
+  },
+  "scores": {
+    "score_combined": 0.888864,
+    "score_detection": 0.854371,
+    "score_realism": 0.940605,
+    "mAP_3d_0.5_R40": 0.598059,
+    "mAP_3d_0.5_R11": 0.600669,
+    "mAP_3d_0.7_R40": 0.165456,
+    "mAP_bev_0.5_R40": 0.657907,
+    "CD": 1.844265,
+    "MMD": 0.00033854,
+    "EMD": 1.109734,
+    "FPD": 0.747769,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.743126,
+    "AP_3d_0.5_R40_pedestrian": 0.398913,
+    "AP_3d_0.5_R40_truck": 0.65214
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.8442651746440064, MMD 0.0003385394793231633, EMD 1.1097340725522227, FPD 0.7477689677293711",
+    "[scoring] mAP_3d_0.5_R40 = 0.5980594624170396",
+    "(scoring output pasted by the entrant; the scores are those of the scoring output)"
+  ],
+  "vs_previous": {
+    "previous": "1042294 (C0, routed-c0: the clean baseline)",
+    "delta": {
+      "score_combined": 0.000393,
+      "score_detection": 0.000656,
+      "score_realism": 0.0,
+      "mAP_3d_0.5_R40": 0.000459,
+      "mAP_3d_0.5_R11": 0.001231,
+      "mAP_3d_0.7_R40": 1.5e-05,
+      "mAP_bev_0.5_R40": -0.000453,
+      "CD": 0.0,
+      "MMD": 0.0,
+      "EMD": 0.0,
+      "FPD": 0.0,
+      "valid_submission": 0,
+      "AP_3d_0.5_R40_vehicle": -4e-06,
+      "AP_3d_0.5_R40_pedestrian": 0.001381,
+      "AP_3d_0.5_R40_truck": 0.0
+    },
+    "note": "per-class deltas are recorded only; no per-class choice follows from them (audit rule d). Realism is identical (same frames)."
+  }
+}

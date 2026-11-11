@@ -1,0 +1,182 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.5154104387972084,
+    "A_behaviour": 0.5155553722458499,
+    "A_tuned": 0.5155553722458499,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5,
+      "size_scale": [
+        1.16,
+        1.16,
+        0.92
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.16,
+        1.16,
+        0.92
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.1568765404735309,
+    "B_behaviour": 0.15674504034355946,
+    "B_tuned": 0.15674504034355946,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.5220950740653455
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8518815255229045,
+    "A_behaviour": 0.8518815255229045,
+    "A_tuned": 0.8518815255229045,
+    "behaviour_cfg": {
+      "nms_iou": 0.6
+    },
+    "convention_cfg": {},
+    "n_gt_B": 25573,
+    "B_start": 0.7294531229347372,
+    "B_behaviour": 0.7294531229347372,
+    "B_tuned": 0.7294531229347372,
+    "hedge_from_Truck": {
+      "factor": 0.3,
+      "A": 0.86593211333702
+    },
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.8715481420029729
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.34683005690873014,
+    "A_behaviour": 0.34891677045868796,
+    "A_tuned": 0.34891677045868796,
+    "behaviour_cfg": {
+      "nms_iou": 0.6,
+      "recenter": 0.5,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.12329094949789594,
+    "B_behaviour": 0.1233207132540521,
+    "B_tuned": 0.1233207132540521,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.5281350866123979
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.041490804171434865,
+    "A_behaviour": 0.041490804171434865,
+    "A_tuned": 0.041490804171434865,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.25
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.023033479785080545,
+    "B_behaviour": 0.023033479785080545,
+    "B_tuned": 0.023033479785080545
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.0013888888888888887,
+    "A_behaviour": 0.0013888888888888887,
+    "A_tuned": 0.0013888888888888887,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.002302631578947368,
+    "B_behaviour": 0.002302631578947368,
+    "B_tuned": 0.002302631578947368,
+    "hedge_from_Truck": {
+      "factor": 0.1,
+      "A": 0.005918575912267953
+    }
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.27774382758585,
+    "A_behaviour": 0.2781851702410436,
+    "A_tuned": 0.2781851702410436,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "z_offset": 0.0,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "z_offset": 0.0,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.18536481552937317,
+    "B_behaviour": 0.18609748348310812,
+    "B_tuned": 0.18609748348310812,
+    "hedge_from_Bus": {
+      "factor": 0.6,
+      "A": 0.28111642396349223
+    },
+    "hedge_from_Van": {
+      "factor": 0.3,
+      "A": 0.2849774992189857
+    }
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.0007644197359277275,
+    "A_behaviour": 0.0007644197359277275,
+    "A_tuned": 0.0007644197359277275,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0,
+    "B_behaviour": 0.0,
+    "B_tuned": 0.0,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.030274272332770906
+    },
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.04755727655520879
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {}
+  }
+}

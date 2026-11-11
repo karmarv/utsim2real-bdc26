@@ -1,0 +1,20 @@
+{
+  "run": "bag of 3 seeds",
+  "members": [
+    "voxelnext-ros-g1v6",
+    "voxelnext-ros-g1v6d2",
+    "voxelnext-ros-g1v6d3"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.6252388125653398,
+  "realval_A_per_class": {
+    "vehicle": 0.7767968594320915,
+    "pedestrian": 0.2928676871250896,
+    "truck": 0.8060518911388381
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6050777407885931,
+  "realval_B_per_class": {
+    "vehicle": 0.8090850836774652,
+    "pedestrian": 0.29616523824680485,
+    "truck": 0.7099829004415091
+  }
+}

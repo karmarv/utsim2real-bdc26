@@ -1,0 +1,16 @@
+{
+  "ckpt": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/voxelrcnn-ros-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+  "run": "run1_checkpoint_epoch_40_tta12",
+  "realval_A_mAP_3d_0.5_R40": 0.68971609857961,
+  "realval_A_per_class": {
+    "vehicle": 0.8349621084514691,
+    "pedestrian": 0.3797988861613786,
+    "truck": 0.8543873011259825
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6686610411866756,
+  "realval_B_per_class": {
+    "vehicle": 0.8430233046628764,
+    "pedestrian": 0.36044798110040627,
+    "truck": 0.802511837796744
+  }
+}

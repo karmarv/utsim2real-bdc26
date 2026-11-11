@@ -1,0 +1,25 @@
+name: voxelrcnn-rosf-gblobs-g1v6
+strategy: S10
+track: lumpi-track
+module: M9 (engine v6) / S10 D3
+derived_from: voxelrcnn-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 deg
+  pitch/roll, the parent's config unchanged
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 increment D3: GBlobs inputs (cell covariance) + object scaling, generator
+  draw 1 (training seed 666)'
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S10 D3 (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 15.13; adopted
+  2026-11-09, ''Adopt, allow GBlobs''): the configs of voxelrcnn-rosf-g1v6 with the
+  GBlobsCellVFE encoder of S5 run a. S5 found GBlobs weaker alone but useful inside
+  fusions (V2X vehicle, LUMPI Car), so it enters a portfolio through the route and
+  fusion search after the member check against voxelrcnn-rosf-g1v6 (rule 4). Realism
+  frames stay pcdet/g1-v6.
+
+  '

@@ -1,0 +1,22 @@
+name: voxelrcnn-rosf-sn-g1v6
+strategy: S10
+track: lumpi-track
+module: M9 (engine v6) / S10 W1 probe
+derived_from: voxelrcnn-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 deg
+  pitch/roll, the parent's config unchanged
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (S10 W1 probe C1 SN, training seed 666)
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S10 W1 (docs/decisions/2026-11-08-s10-clean-final-plan.md, levers C1/C2):
+  voxelrcnn-rosf-g1v6 with statistical normalization of the object sizes (CLASS_CENTER,
+  narrow jitter about it); otherwise the parent config. Enters a portfolio only after
+  the S6 member check against its parent (S10 rule 4).
+
+  '

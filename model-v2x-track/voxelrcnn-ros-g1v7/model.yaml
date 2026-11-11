@@ -1,0 +1,22 @@
+name: voxelrcnn-ros-g1v7
+strategy: S10
+track: v2x-track
+module: M9 (engine v6) / S10 lever B2a
+derived_from: voxelrcnn-ros-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS, the parent's config unchanged
+data:
+  train: pcdet/g1-v7
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 B2a probe: voxelrcnn-ros-g1v6 trained on g1-v7 (g1-v6 plus map-placed
+  static structures)'
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S10 lever B2a (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 14):
+  the parent''s configs and seed on pcdet/g1-v7, whose only change from g1-v6 is --structure
+  30. Enters a portfolio only after the member check against voxelrcnn-ros-g1v6 (S10
+  rule 4).
+
+  '

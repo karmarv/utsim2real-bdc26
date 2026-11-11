@@ -126,6 +126,57 @@ def paired_bootstrap(fa: dict, fb: dict, classes_with_gt: list[str], n: int = 20
     return out
 
 
+def frame_group(fid: str, track_name: str, block: int = 1000) -> str:
+    """S10 rule 14: the resampling unit of the grouped gate. V2X: the scenario folder (`<scenario>__<frame>`).
+    LUMPI: the measurement and a `block`-frame window of it (1000 raw frames = 100 s at 10 Hz)."""
+    head, _, idx = fid.partition("__")
+    if track_name.lower().startswith("lumpi") and idx.isdigit():
+        return f"{head}:{int(idx) // block}"
+    return head
+
+
+def _map_of(fa: dict, fb: dict, classes: list[str], k: str, index=None):
+    da, db = [], []
+    for c in classes:
+        a_, b_ = ap_from_flags(fa[c], k, index), ap_from_flags(fb[c], k, index)
+        if a_ is None or b_ is None:
+            continue
+        da.append(a_)
+        db.append(b_)
+    return (float(np.mean(db) - np.mean(da))) if da else None
+
+
+def grouped_bootstrap(fa: dict, fb: dict, classes_with_gt: list[str], groups: list[str], n: int = 1000,
+                      seed: int = 0, k: str = "3d@0.5") -> dict:
+    """S10 rule 14: paired bootstrap of the mAP delta (b - a) that resamples whole groups of frames (scenarios,
+    recording windows) instead of single frames, so correlated neighbouring frames do not count as independent.
+    groups[i] is the group of frame i (the order of the per-class records). Returns {"delta", "p_gain", "ci90",
+    "n_groups"}."""
+    classes = [c for c in classes_with_gt if c in fa and c in fb and ap_from_flags(fa[c], k) is not None]
+    n_frames = len(next(iter(fa.values())))
+    assert len(groups) == n_frames, "one group label per frame"
+    names = sorted(set(groups))
+    members = {g: np.flatnonzero(np.asarray(groups) == g) for g in names}
+    rng = np.random.default_rng(seed)
+    d = []
+    for _ in range(n):
+        pick = rng.integers(0, len(names), len(names))
+        idx = np.concatenate([members[names[j]] for j in pick])
+        v = _map_of(fa, fb, classes, k, idx)
+        if v is not None:
+            d.append(v)
+    d = np.asarray(d)
+    return {"delta": _map_of(fa, fb, classes, k), "p_gain": float((d > 0).mean()) if len(d) else None,
+            "ci90": [float(np.percentile(d, 5)), float(np.percentile(d, 95))] if len(d) else None, "n_groups": len(names)}
+
+
+def leave_one_group_out(fa: dict, fb: dict, classes_with_gt: list[str], groups: list[str], k: str = "3d@0.5") -> dict:
+    """S10 rule 14: the mAP delta (b - a) with each group removed in turn. Returns {group: delta}."""
+    classes = [c for c in classes_with_gt if c in fa and c in fb and ap_from_flags(fa[c], k) is not None]
+    g = np.asarray(groups)
+    return {name: _map_of(fa, fb, classes, k, np.flatnonzero(g != name)) for name in sorted(set(groups))}
+
+
 def class_gate(delta_b: float, p_gain: float | None, delta_a: float | None,
                min_gain: float = 0.01, min_p: float = 0.9, max_a_drop: float = 0.005) -> bool:
     """The class gate of docs/decisions/README.md Section 3.2."""

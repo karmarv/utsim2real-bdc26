@@ -1,0 +1,27 @@
+name: voxelrcnn-rosf-gblobs-g1v6pq
+strategy: S10
+track: lumpi-track
+module: M9 (engine v6) / S10 L2
+derived_from: voxelrcnn-rosf-gblobs-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 deg
+  pitch/roll, the parent's config unchanged
+data:
+  train: pcdet/g1-v6pq
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 L2 (package A): GBlobs rosf on pcdet/g1-v6pq (g1-v6 with the PandarQT
+  near-field re-cast), training seed 666'
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S10 L2 (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 15.15.7):
+  the configs of voxelrcnn-rosf-gblobs-g1v6 on pcdet/g1-v6pq, which is g1-v6 with
+  the PandarQT (session 36) ground returns within 7 m re-cast onto the sensor''s Measurement4
+  beam table (common/tools/s10_beamfix.py; metadata only; points in labelled boxes
+  unchanged). Pre-registered use: it replaces draw 1 (voxelrcnn-rosf-gblobs-g1v6)
+  in the C2 GBlobs bags, so the realism frames (taken from g1-v6pq) come from a corpus
+  that trains a used member (S10 rule 1). Checked against draw 1 by rule 4 (no class
+  expected to differ). Realism frames: pcdet/g1-v6pq.
+
+  '

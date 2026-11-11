@@ -1,0 +1,21 @@
+{
+  "run": "bag of 4 seeds (TTA tta12)",
+  "members": [
+    "pvrcnnpp-ros-g1v6",
+    "pvrcnnpp-ros-g1v6d2",
+    "pvrcnnpp-ros-g1v6d3",
+    "pvrcnnpp-ros-g1v6d4"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.7019171677547152,
+  "realval_A_per_class": {
+    "vehicle": 0.8480653695974395,
+    "pedestrian": 0.3733083973249893,
+    "truck": 0.8843777363417165
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.6730732253971462,
+  "realval_B_per_class": {
+    "vehicle": 0.8511861334657681,
+    "pedestrian": 0.36629677082739576,
+    "truck": 0.8017367718982745
+  }
+}

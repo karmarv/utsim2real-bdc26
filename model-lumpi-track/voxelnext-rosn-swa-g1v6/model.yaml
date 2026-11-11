@@ -1,0 +1,23 @@
+name: voxelnext-rosn-swa-g1v6
+strategy: S10
+track: lumpi-track
+module: M9 (engine v6) / S10 lever D1
+derived_from: voxelnext-rosn-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: VoxelNeXt-ROS without GT sampling (all 40 epochs) and with +/-1.5 deg
+  pitch/roll; otherwise the parent config
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 D1 probe: weight average of voxelnext-rosn-g1v6 epochs 31-40 (no training)'
+expected: 'the no-GT-sampling arm, which passed on both two-stage families (15.19,
+  15.22), on the decorrelated one-stage family: Car, Truck and Van at or above the
+  fade member'
+notes: 'S10 lever D1 (docs/decisions/2026-11-08-s10-clean-final-plan.md): mean of
+  the 10 checkpoints 31-40 of voxelnext-rosn-g1v6 (common/tools/swa_ckpt.py), batch-norm
+  statistics averaged too; same corpus as the parent. Enters a portfolio only after
+  the S6 member check against its parent (S10 rule 4).
+
+  '

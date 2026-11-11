@@ -1,0 +1,443 @@
+{
+  "vehicle": {
+    "incumbent": "bvrrosswa6x4_tta",
+    "incumbent_A": 0.8455110294230082,
+    "incumbent_B": 0.8549310565963951,
+    "best": {
+      "members": [
+        "bvrrosswa6x4_tta",
+        "bpvrosswa6x4_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8535690602784225,
+      "B": 0.8610462158659835
+    },
+    "dB": 0.006115159269588388,
+    "p_gain": 0.99,
+    "ci90": [
+      0.0025243777086196243,
+      0.010040900603994145
+    ],
+    "dA": 0.008058030855414344,
+    "pooled": {
+      "delta": 0.006870298622021154,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "bvrrosswa6x4_tta+bpvrosswa6x4_tta@0.3": {
+        "val": 0.8364423800016383,
+        "valB": 0.8420725531971461
+      },
+      "bvrrosswa6x4_tta+bpvrosswa6x4_tta@0.5": {
+        "val": 0.8517271792554432,
+        "valB": 0.85875011455847
+      },
+      "bvrrosswa6x4_tta+bpvrosswa6x4_tta@0.7": {
+        "val": 0.8535690602784225,
+        "valB": 0.8610462158659835
+      },
+      "bvrrosswa6x4_tta+bpvros6x4_tta@0.3": {
+        "val": 0.8320514587835337,
+        "valB": 0.8421351728155368
+      },
+      "bvrrosswa6x4_tta+bpvros6x4_tta@0.5": {
+        "val": 0.8500855284312336,
+        "valB": 0.8570029547937461
+      },
+      "bvrrosswa6x4_tta+bpvros6x4_tta@0.7": {
+        "val": 0.8534024085545848,
+        "valB": 0.8598278513330566
+      },
+      "bvrrosswa6x3_tta+bpvrosswa6x4_tta@0.3": {
+        "val": 0.8357599570465892,
+        "valB": 0.842417412989737
+      },
+      "bvrrosswa6x3_tta+bpvrosswa6x4_tta@0.5": {
+        "val": 0.8506107908060457,
+        "valB": 0.8589424676220345
+      },
+      "bvrrosswa6x3_tta+bpvrosswa6x4_tta@0.7": {
+        "val": 0.8522835604212308,
+        "valB": 0.8605887585739227
+      },
+      "bvrrosswa6x3_tta+bpvros6x4_tta@0.3": {
+        "val": 0.8330804589557228,
+        "valB": 0.8411736055177178
+      },
+      "bvrrosswa6x3_tta+bpvros6x4_tta@0.5": {
+        "val": 0.8487774062255962,
+        "valB": 0.8569249893075728
+      },
+      "bvrrosswa6x3_tta+bpvros6x4_tta@0.7": {
+        "val": 0.8518512498375204,
+        "valB": 0.8589858334670316
+      },
+      "bpvrosswa6x4_tta+bpvros6x4_tta@0.3": {
+        "val": 0.8230770227440262,
+        "valB": 0.8360703076862063
+      },
+      "bpvrosswa6x4_tta+bpvros6x4_tta@0.5": {
+        "val": 0.8410530121665267,
+        "valB": 0.8488753899040045
+      },
+      "bpvrosswa6x4_tta+bpvros6x4_tta@0.7": {
+        "val": 0.8461123987023857,
+        "valB": 0.8531718134076567
+      },
+      "bvrrosswa6x4_tta+bpvrosswa6x4_tta+bpvros6x4_tta@0.3": {
+        "val": 0.8345736675629668,
+        "valB": 0.8401525737442789
+      },
+      "bvrrosswa6x4_tta+bpvrosswa6x4_tta+bpvros6x4_tta@0.5": {
+        "val": 0.8513249981093545,
+        "valB": 0.8567075860824763
+      },
+      "bvrrosswa6x4_tta+bpvrosswa6x4_tta+bpvros6x4_tta@0.7": {
+        "val": 0.8529138408255115,
+        "valB": 0.8589874432202731
+      },
+      "bvrrosswa6x3_tta+bpvrosswa6x4_tta+bpvros6x4_tta@0.3": {
+        "val": 0.8335316990544227,
+        "valB": 0.8420045442822847
+      },
+      "bvrrosswa6x3_tta+bpvrosswa6x4_tta+bpvros6x4_tta@0.5": {
+        "val": 0.8494515986637408,
+        "valB": 0.8553755859858629
+      },
+      "bvrrosswa6x3_tta+bpvrosswa6x4_tta+bpvros6x4_tta@0.7": {
+        "val": 0.8521565640500907,
+        "valB": 0.8589600566512454
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bvrrosswa6x4_tta",
+          "bpvrosswa6x4_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.006115159269588388,
+        "p_gain": 0.99,
+        "dA": 0.008058030855414344,
+        "pooled": {
+          "delta": 0.006870298622021154,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bvrrosswa6x4_tta",
+        "bpvrosswa6x4_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8535690602784225,
+      "B": 0.8610462158659835
+    }
+  },
+  "pedestrian": {
+    "incumbent": "bvrros6x_tta12",
+    "incumbent_A": 0.3797720425947041,
+    "incumbent_B": 0.37339331408925885,
+    "best": {
+      "members": [
+        "vrros6d2_tta12",
+        "vrros6_tta12",
+        "vrrosf6_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.3864667174524298,
+      "B": 0.37453225428039055
+    },
+    "dB": 0.0011389401911316988,
+    "p_gain": 0.81,
+    "ci90": [
+      -0.0021378777886301215,
+      0.005322606045388477
+    ],
+    "dA": 0.00669467485772568,
+    "pooled": {
+      "delta": 0.00504238648142985,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "bvrros6x_tta12+vrrosf6_tta12@0.3": {
+        "val": 0.3833906261248066,
+        "valB": 0.37395594361990925
+      },
+      "bvrros6x_tta12+vrrosf6_tta12@0.5": {
+        "val": 0.3851030750469168,
+        "valB": 0.37479496337351154
+      },
+      "bvrros6x_tta12+vrrosf6_tta12@0.7": {
+        "val": 0.38101565642349805,
+        "valB": 0.3714629701664257
+      },
+      "vrros6d2_tta12+vrros6_tta12@0.3": {
+        "val": 0.3793912427430878,
+        "valB": 0.3734225552365019
+      },
+      "vrros6d2_tta12+vrros6_tta12@0.5": {
+        "val": 0.37993814929967473,
+        "valB": 0.37359669791250605
+      },
+      "vrros6d2_tta12+vrros6_tta12@0.7": {
+        "val": 0.376099875507032,
+        "valB": 0.36738026422284537
+      },
+      "vrros6d2_tta12+vrrosf6_tta12@0.3": {
+        "val": 0.3849478858341665,
+        "valB": 0.37148566142320244
+      },
+      "vrros6d2_tta12+vrrosf6_tta12@0.5": {
+        "val": 0.3857957521468696,
+        "valB": 0.3720396927234164
+      },
+      "vrros6d2_tta12+vrrosf6_tta12@0.7": {
+        "val": 0.3803291494640889,
+        "valB": 0.36522906890102347
+      },
+      "vrros6_tta12+vrrosf6_tta12@0.3": {
+        "val": 0.3805708961921523,
+        "valB": 0.37751608882011223
+      },
+      "vrros6_tta12+vrrosf6_tta12@0.5": {
+        "val": 0.3818336898581436,
+        "valB": 0.3783879717466701
+      },
+      "vrros6_tta12+vrrosf6_tta12@0.7": {
+        "val": 0.3786603812281189,
+        "valB": 0.37574444821718644
+      },
+      "vrros6d2_tta12+vrros6_tta12+vrrosf6_tta12@0.3": {
+        "val": 0.3849354851741339,
+        "valB": 0.3745833638967168
+      },
+      "vrros6d2_tta12+vrros6_tta12+vrrosf6_tta12@0.5": {
+        "val": 0.38685070998730714,
+        "valB": 0.37512473332024066
+      },
+      "vrros6d2_tta12+vrros6_tta12+vrrosf6_tta12@0.7": {
+        "val": 0.38120657811529324,
+        "valB": 0.3692646263779583
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vrros6d2_tta12",
+          "vrros6_tta12",
+          "vrrosf6_tta12"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0011389401911316988,
+        "p_gain": 0.81,
+        "dA": 0.00669467485772568,
+        "pooled": {
+          "delta": 0.00504238648142985,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrros6d2_tta12",
+        "vrros6_tta12",
+        "vrrosf6_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.38685070998730714,
+      "B": 0.37512473332024066
+    }
+  },
+  "truck": {
+    "incumbent": "vrrosf6_tta12",
+    "incumbent_A": 0.8747118265432661,
+    "incumbent_B": 0.8417679816621032,
+    "best": {
+      "members": [
+        "vrrosf6_tta12",
+        "bvrros6x3_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.9091684458646654,
+      "B": 0.849270962242896
+    },
+    "dB": 0.007502980580792795,
+    "p_gain": 1.0,
+    "ci90": [
+      0.0037732964834196526,
+      0.01395537739340517
+    ],
+    "dA": 0.03445661932139932,
+    "pooled": {
+      "delta": 0.02716639711126878,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "vrrosf6_tta12+vrrosfswa6_tta@0.3": {
+        "val": 0.876349163973353,
+        "valB": 0.8386891522376022
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta@0.5": {
+        "val": 0.8763702459625892,
+        "valB": 0.8418097717221033
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta@0.7": {
+        "val": 0.8762629852443847,
+        "valB": 0.8445693874116698
+      },
+      "vrrosf6_tta12+bvrrosswa6x3_tta@0.3": {
+        "val": 0.9077212628482533,
+        "valB": 0.8425101830825484
+      },
+      "vrrosf6_tta12+bvrrosswa6x3_tta@0.5": {
+        "val": 0.9068367277413996,
+        "valB": 0.8479248177689238
+      },
+      "vrrosf6_tta12+bvrrosswa6x3_tta@0.7": {
+        "val": 0.9061305340046111,
+        "valB": 0.8466315958141986
+      },
+      "vrrosf6_tta12+bvrros6x3_tta@0.3": {
+        "val": 0.9101167084780079,
+        "valB": 0.8468755340800657
+      },
+      "vrrosf6_tta12+bvrros6x3_tta@0.5": {
+        "val": 0.9091959142438402,
+        "valB": 0.8477806934657037
+      },
+      "vrrosf6_tta12+bvrros6x3_tta@0.7": {
+        "val": 0.9091684458646654,
+        "valB": 0.849270962242896
+      },
+      "vrrosfswa6_tta+bvrrosswa6x3_tta@0.3": {
+        "val": 0.901773067881539,
+        "valB": 0.8443208503492198
+      },
+      "vrrosfswa6_tta+bvrrosswa6x3_tta@0.5": {
+        "val": 0.9008449894879444,
+        "valB": 0.8471303050961012
+      },
+      "vrrosfswa6_tta+bvrrosswa6x3_tta@0.7": {
+        "val": 0.8989933867076573,
+        "valB": 0.8482063227981461
+      },
+      "vrrosfswa6_tta+bvrros6x3_tta@0.3": {
+        "val": 0.9020921678899763,
+        "valB": 0.8468088053576721
+      },
+      "vrrosfswa6_tta+bvrros6x3_tta@0.5": {
+        "val": 0.9015042927258845,
+        "valB": 0.8484956629146791
+      },
+      "vrrosfswa6_tta+bvrros6x3_tta@0.7": {
+        "val": 0.9004262934258648,
+        "valB": 0.8494564166972112
+      },
+      "bvrrosswa6x3_tta+bvrros6x3_tta@0.3": {
+        "val": 0.881412885280492,
+        "valB": 0.8230348636966444
+      },
+      "bvrrosswa6x3_tta+bvrros6x3_tta@0.5": {
+        "val": 0.8797698709409245,
+        "valB": 0.8243913563688091
+      },
+      "bvrrosswa6x3_tta+bvrros6x3_tta@0.7": {
+        "val": 0.8797698709409245,
+        "valB": 0.8241189459938291
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta+bvrrosswa6x3_tta@0.3": {
+        "val": 0.9048451794900163,
+        "valB": 0.8455147963675429
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta+bvrrosswa6x3_tta@0.5": {
+        "val": 0.9035686145362807,
+        "valB": 0.8501813472294538
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta+bvrrosswa6x3_tta@0.7": {
+        "val": 0.9033464342999136,
+        "valB": 0.8523930895240437
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta+bvrros6x3_tta@0.3": {
+        "val": 0.9054343444516781,
+        "valB": 0.8497615113533875
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta+bvrros6x3_tta@0.5": {
+        "val": 0.9048348637994174,
+        "valB": 0.8502941711317217
+      },
+      "vrrosf6_tta12+vrrosfswa6_tta+bvrros6x3_tta@0.7": {
+        "val": 0.9046546975638927,
+        "valB": 0.8513643093250879
+      },
+      "vrrosf6_tta12+bvrrosswa6x3_tta+bvrros6x3_tta@0.3": {
+        "val": 0.9033568377565413,
+        "valB": 0.8424776927079922
+      },
+      "vrrosf6_tta12+bvrrosswa6x3_tta+bvrros6x3_tta@0.5": {
+        "val": 0.9022552623807922,
+        "valB": 0.8432169662442867
+      },
+      "vrrosf6_tta12+bvrrosswa6x3_tta+bvrros6x3_tta@0.7": {
+        "val": 0.9012260094642397,
+        "valB": 0.8442572991139483
+      },
+      "vrrosfswa6_tta+bvrrosswa6x3_tta+bvrros6x3_tta@0.3": {
+        "val": 0.9028864223609283,
+        "valB": 0.8421088984613153
+      },
+      "vrrosfswa6_tta+bvrrosswa6x3_tta+bvrros6x3_tta@0.5": {
+        "val": 0.9019170971677859,
+        "valB": 0.8460696585188895
+      },
+      "vrrosfswa6_tta+bvrrosswa6x3_tta+bvrros6x3_tta@0.7": {
+        "val": 0.9007375682200317,
+        "valB": 0.8468056606814066
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vrrosf6_tta12",
+          "bvrros6x3_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.007502980580792795,
+        "p_gain": 1.0,
+        "dA": 0.03445661932139932,
+        "pooled": {
+          "delta": 0.02716639711126878,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrrosf6_tta12",
+        "bvrros6x3_tta"
+      ],
+      "iou": 0.3,
+      "A": 0.9101167084780079,
+      "B": 0.8468755340800657
+    }
+  }
+}

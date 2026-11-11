@@ -37,6 +37,8 @@ come from the member that is best for it on real validation.
     # S7 sparse-box demotion (V2X): per class the threshold k (fewer points -> ranked last) with the best realval-A AP,
     # kept by the pooled rule and a k - 1 robustness check; writes model.yaml `sparse_demotion`, then validates
     python common/tools/route_predictions.py sparse model-v2x-track/routed-g9
+    # S10 V5 overhead-points demotion (rule 11; boxes with >= k points just above their top ranked last), per class
+    python common/tools/route_predictions.py overhead model-v2x-track/routed-c1 --classes pedestrian
     # merge predictions json files with the route in model.yaml (and the `calibration` and `fusion`, if any; the S7
     # stage counts points of the kit test frames, or of --frames <dataset>)
     python common/tools/route_predictions.py merge model-lumpi-track/routed-g1 --pred g1=a.json --pred g1v3=b.json --out c.json
@@ -266,7 +268,8 @@ def merge_route(route: dict, preds: dict) -> dict:
 def merge_card(card: dict, preds: dict, points_of=None) -> dict:
     """The routed model's predictions: classes in `fusion` from the fused members (each with its own gated z
     calibration), the other classes from their routed member with the class-level `calibration`; then score floors,
-    tail copies and (S7) the sparse-box demotion, which needs the frames' points (`points_of(frame_id)`, frame_points)."""
+    tail copies, (S7) the sparse-box demotion and (S10 V5) the overhead-points demotion, which need the frames' points
+    (`points_of(frame_id)`, frame_points)."""
     from bdc26.detect.fusion import fuse_dets
     fusion = card.get("fusion") or {}
     route = {c: m for c, m in card["route"].items() if c not in fusion}
@@ -281,10 +284,13 @@ def merge_card(card: dict, preds: dict, points_of=None) -> dict:
             srcs.append(zcalib.apply(pc, {c: cal}) if cal else pc)
         for f in ids:
             out.setdefault(f, []).extend(fuse_dets([s_[f] for s_ in srcs], fz["iou"], fz.get("weights")))
+    out = apply_point_rescore(out, card.get("point_rescore"), points_of)    # S10 D2, before the budget and every copy stage
     out = apply_tail_copies(apply_budget(out, card.get("budget")), card.get("tail_copies"))
     # S8.3 `final_copies` (same spec as tail_copies), after the sparse stage: scored below every box of the class,
     # demoted ones included, so they cannot lower AP even where the S7 stage reorders the tail
-    out = apply_tail_copies(apply_sparse_demotion(out, card.get("sparse_demotion"), points_of), card.get("final_copies"))
+    out = apply_sparse_demotion(out, card.get("sparse_demotion"), points_of)
+    out = apply_overhead_demotion(out, card.get("overhead_demotion"), points_of)    # S10 V5, after the S7 stage
+    out = apply_tail_copies(out, card.get("final_copies"))
     return apply_size_calibration(out, card.get("size_calibration"))
 
 
@@ -374,7 +380,7 @@ def sparse_select(model_dir: Path, card: dict, track, classes, grid=(2, 3, 4, 5,
     rule), and k - 1 also gains on the pooled frames (no lone spike next to a cliff). Writes model.yaml
     `sparse_demotion` and validation/results/sparse_table.json."""
     root = data_path(track, card["data"]["realval"])
-    base_card = {**card, "sparse_demotion": None}
+    base_card = {**card, "sparse_demotion": None, "overhead_demotion": None}    # the V5 stage comes after this one
     points_of = frame_points(track, card["data"]["realval"])
     gts, base, counts = {}, {}, {}
     for split in ("val", "valB"):
@@ -411,6 +417,189 @@ def sparse_select(model_dir: Path, card: dict, track, classes, grid=(2, 3, 4, 5,
     (model_dir / "model.yaml").write_text(yaml.safe_dump({k: v for k, v in card.items() if v is not None or k != "sparse_demotion"},
                                                          sort_keys=False))
     (model_dir / "validation" / "results" / "sparse_table.json").write_text(json.dumps(report, indent=2))
+    return spec
+
+
+def apply_point_rescore(preds: dict, spec: dict | None, points_of=None, counts: dict | None = None) -> dict:
+    """S10 D2 point-count rescoring (model.yaml `point_rescore: {class: beta}`; record
+    docs/decisions/2026-11-08-s10-clean-final-plan.md Section 15.13, after AMAN_UPG, arXiv 2611.03940): a box of class c
+    with n interior points (bdc26.boxes.count_points_per_box, nulls excluded) is re-scored s * ((n + 1) / (N + 1))^beta,
+    N the largest count of the class in the prediction set, so no score rises and the ranking inside the class moves
+    toward well-sampled boxes. Nothing is deleted; it runs before the budget and every copy stage."""
+    if not spec:
+        return preds
+    if counts is None:
+        if points_of is None:
+            raise ValueError("point_rescore needs the frames' points: pass points_of (route_predictions.frame_points)")
+        counts = box_point_counts(preds, set(spec), points_of)
+    top = {c: max([int(n[j]) for f, v in preds.items() for j, d in enumerate(v) if d["class"] == c
+                   for n in (counts[f],)] or [0]) for c in spec}
+    out = {}
+    for f, v in preds.items():
+        n = counts[f]
+        out[f] = [({**d, "score": d["score"] * ((max(int(n[j]), 0) + 1) / (top[d["class"]] + 1)) ** float(spec[d["class"]])}
+                   if d["class"] in spec else d) for j, d in enumerate(v)]
+    return out
+
+
+def pointscore_select(model_dir: Path, card: dict, track, classes, grid=(0.05, 0.1, 0.15, 0.2), n_boot: int = 200,
+                      seed: int = 0, max_drop: float = 0.005) -> dict:
+    """S10 D2 (the rule 11 form of the S7 and V5 stages): per class, the beta of `grid` with the best realval-A AP on the
+    final predictions without the stage (ties: the smaller beta). Kept only if the pooled A+B gain has paired-bootstrap
+    P(gain) >= 0.9, neither split drops by more than max_drop, and a neighbouring beta of the grid also gains on the
+    pooled frames (no lone spike). Writes model.yaml `point_rescore` and validation/results/pointscore_table.json."""
+    root = data_path(track, card["data"]["realval"])
+    base_card = {**card, "point_rescore": None}
+    points_of = frame_points(track, card["data"]["realval"])
+    gts, pre, counts = {}, {}, {}
+    no_post = {**base_card, "budget": None, "tail_copies": None, "sparse_demotion": None, "overhead_demotion": None,
+               "final_copies": None, "size_calibration": None}
+    for split in ("val", "valB"):
+        gts[split] = sc.load_split(root, split)
+        preds = {n: json.loads(validation_predictions(model_dir.parent / card["members"][n]["model"], card, split,
+                                                      tag=member_tag(card["members"][n])).read_text()) for n in used_members(card)}
+        pre[split] = (preds, {i: v for i, v in merge_card(no_post, preds).items()})
+        counts[split] = box_point_counts(pre[split][1], set(classes), points_of)
+
+    def final(split, spec):
+        preds, merged = pre[split]
+        out = apply_point_rescore(merged, spec, counts=counts[split])
+        rest = {**base_card, "route": {}, "fusion": {}, "calibration": {}}          # the post stages of the card, once
+        out = apply_tail_copies(apply_budget(out, rest.get("budget")), rest.get("tail_copies"))
+        out = apply_sparse_demotion(out, rest.get("sparse_demotion"), points_of)
+        out = apply_overhead_demotion(out, rest.get("overhead_demotion"), points_of)
+        out = apply_tail_copies(out, rest.get("final_copies"))
+        out = apply_size_calibration(out, rest.get("size_calibration"))
+        return {i: out.get(i, []) for i in gts[split]}
+
+    base = {s_: final(s_, None) for s_ in gts}
+    spec, report = {}, {}
+    for c in classes:
+        fl0 = {s_: sc.frame_flags(base[s_], gts[s_], [c])[c] for s_ in gts}
+        ap0 = {s_: sc.ap_from_flags(fl0[s_], "3d@0.5") for s_ in gts}
+        if ap0["valB"] is None:
+            continue
+        rows = []
+        for b in grid:
+            fb = {s_: sc.frame_flags(final(s_, {c: b}), gts[s_], [c])[c] for s_ in gts}
+            pg = sc.pooled_gate(fl0, fb, c, n_boot, seed)
+            rows.append({"beta": b, "A": sc.ap_from_flags(fb["val"], "3d@0.5"), "B": sc.ap_from_flags(fb["valB"], "3d@0.5"),
+                         "pooled_delta": pg["delta"], "p_gain": pg["p_gain"], "pooled_ok": pg["ok"]})
+        best_i = max(range(len(rows)), key=lambda i: (rows[i]["A"], -rows[i]["beta"]))
+        best = rows[best_i]
+        nb = [rows[i] for i in (best_i - 1, best_i + 1) if 0 <= i < len(rows)]
+        drops = {"val": ap0["val"] - best["A"], "valB": ap0["valB"] - best["B"]}
+        ok = (best["pooled_ok"] and all(v <= max_drop for v in drops.values()) and any(r["pooled_delta"] > 0 for r in nb))
+        report[c] = {"base": {"A": ap0["val"], "B": ap0["valB"]}, "grid": rows, "chosen_beta": best["beta"],
+                     "dA": best["A"] - ap0["val"], "dB": best["B"] - ap0["valB"],
+                     "pooled": {"delta": best["pooled_delta"], "p_gain": best["p_gain"]}, "kept": ok}
+        print(c, json.dumps({k_: v for k_, v in report[c].items() if k_ != "grid"}), flush=True)
+        if ok:
+            spec[c] = best["beta"]
+    card["point_rescore"] = spec or None
+    (model_dir / "model.yaml").write_text(yaml.safe_dump({k: v for k, v in card.items() if v is not None or k != "point_rescore"},
+                                                         sort_keys=False))
+    (model_dir / "validation" / "results" / "pointscore_table.json").write_text(json.dumps(report, indent=2))
+    return spec
+
+
+OVERHEAD_BAND = (0.2, 2.0)      # metres above the box top
+OVERHEAD_SHRINK = 0.9           # share of the box footprint (l and w) searched
+
+
+def overhead_point_counts(preds: dict, classes, points_of, band=OVERHEAD_BAND, shrink=OVERHEAD_SHRINK) -> dict:
+    """Per frame, for each box of `classes`, the points inside `shrink` of its BEV footprint and `band` metres above its
+    top (z + h / 2); -1 for the other boxes. Nulls (all-zero rows) are excluded."""
+    out = {}
+    for f, v in preds.items():
+        n = np.full(len(v), -1, dtype=np.int64)
+        idx = [j for j, d in enumerate(v) if d["class"] in classes]
+        if idx:
+            pts = np.asarray(points_of(f))[:, :3].astype(np.float64)
+            pts = pts[np.abs(pts).sum(1) > 0]
+            for j in idx:
+                x, y, z, l, w, h, yaw = (float(t) for t in v[j]["box"][:7])
+                dx, dy = pts[:, 0] - x, pts[:, 1] - y
+                c, s_ = np.cos(yaw), np.sin(yaw)
+                u, q = dx * c + dy * s_, -dx * s_ + dy * c              # box frame
+                top = z + h / 2
+                n[j] = int(np.sum((np.abs(u) <= shrink * l / 2) & (np.abs(q) <= shrink * w / 2)
+                                  & (pts[:, 2] > top + band[0]) & (pts[:, 2] < top + band[1])))
+        out[f] = n
+    return out
+
+
+def apply_overhead_demotion(preds: dict, spec: dict | None, points_of=None, counts: dict | None = None) -> dict:
+    """S10 V5 overhead-points demotion (model.yaml `overhead_demotion: {class: k}`; record
+    docs/decisions/2026-11-08-s10-clean-final-plan.md Sections 14-15, rule 11): a box of class c with at least k points
+    in the band above its top (inside its footprint) is re-scored s * g, g = 0.99 * (smallest score of the class) /
+    (largest), so it ranks below every other box of its class and keeps its order among the demoted ones; nothing is
+    deleted. A walker has nothing directly above its head; a box under a canopy, a sign or a structure's overhang
+    usually marks a false positive (validation, V2X: 36% of false and 3.4% of true pedestrian boxes above score 0.1)."""
+    if not spec:
+        return preds
+    if counts is None:
+        if points_of is None:
+            raise ValueError("overhead_demotion needs the frames' points: pass points_of (route_predictions.frame_points)")
+        counts = overhead_point_counts(preds, set(spec), points_of)
+    g = {}
+    for c in spec:
+        s = [d["score"] for v in preds.values() for d in v if d["class"] == c]
+        if s and max(s) > 0:
+            g[c] = 0.99 * min(s) / max(s)
+    out = {}
+    for f, v in preds.items():
+        n = counts[f]
+        out[f] = [({**d, "score": d["score"] * g[d["class"]]} if d["class"] in g and n[j] >= int(spec[d["class"]]) else d)
+                  for j, d in enumerate(v)]
+    return out
+
+
+def overhead_select(model_dir: Path, card: dict, track, classes, grid=(3, 5, 10, 20), n_boot: int = 200,
+                    seed: int = 0, max_drop: float = 0.005) -> dict:
+    """S10 rule 11 (the S7 sparse rule): per class, the threshold k of `grid` with the best realval-A AP (ties: the
+    larger k, which demotes fewer boxes), on the final predictions without the stage. Kept only if the pooled A+B gain
+    has paired-bootstrap P(gain) >= 0.9, neither split drops by more than max_drop, and the next larger k of the grid
+    also gains on the pooled frames (no lone spike). Writes model.yaml `overhead_demotion` and
+    validation/results/overhead_table.json."""
+    root = data_path(track, card["data"]["realval"])
+    base_card = {**card, "overhead_demotion": None}
+    points_of = frame_points(track, card["data"]["realval"])
+    gts, base, counts = {}, {}, {}
+    for split in ("val", "valB"):
+        gts[split] = sc.load_split(root, split)
+        base[split] = merge_card(base_card, {n: json.loads(validation_predictions(
+            model_dir.parent / card["members"][n]["model"], card, split, tag=member_tag(card["members"][n])).read_text())
+            for n in used_members(card)}, points_of)
+        base[split] = {i: base[split].get(i, []) for i in gts[split]}
+        counts[split] = overhead_point_counts(base[split], set(classes), points_of)
+    spec, report = {}, {}
+    for c in classes:
+        fl0 = {s_: sc.frame_flags(base[s_], gts[s_], [c])[c] for s_ in gts}
+        ap0 = {s_: sc.ap_from_flags(fl0[s_], "3d@0.5") for s_ in gts}
+        if ap0["valB"] is None:
+            continue
+        rows = []
+        for k in grid:
+            fk = {s_: sc.frame_flags(apply_overhead_demotion(base[s_], {c: k}, counts=counts[s_]), gts[s_], [c])[c] for s_ in gts}
+            pg = sc.pooled_gate(fl0, fk, c, n_boot, seed)
+            rows.append({"k": k, "A": sc.ap_from_flags(fk["val"], "3d@0.5"), "B": sc.ap_from_flags(fk["valB"], "3d@0.5"),
+                         "pooled_delta": pg["delta"], "p_gain": pg["p_gain"], "pooled_ok": pg["ok"]})
+        best = max(rows, key=lambda r: (r["A"], r["k"]))
+        nxt = next((r for r in rows if r["k"] > best["k"]), None)
+        drops = {s_: ap0[s_] - best["A" if s_ == "val" else "B"] for s_ in gts}
+        ok = (best["pooled_ok"] and all(v <= max_drop for v in drops.values())
+              and (nxt is None or nxt["pooled_delta"] > 0))
+        report[c] = {"base": {"A": ap0["val"], "B": ap0["valB"]}, "grid": rows, "chosen_k": best["k"],
+                     "dA": best["A"] - ap0["val"], "dB": best["B"] - ap0["valB"], "pooled": {"delta": best["pooled_delta"],
+                     "p_gain": best["p_gain"]}, "next_k_pooled_delta": nxt and nxt["pooled_delta"], "kept": ok}
+        print(c, json.dumps({k_: v for k_, v in report[c].items() if k_ != "grid"}), flush=True)
+        if ok:
+            spec[c] = best["k"]
+    card["overhead_demotion"] = spec or None
+    (model_dir / "model.yaml").write_text(yaml.safe_dump({k: v for k, v in card.items() if v is not None or k != "overhead_demotion"},
+                                                         sort_keys=False))
+    (model_dir / "validation" / "results" / "overhead_table.json").write_text(json.dumps(report, indent=2))
     return spec
 
 
@@ -451,7 +640,7 @@ def tail_select(model_dir: Path, card: dict, track, classes, radii=(0.1, 0.15, 0
     """R5: per walker class, the copy radius with the best realval-A AP; kept only through the class gate on B and the
     pooled A+B condition against the same predictions without copies. Writes model.yaml `tail_copies`."""
     root = data_path(track, card["data"]["realval"])
-    base_card = {**card, "tail_copies": None, "sparse_demotion": None}      # tail copies come before the S7 stage
+    base_card = {**card, "tail_copies": None, "sparse_demotion": None, "overhead_demotion": None}  # before the S7 and V5 stages
     merged, gts = {}, {}
     for split in ("val", "valB"):
         gts[split] = sc.load_split(root, split)
@@ -518,6 +707,7 @@ def validate(model_dir: Path, card: dict, track, registry_run: str = "routed") -
     tag += (" + fusion (" + ", ".join(sorted(card["fusion"])) + ")") if card.get("fusion") else ""
     tag += " + budget" if card.get("budget") else ""
     tag += " + sparse demotion" if card.get("sparse_demotion") else ""
+    tag += " + overhead demotion" if card.get("overhead_demotion") else ""
     scores = {"run": "routed (official metric)" + tag}
     for split, k in (("val", "A"), ("valB", "B")):
         preds = {}
@@ -621,6 +811,21 @@ def variant_candidates(card: dict, prior: dict, classes, tag: str) -> dict:
     return out
 
 
+def disjoint_pool(pool: list, ranked_all: list, weights) -> list:
+    """S10 C1 (2026-11-10): correlated draw-bag variants (3-, 4- and 5-draw bags, plain or averaged, 8- or 12-view) can
+    fill a class's fusion pool with members that all share a checkpoint, which leaves no fusion candidate (LUMPI C1
+    Person: the four averaged rosf bags). Then the best-ranked member below the pool that shares no checkpoint with some
+    pool member joins it. A pool that already holds a checkpoint-disjoint pair is returned unchanged."""
+    import itertools
+    ok = lambda a, b: not (set(weights(a)) & set(weights(b)))
+    if any(ok(a, b) for a, b in itertools.combinations(pool, 2)):
+        return list(pool)
+    for n in ranked_all:
+        if n not in pool and any(ok(n, m) for m in pool):
+            return list(pool) + [n]
+    return list(pool)
+
+
 def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, classes=None, iou_grid=(0.3, 0.5, 0.7),
                 top: int = 4, workers: int = 16, max_members: int = 2, pooled: bool = False,
                 late_rank=(), gate_top: int = 1, judge=(), judge_top: int = 6, pooled_rule: bool = False,
@@ -689,7 +894,16 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
             early_ap[c][n] = sc.ap_from_flags(fl_, "3d@0.5") or 0.0
         ranked[c] = sorted(early_ap[c], key=lambda n: -early_ap[c][n])[:judge_top]
         print(f"  {c}: judge pool by early-A " + ", ".join(f"{n} {early_ap[c][n]:.4f}" for n in ranked[c]), flush=True)
-    W = {n: member_weights(model_dir, card, n) for c in classes for n in ranked[c]}
+    _w = {}
+    wfn = lambda n: _w.setdefault(n, member_weights(model_dir, card, n))
+    for c in classes:                                   # S10 C1: a pool of correlated variants gets one disjoint member
+        full = (sorted(early_ap[c], key=lambda n: -early_ap[c][n]) if c in judge else
+                sorted(table[c]["members"], key=lambda n: -(table[c]["members"][n]["joint"] or 0.0)))
+        grown = disjoint_pool(ranked[c], full, wfn)
+        if len(grown) > len(ranked[c]):
+            print(f"  {c}: no checkpoint-disjoint pair in the top {len(ranked[c])}; {grown[-1]} joins the pool", flush=True)
+        ranked[c] = grown
+    W = {n: wfn(n) for c in classes for n in ranked[c]}
     sets = lambda c: [m for k in range(2, max_members + 1) for m in itertools.combinations(ranked[c], k)
                       if len(set().union(*(W[n] for n in m))) == sum(len(W[n]) for n in m)]   # no checkpoint used twice
     jobs = [(c, members, thr) for c in classes for members in sets(c) for thr in iou_grid]
@@ -707,6 +921,9 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
         need = set(ranked[c]) | set(prior.get(c, {}).get("members", []))
         _FUSE["preds"] = {(n, split): class_preds(n, split, c) for n in need for split in ("val", "valB")}
         cj = [j for j in jobs if j[0] == c]
+        if not cj:                                      # nothing to fuse: the class keeps its routed member
+            print(f"  {c}: no fusion candidate", flush=True)
+            continue
         _FUSE["late"] = late_ids if (c in late_rank or c in judge) else None
         _FUSE["early"] = early_ids if c in judge else None
         gc.collect(); gc.freeze()                       # S9 s9h OOM: the workers' gc no longer copies the parent's heap
@@ -824,7 +1041,7 @@ def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002, p
     flags, counts = {}, {}
     for split in ("val", "valB"):
         gts = sc.load_split(root, split)
-        merged = merge_card({**card, "budget": None, "sparse_demotion": None}, {n: json.loads(validation_predictions(
+        merged = merge_card({**card, "budget": None, "sparse_demotion": None, "overhead_demotion": None}, {n: json.loads(validation_predictions(
             model_dir.parent / card["members"][n]["model"], card, split, tag=member_tag(card["members"][n])).read_text())
             for n in used_members(card)})
         flags[split] = sc.frame_flags({i: merged.get(i, []) for i in gts}, gts, track.classes)
@@ -856,12 +1073,59 @@ def budget_select(model_dir: Path, card: dict, track, max_loss: float = 0.002, p
     return budget
 
 
+def _size_entry(card: dict, c: str):
+    """A class's anchored size calibration with the anchors it is measured from (S10: the C1 dry run routed-c1a,
+    2026-11-09, reverted Person and Car to C0's routes without C0's size entries: Person pooled -0.0048 vs C0)."""
+    spec = card.get("size_calibration") or {}
+    k = (spec.get("classes") or {}).get(c)
+    return None if not k else (json.dumps(spec.get("anchors"), sort_keys=True), json.dumps(k, sort_keys=True))
+
+
+def _restore_size_entry(card: dict, vs_card: dict, c: str) -> None:
+    vs = vs_card.get("size_calibration") or {}
+    k = (vs.get("classes") or {}).get(c)
+    spec = dict(card.get("size_calibration") or {})
+    classes = dict(spec.get("classes") or {})
+    if not k:
+        classes.pop(c, None)
+    else:
+        others = {n for n in classes if n != c}
+        if spec.get("anchors") is not None and spec.get("anchors") != vs.get("anchors") and others:
+            raise SystemExit(f"{c}: the incumbent's size calibration uses other anchors than {sorted(others)} here")
+        spec["anchors"] = vs.get("anchors")
+        classes[c] = k
+    if classes or spec:
+        spec["classes"] = classes
+        card["size_calibration"] = spec
+
+
 def _class_config(card: dict, c: str) -> tuple:
     return (card.get("route", {}).get(c), (card.get("calibration") or {}).get(c), (card.get("fusion") or {}).get(c),
-            (card.get("budget") or {}).get(c), (card.get("tail_copies") or {}).get(c), (card.get("sparse_demotion") or {}).get(c))
+            (card.get("budget") or {}).get(c), (card.get("tail_copies") or {}).get(c), (card.get("sparse_demotion") or {}).get(c),
+            (card.get("overhead_demotion") or {}).get(c), (card.get("point_rescore") or {}).get(c), _size_entry(card, c))
 
 
-def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int, judge=()) -> dict:
+STAGE_FIELDS = (4, 5, 6, 7)       # _class_config: tail copies, sparse, overhead and point-rescore stages
+
+
+def _only_stage_change(cn: tuple, ci: tuple) -> bool:
+    """The class keeps the incumbent's route, calibration, fusion, budget and size entry, and only post-processing
+    stages differ. R5 waived R3's +0.01 bar for copies alone; rule 11 (Section 14) keeps a stage on its own test
+    (pooled P(gain) >= 0.9, neither split down by more than 0.005), so the bar is waived for every stage: the class
+    still needs a gain on B at P >= 0.9 and the pooled condition (S10 V2X dry run, 2026-11-09: V5 pedestrian pooled
+    +0.0027 at P 1.00 was reverted by the +0.01 bar)."""
+    return all(cn[i] == ci[i] for i in range(len(cn)) if i not in STAGE_FIELDS) and cn != ci
+
+
+def b_bar(only_stage: bool, route_bar: float = 0.01) -> float:
+    """The B gain a changed class needs in the final gate (with P(gain) >= 0.9 and the pooled condition). R3: +0.01 for
+    a route, calibration, fusion, budget or size change; a stage-only change needs a gain (rule 11). S10 rule 14b
+    (package A, record 15.15.7; C2 only): route_bar 0, so a route change also needs only a gain, and the version as a
+    whole passes rule 14 at grouped P >= 0.8 (s10_grouped_gate.py --go-p 0.8) with a projection above 0."""
+    return 1e-9 if (only_stage or route_bar <= 0) else route_bar
+
+
+def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, seed: int, judge=(), route_bar: float = 0.01) -> dict:
     """R3 final gate: every class whose configuration (route, calibration, fusion, score floor) differs from the
     confirmed portfolio `vs_dir` must pass the class gate on B and the pooled A+B condition on the FINAL validation
     predictions of both (validation/output/<data>_<split>_routed.json), where the pooled rule was validated (S3-S5:
@@ -897,27 +1161,30 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
             pg = sc.pooled_gate({s_: fl[("inc", s_)][c] for s_ in ("val", "valB")}, {s_: fl[("new", s_)][c] for s_ in ("val", "valB")},
                                 c, n_boot, seed)
             cn, ci = _class_config(card, c), _class_config(vs_card, c)
-            only_tail = cn[:4] == ci[:4] and cn[5:] == ci[5:]           # R5: copies are the only change
-            gate_b = sc.class_gate(boot["delta"], boot["p_gain"], dA, min_gain=1e-9 if only_tail else 0.01)
+            only_stage = _only_stage_change(cn, ci)                     # R5 and rule 11: same route, a stage changed
+            gate_b = sc.class_gate(boot["delta"], boot["p_gain"], dA, min_gain=b_bar(only_stage, route_bar))
             ok = gate_b and pg["ok"]
             row = {"A": [ap[("inc", "val")], ap[("new", "val")]], "B": [ap[("inc", "valB")], ap[("new", "valB")]],
                    "dB": boot["delta"], "p_gain": boot["p_gain"], "dA": dA, "pooled": {"delta": pg["delta"], "p_gain": pg["p_gain"]},
+                   "b_bar": b_bar(only_stage, route_bar),
                    "decision": "kept (class gate and pooled condition passed)" if ok else
                    ("reverted (pooled A+B condition failed)" if gate_b else "reverted (class gate failed)")}
         if not ok:
-            route, cal, fus, bud, tail, sparse = _class_config(vs_card, c)
+            route, cal, fus, bud, tail, sparse, overhead, prs, _ = _class_config(vs_card, c)
             need = set(fus["members"]) if fus else {route}
             missing = [n for n in need if n not in card["members"] or card["members"][n] != vs_card["members"][n]]
             if missing:
                 raise SystemExit(f"{c}: incumbent members {missing} are not the same in {model_dir.name}")
             card["route"][c] = route
-            for key, val in (("calibration", cal), ("fusion", fus), ("budget", bud), ("tail_copies", tail), ("sparse_demotion", sparse)):
+            for key, val in (("calibration", cal), ("fusion", fus), ("budget", bud), ("tail_copies", tail), ("sparse_demotion", sparse),
+                             ("overhead_demotion", overhead), ("point_rescore", prs)):
                 d = card.get(key) or {}
                 if val is None:
                     d.pop(c, None)
                 else:
                     d[c] = val
                 card[key] = d
+            _restore_size_entry(card, vs_card, c)
             reverted.append(c)
         report[c] = row
         print(c, json.dumps(row), flush=True)
@@ -931,7 +1198,7 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "tail", "gate", "sparse", "extend"])
+    ap.add_argument("mode", choices=["select", "merge", "calibrate", "validate", "fuse", "budget", "tail", "gate", "sparse", "overhead", "pointscore", "extend"])
     ap.add_argument("model_dir")
     ap.add_argument("--pred", action="append", default=[], help="member=predictions.json (merge)")
     ap.add_argument("--out", default=None)
@@ -947,6 +1214,8 @@ def main():
                                                           "instead of realval-B (LUMPI Van, whose B labels are not vans)")
     ap.add_argument("--gate-top", type=int, default=1, help="fuse (R5): candidates of a --late-rank class tested through the gates")
     ap.add_argument("--vs", default=None, help="gate: the confirmed portfolio to compare the final predictions with")
+    ap.add_argument("--route-bar", type=float, default=0.01, help="gate: the B gain a route change needs (R3: 0.01; S10 rule "
+                                                                   "14b for C2: 0, record 15.15.7)")
     ap.add_argument("--pooled", action="store_true", help="select/fuse/calibrate: the class gate also needs a gain on the pooled "
                                                           "A+B frames with P(gain) >= 0.9 (docs/decisions/README.md Section 3.2, R3 on); "
                                                           "budget (S7.6): the floor's AP loss is also bounded on the pooled frames")
@@ -957,11 +1226,26 @@ def main():
     ap.add_argument("--pooled-rule", action="store_true", help="fuse: the 6.0 pooled rule (pooled A+B P(gain) >= 0.9, neither split "
                                                                  "down by more than 0.005, no +0.01 on B; docs/decisions/README.md 3.2)")
     ap.add_argument("--frames", default="kit", help="merge: frames whose points the S7 sparse stage counts ('kit' or a dataset)")
-    ap.add_argument("--grid", type=int, nargs="*", default=[2, 3, 4, 5, 6, 7, 8], help="sparse: thresholds k to try")
+    ap.add_argument("--grid", type=int, nargs="*", default=None,
+                    help="sparse: thresholds k to try (default 2-8); overhead: thresholds k (default 3 5 10 20)")
+    ap.add_argument("--betas", type=float, nargs="*", default=None, help="pointscore (S10 D2): exponents to try (default 0.05 0.1 0.15 0.2)")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
+    if a.mode == "pointscore":
+        pointscore_select(model_dir, card, track, a.classes or list(track["classes_with_test_gt"]),
+                          tuple(a.betas or (0.05, 0.1, 0.15, 0.2)), a.bootstrap, a.seed)
+        _, card, _ = model_info(model_dir)
+        validate(model_dir, card, track, registry_run="routed + fusion + budget + tail copies + stages + point rescore")
+        return
+    if a.mode == "overhead":
+        overhead_select(model_dir, card, track, a.classes or list(track["classes_with_test_gt"]), tuple(a.grid or (3, 5, 10, 20)),
+                        a.bootstrap, a.seed)
+        _, card, _ = model_info(model_dir)
+        validate(model_dir, card, track, registry_run="routed + fusion + budget + tail copies + sparse + overhead demotion")
+        return
     if a.mode == "sparse":
-        sparse_select(model_dir, card, track, a.classes or list(track["classes_with_test_gt"]), tuple(a.grid), a.bootstrap, a.seed)
+        sparse_select(model_dir, card, track, a.classes or list(track["classes_with_test_gt"]), tuple(a.grid or (2, 3, 4, 5, 6, 7, 8)),
+                      a.bootstrap, a.seed)
         _, card, _ = model_info(model_dir)
         validate(model_dir, card, track, registry_run="routed + fusion + budget + tail copies + sparse demotion")
         return
@@ -1017,7 +1301,7 @@ def main():
     if a.mode == "gate":
         if not a.vs:
             raise SystemExit("gate needs --vs <confirmed routed model>")
-        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed, judge=a.judge)
+        res = final_gate(model_dir, card, track, Path(a.vs).resolve(), a.bootstrap, a.seed, judge=a.judge, route_bar=a.route_bar)
         if res["reverted"]:
             _, card, _ = model_info(model_dir)
             validate(model_dir, card, track, registry_run="routed + fusion + budget + final gate")
@@ -1036,7 +1320,7 @@ def main():
     missing = set(used_members(card)) - set(preds)
     if missing:
         raise SystemExit(f"missing member predictions: {sorted(missing)}")
-    out = merge_card(card, preds, frame_points(track, a.frames) if card.get("sparse_demotion") else None)
+    out = merge_card(card, preds, frame_points(track, a.frames) if (card.get("sparse_demotion") or card.get("overhead_demotion") or card.get("point_rescore")) else None)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out))
     print(f"{len(out)} frames, {sum(len(v) for v in out.values())} boxes -> {a.out}")

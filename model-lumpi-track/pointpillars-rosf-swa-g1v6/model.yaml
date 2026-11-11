@@ -1,0 +1,21 @@
+name: pointpillars-rosf-swa-g1v6
+strategy: S10
+track: lumpi-track
+module: M9 (engine v6) / S10 lever D1
+derived_from: pointpillars-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: PointPillars-ROS on g1-v6 (as pointpillars-ros-g1v6) with the M1 recipe
+  (GT-sampling fade in the last 5 epochs, +/-1.5 deg pitch/roll)
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 D1 probe: weight average of pointpillars-rosf-g1v6 epochs 31-40 (no training)'
+expected: 'the M1 recipe on a fourth family: Truck and Van at or above pointpillars-ros-g1v6'
+notes: 'S10 lever D1 (docs/decisions/2026-11-08-s10-clean-final-plan.md): mean of
+  the 10 checkpoints 31-40 of pointpillars-rosf-g1v6 (common/tools/swa_ckpt.py), batch-norm
+  statistics averaged too; same corpus as the parent. Enters a portfolio only after
+  the S6 member check against its parent (S10 rule 4).
+
+  '

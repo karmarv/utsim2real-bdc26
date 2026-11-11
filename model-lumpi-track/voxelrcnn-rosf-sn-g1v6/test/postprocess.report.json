@@ -1,0 +1,185 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.4786156828416578,
+    "A_behaviour": 0.4892141672377086,
+    "A_tuned": 0.539449526907174,
+    "behaviour_cfg": {
+      "nms_iou": 0.6,
+      "recenter": 0.5,
+      "size_scale": [
+        1.16,
+        1.16,
+        0.92
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.19035843151427417,
+    "B_behaviour": 0.19198892150931016,
+    "B_tuned": 0.19035899416083946,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.5466950836194624
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8363902194140265,
+    "A_behaviour": 0.8379023980153232,
+    "A_tuned": 0.8379023980153232,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "n_gt_B": 25573,
+    "B_start": 0.7262116243337848,
+    "B_behaviour": 0.7274780675555286,
+    "B_tuned": 0.7274780675555286,
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.8634439062241757
+    },
+    "hedge_from_Truck": {
+      "factor": 0.3,
+      "A": 0.879852461579226
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.3375934804100454,
+    "A_behaviour": 0.33791954371251814,
+    "A_tuned": 0.33791954371251814,
+    "behaviour_cfg": {
+      "nms_iou": 0.1,
+      "recenter": 0.25,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.13805188691135228,
+    "B_behaviour": 0.13882279922057222,
+    "B_tuned": 0.13882279922057222,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.5272751208101433
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.12118471555177927,
+    "A_behaviour": 0.12135589623176804,
+    "A_tuned": 0.12135589623176804,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.03240560844667515,
+    "B_behaviour": 0.03240560844667515,
+    "B_tuned": 0.03240560844667515
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.00405982905982906,
+    "A_behaviour": 0.00405982905982906,
+    "A_tuned": 0.00405982905982906,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.023484060984060983,
+    "B_behaviour": 0.023484060984060983,
+    "B_tuned": 0.023484060984060983
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.24085167517923858,
+    "A_behaviour": 0.24085167517923858,
+    "A_tuned": 0.24155830233265752,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ],
+      "z_offset": 0.0
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.14679166511088396,
+    "B_behaviour": 0.14679166511088396,
+    "B_tuned": 0.14900318877195753
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.00917719981227022,
+    "A_behaviour": 0.00917719981227022,
+    "A_tuned": 0.00917719981227022,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0013736263736263735,
+    "B_behaviour": 0.0013736263736263735,
+    "B_tuned": 0.0013736263736263735,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.050253817648212386
+    },
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.06721088376341537
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.00517597549360975
+    }
+  }
+}

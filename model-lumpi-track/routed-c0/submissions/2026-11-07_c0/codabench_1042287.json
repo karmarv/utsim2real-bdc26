@@ -1,0 +1,69 @@
+{
+  "phase": "Final (the entrant's upload 2 of the final phase; the entrant's report)",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S10 C0 (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 13.2): routed-c0, the first clean LUMPI system (S10 rule 1: 13 member models, all trained on g1-v6-family corpora without real label rows); route, fusion of up to 3 members by the 6.0 pooled rule, size calibration (Car, Person) and the Person copy fit; the same 50 g1-v6 realism frames as s9j; projection vs s9j -0.0002",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 1042287,
+  "uploaded_file": "lumpi_s10_submission.zip of this folder (md5 1de9f12c1f18d045e5b0c05e08a2f793, as in manifest.json)",
+  "submitted": "between 2026-11-08 07:00 UTC and 2026-11-08 12:59 UTC (the entrant's message); exact time not read",
+  "leaderboard_checked": "not read: the public get_leaderboard API shows a bot check (since 2026-11-07); it is not bypassed. The scores are those of the scoring output the entrant pasted.",
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005234408773852402
+  },
+  "scores": {
+    "score_combined": 0.5408,
+    "score_detection": 0.278533,
+    "score_realism": 0.9342,
+    "mAP_3d_0.5_R40": 0.194973,
+    "mAP_3d_0.5_R11": 0.202282,
+    "mAP_3d_0.7_R40": 0.099238,
+    "mAP_bev_0.5_R40": 0.208183,
+    "CD": 1.510278,
+    "MMD": 0.00010173,
+    "EMD": 1.272009,
+    "FPD": 0.42977,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.305794,
+    "AP_3d_0.5_R40_Car": 0.683313,
+    "AP_3d_0.5_R40_Bicycle": 0.13847,
+    "AP_3d_0.5_R40_Motorcycle": 0.017905,
+    "AP_3d_0.5_R40_Bus": 0.000244,
+    "AP_3d_0.5_R40_Truck": 0.066555,
+    "AP_3d_0.5_R40_Van": 0.152531,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.5102775686468233, MMD 0.00010173495982623848, EMD 1.2720093968576371, FPD 0.42977002998350144",
+    "[scoring] mAP_3d_0.5_R40 = 0.19497312784200058",
+    "(scoring output pasted by the entrant; the scores are those of the scoring output)"
+  ],
+  "vs_previous": {
+    "previous": "1038963 (s9j, routed-g22: the F2 upload, the kept zip; not clean under S10 rule 1)",
+    "delta": {
+      "score_combined": -0.002009,
+      "score_detection": -0.003349,
+      "score_realism": 0.0,
+      "mAP_3d_0.5_R40": -0.002345,
+      "mAP_3d_0.5_R11": 0.001175,
+      "mAP_3d_0.7_R40": 0.002754,
+      "mAP_bev_0.5_R40": 0.000368,
+      "CD": 0.0,
+      "MMD": 0.0,
+      "EMD": 0.0,
+      "FPD": 0.0,
+      "valid_submission": 0,
+      "AP_3d_0.5_R40_Person": -0.003406,
+      "AP_3d_0.5_R40_Car": 0.010554,
+      "AP_3d_0.5_R40_Bicycle": -0.049696,
+      "AP_3d_0.5_R40_Motorcycle": 0.016723,
+      "AP_3d_0.5_R40_Bus": -0.003505,
+      "AP_3d_0.5_R40_Truck": 0.001282,
+      "AP_3d_0.5_R40_Van": 0.011637,
+      "AP_3d_0.5_R40_Unknown": null
+    },
+    "note": "per-class deltas are recorded only; no per-class choice follows from them (audit rule d)"
+  }
+}

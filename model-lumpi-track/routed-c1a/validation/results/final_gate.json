@@ -1,0 +1,60 @@
+{
+  "vs": "routed-c0",
+  "classes": {
+    "Person": {
+      "A": [
+        0.6011089990015496,
+        0.593230130230831
+      ],
+      "B": [
+        0.23223079190784252,
+        0.2254094164941074
+      ],
+      "dB": -0.00682137541373512,
+      "p_gain": 0.0,
+      "dA": -0.007878868770718528,
+      "pooled": {
+        "delta": -0.004797553342542449,
+        "p_gain": 0.0
+      },
+      "decision": "reverted (class gate failed)"
+    },
+    "Car": {
+      "A": [
+        0.9081791234657264,
+        0.9080244457063742
+      ],
+      "B": [
+        0.8021164700160697,
+        0.8015669150090154
+      ],
+      "dB": -0.0005495550070542254,
+      "p_gain": 0.26,
+      "dA": -0.0001546777593521842,
+      "pooled": {
+        "delta": -0.0002469523015760089,
+        "p_gain": 0.19
+      },
+      "decision": "reverted (class gate failed)"
+    },
+    "Bicycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Motorcycle": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Bus": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Truck": {
+      "decision": "same configuration as the incumbent"
+    },
+    "Van": {
+      "decision": "same configuration as the incumbent"
+    }
+  },
+  "reverted": [
+    "Person",
+    "Car"
+  ]
+}

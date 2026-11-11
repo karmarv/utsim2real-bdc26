@@ -170,6 +170,16 @@ _INS = None
 _G2 = None
 
 
+def load_static_anchors(path):
+    """S10 R1 anchors [(x, y, yaw, l, w, h)] from common/tools/s10_static_anchors.py, or None; a calibrated file
+    (--calibrate) adds each block's kept share of returns as a 7th value."""
+    if not path:
+        return None
+    d = json.loads(Path(path).read_text())
+    return [tuple(float(v) for v in (a["x"], a["y"], a["yaw"], a["l"], a["w"], a["h"]))
+            + ((float(a["keep"]),) if "keep" in a else ()) for a in d["anchors"]]
+
+
 def make_g2(ins_params, clutter: float, truck_size: str, drop: dict, v6opt: dict | None = None):
     from bdc26.render.g2 import G2Config, G2Pass, HullBank, size_prior_from_labels
     v6opt = v6opt or {}
@@ -189,7 +199,8 @@ def make_g2(ins_params, clutter: float, truck_size: str, drop: dict, v6opt: dict
                    riders={"Bicycle": "bicycle", "Motorcycle": "motorcycle"},
                    clutter_mean=clutter, clutter_anchor_xy=anchors, drop=drop, params=ins_params,
                    bank=HullBank.load(HULL_BANK) if HULL_BANK.exists() else None,
-                   structure_mean=float(v6opt.get("structure", 0.0)), structure_xy=sxy, structure_dir=sdir)
+                   structure_mean=float(v6opt.get("structure", 0.0)), structure_xy=sxy, structure_dir=sdir,
+                   static_anchors=load_static_anchors(v6opt.get("static_anchors")))
     ground = (smap.MapGround(scene, default=T["ut"]["ground_z"]) if scene is not None
               else FlatGround(T["ut"]["ground_z"]))                       # S9: clutter and structures on the map's ground
     return G2Pass(m4_sensors(), cfg, ground=ground, pc_range=T.pc_range)
@@ -262,11 +273,14 @@ if __name__ == "__main__":
     ap.add_argument("--size-source", default="rows", choices=["rows", "quantiles"], help="S9: G2 real-size source")
     ap.add_argument("--class-rule", default="none", choices=["none", "size"], help="S9: LUMPI vehicle convention by size")
     ap.add_argument("--structure", type=float, default=0.0, help="S9: mean map-placed structures per frame (G2)")
+    ap.add_argument("--static-anchors", default=None, help="S10 R1 (allowed by the organizers' answer to question (c), 2026-11-10; "
+                    "the clean check fails such a corpus unless BDC_ALLOW_R1=1): static-block anchors JSON (s10_static_anchors.py)")
     ap.add_argument("--ground-bowl", default=None, help="S9: ground surface JSON relative to $BDC_DATA/<track>")
     ap.add_argument("--map-weights", default=None, help='S9: JSON walker area shares, e.g. {"curb": 0.3, "open": 0.3, "road": 0.05, "beyond": 0.35}')
     a = ap.parse_args()
     v6opt = {"placement": a.placement, "map_weights": a.map_weights, "clutter_anchors": a.clutter_anchors, "size_source": a.size_source,
-             "class_rule": a.class_rule, "structure": a.structure, "ground_bowl": a.ground_bowl}
+             "class_rule": a.class_rule, "structure": a.structure, "ground_bowl": a.ground_bowl,
+             "static_anchors": a.static_anchors}
     build_prior()
     cmap = dict(T["ut"]["class_map"], Van=a.van_as)
     out = T.pcdet / a.name
@@ -295,7 +309,7 @@ if __name__ == "__main__":
                                 "truck_size": a.truck_size if a.g2 else None,
                                 "g2_drop": g2_drop_table(a.g2_drop) if a.g2 else None, "v6": v6opt},
                      "class_map": cmap, "person_prior": str(PRIOR.relative_to(T.root)),
-                     "real_data_use": "Measurement4 sensor metadata"
+                     "real_data_use": "Measurement4 sensor metadata" + ("; S10 R1 static-block anchors from unlabelled legal real frames (allowed: organizers' answer to question (c), 2026-11-10)" if a.static_anchors else "")
                                       + ("; walker box mixture and range histogram as scalars (gen/walker_scalars_v6.json); placement on the twin's own scene map"
                                          if a.placement == "map" else "; legal M4 Person label rows (placement, box sizes)")
                                       + ("; clutter anchors at map curbside cells" if a.g2 and a.clutter_anchors == "map" else

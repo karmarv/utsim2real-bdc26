@@ -1,0 +1,25 @@
+{
+  "frames": {
+    "A": "every 8th",
+    "B": "every 6th"
+  },
+  "note": "monitoring only; the epoch-40 checkpoint is always used",
+  "curves": {
+    "A": {
+      "40": {
+        "mAP": 0.6480876202682243,
+        "vehicle": 0.7936876229253167,
+        "pedestrian": 0.32146614562473536,
+        "truck": 0.829109092254621
+      }
+    },
+    "B": {
+      "40": {
+        "mAP": 0.6127201238872595,
+        "vehicle": 0.7911029706043445,
+        "pedestrian": 0.3099055094507152,
+        "truck": 0.7371518916067188
+      }
+    }
+  }
+}

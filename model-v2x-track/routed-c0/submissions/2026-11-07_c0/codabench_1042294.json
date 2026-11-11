@@ -1,0 +1,59 @@
+{
+  "phase": "Final (the entrant's upload 2 of the final phase; the entrant's report)",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S10 C0 (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 13.2): routed-c0, the first clean V2X system (S10 rule 1: 5 member models, all trained on g1-v6-family corpora); every class fused (Voxel R-CNN draws and bag, DSVT), budget, tail copies, sparse stage, vehicle size calibration; g1-v6 realism frames (S9 rule 4); projection about 0.897",
+  "codabench_competition": 16685,
+  "codabench_submission_id": 1042294,
+  "uploaded_file": "v2x_s10_submission.zip of this folder (md5 c70e8a341b7647d8ae7712a09ba1baf6, as in manifest.json)",
+  "submitted": "between 2026-11-08 07:00 UTC and 2026-11-08 12:59 UTC (the entrant's message); exact time not read",
+  "leaderboard_checked": "not read: the public get_leaderboard API shows a bot check (since 2026-11-07); it is not bypassed. The scores are those of the scoring output the entrant pasted.",
+  "realism_detail": {
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.001838611844386042
+  },
+  "scores": {
+    "score_combined": 0.888471,
+    "score_detection": 0.853715,
+    "score_realism": 0.940605,
+    "mAP_3d_0.5_R40": 0.5976,
+    "mAP_3d_0.5_R11": 0.599438,
+    "mAP_3d_0.7_R40": 0.165441,
+    "mAP_bev_0.5_R40": 0.65836,
+    "CD": 1.844265,
+    "MMD": 0.00033854,
+    "EMD": 1.109734,
+    "FPD": 0.747769,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.74313,
+    "AP_3d_0.5_R40_pedestrian": 0.397532,
+    "AP_3d_0.5_R40_truck": 0.65214
+  },
+  "scoring_log": [
+    "[scoring] realism: CD 1.8442651746440064, MMD 0.0003385394793231633, EMD 1.1097340725522227, FPD 0.7477689677293711",
+    "[scoring] mAP_3d_0.5_R40 = 0.5976002992975543",
+    "(scoring output pasted by the entrant; the scores are those of the scoring output)"
+  ],
+  "vs_previous": {
+    "previous": "1038966 (s9f, routed-g19: the F2 upload, the kept zip; not clean under S10 rule 1)",
+    "delta": {
+      "score_combined": -0.015306,
+      "score_detection": -0.030422,
+      "score_realism": 0.007368,
+      "mAP_3d_0.5_R40": -0.021296,
+      "mAP_3d_0.5_R11": -0.023493,
+      "mAP_3d_0.7_R40": -0.032832,
+      "mAP_bev_0.5_R40": -0.008973,
+      "CD": -0.141608,
+      "MMD": -0.000292,
+      "EMD": -0.072444,
+      "FPD": -0.719959,
+      "valid_submission": 0,
+      "AP_3d_0.5_R40_vehicle": -0.001901,
+      "AP_3d_0.5_R40_pedestrian": -0.043103,
+      "AP_3d_0.5_R40_truck": -0.018881
+    },
+    "note": "per-class deltas are recorded only; no per-class choice follows from them (audit rule d)"
+  }
+}

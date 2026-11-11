@@ -1,0 +1,194 @@
+# S9 W6 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.12): no GT sampling (pcdet_dataset.yaml), so the fade HOOK of the parent is removed.
+# S9 arm M1 (docs/decisions/2026-11-02-s9-clean-twin-plan.md): the parent config with GT-sampling fade (no copy-paste in the
+# last 5 of 40 epochs; cross-domain evidence: Eskandar et al. CVPR 2024) and the bdc_world_tilt augmentation (pcdet_dataset.yaml).
+# R3 (docs/02-STRATEGY.md Section 8.7.1): this config trained on pcdet/g1-v4 (g1-v3 recipe + engine G2-lite).
+# S5 run b (docs/02-STRATEGY.md Section 8.5): voxelrcnn-g1v3 trained with class-wise object scaling (ROS, pcdet_dataset.yaml).
+# S4 member (docs/02-STRATEGY.md Section 8.4): Voxel R-CNN on the S1 corpus pcdet/g1-v3, xyz only, synthetic data only.
+# Stage 1 is the S2 CenterPoint (same voxels 0.1 x 0.1 x 0.25 m in [-5, 5] m z, VoxelResBackBone8x, the S2 head groups);
+# stage 2 pools the multi-scale sparse voxel features on a 6 x 6 x 6 grid inside each proposal and regresses a box
+# residual plus an IoU-quality score. Target: the S3 portfolio loses 0.18 (A) / 0.29 (B) Person AP and 0.29 / 0.15
+# Truck AP to localization (Section 8.4 review); Person near misses are noise in centre and size, which a stage that
+# sees the points of each box can reduce. Unknown has no synthetic labels and no test GT. Built from OpenPCDet's mainline cfgs/waymo_models/voxel_rcnn_with_centerhead_dyn_voxel.yaml
+# (233f849) with MeanVFE (no torch_scatter). Changes for this data, each with its reason:
+# - proposals: up to 300 per head at score >= 0.03 (dense scenes: 17 Persons and 28 Cars per realval-A frame, and the S3 lesson that
+#   low-score boxes still carry AP); the RoI head refines every proposal.
+# - REG_FG_THRESH 0.45 (mainline 0.55): the boxes to correct are near misses at IoU 0.25-0.5, so regression must
+#   also train on such proposals.
+# - SCORE_BLEND_ALPHA (bdc26 patch, common/bdc26/detect/pcdet_patches.py): final score = stage-1 heat-map score^a x
+#   stage-2 IoU score^(1-a); mainline uses the IoU score alone (a = 0); a is chosen on realval-A.
+# - final post-processing stays near-raw (score 0.01, NMS 0.9): per-class NMS and box calibration are done by
+#   bdc26.detect.postprocess, tuned on real validation like every member.
+CLASS_NAMES: ['Person', 'Car', 'Bicycle', 'Motorcycle', 'Bus', 'Truck', 'Van', 'Unknown']
+
+DATA_CONFIG:
+    _BASE_CONFIG_: pcdet_dataset.yaml
+
+MODEL:
+    NAME: VoxelRCNN
+
+    VFE:
+        NAME: MeanVFE
+
+    BACKBONE_3D:
+        NAME: VoxelResBackBone8x
+
+    MAP_TO_BEV:
+        NAME: HeightCompression
+        NUM_BEV_FEATURES: 256              # 40 z voxels -> 2 x 128 channels after the 8x backbone
+
+    BACKBONE_2D:
+        NAME: BaseBEVBackbone
+        LAYER_NUMS: [5, 5]
+        LAYER_STRIDES: [1, 2]
+        NUM_FILTERS: [128, 256]
+        UPSAMPLE_STRIDES: [1, 2]
+        NUM_UPSAMPLE_FILTERS: [256, 256]   # output stride 8: 0.8 m BEV cells
+
+    DENSE_HEAD:
+        NAME: CenterHead
+        CLASS_AGNOSTIC: False
+
+        CLASS_NAMES_EACH_HEAD: [
+            ['Person'],
+            ['Bicycle', 'Motorcycle'],
+            ['Car', 'Van', 'Unknown'],
+            ['Truck', 'Bus']
+        ]
+
+        SHARED_CONV_CHANNEL: 64
+        USE_BIAS_BEFORE_NORM: True
+        NUM_HM_CONV: 2
+        SEPARATE_HEAD_CFG:
+            HEAD_ORDER: ['center', 'center_z', 'dim', 'rot']
+            HEAD_DICT: {
+                'center': {'out_channels': 2, 'num_conv': 2},
+                'center_z': {'out_channels': 1, 'num_conv': 2},
+                'dim': {'out_channels': 3, 'num_conv': 2},
+                'rot': {'out_channels': 2, 'num_conv': 2},
+            }
+
+        TARGET_ASSIGNER_CONFIG:
+            FEATURE_MAP_STRIDE: 8
+            NUM_MAX_OBJS: 500
+            GAUSSIAN_OVERLAP: 0.1
+            MIN_RADIUS: 2
+
+        LOSS_CONFIG:
+            LOSS_WEIGHTS: {
+                'cls_weight': 1.0,
+                'loc_weight': 2.0,
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+            }
+
+        POST_PROCESSING:                     # the proposals of stage 2 (training and test)
+            SCORE_THRESH: 0.03
+            POST_CENTER_LIMIT_RANGE: [-40.0, -40.0, -5.0, 40.0, 40.0, 5.0]
+            MAX_OBJ_PER_SAMPLE: 300
+            NMS_CONFIG:
+                NMS_TYPE: nms_gpu
+                NMS_THRESH: 0.8
+                NMS_PRE_MAXSIZE: 4096
+                NMS_POST_MAXSIZE: 300
+
+    ROI_HEAD:
+        NAME: VoxelRCNNHead
+        CLASS_AGNOSTIC: True
+        SCORE_BLEND_ALPHA: [0.0, 0.5, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5]            # per class in CLASS_NAMES order, chosen on realval-A (score_blend.py)
+
+        SHARED_FC: [256, 256]
+        CLS_FC: [256, 256]
+        REG_FC: [256, 256]
+        DP_RATIO: 0.3
+
+        NMS_CONFIG:                          # unused with CenterHead proposals (they arrive as rois); kept for the template
+            TRAIN:
+                NMS_TYPE: nms_gpu
+                MULTI_CLASSES_NMS: False
+                NMS_PRE_MAXSIZE: 9000
+                NMS_POST_MAXSIZE: 512
+                NMS_THRESH: 0.8
+            TEST:
+                NMS_TYPE: nms_gpu
+                MULTI_CLASSES_NMS: False
+                NMS_PRE_MAXSIZE: 4096
+                NMS_POST_MAXSIZE: 1200
+                NMS_THRESH: 0.8
+
+        ROI_GRID_POOL:
+            FEATURES_SOURCE: ['x_conv2', 'x_conv3', 'x_conv4']
+            PRE_MLP: True
+            GRID_SIZE: 6
+            POOL_LAYERS:
+                x_conv2:
+                    MLPS: [[64, 64]]
+                    QUERY_RANGES: [[3, 3, 2]]
+                    POOL_RADIUS: [0.4]
+                    NSAMPLE: [16]
+                    POOL_METHOD: max_pool
+                x_conv3:
+                    MLPS: [[64, 64]]
+                    QUERY_RANGES: [[3, 3, 2]]
+                    POOL_RADIUS: [0.8]
+                    NSAMPLE: [16]
+                    POOL_METHOD: max_pool
+                x_conv4:
+                    MLPS: [[64, 64]]
+                    QUERY_RANGES: [[3, 3, 2]]
+                    POOL_RADIUS: [1.6]
+                    NSAMPLE: [16]
+                    POOL_METHOD: max_pool
+
+        TARGET_CONFIG:
+            BOX_CODER: ResidualCoder
+            ROI_PER_IMAGE: 128
+            FG_RATIO: 0.5
+
+            SAMPLE_ROI_BY_EACH_CLASS: True
+            CLS_SCORE_TYPE: roi_iou
+
+            CLS_FG_THRESH: 0.75
+            CLS_BG_THRESH: 0.25
+            CLS_BG_THRESH_LO: 0.1
+            HARD_BG_RATIO: 0.8
+
+            REG_FG_THRESH: 0.45
+
+        LOSS_CONFIG:
+            CLS_LOSS: BinaryCrossEntropy
+            REG_LOSS: smooth-l1
+            CORNER_LOSS_REGULARIZATION: True
+            LOSS_WEIGHTS: {
+                'rcnn_cls_weight': 1.0,
+                'rcnn_reg_weight': 1.0,
+                'rcnn_corner_weight': 1.0,
+                'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+            }
+
+    POST_PROCESSING:
+        RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
+        SCORE_THRESH: 0.01
+        OUTPUT_RAW_SCORE: False
+        EVAL_METRIC: kitti
+        NMS_CONFIG:
+            MULTI_CLASSES_NMS: False
+            NMS_TYPE: nms_gpu
+            NMS_THRESH: 0.9                  # near-duplicates only; per-class NMS is selected on real validation
+            NMS_PRE_MAXSIZE: 4096
+            NMS_POST_MAXSIZE: 1200
+
+OPTIMIZATION:
+    BATCH_SIZE_PER_GPU: 4
+    NUM_EPOCHS: 40
+    OPTIMIZER: adam_onecycle
+    LR: 0.003
+    WEIGHT_DECAY: 0.01
+    MOMENTUM: 0.9
+    MOMS: [0.95, 0.85]
+    PCT_START: 0.4
+    DIV_FACTOR: 10
+    DECAY_STEP_LIST: [35, 45]
+    LR_DECAY: 0.1
+    LR_CLIP: 0.0000001
+    LR_WARMUP: False
+    WARMUP_EPOCH: 1
+    GRAD_NORM_CLIP: 10

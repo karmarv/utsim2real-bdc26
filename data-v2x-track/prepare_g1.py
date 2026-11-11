@@ -217,6 +217,16 @@ _INS = None
 _G2 = None
 
 
+def load_static_anchors(path):
+    """S10 R1 anchors [(x, y, yaw, l, w, h)] from common/tools/s10_static_anchors.py, or None; a calibrated file
+    (--calibrate) adds each block's kept share of returns as a 7th value."""
+    if not path:
+        return None
+    d = json.loads(Path(path).read_text())
+    return [tuple(float(v) for v in (a["x"], a["y"], a["yaw"], a["l"], a["w"], a["h"]))
+            + ((float(a["keep"]),) if "keep" in a else ()) for a in d["anchors"]]
+
+
 def make_g2(sensor, ins_params, clutter: float, truck_size: str, drop: dict, v6opt: dict | None = None):
     from bdc26.render.g2 import G2Config, G2Pass, HullBank, size_prior_from_labels
     v6opt = v6opt or {}
@@ -231,7 +241,8 @@ def make_g2(sensor, ins_params, clutter: float, truck_size: str, drop: dict, v6o
                    stretch={"truck": {"prob": 0.5, "lengths": sizes["truck"][:, 0]}} if truck_size == "stretch" else {},
                    clutter_mean=clutter, clutter_anchor_xy=anchors, drop=drop, params=ins_params,
                    bank=HullBank.load(HULL_BANK) if HULL_BANK.exists() else None,
-                   structure_mean=float(v6opt.get("structure", 0.0)), structure_xy=sxy, structure_dir=sdir)
+                   structure_mean=float(v6opt.get("structure", 0.0)), structure_xy=sxy, structure_dir=sdir,
+                   static_anchors=load_static_anchors(v6opt.get("static_anchors")))
     ground = MapThenLocalGround(scene) if scene is not None else LocalGround(1.5, 8)
     return G2Pass([sensor], cfg, ground=ground, pc_range=T.pc_range)
 
@@ -281,6 +292,8 @@ if __name__ == "__main__":
     ap.add_argument("--clutter-anchors", default="prior", choices=["prior", "map"], help="S9: G2 clutter anchor source")
     ap.add_argument("--size-source", default="rows", choices=["rows", "quantiles"], help="S9: G2 truck size source")
     ap.add_argument("--structure", type=float, default=0.0, help="S9: mean map-placed structures per frame (G2)")
+    ap.add_argument("--static-anchors", default=None, help="S10 R1 (allowed by the organizers' answer to question (c), 2026-11-10; "
+                    "the clean check fails such a corpus unless BDC_ALLOW_R1=1): static-block anchors JSON (s10_static_anchors.py)")
     ap.add_argument("--map-weights", default=None, help="S9: JSON walker area shares (scene_map.WalkerConfig.weights)")
     ap.add_argument("--cols", type=int, default=T["real"]["sensor"]["cols"])
     ap.add_argument("--density-gain", type=float, default=1.5)
@@ -300,7 +313,7 @@ if __name__ == "__main__":
     ap.add_argument("--g2-drop", default=None, help='G2: JSON overrides of DROP, e.g. {"Car": 0.2}')
     a = ap.parse_args()
     v6opt = {"placement": a.placement, "map_weights": a.map_weights, "clutter_anchors": a.clutter_anchors,
-             "size_source": a.size_source, "structure": a.structure}
+             "size_source": a.size_source, "structure": a.structure, "static_anchors": a.static_anchors}
     out = T.pcdet / a.name
     if a.placement == "prior":
         build_prior()
@@ -332,6 +345,7 @@ if __name__ == "__main__":
                          "walker box mixture and range histogram as scalars (gen/walker_scalars_v6.json); placement on the twin's own scene map" if a.placement == "map" else "",
                          ("legal V2X-Real walker positions as clutter anchors" if a.clutter_anchors == "prior" else "clutter anchors at map curbside cells") if a.g2 else "",
                          "OS1-64 beam table measured on legal unlabeled frames (gen/os1_64_calib_v1.npz)" if a.fov_mask else "",
+                         "S10 R1 static-block anchors from unlabelled legal real frames (allowed: organizers' answer to question (c), 2026-11-10)" if a.static_anchors else "",
                          ("19 size quantiles per dimension of legal realval truck labels (gen/size_scalars_v6.json)" if a.size_source == "quantiles"
                           else "legal realval truck label sizes (gen/size_prior_g2.npz)") if a.g2 and a.truck_size == "real" else "",
                          "background density prior from legal unlabeled realval-A frames disjoint from the realism proxies"

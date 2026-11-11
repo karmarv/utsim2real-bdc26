@@ -16,6 +16,23 @@ fitted them onto long static structures (V2X: about one 19.7 m false truck per r
       DEFAULT: {l: [0.9, 1.1], w: [0.9, 1.1], h: [0.95, 1.05]}
       CLASS_RANGES: {truck: {l: [0.9, 1.8], w: [1.0, 1.3], h: [1.0, 1.3]}}
       CLASS_MAX: {truck: [13.4, 3.2, 3.9]}   # optional: l, w, h never scaled beyond these (a box already larger keeps its size)
+      CLASS_CENTER: {Car: [0.941, 1.005, 1.058]}   # S10 C1, optional: statistical normalization (below)
+      CLASS_PROB: {Car: 1.0}                       # optional per-class PROB
+
+Statistical normalization (S10 lever C1, docs/decisions/2026-11-08-s10-clean-final-plan.md; Wang et al., CVPR 2020):
+CLASS_CENTER multiplies the sampled l, w, h scales of a class by the ratio of the real to the synthetic median box size
+(legal real labels: box-size statistics, which the organizers allow), so the detector learns real object sizes and the
+box centres that go with them; the class's range then only jitters about that target. CLASS_PROB 1.0 normalizes
+every object of the class.
+
+bdc_range_jitter (S10 lever C2): Gaussian range noise along each point's ray from its nearest sensor. The UrbanTwin
+clouds carry no range noise (CARLA), while real lidars have about 2 cm (Huch et al., T-IV 2023: 2 cm jitter in
+simulation raised real AP3D@0.7). Points closer than 0.1 m to a sensor (the zero padding) are left alone.
+
+    - NAME: bdc_range_jitter
+      SIGMA: 0.02                                   # m
+      SENSORS: [[0.0, 0.0, 0.0]]                    # frame coordinates; with several, the nearest in BEV
+      PROB: 1.0                                     # per frame
 """
 from __future__ import annotations
 
@@ -50,13 +67,19 @@ def object_scaling(gt_boxes: np.ndarray, gt_names, points: np.ndarray, config, r
     default = config.get("DEFAULT", {"l": [1.0, 1.0], "w": [1.0, 1.0], "h": [1.0, 1.0]})
     prob = float(config.get("PROB", 1.0))
     cmax = {str(k).lower(): np.asarray(v, dtype=np.float64) for k, v in (config.get("CLASS_MAX") or {}).items()}
+    centers = {str(k).lower(): np.asarray(v, dtype=np.float64) for k, v in (config.get("CLASS_CENTER") or {}).items()}
+    cprob = {str(k).lower(): float(v) for k, v in (config.get("CLASS_PROB") or {}).items()}
     for i in rng.permutation(len(boxes)):
-        if rng.rand() >= prob:
+        name = str(gt_names[i]).lower()
+        if rng.rand() >= cprob.get(name, prob):
             continue
-        r = ranges.get(str(gt_names[i]).lower(), default)
+        r = ranges.get(name, default)
         sl, sw, sh = (rng.uniform(*r[k]) for k in ("l", "w", "h"))
+        cen = centers.get(name)
+        if cen is not None:                                          # S10 C1: statistical normalization
+            sl, sw, sh = sl * cen[0], sw * cen[1], sh * cen[2]
         b = boxes[i].copy()
-        mx = cmax.get(str(gt_names[i]).lower())
+        mx = cmax.get(name)
         if mx is not None:                                           # no scaled size beyond the real maximum
             sl, sw, sh = (min(f, max(1.0, m / max(d, 1e-6))) for f, m, d in zip((sl, sw, sh), mx, b[3:6]))
         bottom = b[2] - b[5] / 2
@@ -101,6 +124,27 @@ def world_tilt(gt_boxes: np.ndarray, points: np.ndarray, config, rng=np.random) 
     return boxes, pts
 
 
+def range_jitter(points: np.ndarray, config, rng=np.random) -> np.ndarray:
+    """S10 lever C2 (see the module docstring): returns a copy of points moved along their rays by N(0, SIGMA)."""
+    if rng.rand() >= float(config.get("PROB", 1.0)) or not len(points):
+        return points
+    pts = points.copy()
+    sensors = np.asarray(config.get("SENSORS", [[0.0, 0.0, 0.0]]), dtype=np.float64).reshape(-1, 3)
+    xyz = pts[:, :3].astype(np.float64)
+    if len(sensors) == 1:
+        origin = np.broadcast_to(sensors[0], xyz.shape)
+    else:
+        d2 = ((xyz[:, None, :2] - sensors[None, :, :2]) ** 2).sum(-1)
+        origin = sensors[d2.argmin(1)]
+    ray = xyz - origin
+    r = np.linalg.norm(ray, axis=1)
+    ok = r > 0.1
+    step = rng.normal(0.0, float(config.get("SIGMA", 0.02)), ok.sum())
+    xyz[ok] += ray[ok] / r[ok, None] * step[:, None]
+    pts[:, :3] = xyz.astype(pts.dtype)
+    return pts
+
+
 def register() -> None:
     from pcdet.datasets.augmentor.data_augmentor import DataAugmentor
 
@@ -117,5 +161,12 @@ def register() -> None:
         data_dict["gt_boxes"], data_dict["points"] = world_tilt(data_dict["gt_boxes"], data_dict["points"], config)
         return data_dict
 
+    def bdc_range_jitter(self, data_dict=None, config=None):
+        if data_dict is None:
+            return partial(self.bdc_range_jitter, config=config)
+        data_dict["points"] = range_jitter(data_dict["points"], config)
+        return data_dict
+
     DataAugmentor.bdc_object_scaling = bdc_object_scaling
     DataAugmentor.bdc_world_tilt = bdc_world_tilt
+    DataAugmentor.bdc_range_jitter = bdc_range_jitter

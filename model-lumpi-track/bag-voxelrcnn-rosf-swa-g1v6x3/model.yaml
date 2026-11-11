@@ -1,0 +1,27 @@
+name: bag-voxelrcnn-rosf-swa-g1v6x3
+type: bag
+strategy: S10
+track: lumpi-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-rosf-g1v6: weighted box fusion of the two generator
+  draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6 + pcdet/g1-v6d2 + pcdet/g1-v6d3
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-rosf-swa-g1v6
+- voxelrcnn-rosf-swa-g1v6d2
+- voxelrcnn-rosf-swa-g1v6d3
+iou:
+  default: 0.5
+  Car: 0.7
+  Van: 0.7
+realism_frames: pcdet/g1-v6
+status: 'S10 wave 1 increments 2+3: bag of the averaged draws 1-3'
+notes: 'S10 increments 2 and 3 (docs/decisions/2026-11-08-s10-clean-final-plan.md
+  Section 15): the weight-averaged (epochs 31-40) Voxel R-CNN fade members of generator
+  draws 1, 2 and 3; the iou of bag-voxelrcnn-rosf-g1v6x3. Enters a portfolio after
+  the bag check against bag-voxelrcnn-rosf-g1v6x3 (rule 4).
+
+  '
+derived_from: bag-voxelrcnn-rosf-g1v6x3

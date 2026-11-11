@@ -1,0 +1,68 @@
+# Selected by common/tools/tune_postprocess.py on real validation (see report json).
+default:
+  score_floor: 0.01
+  nms_iou: 0.2
+  max_boxes: 500
+  recenter: 0.0
+classes:
+  Person:
+    nms_iou: 0.5
+    recenter: 0.5
+    size_scale:
+    - 1.16
+    - 1.16
+    - 1.0
+  Car:
+    nms_iou: 0.6
+    size_scale:
+    - 1.0
+    - 1.0
+    - 1.08
+  Bicycle:
+    nms_iou: 0.1
+    recenter: 0.25
+    size_scale:
+    - 1.08
+    - 1.08
+    - 1.0
+  Motorcycle:
+    nms_iou: 0.4
+    recenter: 0.25
+  Bus:
+    nms_iou: 0.7
+  Truck:
+    nms_iou: 0.6
+    size_scale:
+    - 1.08
+    - 1.08
+    - 1.08
+    z_offset: 0.0
+  Van:
+    nms_iou: 0.1
+  Unknown: {}
+hedge:
+  Bicycle:
+  - - Person
+    - 0.3
+  Truck:
+  - - Car
+    - 0.6
+  - - Van
+    - 0.6
+  Van:
+  - - Car
+    - 0.6
+  - - Truck
+    - 0.1
+  Motorcycle:
+  - - Bicycle
+    - 0.6
+  Bus:
+  - - Truck
+    - 0.6
+  Car:
+  - - Van
+    - 0.1
+selected_on: pcdet/realval-v1:val (real train split, guard-allowed)
+checked_on: pcdet/realval-v1:valB
+b_guard: 0.005

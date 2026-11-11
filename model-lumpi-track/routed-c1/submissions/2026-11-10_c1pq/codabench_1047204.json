@@ -1,0 +1,68 @@
+{
+ "phase": "Final (the entrant's upload 3 of the final phase on LUMPI; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10 C1 with L1 (docs/decisions/2026-11-08-s10-clean-final-plan.md Sections 15.14.7, 15.15.7): routed-c1 = C0 plus one route change (Person: the averaged 4-draw Voxel R-CNN rosf bag, bvrrosfswa6x4_tta12); rule 1 clean (12 members); the 50 C0 frame ids taken from pcdet/g1-v6pq (the PandarQT near-field re-cast, metadata only); rule 14 GO (pooled +0.0014 mAP, grouped P 1.00); projection +0.0005 detection, +0.0005 to +0.0011 realism",
+ "codabench_competition": 16684,
+ "codabench_submission_id": 1047204,
+ "uploaded_file": "lumpi_s10_submission.zip of this folder (md5 6c2da31f4146a174caba4923709f87c4, as in manifest.json)",
+ "submitted": "2026-11-11 UTC (the entrant's message); exact time not read",
+ "leaderboard_checked": "not read: one read of the public get_leaderboard API on 2026-11-11 returned the Anubis bot check; it is not bypassed. The scores are those of the scoring output the entrant pasted.",
+ "realism_detail": {
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.0005238113683432425
+ },
+ "scoring_log": [
+  "[scoring] realism: CD 1.4671736181686847, MMD 9.251067152993286e-05, EMD 1.2463894449536332, FPD 0.42213642658020945",
+  "[scoring] mAP_3d_0.5_R40 = 0.19292635001643985",
+  "(scoring output pasted by the entrant; the scores are those of the scoring output)"
+ ],
+ "scores": {
+  "score_combined": 0.539575,
+  "score_detection": 0.275609,
+  "score_realism": 0.935524,
+  "mAP_3d_0.5_R40": 0.192926,
+  "mAP_3d_0.5_R11": 0.200163,
+  "mAP_3d_0.7_R40": 0.098989,
+  "mAP_bev_0.5_R40": 0.205843,
+  "CD": 1.467174,
+  "MMD": 9.251e-05,
+  "EMD": 1.246389,
+  "FPD": 0.422136,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_Person": 0.291146,
+  "AP_3d_0.5_R40_Car": 0.683357,
+  "AP_3d_0.5_R40_Bicycle": 0.138747,
+  "AP_3d_0.5_R40_Motorcycle": 0.017905,
+  "AP_3d_0.5_R40_Bus": 0.000244,
+  "AP_3d_0.5_R40_Truck": 0.066555,
+  "AP_3d_0.5_R40_Van": 0.152531,
+  "AP_3d_0.5_R40_Unknown": null
+ },
+ "vs_previous": {
+  "previous": "1042287 (C0, routed-c0: the best clean LUMPI entry, 0.5408)",
+  "delta": {
+   "score_combined": -0.001225,
+   "score_detection": -0.002924,
+   "score_realism": 0.001324,
+   "mAP_3d_0.5_R40": -0.002047,
+   "mAP_3d_0.5_R11": -0.002119,
+   "mAP_3d_0.7_R40": -0.000249,
+   "mAP_bev_0.5_R40": -0.00234,
+   "CD": -0.043104,
+   "MMD": -9e-06,
+   "EMD": -0.02562,
+   "FPD": -0.007634,
+   "valid_submission": 0,
+   "AP_3d_0.5_R40_Person": -0.014648,
+   "AP_3d_0.5_R40_Car": 4.4e-05,
+   "AP_3d_0.5_R40_Bicycle": 0.000277,
+   "AP_3d_0.5_R40_Motorcycle": 0.0,
+   "AP_3d_0.5_R40_Bus": 0.0,
+   "AP_3d_0.5_R40_Truck": 0.0,
+   "AP_3d_0.5_R40_Van": 0.0
+  },
+  "note": "per-class deltas are recorded only; no per-class choice follows from them (audit rule d). Realism +0.001324 (the PandarQT re-cast; local held-out +0.0019, so 0.70x). Detection -0.002047 mAP (the Person route change; locally +0.0048 A and +0.0100 B, but late-A -0.0055 at P 0.02)."
+ }
+}

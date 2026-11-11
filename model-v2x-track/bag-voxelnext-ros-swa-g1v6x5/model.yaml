@@ -1,0 +1,29 @@
+name: bag-voxelnext-ros-swa-g1v6x5
+type: bag
+strategy: S10
+track: v2x-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelnext-ros-g1v6: weighted box fusion of the five generator
+  draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6 + pcdet/g1-v6d2 + pcdet/g1-v6d3 + pcdet/g1-v6d4 + pcdet/g1-v6d5
+  realval: pcdet/realval-v1
+members:
+- voxelnext-ros-swa-g1v6
+- voxelnext-ros-swa-g1v6d2
+- voxelnext-ros-swa-g1v6d3
+- voxelnext-ros-swa-g1v6d4
+- voxelnext-ros-swa-g1v6d5
+iou:
+  default: 0.5
+  vehicle: 0.7
+realism_frames: pcdet/g1-v6
+status: 'S10 wave 3: 5-draw bag (draws 1-5, averaged members)'
+notes: 'S10 wave 3 (docs/decisions/2026-11-08-s10-clean-final-plan.md Section 15.10):
+  the weight-averaged (epochs 31-40) VoxelNeXt member on generator draws 1-5 (training
+  seed 666 on each); the iou of bag-voxelnext-ros-swa-g1v6x4. No checkpoint and no
+  tuned knob of its own. Enters a portfolio after the bag check against bag-voxelnext-ros-g1v6x5
+  (rule 4).
+
+  '
+derived_from: bag-voxelnext-ros-swa-g1v6x4

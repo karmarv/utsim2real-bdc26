@@ -1,0 +1,186 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.527043395384599,
+    "A_behaviour": 0.5273381914119226,
+    "A_tuned": 0.5321897571169953,
+    "behaviour_cfg": {
+      "nms_iou": 0.3,
+      "recenter": 0.5,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.18622067569738301,
+    "B_behaviour": 0.18549978802791534,
+    "B_tuned": 0.17389259366881196,
+    "hedge_from_Bicycle": {
+      "factor": 0.1,
+      "A": 0.5406876031421497
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8609603373312791,
+    "A_behaviour": 0.8609603373312791,
+    "A_tuned": 0.8609603373312791,
+    "behaviour_cfg": {
+      "nms_iou": 0.5,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "n_gt_B": 25573,
+    "B_start": 0.7532194458846877,
+    "B_behaviour": 0.7532194458846877,
+    "B_tuned": 0.7532194458846877,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.8756680718389388
+    },
+    "hedge_from_Van": {
+      "factor": 0.6,
+      "A": 0.8802829159981101
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.35646351536481435,
+    "A_behaviour": 0.35646351536481435,
+    "A_tuned": 0.35646351536481435,
+    "behaviour_cfg": {
+      "nms_iou": 0.1,
+      "recenter": 0.5,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.13888556845224737,
+    "B_behaviour": 0.13888556845224737,
+    "B_tuned": 0.13888556845224737,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.4765465893127935
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.1301001367875936,
+    "A_behaviour": 0.1301001367875936,
+    "A_tuned": 0.1301001367875936,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.03472319872045635,
+    "B_behaviour": 0.03472319872045635,
+    "B_tuned": 0.03472319872045635
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.0012065829117162185,
+    "A_behaviour": 0.001332701222081753,
+    "A_tuned": 0.001332701222081753,
+    "behaviour_cfg": {
+      "nms_iou": 0.01
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.015213178294573642,
+    "B_behaviour": 0.015255905511811024,
+    "B_tuned": 0.015255905511811024
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.20333880921266254,
+    "A_behaviour": 0.2044785227156757,
+    "A_tuned": 0.2044785227156757,
+    "behaviour_cfg": {
+      "nms_iou": 0.6,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.17116918888834265,
+    "B_behaviour": 0.1731324082859082,
+    "B_tuned": 0.1731324082859082
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.005308213772748078,
+    "A_behaviour": 0.005308213772748078,
+    "A_tuned": 0.005308213772748078,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0,
+    "B_behaviour": 0.0,
+    "B_tuned": 0.0,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.06304815553194455
+    },
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.08212066929985694
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.0023119928200142107
+    }
+  }
+}

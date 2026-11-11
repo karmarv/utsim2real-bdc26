@@ -353,6 +353,13 @@ def _drop_ramp(d) -> tuple:
     return (dn, df, r0, r1)
 
 
+def thinned_drop(d, keep: float) -> tuple:
+    """A per-ray drop ramp that also keeps only a `keep` share of the returns (S10 R1: solid synthetic blocks return far
+    more than the porous real structures they stand for, so each block keeps the share that matches its real mass)."""
+    dn, df, r0, r1 = _drop_ramp(d)
+    return (1.0 - (1.0 - dn) * keep, 1.0 - (1.0 - df) * keep, r0, r1)
+
+
 def insert_meshes(points: np.ndarray, sensor_of_point: np.ndarray, sensors: list[Sensor], objects: list[MeshObj],
                   rng: np.random.Generator, p: InsertParams = InsertParams(), nthreads: int = 1):
     """Returns (points_out (M,3), keep_mask over input points, object_id (M,) or -1, hits_per_object (K,)).
@@ -461,6 +468,9 @@ class G2Config:
     structure_xy: np.ndarray | None = None              # (N, 2) candidate centres (scene_map.structure_points)
     structure_dir: np.ndarray | None = None             # (N,) axial road direction near each centre (nan: none)
     structure_kinds: dict | None = None                 # kind -> probability (default STRUCTURE_KINDS)
+    static_anchors: list | None = None                  # S10 R1 (allowed by the organizers' answer to question (c), 2026-11-10):
+                                                        # [(x, y, yaw, l, w, h[, keep])] static blocks where unlabelled real clouds
+                                                        # show persistent geometry the twin lacks (common/tools/s10_static_anchors.py)
 
 
 @dataclass
@@ -542,6 +552,12 @@ class G2Pass:
             for V, F in self._structures(pts[~drop], boxes, rng):
                 objects.append(MeshObj(V, F, -1, self.cfg.drop.get("clutter")))
                 st["g2_structures"] = st.get("g2_structures", 0) + 1
+        if self.cfg.static_anchors:
+            d0 = self.cfg.drop.get("clutter")
+            for V, F, keep in self._static_blocks(pts[~drop], boxes, rng):
+                d = d0 if keep >= 1.0 else thinned_drop(self.cfg.params.drop_prob if d0 is None else d0, keep)
+                objects.append(MeshObj(V, F, -1, d))
+                st["g2_static"] = st.get("g2_static", 0) + 1
         base = pts[~drop]
         sensor_of = sensor_candidates(base, self.sensors, self.assign_tol_deg)
         out, keep, oid, hits = insert_meshes(base, sensor_of, self.sensors, objects, rng, self.cfg.params)
@@ -577,6 +593,29 @@ class G2Pass:
                 continue
             placed.append(probe)
             out.append((place_mesh(V, x, y, z, yaw), F))
+        return out
+
+    def _static_blocks(self, pts, boxes, rng):
+        """S10 R1: one unlabeled block per static anchor, every frame (static geometry), as a pole (a cylinder) when the
+        footprint is at most 0.6 m and the height at least 1.5 m, else a box; jittered by 5 cm; skipped where it would
+        overlap a labeled box (never hides an actor), within 3 m of a sensor, or off the ground. An optional 7th anchor
+        value keeps that share of the block's returns (the mass calibration, s10_static_anchors.py --calibrate; 1.0 when
+        absent). Returns [(V, F, keep)]."""
+        sensor_xy = np.array([s.origin[:2] for s in self.sensors])
+        out = []
+        for a in self.cfg.static_anchors:
+            x, y, yaw, L, W, H = a[:6]
+            keep = float(a[6]) if len(a) > 6 else 1.0
+            x, y = np.array([x, y], float) + rng.normal(0, 0.05, 2)
+            if np.min(np.hypot(*(sensor_xy - [x, y]).T)) < 3.0:
+                continue
+            if len(boxes) and bev_overlaps(np.array([x, y, 0.0, L + 0.3, W + 0.3, 1.0, yaw]), boxes, 0.0):
+                continue
+            z = self.ground(pts, x, y)
+            if z is None:
+                continue
+            V, F = (cylinder_mesh(max(L, W) / 2, H, n=8) if max(L, W) <= 0.6 and H >= 1.5 else box_mesh(L, W, H))
+            out.append((place_mesh(V, x, y, z, yaw), F, keep))
         return out
 
     def _clutter_poses(self, pts, boxes, rng):
