@@ -1,0 +1,23 @@
+name: voxelrcnn-ros-g1v6d2aw
+strategy: S10-2
+track: v2x-track
+module: M9 (engine v6) / S10-2 lever V3
+derived_from: voxelrcnn-ros-g1v6d2
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS, the parent's config unchanged
+data:
+  train: pcdet/g1-v6d2aw
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6aw
+postprocess: test/postprocess.yaml
+status: 'S10-2 V3: voxelrcnn-ros-g1v6d2 retrained from scratch on the calibrated corpus
+  pcdet/g1-v6d2aw (same configs, seed and epochs)'
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S10-2 V3 (docs/decisions/2026-11-12-s10-10.2-clean-final-push.md Sections
+  4-5): the parent''s recipe on the calibrated generator, as the organizers'' answer
+  of 2026-11-12 allows (the calibration in the training data, the detector retrained
+  on it, the 50 frames from that data). Realism frames pcdet/g1-v6aw.
+
+  '
+candidate: V3
