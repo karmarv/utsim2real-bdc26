@@ -1,0 +1,61 @@
+{
+ "phase": "Final (release 10.2; the entrant's upload of 2026-11-12; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10-2 V1 (docs/decisions/2026-11-12-s10-10.2-clean-final-push.md Section 4): routed-c2r, the V2X C2 rehearsal (rule 14b GO against c1a); 6 member models, rule 1 clean; rule 1b: the 50 g1-v6 frames (equal to 1042294's and 1046758's) come from a training corpus of 5 of the 11 shipped checkpoints, and each of its 6 real-data items is in the training data of all 11; packaging adds 31% (0,0,0) no-returns (Section 2, the open literal point)",
+ "codabench_competition": 16685,
+ "codabench_submission_id": 1050253,
+ "uploaded_file": "v2x_s10-2-v1_submission.zip of this folder (md5 9f836506b943141b4cdce78648e143c7, as in manifest.json)",
+ "submitted": "2026-11-12 17:25 CST = 23:25 UTC (the final board's date column, in the entrant's screenshot)",
+ "leaderboard_checked": "not read by us: the public API shows a bot check and is not bypassed. The scores are those of the scoring output the entrant pasted; the entrant's screenshot of the final board (2026-11-12 17:33 CST) shows the same V2X row.",
+ "realism_detail": {
+  "CD": 1.8442651746440064,
+  "MMD": 0.0003385394793231633,
+  "EMD": 1.1097340725522227,
+  "FPD": 0.7477689677293711,
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.001838611844386042
+ },
+ "scores": {
+  "score_combined": 0.891305,
+  "score_detection": 0.858439,
+  "score_realism": 0.940605,
+  "mAP_3d_0.5_R40": 0.600907,
+  "mAP_3d_0.5_R11": 0.604628,
+  "mAP_3d_0.7_R40": 0.149092,
+  "mAP_bev_0.5_R40": 0.660361,
+  "CD": 1.844265,
+  "MMD": 0.00033854,
+  "EMD": 1.109734,
+  "FPD": 0.747769,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_vehicle": 0.743154,
+  "AP_3d_0.5_R40_pedestrian": 0.400108,
+  "AP_3d_0.5_R40_truck": 0.659459
+ },
+ "scoring_log": [
+  "[scoring] realism: CD 1.8442651746440064, MMD 0.0003385394793231633, EMD 1.1097340725522227, FPD 0.7477689677293711",
+  "[scoring] mAP_3d_0.5_R40 = 0.600907",
+  "(scoring output pasted by the entrant)"
+ ],
+ "vs_previous": {
+  "previous": "1046758 (c1av5, routed-c1a: the previous best qualifying V2X entry)",
+  "delta": {
+   "score_combined": 0.002441,
+   "score_detection": 0.004068,
+   "score_realism": 0.0,
+   "mAP_3d_0.5_R40": 0.002848,
+   "mAP_3d_0.5_R11": 0.003959,
+   "mAP_3d_0.7_R40": -0.016364,
+   "mAP_bev_0.5_R40": 0.002454,
+   "CD": 0.0,
+   "MMD": 0.0,
+   "EMD": 0.0,
+   "FPD": 0.0,
+   "AP_3d_0.5_R40_vehicle": 2.8e-05,
+   "AP_3d_0.5_R40_pedestrian": 0.001195,
+   "AP_3d_0.5_R40_truck": 0.007319
+  }
+ }
+}

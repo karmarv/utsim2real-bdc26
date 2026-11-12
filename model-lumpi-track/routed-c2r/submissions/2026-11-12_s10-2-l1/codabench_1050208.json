@@ -1,0 +1,70 @@
+{
+ "phase": "Final (release 10.2; the entrant's upload of 2026-11-12; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10-2 L1 (docs/decisions/2026-11-12-s10-10.2-clean-final-push.md Section 4): routed-c2r (c2rv6), C0 plus the late-A Person route; 13 member models, rule 1 clean; rule 1b: the 50 g1-v6 frames (byte-identical to 1042287's) come from a training corpus of 11 of the 20 shipped checkpoints, and each of its 7 real-data items is in the training data of all 20",
+ "codabench_competition": 16684,
+ "codabench_submission_id": 1050208,
+ "uploaded_file": "lumpi_s10-2-l1_submission.zip of this folder (md5 4a1fd4b242c5fd44ce1c0f5bfcbeb004, as in manifest.json)",
+ "submitted": "2026-11-12 (the entrant's message, about 23:00 UTC); exact time not read",
+ "leaderboard_checked": "not read by us: the public API shows a bot check and is not bypassed. The scores are those of the scoring output the entrant pasted; the entrant's screenshot of the final board (2026-11-12 17:33 CST) shows the same V2X row.",
+ "realism_detail": {
+  "CD": 1.5102775686468233,
+  "MMD": 0.00010173495982623848,
+  "EMD": 1.2720093968576371,
+  "FPD": 0.42977002998350144,
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.0005234408773852402
+ },
+ "scores": {
+  "score_combined": 0.540045,
+  "score_detection": 0.277275,
+  "score_realism": 0.9342,
+  "mAP_3d_0.5_R40": 0.194093,
+  "mAP_3d_0.5_R11": 0.200668,
+  "mAP_3d_0.7_R40": 0.099513,
+  "mAP_bev_0.5_R40": 0.208144,
+  "CD": 1.510278,
+  "MMD": 0.00010173,
+  "EMD": 1.272009,
+  "FPD": 0.42977,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_Person": 0.299405,
+  "AP_3d_0.5_R40_Car": 0.683265,
+  "AP_3d_0.5_R40_Bicycle": 0.138745,
+  "AP_3d_0.5_R40_Motorcycle": 0.017905,
+  "AP_3d_0.5_R40_Bus": 0.000244,
+  "AP_3d_0.5_R40_Truck": 0.066555,
+  "AP_3d_0.5_R40_Van": 0.152531,
+  "AP_3d_0.5_R40_Unknown": null
+ },
+ "scoring_log": [
+  "[scoring] realism: CD 1.5102775686468233, MMD 0.00010173495982623848, EMD 1.2720093968576371, FPD 0.42977002998350144",
+  "[scoring] mAP_3d_0.5_R40 = 0.194093",
+  "(scoring output pasted by the entrant)"
+ ],
+ "vs_previous": {
+  "previous": "1042287 (C0, routed-c0: the best qualifying LUMPI entry)",
+  "delta": {
+   "score_combined": -0.000755,
+   "score_detection": -0.001258,
+   "score_realism": 0.0,
+   "mAP_3d_0.5_R40": -0.00088,
+   "mAP_3d_0.5_R11": -0.001614,
+   "mAP_3d_0.7_R40": 0.000275,
+   "mAP_bev_0.5_R40": -3.9e-05,
+   "CD": 0.0,
+   "MMD": 0.0,
+   "EMD": 0.0,
+   "FPD": 0.0,
+   "AP_3d_0.5_R40_Person": -0.006389,
+   "AP_3d_0.5_R40_Car": -4.8e-05,
+   "AP_3d_0.5_R40_Bicycle": 0.000275,
+   "AP_3d_0.5_R40_Motorcycle": 0.0,
+   "AP_3d_0.5_R40_Bus": 0.0,
+   "AP_3d_0.5_R40_Truck": 0.0,
+   "AP_3d_0.5_R40_Van": 0.0
+  }
+ }
+}
