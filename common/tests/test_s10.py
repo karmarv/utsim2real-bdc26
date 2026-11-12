@@ -279,3 +279,10 @@ def test_release_zip_assets_get_unique_names_when_versions_share_a_file_name():
     assert [a["name"] for a in out] == ["lumpi.routed-c0.c0.lumpi_s10_submission.zip", "lumpi.routed-c0.c0pq.lumpi_s10_submission.zip",
                                         "v2x_s9f_submission.zip"]                    # a unique file name keeps its name
     assert [a["path"] for a in out] == ["a", "b", "c"] and all("qualified" not in a for a in out)
+
+
+def test_release_publish_marks_a_final_release_and_names_it_by_its_tag():
+    from release_weights import release_title
+    assert release_title("10.1", None, final=True) == "10.1"
+    assert release_title("10.0", None, final=False) == "10.0 (pre-release)"
+    assert release_title("10.1", "10.1: S10 Clean Final", final=True) == "10.1: S10 Clean Final"

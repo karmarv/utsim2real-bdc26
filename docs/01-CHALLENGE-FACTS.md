@@ -38,7 +38,7 @@ CodaBench phase boundaries are in UTC. US daylight saving time ends Sun Nov 1, 2
 | Dev phase closes | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 19:00 CDT |
 | LOI form closes (if not already filed) | 2026-10-31 00:00 | Fri Oct 30, 17:00 PDT | Fri Oct 30, 19:00 CDT (stated as 20:00 EDT on the CodaBench Overview, re-read 2026-10-28; the site still shows Aug 15). **Not needed for us:** our LOI went by email on 2026-08-26 and the organizers acknowledged it; the Overview says such teams "need take no further action" |
 | Final phase opens | 2026-11-01 00:00 | Sat Oct 31, 17:00 PDT | Sat Oct 31, 19:00 CDT |
-| **Final phase closes** | 2026-11-15 00:00 | **Sat Nov 14, 16:00 PST** | **Sat Nov 14, 18:00 CST** |
+| **Final phase closes** | 2026-11-15 00:00 (site); **both CodaBench phase pages: 2026-11-16 04:59** (re-read 2026-11-12) | **Sat Nov 14, 16:00 PST** (site); Sun Nov 15, 20:59 PST (pages) | **Sat Nov 14, 18:00 CST** (site); **Sun Nov 15, 22:59 CST** (pages) |
 | Challenge report (4-8 pages) | Nov 15 | | |
 | Cup camera-ready / final report and solutions | Nov 20 | | |
 | Winners | Nov 25 | | |
@@ -47,7 +47,7 @@ CodaBench phase boundaries are in UTC. US daylight saving time ends Sun Nov 1, 2
 | Phase | Per day | Total | Leaderboard | Notes |
 |---|---|---|---|---|
 | Development | 5 | 100 | Public, `Force_Best` | Scored on the **same** test and reference data as the final phase |
-| Final | **1** | **5** | Hidden until close, `Force_Best` | Dev submissions are not carried over |
+| Final | **1** (page on 2026-11-12: **4**) | **5** (page on 2026-11-12: **8**) | Hidden until close at first; public on the Results tab by 2026-11-12, `Force_Best` | Dev submissions are not carried over. Removed uploads still count toward the limit (organizers, 2026-11-09) |
 
 Execution limit per submission: 1200 s. Prize pool: USD 2,000 (per track $500 / $300 / $200). Top-3 per track are invited to the paper track (CyberChair subarea SC04, up to 10 pages including references, IEEE two-column) and must be ready to release code for verification.
 
@@ -90,6 +90,7 @@ The CodaBench Terms (item 1) bind you to the **Rules tab**:
 | Per-class or per-knob choices from leaderboard per-class numbers | **Not done**: the leaderboard is computed on the forbidden frames, so this is "hyperparameter-tuning" on them. Choosing among complete systems and resubmitting the best one is allowed ("Use this to iterate"; "resubmit your best system") |
 | Uploads designed to isolate realism (only the frames changed, or detection zeroed) | **Not done**: probing the realism reference |
 | Affine or quantile warping applied **only** to the 50 submitted frames to match real moments | **Avoid.** Not forbidden, but it decouples the submitted frames from the training data, and the winners tuned it with server probes |
+| Any calibration applied **only** to the 50 submitted frames, with the training data unchanged | **Not allowed** (organizers, 2026-11-12: the 50 frames "are meant to represent the synthetic data your detector was trained on"). The same calibration **inside the generator** is allowed: apply it to the training data, retrain the detector, and submit 50 frames from that data; the report names the calibration, its fit frames and the frame choice. Both the LUMPI 2 m density prior and the V2X range mapping were ruled allowed on those terms |
 | Using statistics of the 50 released test point clouds for anything but running inference | **Forbidden** (they are forbidden frames) |
 | The starter kit's `reference_data_local/realism_reference/` frames | **Forbidden for fitting**: a competitor found them byte-identical to the 50 detection-test frames. Use it only to check that `local_eval.py` runs |
 | **Hidden-GT reference bundles** that the CodaBench API reportedly exposes | **Never download.** That is observing forbidden ground truth (disqualification) |

@@ -10,7 +10,7 @@ From 6.0 on, a release also carries **the weights of its leaderboard entries** a
 3. `python common/tools/release_weights.py collect --tag <tag> <model folder>:<submission tag> ...` writes `releases/<tag>/weights.json`; add the release section and its row in the release map below.
 4. Commit on main and create the annotated tag: `git tag -a <tag> -m "<summary with the CodaBench ids>"`.
 5. `git push origin main && git push origin <tag>`.
-6. `python common/tools/release_weights.py publish --tag <tag>`: creates the GitHub pre-release of the tag (notes: its section of this file, links pointing at the tag) and uploads every asset; it ends with "all assets uploaded and sizes match".
+6. `python common/tools/release_weights.py publish --tag <tag>`: creates the GitHub pre-release of the tag (with `--final`, a full release; an existing release is updated) (notes: its section of this file, links pointing at the tag) and uploads every asset; it ends with "all assets uploaded and sizes match".
 7. In a fresh clone at the tag: `release_weights.py fetch --tag <tag> --version <track>:<submission tag>` (md5-verified), then the version's `test/reproduce_<tag>.sh`.
 8. Record the outcome in the release section and in `releases/<tag>/github.json` (release URL, label, the sha256 GitHub shows for each asset compared with the local files, fresh-clone check), commit and push; the tag stays on its commit.
 
@@ -49,13 +49,13 @@ Every tag fixes the code, the documentation and the scored zips of the leaderboa
 | **9.2** | 2026-11-07 | **S9 close-out** (the entries on both tracks, final phase; LUMPI development entry `s9d`) | **1038963: 0.5428** (0.542809, `s9j`, final phase); 1031132: 0.5425 (0.542490, `s9d`, development) | **1038966: 0.9038** (0.903777, `s9f`, final phase) | **yes**: 23 checkpoints + 3 zips ([`releases/9.2/weights.json`](releases/9.2/weights.json)); 2 checkpoints new since 9.1 | `routed-g22/test/reproduce_s9j.sh`, `routed-g15/test/reproduce_s9d.sh` (LUMPI), `routed-g19/test/reproduce_s9f.sh` (V2X) |
 | 9.1 | 2026-11-02 | S9 (the entries until the close-out) | **1028541: 0.5357** (0.535667, `s9a2`) | **1028491: 0.9030** (0.902971, `s9a`) | **yes**: 27 checkpoints + 2 zips ([`releases/9.1/weights.json`](releases/9.1/weights.json)); 4 checkpoints new since 8.1 | `routed-g12/test/reproduce_s9a2.sh` (LUMPI), `routed-g15/test/reproduce_s9a.sh` (V2X) |
 | **10.0** | 2026-11-06 (tag set on 2026-11-11 on `e6c34d9`, the 9.2 commit) | S9 close-out, **removed from the boards** by the organizers (walkers placed at real label positions; their ruling of 2026-11-09) | 1038963: 0.5428 (`s9j`; removed) | 1038966: 0.9038 (`s9f`; removed) | **yes**: 23 checkpoints + 2 zips ([`releases/10.0/weights.json`](releases/10.0/weights.json)), byte-identical to the 9.2 assets | `routed-g22/test/reproduce_s9j.sh` (LUMPI), `routed-g19/test/reproduce_s9f.sh` (V2X) |
-| **10.1** | 2026-11-11 | **S10 Clean Final**: no real label in training; the organizers rank KarmaRV from 1042287 / 1042294 on | **1047231: 0.5413** (0.541329, `c0pq`, the best clean LUMPI entry); 1042287: 0.5408 (`C0`); 1047204: 0.5396 (`c1pq`) | **1046758: 0.8889** (0.888864, `c1av5`, the best clean V2X entry); 1042294: 0.8885 (`C0`) | **yes**: 23 checkpoints + 5 zips ([`releases/10.1/weights.json`](releases/10.1/weights.json)); GPU dry runs after the Nov 13 training stop | `routed-c0/test/reproduce_c0.sh` (both tracks), `routed-c0/test/reproduce_c0pq.sh`, `routed-c1/test/reproduce_c1pq.sh` (LUMPI), `routed-c1a/test/reproduce_c1av5.sh` (V2X) |
+| **10.1** | 2026-11-11 | **S10 Clean Final**: no real label in training; the organizers rank KarmaRV from 1042287 / 1042294 on | 1047231: 0.5413 (0.541329, `c0pq`; frames do not qualify under the 2026-11-12 answer); **1042287: 0.5408** (`C0`, the best qualifying LUMPI entry); 1047204: 0.5396 (`c1pq`; frames as `c0pq`) | **1046758: 0.8889** (0.888864, `c1av5`, the best clean V2X entry); 1042294: 0.8885 (`C0`) | **yes**: 23 checkpoints + 5 zips ([`releases/10.1/weights.json`](releases/10.1/weights.json)); GPU dry runs pending (after the 12-view wave) | `routed-c0/test/reproduce_c0.sh` (both tracks), `routed-c0/test/reproduce_c0pq.sh`, `routed-c1/test/reproduce_c1pq.sh` (LUMPI), `routed-c1a/test/reproduce_c1av5.sh` (V2X) |
 
-The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0, 8.1 and 9.1; 10.0 and 10.1 are pre-releases to publish (10.0 on the 9.2 commit) ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
+The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [`docs/decisions/README.md` Section 6.1](docs/decisions/README.md#61-reproducing-a-submission) names its release. Uploads that never scored (957399, 957439) are in the register, not in a release. GitHub release pages exist for 0.1, 6.0, 7.0, 8.0, 8.1 and 9.1; 10.1 is published as the first full release (`publish --tag 10.1 --final`); 10.0 is a pre-release to publish (on the 9.2 commit) ([releases](https://github.com/karmarv/utsim2real-bdc26/releases)); the other tags are git tags only, with their zips in the tree.
 
-## 10.1 (pre-release, 2026-11-11): S10 Clean Final, the ranked entries
+## 10.1 (release, 2026-11-12; pre-release 2026-11-11): S10 Clean Final, the clean uploads of Nov 8 and Nov 10
 
-**In one line.** Every system the organizers rank for KarmaRV: five final-phase uploads (LUMPI 1042287, 1047204 and 1047231; V2X 1042294 and 1046758). Every detector is trained only on synthetic corpora that contain no real label row. The best entries are LUMPI **1047231 (0.541329)** and V2X **1046758 (0.888864)**.
+**In one line.** Every system the organizers rank for KarmaRV: five final-phase uploads (LUMPI 1042287, 1047204 and 1047231; V2X 1042294 and 1046758). Every detector is trained only on synthetic corpora that contain no real label row. The best scores are LUMPI 1047231 (0.541329) and V2X **1046758 (0.888864)**; under the organizers' frame answer of 2026-11-12 the best qualifying LUMPI entry is **1042287 (0.540800)** (see below).
 
 **Why 10.1 is separate from 10.0.**
 - The organizers' clarification of 2026-11-07 says that real labels, and object points cut out with real boxes, must not enter the training set.
@@ -80,7 +80,7 @@ The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [
 |---|---|---|---|---|---|---|---|
 | 1 LUMPI (16684) | `C0`: the first clean system | 1042287 (2026-11-08) | 0.5408 | 0.1950 | 0.9342 (1.2720) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip) (`1de9f12c1f18d045e5b0c05e08a2f793`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
 | 1 LUMPI (16684) | `c1pq`: `C0` plus one Person route; frames with the PandarQT near-field re-cast | 1047204 (2026-11-11) | 0.5396 (0.539575) | 0.1929 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip) (`6c2da31f4146a174caba4923709f87c4`) | [S10 record, Sections 15.15.7-15.15.8](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 1 LUMPI (16684) | `c0pq`: `C0`'s detections with the `c1pq` frames (**the best clean LUMPI entry**) | 1047231 (2026-11-11) | **0.5413** (0.541329) | 0.1950 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip) (`aa167c395f3d8c4549b063d9e269a863`) | [S10 record, Sections 15.15.9-15.15.10](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `c0pq`: `C0`'s detections with the `c1pq` frames (the best LUMPI score; its frames do not qualify under the 2026-11-12 answer) | 1047231 (2026-11-11) | **0.5413** (0.541329) | 0.1950 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip) (`aa167c395f3d8c4549b063d9e269a863`) | [S10 record, Sections 15.15.9-15.15.10](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
 | 2 V2X-Real (16685) | `C0`: the first clean system | 1042294 (2026-11-08) | 0.8885 (0.888471) | 0.5976 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip) (`c70e8a341b7647d8ae7712a09ba1baf6`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
 | 2 V2X-Real (16685) | `c1av5`: `C0` plus the V5 overhead demotion of pedestrian boxes (**the best clean V2X entry**) | 1046758 (2026-11-10) | **0.8889** (0.888864) | 0.5981 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip) (`2f3d80cbfed8c0f4064a8ba77aa5ecb5`) | [S10 record, Sections 15.14.6-15.14.7](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
 
@@ -100,6 +100,11 @@ Server records: `codabench_<id>.json` in each submission folder.
 - `c1pq` against `C0`: realism +0.001324 (EMD -0.026, the PandarQT re-cast) and mAP -0.002047 (the Person route; it lost on late-A locally, record 15.15.8).
 - `c0pq` against `C0`: exactly the realism gain, +0.000529 combined.
 - `c1av5` against V2X `C0`: +0.000393 (pedestrian AP +0.0014; realism identical).
+
+**The frames under the organizers' answer of 2026-11-12** (received after all five uploads; the rule row in [docs/01 Section 3.1](docs/01-CHALLENGE-FACTS.md#31-our-operating-interpretation); the full account is in the S10 record, Section 15.17, from release 10.2 on).
+- The answer: the 50 frames "are meant to represent the synthetic data your detector was trained on"; a calibration applied only to the 50 frames, with the training data unchanged, is not allowed. The same calibration inside the generator, with the detector retrained on it, is allowed.
+- **LUMPI 1042287 (`C0`), V2X 1042294 and 1046758:** the frames come from the corpus family every member trained on. The V2X frames store 31% (0,0,0) no-return points, as the real sensor does; the detector's loader removes them in training and inference.
+- **LUMPI 1047204 (`c1pq`) and 1047231 (`c0pq`):** the PandarQT near-field re-cast (`pcdet/g1-v6pq`) reached the 50 frames but not the training data of any member. Under the answer they do not qualify; **the best qualifying LUMPI entry is 1042287 (0.5408)**. Both stay in this release as the record of what was uploaded.
 
 **Real data in 10.1, for the report.** The organizers allowed every use below on 2026-11-09, as long as none of the 100 forbidden frames is involved (`common/tools/clean_check.py` reads each corpus card's `real_data_use`).
 - Validation and model selection on non-forbidden real frames: LUMPI realval A/B; V2X infrastructure frames, including the public val and test splits.
@@ -128,13 +133,14 @@ CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-c1a/test/reproduce_c1av5.sh
 
 **Reproduction.**
 - The five test-frame scripts re-merge to identical boxes from the cached member predictions (CPU check, 2026-11-11): LUMPI 24,088 / 24,088 / 24,481; V2X 41,225 / 41,232.
-- The GPU dry runs (test-frame inference with the released weights, then the comparison with the scored zip) wait for idle GPUs after the Nov 13 18:00 UTC training stop. They will be written here.
+- The GPU dry runs (test-frame inference with the released weights, then the comparison with the scored zip) wait for idle GPUs after the final 12-view wave (about 2026-11-13 02:00 UTC). They will be written here.
 - The validation scripts (`reproduce_<tag>_validation.sh`) sit beside the test scripts.
 
+**Publishing.** 10.1 is the first full GitHub release (not a pre-release): the entrant runs `release_weights.py publish --tag 10.1 --final` after pushing the tag.
+
 **Not yet in 10.1.**
-- The GitHub release page: the entrant runs `release_weights.py publish --tag 10.1`.
 - The GPU dry-run results.
-- Later uploads of the S10 strategy (`C2`) need a tag that the entrant names.
+- Every later model, package and upload of the final week is **release 10.2** (the entrant's choice, 2026-11-12), so that each increment stays separate.
 
 ## 10.0 (pre-release, tag on `e6c34d9`, set 2026-11-11): the removed first final-phase uploads
 

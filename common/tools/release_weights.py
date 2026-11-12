@@ -5,6 +5,8 @@
     python common/tools/release_weights.py collect --tag 6.0 model-lumpi-track/routed-g8:s6 model-v2x-track/routed-g8b:s6b
     # maintainer: create the GitHub pre-release of the pushed tag (notes: its RELEASES.md section) and upload the assets
     python common/tools/release_weights.py publish --tag 6.0
+    # the same as a full release (not marked pre-release; title "<tag>"), e.g. the ranked final-phase entries
+    python common/tools/release_weights.py publish --tag 10.1 --final
     # anyone with read access: download, verify (md5) and place the checkpoints of one version, or of all
     python common/tools/release_weights.py fetch --tag 6.0 [--version lumpi:s6]
     python common/tools/release_weights.py verify --tag 6.0        # md5 of the files in place against the manifest
@@ -118,14 +120,20 @@ def notes(tag: str, slug: str | None = None) -> str:
     return body
 
 
-def publish(tag: str, title: str | None) -> None:
+def release_title(tag: str, title: str | None, final: bool) -> str:
+    """The GitHub release name: the given title, else '<tag>' for a full release and '<tag> (pre-release)' otherwise."""
+    return title or (tag if final else f"{tag} (pre-release)")
+
+
+def publish(tag: str, title: str | None, final: bool = False) -> None:
     import _github
     m = json.loads(manifest_path(tag).read_text())
     for a in m["assets"]:
         p = REPO / a["path"]
         if not p.exists() or p.stat().st_size != a["bytes"]:
             raise SystemExit(f"{a['path']}: missing or size differs from the manifest")
-    rel = _github.create_or_update_release(m["repository"], tag, title or f"{tag} (pre-release)", notes(tag, m["repository"]), prerelease=True)
+    rel = _github.create_or_update_release(m["repository"], tag, release_title(tag, title, final), notes(tag, m["repository"]),
+                                           prerelease=not final)
     print(f"release {tag}: {rel['html_url']}")
     for k, a in enumerate(m["assets"], 1):
         print(f"[{k}/{len(m['assets'])}] {a['name']} ({a['bytes'] / 1e6:.1f} MB)", flush=True)
@@ -186,13 +194,14 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("collect"); c.add_argument("--tag", required=True); c.add_argument("versions", nargs="+", help="<model folder>:<submission tag>")
     p = sub.add_parser("publish"); p.add_argument("--tag", required=True); p.add_argument("--title", default=None)
+    p.add_argument("--final", action="store_true", help="a full release instead of a pre-release (an existing release is updated)")
     f = sub.add_parser("fetch"); f.add_argument("--tag", required=True); f.add_argument("--version", default=None); f.add_argument("--force", action="store_true")
     v = sub.add_parser("verify"); v.add_argument("--tag", required=True); v.add_argument("--version", default=None)
     a = ap.parse_args()
     if a.cmd == "collect":
         collect(a.tag, a.versions)
     elif a.cmd == "publish":
-        publish(a.tag, a.title)
+        publish(a.tag, a.title, a.final)
     elif a.cmd == "fetch":
         fetch(a.tag, a.version, a.force)
     else:
