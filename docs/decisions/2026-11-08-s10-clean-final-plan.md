@@ -1617,6 +1617,474 @@ LUMPI's last two uploads:
 - Members: every clean member tuned so far. LUMPI adds 10 folders to C1's 80: the GBlobs draws, their averaged versions and bags, and the probes. V2X has C1's 65.
 - They forecast `C2` and test the new gates end to end. A V2X rehearsal that passes could take V2X upload 4.
 
+### 15.16 Research 3: realism-frame calibration, the rule question, and the plan to the close (2026-11-11, 05:00-06:00 UTC)
+
+**Standing.**
+- **LUMPI:** best 1047231 (0.541329); 1 upload left, close 2026-11-16 04:59 UTC.
+- **V2X:** best 1046758 (0.888864); 2 uploads left, close 2026-11-15 04:59 UTC.
+- **Last board read (Nov 9):** LUMPI lukefinigan 0.5440 (mAP 0.1953, R 0.9414); V2X sadbodh 0.8550 and lukefinigan 0.8334.
+- On LUMPI the gap is realism, about 0.0027. The board is behind a bot check, so the entrant's screenshot is the only source.
+
+**Two research agents (CPU, fit-and-judge protocol, `scratchpad s10/research3/`)** found one large lever per track:
+- **LUMPI N1, nearest-support density re-weighting.**
+  - Every point of the legal fit frames (proxies 1-3; Measurement4 frames 40-6390) goes to its nearest synthetic point, pooled over the 50 frames.
+  - On a 2 x 2 x 0.5 m grid of the synthetic support, weight = real share / synthetic share.
+  - Each frame is re-drawn to 50,000 points from its own points in proportion to the weight. Repeated points get N(0, 2 cm) jitter.
+  - It is the same statistic as our disclosed density prior (8 x 8 x 2.5 m, background only, applied in the generator), but much finer (12,601 cells), applied to all points of the 50 frames only. About 34% of the points are jittered copies.
+- **V2X A + W (`aw_mid`).**
+  - W: in each (azimuth, elevation) bin of 10 x 2.125 deg, the ranges of our points are quantile-mapped onto the real ones (21 quantiles); points move along their own rays.
+  - A: the share of points per bin is rebalanced (gamma 0.5) with background points taken from 150 other `g1-v6` frames.
+  - Fitted on V2X proxies 1-3 and `g1-v6` frames outside the 50. Nulls and points in boxes are untouched.
+  - It mends a misplaced twin scene: points that must move more than 3 m are 15% of the mass and carry 50% of W1.
+
+**Main-session verification** (independent scorer runs, including a new scorer seed and judge sets that no agent used):
+
+| Set | Judge | Mean dR | Lowest | Wins | Mean dEMD | Max CD |
+|---|---|---|---|---|---|---|
+| LUMPI N1 `safe_frames` (fit: proxies 1-3 only; pre-registered) | proxies 4, 5, late-3, b-m5, b-m6 x seeds 1234, 99 | **+0.0076** | +0.0063 | 10/10 | -0.152 | 0.98 |
+| LUMPI N1 `best_frames` (fit also on late-1/2) | same | +0.0062 | +0.0032 | 10/10 | -0.134 | 0.96 |
+| LUMPI N1 on the approved 8 x 8 x 2.5 m grid (fit: proxies 1-3) | same | +0.0015 | -0.0007 | 9/10 | -0.027 | |
+| V2X `aw_mid` | proxies 4, 5 x seeds 1234, 2024 | **+0.0100** | +0.0077 | 4/4 | -0.159 | 0.86 |
+| V2X `w_coarse` (W only, 30 x 4.25 deg) | same | +0.0041 | +0.0012 | 4/4 | -0.056 | 1.28 |
+
+**Provenance and copy audit.**
+- **LUMPI:**
+  - every fit frame is Measurement4 below 6400 (maximum 6395);
+  - every output point is a point of its own synthetic frame (65.7% exact, the rest within 0.11 m);
+  - the share of points within 1 mm of a real point is unchanged (0.002%).
+- **V2X `aw_mid`:**
+  - 50 x 50,000 points, nulls 0.3100;
+  - its median distance to the nearest real fit point falls from 0.283 to 0.124 m;
+  - within 1 cm: 0.16% to 1.30%; within 1 mm: 0.001% to 0.015%.
+  - No real point is copied, but the warped frames sit on the real surfaces.
+
+**Server expectation, at transfers seen before** (combined score; detections unchanged):
+
+| Track | Set | Low | Central | High |
+|---|---|---|---|---|
+| LUMPI | N1 `safe_frames` (+0.0076 R) | 0.31x: 0.5423 | 0.70x: 0.5435 | 1.0x: 0.5444 |
+| V2X | `aw_mid` (+0.0100 R) | 0.5x: 0.8909 | 0.86x: 0.8923 | 1.0x: 0.8929 |
+
+**The rule question (it is the entrant's decision).**
+- **The organizers' own frame rule** (docs/01): the 50 frames "must be synthetic", with no real frames and nothing from the 100 forbidden frames, and the report must say where they came from. Both levers meet it as written.
+- **The organizers' answer of 2026-11-09** allowed the uses we listed: a background density prior, the V2X beam table, and choosing the frames with proxies. Neither lever is on that list.
+- **Our own rules table (docs/01 Section 3)** is stricter:
+  - "Affine or quantile warping applied **only** to the 50 submitted frames to match real moments: **Avoid**". W is exactly this, and N1 and A are fine density matches applied only to the frames.
+  - "Generator fitted to real scans (... structure positions read off real points ...): **not with the track's own real frames**". W moves the twin's structure onto the real range profile; N1 at 2 m is far finer than the "density on 8 m cells" that the row names as distribution analysis.
+- **The same table:** "Uploads designed to isolate realism (only the frames changed, or detection zeroed): not done".
+  - **1047231 (`c0pq`) changed only the frames against 1042287.** It was not designed as a probe: both of its terms were already measured (1042287 and 1047204), so it told us nothing new about the realism reference.
+  - The report states it plainly.
+  - Future uploads keep the rule: frames ship together with a detection change, and no frame choice is taken from another upload's server realism.
+- **Risk.** If the organizers judge a frame method outside the rules, they can remove that upload, as they removed 10.0.
+  - Because the best entry counts, the board would fall back to the previous best. But the report and the ranking would carry the issue.
+  - Their last answer took about 3 hours.
+
+**Options for the remaining uploads:**
+
+| Option | What | LUMPI last upload | V2X uploads 4-5 | Expected | Risks |
+|---|---|---|---|---|---|
+| **1 (recommended)** | Ask the organizers first (Appendix B, short); use only on a yes; prepare everything now | best detections (`C2` if it passes rules 14b and 15 against `c0pq`, else `C0`'s) + N1 `safe_frames` | upload 4: V2X `C2r` detections (if they pass) + `aw_mid`; upload 5: final V2X `C2` + `aw_mid` | LUMPI 0.5435 central (0.5444 at 1.0x), plus any `C2` gain; V2X about 0.892 plus `C2` | the answer may come late. The cutoff is Nov 13 12:00 UTC for V2X and Nov 14 12:00 UTC for LUMPI; past it, Option 3 plus the 8 m variant |
+| 2 | Use them without asking | same | same | same | a removal, and a reporting problem; against our own rules table |
+| 3 | Do not use them | best detections + `g1-v6pq` frames (or the 8 m N1 variant, +0.0015 R, inside the approved granularity) | `C2` + `g1-v6` frames | LUMPI about 0.5413-0.5419 plus `C2`; V2X about 0.889 plus `C2` | LUMPI likely stays 2nd |
+
+**Detection side (unchanged plan, new evidence).**
+- The averaged GBlobs `rosf` bag is the one LUMPI Person candidate that passes rule 15 (late-A +0.0081 at P 0.98). GBlobs draws 4-5 train next after the `g1-v6pq` member.
+- The `C2` rehearsals give the first full forecast.
+- The V2X rehearsal's select step was killed by the kernel's out-of-memory killer at 05:05 UTC (each select holds about 78 GB). It reruns after the LUMPI select.
+
+**Pre-registered now (before any of these frames is scored):**
+- LUMPI ships N1 `safe_frames` (fit on proxies 1-3 only; seed 0) if the organizers allow it. Otherwise it ships the 8 m variant, only if its gain holds on the held-out sets (it does: +0.0015, 9/10); otherwise `g1-v6pq`. (Corrected in Appendix B: the 8 m variant also changes only the 50 frames, so it ships only if the organizers' answer covers it.)
+- V2X ships `aw_mid` if allowed; else `w_coarse` if W alone is allowed; else `g1-v6`.
+- No frame choice depends on a server number.
+
+#### 15.16.1 R1.1 on V2X passes rule 4; R1.2 starts (2026-11-11, 05:35-05:50 UTC)
+
+Rule 4 against draw 1 (check log `w1_batch2.log`; `BDC_ALLOW_R1=1`):
+
+| Member (reference) | Passes | Vehicle pooled (8-view) | Pedestrian pooled (8-view) | Truck pooled (8-view) |
+|---|---|---|---|---|
+| `voxelrcnn-ros-g1v6r1m` (`voxelrcnn-ros-g1v6`) | vehicle, pedestrian, vehicle 8v, truck 8v | +0.0253 (+0.0165) | +0.0166 (+0.0051; B -0.017) | -0.0215 (+0.0236) |
+| `voxelrcnn-ros-swa-g1v6r1m` (`voxelrcnn-ros-swa-g1v6`) | vehicle, pedestrian, vehicle 8v | +0.0250 (+0.0073) | +0.0222 (+0.0101; B -0.010) | -0.0323 (-0.0008) |
+
+- **The pre-registered rule (15.14.3):** R1.2, R1 draws 2-3, train for `C2` bags.
+- `r12_v2x.sh` builds `pcdet/g1-v6d2r1m` and `g1-v6d3r1m`: the draw recipes with seeds 2234 and 3234, plus the anchors `static_anchors_r1_v2m`. It then makes the members `voxelrcnn-ros-g1v6d2r1m` and `d3r1m` (CLEAN with `BDC_ALLOW_R1=1`) and queues them after the GBlobs `rosf` d4-d5, ahead of the plain draws.
+- **The R1 bag check (05:55 UTC).** The 5 draws plus the R1 member, against the 5-draw bags (rule 4):
+
+  | Bag (reference) | Vehicle pooled (8-view) | Pedestrian pooled (8-view) | Truck pooled (8-view) | Passes |
+  |---|---|---|---|---|
+  | `bag-voxelrcnn-ros-g1v6r1x6` (`bag-voxelrcnn-ros-g1v6x5`) | +0.0048 (+0.0040) | +0.0035 (+0.0038) | +0.0019 (+0.0047, P 0.98) | 5 of 6 |
+  | `bag-voxelrcnn-ros-swa-g1v6r1x6` (`bag-voxelrcnn-ros-swa-g1v6x5`) | +0.0042 (+0.0039) | +0.0047 (+0.0025) | +0.0013 (+0.0030, P 0.97) | 5 of 6 |
+
+  - The R1 member adds diversity where the plain draws had saturated (pedestrian flat from the 5th draw, 15.10).
+  - So the V2X `C2` pool takes the R1 bags (with `BDC_ALLOW_R1=1`), and a second V2X rehearsal with them (`c2r1`) follows the first.
+- **R1.2 draw 2 (2026-11-11, 19:40 UTC).** `voxelrcnn-ros-g1v6d2r1m` against plain draw 2 (`voxelrcnn-ros-g1v6d2`, rule 4) passes only truck 8-view (+0.0073, P 0.93). Vehicle (-0.0026; 8-view -0.0016) and pedestrian (-0.0009; -0.0013) are level, with B up on vehicle (+0.013; 8-view +0.026). So R1.1's single-member gain over draw 1 (vehicle +0.025) was partly draw noise. R1 still earns its place only at bag level. The bag check of the R1 draws follows once `d3r1m` and the averaged `d2r1m` are tuned.
+  - The averaged `voxelrcnn-ros-swa-g1v6d2r1m` against averaged plain draw 2: the same pattern; only truck 8-view passes (+0.0126, P 0.99), and vehicle and pedestrian are level (8-view +0.0021, +0.0012).
+- **R1.2 draw 3 (2026-11-11, 21:55 UTC).** Against plain draw 3 (rule 4, `BDC_ALLOW_R1=1`):
+
+  | Member (reference) | Passes | Vehicle pooled (8-view) | Pedestrian pooled (8-view) | Truck pooled (8-view) |
+  |---|---|---|---|---|
+  | `voxelrcnn-ros-g1v6d3r1m` (`voxelrcnn-ros-g1v6d3`) | pedestrian, truck | -0.0211 (-0.0201), both splits down | +0.0066 (+0.0030) | +0.0645 (+0.0004) |
+  | `voxelrcnn-ros-swa-g1v6d3r1m` (`voxelrcnn-ros-swa-g1v6d3`) | pedestrian, truck, pedestrian 8v | -0.0222 (-0.0189), both splits down | +0.0064 (+0.0053) | +0.0709 (-0.0052) |
+
+  - Across the three R1 draws the single-member vehicle effect is +0.025, level and -0.021. It is draw noise, not an R1 effect. R1 is judged at bag level only.
+  - The bag check builds two shapes (`BDC_ALLOW_R1=1`), each against the 5-draw bag of its kind:
+    - `r1x8`: the 5 draws plus the 3 R1 draws (8 members). This is the deployable candidate, but it mixes the R1 effect with bag depth (V2X depth still paid from 4 to 5 draws: vehicle +0.0037, truck +0.0155).
+    - `r1s5`: draws 1-3 replaced by their R1 versions (5 members). This holds the size fixed and isolates R1.
+- **The R1.2 bag check (22:50-23:12 UTC; rule 4, `BDC_ALLOW_R1=1`):**
+
+  | Bag (reference) | Vehicle pooled (8-view) | Pedestrian pooled (8-view) | Truck pooled (8-view) | Passes |
+  |---|---|---|---|---|
+  | `bag-voxelrcnn-ros-g1v6r1x8` (`bag-voxelrcnn-ros-g1v6x5`) | +0.0076 (+0.0046) | +0.0067 (+0.0052) | +0.0194 (+0.0101) | 6 of 6 |
+  | `bag-voxelrcnn-ros-swa-g1v6r1x8` (`bag-voxelrcnn-ros-swa-g1v6x5`) | +0.0087 (+0.0042) | +0.0049 (+0.0041) | +0.0161 (+0.0086) | 6 of 6 |
+  | `bag-voxelrcnn-ros-g1v6r1s5` (`bag-voxelrcnn-ros-g1v6x5`) | -0.0001 (+0.0010) | +0.0070 (+0.0052) | +0.0059 (+0.0090) | 4 of 6 |
+  | `bag-voxelrcnn-ros-swa-g1v6r1s5` (`bag-voxelrcnn-ros-swa-g1v6x5`) | -0.0003 (+0.0006) | +0.0053 (+0.0049) | +0.0015 (+0.0058) | 3 of 6 |
+  | `bag-voxelrcnn-ros-g1v6r1x8` (`bag-voxelrcnn-ros-g1v6r1x6`) | +0.0028 (+0.0005) | +0.0031 (+0.0014) | +0.0175 (+0.0054) | 4 of 6 |
+  | `bag-voxelrcnn-ros-swa-g1v6r1x8` (`bag-voxelrcnn-ros-g1v6r1x8`) | +0.0050 (+0.0014) | -0.0005 (-0.0003) | +0.0001 (-0.0020) | 2 of 6 |
+
+  - **At a fixed size (`r1s5`), R1 helps pedestrian and truck, not vehicle.** The vehicle gain of `r1x8` is bag depth.
+  - **So `r1x8` is the V2X R1 candidate for the final `C2`**, both kinds, with `BDC_ALLOW_R1=1`. As in `c2r1` (15.16.3), it competes at 8 views only until its R1 members have 12-view runs, so they lead the final 12-view wave (15.16.7).
+
+#### 15.16.7 The final 12-view wave (planned 2026-11-11, 23:08 UTC)
+
+- **Why.** In `c2r1` the R1 bags lost every class because only their 8-view outputs existed, while `C0`'s members had 12-view runs. 46 members of the candidate bags still have no 12-view runs.
+- **Queue** `jobs_tta12_w5.txt` (46 jobs, `tune_and_eval.sh --tta flip4+yaw+z+scale --tta-tag tta12 --reuse-raw`, as in 15.13.7), in this order:
+  1. V2X: the six R1 members of `r1x8` (averaged first), then the four GBlobs draws 2-3 (vehicle fusion candidates, 15.16.3). V2X goes first because its last upload closes first (Nov 15 04:59 UTC).
+  2. LUMPI: the ten members of the GBlobs `pqx5` bags (averaged first), then `rosf` draw 5 (plain and averaged).
+  3. LUMPI: the six R1 members, the six `rosn-gblobs`, the six `pvrcnnpp-ros-gblobs`, PV draws 4-5; then V2X VoxelNeXt draw 6.
+- **Mechanics.** `t12_at_drain2.sh` hands each trainer's four GPUs (trainA2: 1, 3, 5, 7; trainB2: 0, 2, 4, 6) to the queue at that trainer's end of queue, one fixed-GPU worker each (`t12x<gpu>`).
+  - Each job (`t12f_job.sh`) waits for its member's 8-view tuning step, then for 46 GB free on its GPU. So training never shares a GPU with a 12-view job, and a member still in training waits its turn.
+  - Eight averaged members of the late draws are made at their plain member's `TRAIN_DONE`, as usual.
+- **Timing.** Past 12-view jobs took 30-45 min (V2X) and 55-75 min (LUMPI). That is about 45 GPU-hours over 8 GPUs, so the wave ends about 6 h after the train queue drains (about Nov 13 04:00 UTC). The final `C2` builds follow, V2X first.
+
+#### 15.16.2 R1.1 on LUMPI passes rule 4; R1.2 starts (2026-11-11, 06:35 UTC)
+
+- **`voxelrcnn-rosf-swa-g1v6r1m` against `voxelrcnn-rosf-swa-g1v6`: passes 6 of 14.**
+  - Bicycle +0.0273 (8-view +0.0125), Van +0.0121 (+0.0091), Person 8-view +0.0068 (P 0.99), Car 8-view +0.0015.
+  - Loses Truck (-0.016 / -0.020), Motorcycle and Bus.
+- **R1.2 on LUMPI (`r12_lumpi.sh`).** Corpora `pcdet/g1-v6d2r1m` and `g1-v6d3r1m`: draw recipes with seeds 2234 and 3234, plus `static_anchors_r1_v2m`. Members `voxelrcnn-rosf-g1v6d2r1m` and `d3r1m` are queued after the V2X R1 draws.
+- **Train queue:** 14 members, ending about Nov 13 03:30 UTC, before the 18:00 stop.
+- **`voxelrcnn-rosf-g1v6r1m` against `voxelrcnn-rosf-g1v6` (06:50 UTC): passes 6 of 14.** Person +0.0174 (8-view +0.0114), Bicycle +0.0300 (+0.0162), Car 8-view +0.0182, Van 8-view +0.0065. Loses Truck, Motorcycle and Bus.
+- **Against `C0`'s Person member on late-A (rule 15),** both R1 members are far behind:
+  - plain -0.065 and averaged -0.067 (8-view -0.051 / -0.052), all at P 0.00;
+  - on B: -0.019 / -0.016 plain, +0.001 / +0.004 8-view.
+  - So R1 will not carry LUMPI Person. Its LUMPI value is Bicycle, Van and Car, which `C2`'s gates judge.
+- **R1.2 draw 2 (2026-11-12, 02:00 UTC).** Against plain draw 2 (rule 4, `BDC_ALLOW_R1=1`):
+
+  | Member (reference) | Passes | Person pooled (8-view) | Car | Bicycle | Van | Truck |
+  |---|---|---|---|---|---|---|
+  | `voxelrcnn-rosf-g1v6d2r1m` (`voxelrcnn-rosf-g1v6d2`) | 6 of 14 | -0.0086 (-0.0037) | +0.0060 (+0.0055) | +0.0074 (-0.0006) | -0.0060 (-0.0029) | +0.0109 (+0.0044) |
+  | `voxelrcnn-rosf-swa-g1v6d2r1m` (`voxelrcnn-rosf-swa-g1v6d2`) | 4 of 14 | -0.0121 (-0.0056) | +0.0053 (+0.0029) | +0.0109 (-0.0007) | -0.0047 (-0.0018) | +0.0063 (+0.0032) |
+
+  - Car holds for both kinds, and Bicycle at plain only. Person, Van and Motorcycle drop.
+  - So R1.1's Person and Van gains over draw 1 were partly draw noise, as on V2X (15.16.1). LUMPI R1 is judged at bag level (`bag-voxelrcnn-rosf-[swa-]g1v6r1x8` and `r1s5`, built as on V2X) once draw 3 is tuned.
+- **R1.2 draw 3 (2026-11-12, 04:40-06:50 UTC).** Against plain draw 3 (rule 4):
+  - `voxelrcnn-rosf-g1v6d3r1m` passes 5 of 14: Bicycle +0.0162, Car +0.0009 (8-view +0.0020), Bus, Van 8-view. Person -0.0072 (8-view -0.0053) and Truck 8-view -0.0129 drop.
+  - `voxelrcnn-rosf-swa-g1v6d3r1m` passes 4 of 14: Bicycle +0.0109, Bus, Car 8-view, Van 8-view. Person is level (-0.0002; 8-view -0.0022), and Truck 8-view drops (-0.0164).
+  - The plain member's 8-view step failed once and passed on the post worker's retry (the retry overwrote the step log, so the cause is not recorded).
+- **The LUMPI R1 bag check (06:50 UTC; rule 4, `BDC_ALLOW_R1=1`).** Each bag against the 5-draw bag of its kind:
+
+  | Bag | Passes | Person pooled (8-view) | Car | Bicycle | Van | Truck | Motorcycle |
+  |---|---|---|---|---|---|---|---|
+  | `bag-voxelrcnn-rosf-g1v6r1x8` | 11 of 14 | +0.0095 (+0.0066) | +0.0043 (+0.0074) | +0.0106 (+0.0099) | +0.0009 (+0.0011) | +0.0044 (-0.0010) | -0.0008 (-0.0045) |
+  | `bag-voxelrcnn-rosf-swa-g1v6r1x8` | 11 of 14 | +0.0053 (+0.0010) | +0.0041 (+0.0037) | +0.0092 (+0.0088) | +0.0030 (+0.0028) | +0.0017 (-0.0012) | -0.0022 (-0.0031) |
+  | `bag-voxelrcnn-rosf-g1v6r1s5` (swap) | 7 of 14 | +0.0102 (+0.0049) | +0.0024 (+0.0059) | +0.0092 (+0.0108) | -0.0009 (+0.0009) | +0.0000 (-0.0066) | -0.0045 (-0.0087) |
+  | `bag-voxelrcnn-rosf-swa-g1v6r1s5` (swap) | 7 of 14 | +0.0034 (-0.0002) | +0.0028 (+0.0030) | +0.0092 (+0.0098) | +0.0021 (+0.0031) | -0.0042 (-0.0075) | -0.0033 (-0.0077) |
+
+  - **At a fixed size (`r1s5`), R1 helps Car and Bicycle on LUMPI, and plain Person.** The `r1x8` bags add Bus, Van and part of Truck through depth.
+  - **Late-A Person (rule 15 view):**
+    - `r1x8` against `x5`: plain +0.0053 (P 0.97; 8-view +0.0020, P 0.83); averaged +0.0012 (8-view -0.0022, P 0.24).
+    - The 8-view `r1x8` bags against `C0`'s Person member (`voxelrcnn-rosn-g1v6`, 12-view): late-A -0.0227 / -0.0222 (P 0.00), B +0.0128 / +0.0189.
+    - The averaged 8-view `r1x8` against the averaged GBlobs `pqx5` bag: late-A -0.0360, B -0.0068 (both P 0.00).
+  - **So the LUMPI R1 bags are not a Person route.** Person stays with the GBlobs `pqx5` bags (15.16.6). The `r1x8` bags enter the final `C2` pool (with `BDC_ALLOW_R1=1`) as Car, Bicycle, Van and Bus candidates. As on V2X, they compete at 8 views until their R1 members' 12-view runs (15.16.7) are done; rule 14b's class gate decides.
+  - The six LUMPI R1 members are already in the 12-view queue (`jobs_tta12_w5.txt`, group 3).
+
+#### 15.16.3 The V2X `C2` rehearsal (`routed-c2r`, 2026-11-11, 04:42-07:25 UTC)
+
+- **Pool and settings:** C1's 65 clean folders (no R1 member), rule 14b against `routed-c1a` (`c1av5`), frames `g1-v6`.
+- **Class gate:**
+  - truck **kept**: pooled +0.0033 at P 0.99, B +0.0045 at P 0.93 (R3's +0.01 bar would have reverted it);
+  - vehicle reverted (-0.016);
+  - pedestrian reverted (pooled -0.0003, P 0.47; `c1av5` already has V5).
+- **Rule 14 at grouped P 0.8:** GO. Pooled mAP +0.0011 (A +0.0012, B +0.0015), grouped P 0.97 over 57 scenarios; none of the 57 leave-one-scenario-out deltas is negative (worst +0.0007).
+- **Package.** `model-v2x-track/routed-c2r/submissions/2026-11-10_c2r/v2x_s10_submission.zip`, md5 `9f836506b943141b4cdce78648e143c7`, `g1-v6` frames with nulls 0.31. Kit check valid (41,252 boxes, 253 s).
+- **Projection against `c1av5`: +0.0007.** V2X GO changes have transferred at a median of 0.60x (0.24-1.86x), so expect about +0.0004 (0.0002-0.0013).
+- **This is the V2X upload 4 candidate under the slot rule** (projection > 0, rule 1, grouped P >= 0.8). It is decided against `c2r1` below by the same rule.
+- **`c2r1` (with the R1 member and the two R1 bags, `BDC_ALLOW_R1=1`; 07:25-09:20 UTC): every class reverted to `routed-c1a`.**
+  - Select routed vehicle and truck to the averaged R1 bag (8-view only).
+  - Fuse kept vehicle `bvrrosswa6x4_tta12` + `bvrros6r1x6_tta` at 0.7 and truck `bvrrosswa6r1x6_tta` + `bvrros6r1x6_tta` at 0.3.
+  - Against `c1av5`'s final predictions: vehicle -0.013 and truck -0.016 pooled (both P 0.00), pedestrian flat.
+  - The R1 bags have no 12-view runs yet (they follow the Nov 13 stop), and the 12-view C0 members still win.
+  - The build was stopped by PID group after the gate; a re-package of `c1av5` was not needed.
+  - **V2X upload 4 candidate: `c2r`.** The R1 bags come back in the final `C2` with their 12-view runs.
+- **The frames follow the entrant's choice on 15.16:** `aw_mid` only after the organizers allow it. Otherwise `g1-v6`.
+- **The V2X GBlobs 3-draw bags (10:30 UTC)** against the xyz 3-draw bags (rule 4):
+  - `bag-voxelrcnn-ros-gblobs-g1v6x3` passes vehicle: +0.0128, 8-view +0.0149;
+  - `bag-voxelrcnn-ros-gblobs-swa-g1v6x3` passes vehicle: +0.0114, 8-view +0.0097;
+  - both lose pedestrian (-0.046 to -0.051, P 0.00) and slightly truck.
+  - As in S5, GBlobs on V2X is a vehicle fusion candidate for the final `C2`, not a pedestrian lever.
+
+#### 15.16.4 The LUMPI `C2` rehearsal (`routed-c2r`, 2026-11-11, 04:44-08:10 UTC)
+
+- **Pool and settings:** C1's 80 clean folders plus the 10 GBlobs folders; rules 14b and 15 against `routed-c0`; frames `g1-v6pq`.
+- **Fuse.** Person = `bvrrosfswa6x4_tta12` + `bvrrosfgblobsswa6x3_tta` at IoU 0.7 (`C1`'s averaged xyz bag fused with the averaged GBlobs 3-draw bag).
+- **Class gate:**
+
+  | Class | A | B (P) | Pooled (P) | Late-A (P) | Decision |
+  |---|---|---|---|---|---|
+  | Person | +0.0150 | +0.0142 (1.00) | +0.0160 (1.00) | **+0.0133 (1.00)** | kept (rule 15 passed) |
+  | Car | -0.0002 | -0.0050 (0.00) | -0.0010 | | reverted |
+  | Bicycle | -0.0164 | -0.0056 (0.05) | -0.0104 | | reverted |
+  | Bus | +0.0012 | -0.0006 (0.61) | +0.0012 (0.65) | | reverted |
+  | Truck | -0.0143 | -0.0057 (0.15) | -0.0070 | | reverted |
+
+  - `C1`'s Person route alone lost on late-A (-0.0055 at P 0.02). Fused with the GBlobs bag it gains +0.0133 at P 1.00.
+  - The GBlobs encoding fixes the late-window weakness, as the member check of 15.15.10 suggested.
+- **Rule 14 (grouped P 0.8):** GO. Pooled mAP +0.0023 (A +0.0021, B +0.0020), grouped P 1.00 over 28 groups, 90% CI [+0.0015, +0.0027]. None of the 28 leave-one-group-out deltas is negative (worst +0.0017). The rare-class share of the gain is 0.
+- **Rule 1:** PASS (13 members).
+- **Projection: about +0.0011 combined** against `C0`'s detections. History: Person changes with late-A > 0 and B > 0 gained on the server 6 of 6 times; LUMPI Person transfer has a median of 1.24x.
+- **With N1 frames** (if the organizers allow them; 15.16), the LUMPI last upload would be about 0.5413 + 0.0011 + 0.0021 = 0.5445 central, and 0.5431-0.5458 over the past transfer range. **Without them:** about 0.5424.
+- **The pre-registered choice for the LUMPI last upload:**
+  - the final `C2`, built after the Nov 13 18:00 UTC stop with GBlobs draws 4-5, the `g1-v6pq` member and the R1 draws, if it passes rules 1, 14b, 15 and 14 and its projection is at least `c2r`'s;
+  - otherwise `c2r` as packaged.
+  - Upload by Nov 15 18:00 UTC, which leaves margin before the 2026-11-16 04:59 UTC close.
+- **`c2r` package (09:00 UTC).**
+  - `model-lumpi-track/routed-c2r/submissions/2026-11-11_c2r/lumpi_s10_submission.zip`, md5 `9fe2ec6102f06a0fd2160e9016b6cf13`.
+  - The Person copy threshold was re-fitted (t 0.7472, 24,654 kit boxes), and the zip re-packaged.
+  - Kit check valid (24,654 boxes, 244 s).
+  - The frames are byte-identical to 1047231's, so the realism term is known exactly (R 0.935524). The expected score is 0.541329 + the detection gain (+0.0011 projected), about 0.5424.
+  - This is the fallback for the LUMPI last upload.
+- **Queue end:** about Nov 12 22:00 UTC, before the Nov 13 18:00 stop.
+- **The LUMPI R1.1 members** are still tuning; one 8-view step failed once and was retried.
+
+#### 15.16.5 The L2 member: the `g1-v6pq` GBlobs member against draw 1 (2026-11-11, 12:25 UTC)
+
+- **Rule 4** (`w1_batch2.log`): `voxelrcnn-rosf-gblobs-g1v6pq` against `voxelrcnn-rosf-gblobs-g1v6` passes Person (+0.0370 pooled, 8-view +0.0309, P 1.00) and Bus (+0.0092, 8-view +0.0057). No class passes the other way; Truck plain is down (-0.0122, P 0.00) and level at 8-view (+0.0005).
+- **Late-A Person** (the rule 15 split): +0.0262 plain and +0.0263 8-view against draw 1, both at P 1.00; B +0.0152 and +0.0247.
+- **Against `C0`'s Person member** (`voxelrcnn-rosn-g1v6`, 12-view): the 8-view pq member is level on late-A (-0.0027, P 0.40) and ahead on B (+0.0214, P 1.00). The plain pq member is behind on both (late-A -0.0245).
+- **Reading.** The pre-registered expectation of 15.15.7 ("no class expected to differ") does not hold: the near-field re-cast helps Person, on the late window too. It is one draw, so part of the gain can be draw noise (GBlobs draws 1-3 differ on Person by up to 0.02).
+- **No change to the plan.** As pre-registered, the pq member replaces GBlobs draw 1 in the GBlobs bags of the final `C2`. Once its averaged member (`voxelrcnn-rosf-gblobs-swa-g1v6pq`) is tuned, the 3-draw replacement bags (pq, d2, d3; plain and averaged) are checked against the `x3` bags by rule 4 as a diagnostic.
+- **The averaged pq member (12:30 UTC)** against averaged draw 1 passes Person (+0.0267, 8-view +0.0255), Bus, and at 8-view Car, Bicycle and Van; Truck is down (-0.0164 plain, -0.0066 8-view). Late-A Person 8-view +0.0143 (P 1.00).
+- **The replacement bags (diagnostic; both CLEAN):**
+
+  | Bag (reference) | Passes | Person pooled (8-view) | Person late-A 8-view (P) | Against `C0`'s Person member, 8-view: late-A (P) / B |
+  |---|---|---|---|---|
+  | `bag-voxelrcnn-rosf-gblobs-g1v6pqx3` (`...-g1v6x3`) | Person, Bus | +0.0103 (+0.0091) | +0.0137 (1.00) | -0.0079 (0.12) / +0.0241 |
+  | `bag-voxelrcnn-rosf-gblobs-swa-g1v6pqx3` (`...-swa-g1v6x3`) | Person, Bus, Car 8v | +0.0082 (+0.0092) | +0.0008 (0.72) | **+0.0089 (0.98)** / +0.0261 |
+
+  - Bicycle is slightly down in the plain bag (-0.0052, P 0.01) and Truck in both (about -0.003).
+  - The averaged replacement bag is the best Person fusion partner so far against `C0`'s member: its late-A edge is +0.0089, against +0.0081 for the averaged `x3` bag that `c2r` fuses.
+  - The swap is kept for the final `C2` as pre-registered. The rehearsal `c2r` stays as packaged; the final `C2` gate decides.
+
+#### 15.16.6 The 5-draw GBlobs bags (pq for draw 1): the strongest LUMPI Person and Bicycle candidates (2026-11-11, 20:00 UTC)
+
+Bags `bag-voxelrcnn-rosf-gblobs-g1v6pqx5` and `bag-voxelrcnn-rosf-gblobs-swa-g1v6pqx5` (members: the `g1-v6pq` member and GBlobs draws 2-5; both CLEAN). Rule 4, pooled A+B (8-view in brackets):
+
+| Bag | Reference | Passes | Person | Bicycle | Car | Truck |
+|---|---|---|---|---|---|---|
+| plain x5 | GBlobs pq x3 | 11 of 14 (every class but Motorcycle; Bus 8v) | +0.0045 (+0.0073) | +0.0135 (+0.0058) | +0.0059 (+0.0043) | +0.0135 (+0.0096) |
+| averaged x5 | averaged GBlobs pq x3 | 9 of 14 | +0.0059 (+0.0028) | +0.0125 (+0.0054) | +0.0054 (+0.0008) | +0.0117 (+0.0106) |
+| plain x5 | xyz x5 (`bag-voxelrcnn-rosf-g1v6x5`) | Person, Bicycle, Bus, Van; Truck plain | +0.0257 (+0.0214) | +0.0303 (+0.0285) | -0.0021 (+0.0036) | +0.0043 (-0.0046) |
+| averaged x5 | averaged xyz x5 | Person, Bicycle, Van | +0.0261 (+0.0190) | +0.0311 (+0.0274) | -0.0024 (+0.0011) | -0.0004 (-0.0018) |
+
+- **Depth still pays for GBlobs.** Unlike the xyz bags, which saturated at 5 draws (15.10), 3 to 5 GBlobs draws gain on five classes, Truck included.
+- **Person against `C0`'s Person member** (`voxelrcnn-rosn-g1v6`, 12-view), late-A / B:
+  - averaged x5, 8-view: **+0.0138 (P 0.99) / +0.0257**;
+  - averaged x5, plain: +0.0136 (P 1.00) / +0.0176;
+  - plain x5, 8-view: +0.0038 (P 0.91) / +0.0270.
+  - The averaged 5-draw GBlobs bag alone now beats `C0`'s Person route on both splits, late-A included. Until now it was only a fusion partner (`c2r` fuses the averaged x3 bag: +0.0133 late-A after fusion).
+- **Motorcycle** stays weak against the xyz bags (-0.012 to -0.018, P <= 0.09). The class gate keeps `C0`'s Motorcycle route unless a candidate passes.
+- **For the final `C2`:** the x5 GBlobs bags enter the LUMPI pool, with 12-view tuning of their members. Rules 14b and 15 decide as pre-registered; this check changes no rule.
+- **Timing.** The train queue drains about Nov 12 22:00 UTC, before the Nov 13 18:00 UTC stop. The 12-view tuning starts on each GPU as its trainer frees up, and the final `C2` builds start once it is done. That leaves more margin before the last uploads (V2X close Nov 15 04:59 UTC; LUMPI upload by Nov 15 18:00 UTC). No new draw is added: the remaining value of more GBlobs depth (5 to 7 draws) is likely below +0.001 combined, less than the cost of a late or failed final build.
+
+#### 15.16.8 The 3-draw `rosn` GBlobs bags (2026-11-12, 10:15-10:55 UTC)
+
+Wave 5's probe rule (15.13.9) trained GBlobs draws 2 and 3 of `voxelrcnn-rosn-gblobs-g1v6` because draw 1 passed rule 4 over `voxelrcnn-rosn-g1v6` (Person, Bicycle, Bus). Draw 3 and its averaged member were tuned by 10:15 UTC (the averaged member's 8-view step failed once and passed on retry). Bags `bag-voxelrcnn-rosn-gblobs-g1v6x3` and `bag-voxelrcnn-rosn-gblobs-swa-g1v6x3` (draws 1-3, the iou of the `rosn` bags; both CLEAN).
+
+**Rule 4, pooled A+B** (8-view in brackets):
+
+| Bag | Reference | Passes | Person | Bicycle | Bus | Truck |
+|---|---|---|---|---|---|---|
+| plain x3 | `rosn` x3 | 8 of 14 (Person, Bicycle, Bus, Van plain; Car 8v) | +0.0170 (+0.0145) | +0.0436 (+0.0416) | +0.0149 (+0.0163) | -0.0100 (-0.0087) |
+| averaged x3 | averaged `rosn` x3 | 6 of 14 (Person, Bicycle, Bus) | +0.0180 (+0.0128) | +0.0356 (+0.0353) | +0.0188 (+0.0203) | -0.0076 (-0.0089) |
+| averaged x3 | plain GBlobs x3 | 3 of 14 (Person plain, Bus) | +0.0022 (+0.0009) | -0.0039 (-0.0015) | +0.0049 (+0.0040) | +0.0000 (+0.0005) |
+
+- **GBlobs gains hold at bag level for `rosn`**, as they did for `rosf` (15.16.6): Person, Bicycle and Bus, on both splits. Truck loses about 0.01 at P <= 0.01, and Motorcycle stays weak (P <= 0.31).
+- **Averaging the weights adds little here**: level with the plain bag apart from Bus.
+
+**Person on late-A (rule 15) and on B**, delta (P):
+
+| Bag | vs `C0`'s Person member (12-view) | vs `rosn` x3, same views | vs GBlobs pq x5, same views | vs averaged GBlobs pq x5, same views |
+|---|---|---|---|---|
+| plain x3, 8-view | +0.0009 (0.74) / +0.0211 | +0.0172 (1.00) / +0.0089 | -0.0029 (0.22) / -0.0059 | -0.0128 (0.00) / -0.0047 |
+| averaged x3, 8-view | +0.0009 (0.78) / +0.0215 | +0.0171 (1.00) / +0.0093 | -0.0029 (0.23) / -0.0054 | -0.0129 (0.01) / -0.0042 |
+| plain x3, plain | -0.0021 (0.38) / +0.0132 | +0.0363 (1.00) / +0.0102 | -0.0078 (0.04) / -0.0031 | -0.0157 (0.00) / -0.0043 |
+| averaged x3, plain | -0.0027 (0.36) / +0.0153 | +0.0357 (1.00) / +0.0122 | -0.0084 (0.04) / -0.0011 | -0.0163 (0.00) / -0.0023 |
+
+- **Rule 15: the 8-view bags pass, barely** (+0.0009 at P 0.74 to 0.78 against `C0`'s 12-view Person member; B +0.021). The plain-view bags fail.
+- **The averaged 5-draw GBlobs pq bag stays the LUMPI Person lead**: on late-A it is +0.0138 over `C0`'s member (15.16.6), and the `rosn` GBlobs bags trail it by about 0.013 on late-A and 0.004 on B.
+
+**Against the GBlobs pq 5-draw bags** (rule 4 across families, for the record; 11:10 UTC):
+
+| Bag | Reference | Passes | Person | Bicycle | Bus | Van |
+|---|---|---|---|---|---|---|
+| plain x3 | GBlobs pq x5 | Bus only | -0.0101 (-0.0075) | -0.0279 (-0.0169) | +0.0085 (+0.0127) | -0.0029 (-0.0038) |
+| averaged x3 | averaged GBlobs pq x5 | Bus only | -0.0116 (-0.0088) | -0.0437 (-0.0294) | +0.0178 (+0.0173) | -0.0039 (-0.0039) |
+
+- **Bus is the one class where the `rosn` GBlobs bags add to the pool** (P 1.00 on both kinds and views, both splits up). Bus AP is small (A 0.01, B 0.04), so a route gain of +0.018 is worth at most about +0.0026 mAP, or +0.0022 combined.
+- **Person and Bicycle stay with the GBlobs pq x5 bags**, which beat these bags on both splits.
+- **For the final `C2`:** the two bags join the LUMPI pool as Bus candidates and possible Person fusion partners, with 12-view tuning of their six members (already in the wave, 15.16.7). The `C2` select and rules 14b and 15 decide as pre-registered; this check changes no rule. No further `rosn` GBlobs draw is added (the 15.16.6 reasoning).
+
+#### 15.16.9 The last depth draws: VoxelNeXt draw 6 (V2X) and PV-RCNN++ draws 4-5 (LUMPI) (2026-11-12)
+
+Option A (15.13) queued these as depth for the bags. Bags `bag-voxelnext-ros-g1v6x6` and `bag-voxelnext-ros-swa-g1v6x6` (draws 1-6), and `bag-pvrcnnpp-ros-g1v6x5` and `bag-pvrcnnpp-ros-swa-g1v6x5` (draws 1-5); each pair is built when its last member is tuned.
+
+**V2X VoxelNeXt, 6 draws against 5** (13:00-14:20 UTC; both CLEAN). Rule 4, pooled A+B (8-view in brackets):
+
+| Bag | Reference | Passes | vehicle | pedestrian | truck |
+|---|---|---|---|---|---|
+| plain x6 | plain x5 | 3 of 6 (pedestrian plain, truck both) | -0.0007 (-0.0006) | +0.0044 (+0.0005) | +0.0149 (+0.0073) |
+| averaged x6 | averaged x5 | 3 of 6 (vehicle and pedestrian plain, truck 8v) | +0.0012 (**-0.0022, P 0.01**) | +0.0048 (-0.0003) | +0.0040 (+0.0039) |
+| averaged x6 | plain x6 | 3 of 6 (all three plain) | +0.0040 (+0.0013) | +0.0056 (+0.0011) | +0.0043 (+0.0024) |
+
+- **Vehicle has saturated for VoxelNeXt at 5 draws**, against the 15.13 forecast that draw 6 would serve vehicle and truck: plain x6 is level (P 0.25 to 0.41), and the averaged x6 bag loses 0.0022 at 8 views.
+- **Truck still gains with depth** (+0.004 to +0.015, mostly on B). Pedestrian gains only without test-time views.
+- **Value:** the 8-view A/B mean is 0.6509 (averaged x6) against 0.651 (averaged x5, 15.10), so level overall. If VoxelNeXt carries truck in a route, +0.004 truck AP is about +0.0013 mAP, or +0.0011 combined; otherwise about zero.
+- **For the final `C2`:** both bags join the V2X pool, with 12-view tuning of the two draw 6 members (last in the wave, 15.16.7). The `C2` select and rule 14b decide; this check changes no rule.
+
+**LUMPI PV-RCNN++, 5 draws against 3** (14:25-15:05 UTC; both CLEAN). Alone, draws 4 and 5 are weaker than draw 1, as draw 3 was (draw 4 plain passes only Car and Motorcycle at 8 views; Person -0.011 and Truck -0.029 at 8 views; STATUS 11:05 UTC). Rule 4, pooled A+B (8-view in brackets):
+
+| Bag | Reference | Passes | Person | Car | Bicycle | Truck |
+|---|---|---|---|---|---|---|
+| plain x5 | plain x3 | 9 of 14 (Person, Car, Bicycle, Van both; Motorcycle 8v) | +0.0083 (+0.0036) | +0.0020 (+0.0019) | +0.0041 (+0.0030) | -0.0059 (**-0.0101, P 0.00**) |
+| averaged x5 | averaged x3 | 8 of 14 (Car, Bicycle, Van both; Person, Motorcycle plain) | +0.0047 (+0.0001) | +0.0023 (+0.0033) | +0.0051 (+0.0044) | **-0.0093 (-0.0104), P 0.00** |
+| averaged x5 | plain x5 | 4 of 14 (Person plain, Van both, Car 8v) | +0.0019 (-0.0003) | +0.0012 (+0.0007) | +0.0003 (+0.0004) | +0.0032 (-0.0018) |
+
+- **Depth still pays a little for PV on five classes**, but Truck loses about 0.01, all of it on A (-0.012 to -0.024; B is level).
+- **Person, late-A** (8-view bags against `C0`'s 12-view Person member): plain x5 -0.0063 (P 0.18), averaged x5 -0.0069 (P 0.15); B +0.004 and +0.003. Against the averaged GBlobs pq x5 bag both trail by about 0.020 on late-A and 0.022 on B. **So no PV bag is a Person route**, and rule 15 would reject one.
+- **For the final `C2`:** both bags join the LUMPI pool as Car, Bicycle and Van candidates and fusion partners, with 12-view tuning of the four draw 4-5 members (in the wave, 15.16.7). Truck stays with whichever route the class gate keeps. The `C2` select and rules 14b and 15 decide; this check changes no rule.
+
+### 15.17 The organizers' answer on frame calibration, what it changes, and the plan to the close (2026-11-12, 15:00-16:30 UTC)
+
+**The answer** (Appendix B.4; received 2026-11-12 08:33 CST = 14:33 UTC; the entrant's copy):
+- "The 50 submitted frames are meant to represent the synthetic data your detector was trained on, so that the realism score and the detection score describe the same data."
+- So a calibration applied **only to the 50 frames, with the training data unchanged, is not allowed** on either track.
+- Both methods (the LUMPI 2 m density prior and the V2X range mapping) **are acceptable as part of the data generator**: apply the calibration to the training data, retrain the detector on it, and submit 50 frames from that calibrated data.
+- The report must describe the calibration, the real frames it was fitted on, and how the 50 frames were chosen.
+
+**What it means for every upload and package** (frames against the corpora the detector was trained on):
+
+| Upload or package | Realism frames | Detector trained on that data? | Under the answer |
+|---|---|---|---|
+| LUMPI 1042287 (`C0`, 0.5408) | 50 `g1-v6` frames as generated | yes: every member trained on the `g1-v6` family (`g1-v6`, `d2`, `j`) | **meets it** |
+| LUMPI 1047204 (`c1pq`, 0.5396) | the same ids from `g1-v6pq` (PandarQT near-field re-cast) | **no**: no member trained on `g1-v6pq` | **does not meet it** |
+| LUMPI 1047231 (`c0pq`, 0.5413, the board entry) | as `c1pq` | **no**: `C0`'s members, none trained on `g1-v6pq` | **does not meet it** |
+| V2X 1042294 (`C0`) and 1046758 (`c1av5`, 0.8889, the board entry) | 50 `g1-v6` frames; 31% (0,0,0) no-return points added at packaging | yes for every real point. The loader removes (0,0,0) points in training and inference (`BDCDataset.get_lidar`, `strip_nulls`), so the detector sees the same valid points either way | meets it in substance: the nulls are the real sensor's no-return encoding (about 29-31% in the legal real frames and in the organizers' reference), not a fit to the data (about 31% in the legal real frames as resampled to the organizers' format). Low risk; the report says so |
+| Held `c2r_n1_pending` (LUMPI N1) and `c2r_aw_pending` (V2X `aw_mid`) | frames-only calibrations | no | **not allowed; withdrawn** (never uploaded) |
+| LUMPI `c2r` package (2026-11-11, `g1-v6pq` frames) | as `c0pq` | no | not allowed; **re-packaged as `c2rv6`** with `C0`'s frames |
+| Pre-registered `C2` frames `g1-v6pq` (L2: one `g1-v6pq` member in the GBlobs bags) | `g1-v6pq` | one member of about 20 checkpoints | **dropped**: the answer speaks of "the data your detector was trained on", and the other members never saw `g1-v6pq`. LUMPI `C2` ships `g1-v6` frames |
+
+- **The waiver was the mistake.** Our own rule (docs/01 Section 9, "submitted synthetic frames come from the same generator configuration as the training corpus"; S10 rule 1's frame clause) said the same as the answer. Package A waived it for `c1pq` and `c0pq` (15.15.7). The organizers' principle restores it, now as their rule.
+- **Cost of compliance on LUMPI:** 1047231's frames gained +0.001324 R (+0.000529 combined) over 1042287. Without them the best compliant LUMPI entry is 1042287 (0.5408). The rank does not change (2nd; 3rd is 0.5354).
+- **The entrant's decision:** a short disclosure asking the organizers to drop 1047204 and 1047231 from our ranking (draft in Appendix C). The 10.1 release notes state the same facts either way.
+
+**Standing** (the entrant's screenshots, Results and My Submissions, 2026-11-12 07:59-09:04 CST):
+
+| Track | 1st | 2nd | 3rd | 4th |
+|---|---|---|---|---|
+| LUMPI | lukefinigan **0.5440** (1042827, Nov 8; mAP 0.1953, R 0.9415, CD 1.186, EMD 1.124) | **KarmaRV 0.5413** (1047231; mAP 0.1950, R 0.9355, CD 1.467, EMD 1.246) | sadbodh 0.5354 (Nov 10; mAP 0.1859, R 0.9401) | dipper13579 0.5278 |
+| V2X | **KarmaRV 0.8889** (1046758; mAP 0.5981, R 0.9405, CD 1.844, EMD 1.110) | sadbodh 0.8616 (1048897, Nov 11; mAP 0.5625, R 0.9486, CD 1.170, EMD 0.976) | arnav007 0.8475 (Nov 11; mAP 0.5491, R 0.9421) | lukefinigan 0.8334 |
+
+(R derived from combined = 0.6 x mAP / 0.7 + 0.4 x R.)
+- **LUMPI gap** from the compliant 1042287: 0.0032. lukefinigan's mAP term is level with ours (0.1953 against 0.1950); the gap is realism, 0.0073 R (0.0029 combined). To pass 0.5440 a compliant entry needs about +0.0037 mAP with our frames, or +0.008 R with our detections, or a mix.
+- **V2X lead** 0.0273 over sadbodh, who gained +0.0066 since Nov 9. sadbodh's realism is higher (0.9486); our mAP is higher by 0.036.
+- **Uploads.** The final phase page now shows **8 in total and 4 a day** (docs/01 had 5 and 1). The page counts 3 LUMPI and 2 V2X uploads; the organizers said the removed 1038963 and 1038966 still count. So **LUMPI has 4 left and V2X 5** (one more each if the page's count is the one enforced).
+- **Close.** Both phase pages end "November 15, 2026 at 10:59 PM CST" = **2026-11-16 04:59 UTC on both tracks** (V2X was planned to Nov 15 04:59 UTC). The plan keeps every last upload before Nov 15 18:00 UTC.
+
+**Levers left** (expected server gain in combined score; compliant ones only):
+
+| # | Lever | Track | What it takes | Expected | Rule fit | Risks |
+|---|---|---|---|---|---|---|
+| A1 | `c2r` as packaged (`g1-v6` frames, nulls 0.31; rule 14 GO) | V2X | ready (md5 `9f836506...`) | +0.0004 (0.0002-0.0013) | meets the answer (frames as `C0`'s) | small |
+| A2 | `c2rv6`: `c2r`'s detections with `C0`'s frames (byte-identical to 1042287's) | LUMPI | ready (below) | 0.5408 + 0.0011 projected = **about 0.5419** (Person transfer history: 6 of 6 gained, median 1.24x) | meets it | the Person route is the whole gain |
+| A3 | final `C2` (12-view wave, GBlobs x5, R1 x8, `rosn` GBlobs, PV x5, VoxelNeXt x6) with training-corpus frames | both | 12-view wave (about 16:00-22:00 UTC), then the two selects in turn (78 GB each) | LUMPI +0.001 to +0.003 over `C0`; V2X +0.0005 to +0.002 | meets it | late or failed build: A1 and A2 stay |
+| **B** | **The calibrated LUMPI generator, as the organizers allow it:** the PandarQT re-cast and the N1 density re-draw (2 x 2 x 0.5 m, fitted on proxies 1-3) applied to `C0`'s three corpora; all 14 `C0` checkpoints retrained from scratch on them; `C0`'s route, fusion and calibration recipe unchanged; the same 50 ids taken from the calibrated `g1-v6` | LUMPI | code and test about 3 h (CPU), corpora about 2 h (CPU) during the 12-view wave; training about 24-30 h on both trainers (Nov 12 22:00 to about Nov 14 02:00-04:00 UTC; the GPUs are otherwise idle); tuning and 12-view about 4 h; package about Nov 14 12:00 UTC | realism vs `C0`: pq +0.0013 R (server-measured) plus N1 +0.0076 local at 0.31-1.0x = **0.5423 / 0.5434 / 0.5444** (low / central / high), plus an unknown detection change from the calibrated training | **meets the answer exactly** ("apply the same calibration to your training data, retrain your detector on it, and submit 50 frames from that calibrated data"); report lists the fit frames | the detection change is unmeasured (N1 makes 34% of points jittered copies); disk (/ at 97%, about 50 GB needed); no select is needed (the recipe is reused), only a merge and the gate; it does not carry `C2`'s detection gains |
+| C | The calibrated V2X generator (W range map) and the 4 `c1a` checkpoints retrained | V2X | about 8 h of both trainers after B | +0.002 to +0.004 (`aw_mid` +0.0100 R local at 0.5-1.0x; `w_coarse` +0.0041) | meets it | not needed for rank 1; would delay B |
+| - | Dropped: frames-only calibrations (not allowed); fine-tuning old checkpoints on calibrated data (grey: the detector would also be trained on uncalibrated data); a larger frame pool (S6: the 10x pool gave nothing, within 0.001) | | | | | |
+
+**Why B is worth running even though its central value (0.5434) is below 0.5440.**
+- The best upload counts, and LUMPI has 4 uploads left. So what matters is the chance that **some** upload passes 0.5440, not the central value of each.
+- A2/A3 and B are close to independent: A3 adds detection to `C0`'s frames, B adds realism to `C0`'s detections. A3 passes 0.5440 only at its high end (about 15-20%); B passes it at a transfer of about 0.9x or more with neutral detection (about 20-30%). Together, about 35%.
+- The GPUs are otherwise idle after the 12-view wave (the `C2` builds are CPU and RAM).
+- It is exactly the path the organizers named, so it carries no rule risk; the report describes it.
+
+**Pre-registered for B (if adopted, before any B result exists):**
+1. **Realism gate on CPU first:** the calibrated generator's 50 frames (same ids) on the held-out judge sets (proxies 4, 5, late-3, b-m5, b-m6 x seeds 1234, 99) must beat `C0`'s frames by at least +0.006 R mean, 9 of 10 wins. Points inside labelled boxes are left as generated (the box guard of `g1-v6pq`); if the guarded re-draw loses more than 0.0015 R against the unguarded one, the unguarded one is used. Else B stops.
+2. **Detection gate:** `routed-c0n1` (the `C0` recipe on the retrained members) against `C0` on realval A/B: rule 14 at grouped P 0.8 decides only whether the detection change is reported as a gain; the upload decision uses the combined projection.
+3. **Upload rule:** B is uploaded if its projection (detection projection + 0.70 x the held-out realism gain) is above the best compliant entry's expected score at that time. It is uploaded after A2 (so A2's server score is known), never instead of the last V2X or LUMPI slot needed by A3.
+4. **No server number chooses a frame set or a knob** (docs/01 Section 9); B's frames are the same 50 ids as `C0`'s.
+
+**Recommended order (times UTC):** A1 (V2X) and A2 (LUMPI) uploaded now; the disclosure sent; the 12-view wave and B's CPU work in parallel until about 22:00; B trains; V2X `C2` select about Nov 13 00:00-06:00, LUMPI `C2` select about 06:00-12:00; V2X `C2` upload Nov 13-14; LUMPI `C2` upload Nov 14; B's upload about Nov 14 12:00-18:00; last margin Nov 15 18:00.
+
+### 15.18 Release 10.2 and every organizer ruling: what is resolved, what is open (2026-11-12, 20:00-21:30 UTC; for the entrant's review)
+
+The entrant set the split on 2026-11-12: release 10.1 holds the uploads already made (LUMPI 1042287, 1047204, 1047231; V2X 1042294, 1046758) and becomes a full release; all later work is release 10.2. They asked that every organizer ruling on the feasibility of our final-phase systems be applied and resolved in 10.2. This section re-reads the whole email thread (the entrant's PDF copy, 2026-11-12; not in git, it holds contact details).
+
+**The rulings, in the organizers' words where it matters.**
+
+| Date | Ruling | What it requires of us |
+|---|---|---|
+| 2026-10-31 | the emailed declaration is received; "You could also include the declaration in your submission zip if not already" | every zip carries `declaration.txt` (checked on `c2rv6`: present) |
+| 2026-11-07 (both tracks) | real labels, and object points cut out with real boxes, must not enter the training set | rule 1 (`clean_check.py`); 10.0 removed |
+| 2026-11-09 | "We will rank KarmaRV only by submissions from LUMPI 1042287 and V2X 1042294 onward"; earlier final-phase uploads removed but "still count toward your submission limit"; describe the change in the report | the ranked window; the upload count |
+| 2026-11-09 | every listed real-data use is allowed (validation and model selection, label statistics, realism calibration from unlabelled clouds "including choosing your 50 submitted frames", test-time post-processing); "Please list all of these in your report" | the report list |
+| 2026-11-09 (a), (d) | "Each team's best submission counts"; "The leaderboard automatically shows each team's highest-scoring submission, so participants cannot choose which one is shown" | **the board shows LUMPI 1047231**, and we cannot change that ourselves |
+| 2026-11-09 (b), (c) | the walker-distance histogram is allowed; twin completion (R1) is allowed if no real point is copied; describe it in the report | R1 members need `BDC_ALLOW_R1=1` and a report paragraph |
+| 2026-11-12 | "a calibration may change the submitted frames only if it also changed the data your detector was trained on"; describe the calibration, its real fit frames and how the 50 frames were chosen | **rule 1b** below |
+
+**Every final-phase upload and 10.2 candidate against them.**
+
+| System | No real label (Nov 7) | Ranked window (Nov 9) | Frames rule (Nov 12) | Status |
+|---|---|---|---|---|
+| LUMPI 1038963, V2X 1038966 (10.0) | **no** | before it | (n/a) | removed by the organizers; count toward the limit |
+| LUMPI 1042287 (`C0`) | yes | yes | **passes** (`g1-v6`, a training corpus of 11 of 16 shipped checkpoints) | the best qualifying LUMPI entry, 0.5408 |
+| LUMPI 1047204 (`c1pq`), 1047231 (`c0pq`) | yes | yes | **fails**: `g1-v6pq` (the PandarQT near-field re-cast) is the training corpus of no shipped checkpoint | 1047231 (0.5413) is what the board shows |
+| V2X 1042294 (`C0`), 1046758 (`c1av5`) | yes | yes | passes on the corpus (`g1-v6`, 4 of 6 checkpoints); **one open point**: packaging adds 31% (0,0,0) no-returns that the training frames do not store (the loader strips them in training and at inference) | 1046758 (0.8889) leads the board |
+| 10.2 LUMPI `c2rv6` | yes | yes | passes (`g1-v6`, 11 of 20) | ready, about 0.5419 |
+| 10.2 V2X `c2r` | yes | yes | passes on the corpus (5 of 11); the same no-return point | ready, about 0.8893 |
+| 10.2 final `C2`, lever B | rule 1 in their gates | yes | rule 1b in code (below); B retrains every member, so its calibrated frames pass | not built |
+
+**The point the email changes for 10.1.** The organizers' reply opens "Thank you for asking before uploading". That is true of the two calibrations we asked about (N1, `aw_mid`: never uploaded), but not of the PandarQT re-cast, which reached the frames of 1047204 and 1047231 on Nov 10 before we asked. Under ruling (d), the LUMPI board shows 1047231 automatically and we cannot choose another entry. Two things fix it, and they do not exclude each other:
+1. **The disclosure** (Appendix C, revised below): we ask the organizers to leave 1047204 and 1047231 out, as they did with 10.0.
+2. **A qualifying upload above 0.5413** replaces 1047231 on the board by itself. `c2rv6` projects 0.5419, only 0.0006 above it, which is within the Person route's transfer spread. A3 (`C2`) and B are the uploads with real margin.
+
+10.1's release notes say this, and keep both uploads as the record of what was uploaded.
+
+**Resolved in 10.2 (done, 2026-11-12).**
+- **Rule 1b in code.** `clean_check.py` checks a routed model's realism frames against its shipped checkpoints. The frames' corpus must be a training corpus of a shipped checkpoint, and every real-data item (calibration) on its card must be in the training data of every shipped checkpoint. `package_submission.py` refuses to package frames that fail it (a reproduction of an earlier upload only warns). Test: `test_frames_rule_needs_frames_from_the_detectors_training_data`. Run on every final-phase system: LUMPI `routed-c0`, `routed-c2r` and V2X `routed-c0`, `routed-c1a`, `routed-c2r` pass; LUMPI `routed-c1` (the `c1pq` frames) fails; packaging `routed-c0` with `g1-v6pq` (the `c0pq` build) is refused. One stricter case is intended: frames from a calibrated corpus fail while any shipped checkpoint lacks that calibration (one re-cast member among 20 is not enough), so lever B must retrain every member.
+- **The packages.** Both 10.2 packages pass. The withdrawn ones (LUMPI `c2r` with `g1-v6pq` frames; the held N1 and `aw_mid` packages) are out of git and never uploaded.
+- **docs/01 Section 3.1** has the rule row (release 10.1).
+
+**Open, and the next steps of the 10.2 plan** (nothing below is started; the entrant reviews and chooses):
+
+| # | Step | Who | Resolves | Note |
+|---|---|---|---|---|
+| N1 | Send the revised disclosure (Appendix C): leave 1047204 and 1047231 out; **ask the V2X no-return question** (now recommended, no longer optional) | the entrant | the board entry (d); the last literal doubt on the V2X entries | short, with yes/no questions |
+| N2 | Upload LUMPI `c2rv6` (A2), then V2X `c2r` (A1) | the entrant | a qualifying LUMPI entry that may top 1047231 | LUMPI 4 uploads left, V2X 5 |
+| N3 | Final `C2` on both tracks, `g1-v6` frames, rule 1b in the gate | here, after the 12-view wave | more detection | the GBlobs `g1-v6pq` member may stay in a bag with `g1-v6` frames (rule 1b passes: its training data carries every item of `g1-v6`); dropping it is the stricter option |
+| N4 | Lever B: the PandarQT re-cast and the N1 re-draw in the generator, all 14 `C0` checkpoints retrained (15.17) | here, on the entrant's go | the realism gap, the way the organizers allow it | report: the calibration, its fit frames (proxies 1-3), the frame choice |
+| N5 | If the organizers rule the V2X no-returns frames-only: write them into the V2X corpora and retrain the V2X members, or ship frames without them | here, only on that ruling | V2X | the detector's input would not change (the loader strips them); the realism cost of dropping them is not measured yet |
+| N6 | The report checklist (below) | here | every "describe it in your report" | |
+| N7 | 10.1 GPU dry runs after the 12-view wave | here | 10.1 reproduction | |
+
+**The report checklist** (every item the organizers asked for):
+1. The change: label-placed walkers until 2026-11-02; ranked from 1042287 / 1042294; 10.0 removed.
+2. Every real-data use (the list of the 2026-11-09 answer, with the frames each used).
+3. The walker-distance histogram and the box-size statistics.
+4. R1 twin completion, if a shipped member uses it.
+5. The PandarQT re-cast in 1047204 and 1047231 (frames only), and that they are out under the 2026-11-12 rule.
+6. The V2X (0,0,0) no-returns, and the organizers' answer to N1.
+7. Any generator calibration that ships (lever B): the calibration, its real fit frames, and how the 50 frames were chosen.
+
 ## Appendix A. Email to the organizers (the entrant sends it)
 
 ### A.1 The short version to send (2026-11-10, at the entrant's request: "concise and pointed"; sent 2026-11-09 19:44 CST, answered 22:24 CST: Section 15.14)
@@ -1678,3 +2146,65 @@ Drop question (d) if the V2X board already shows 1042294 when you send it.
 >
 > Best regards,
 > KarmaRV
+
+## Appendix B. Question to the organizers on two realism-frame calibrations (revised 2026-11-11; the entrant sends it)
+
+**Sent** by the entrant on 2026-11-11 (logged 16:27 UTC): the revised text below, **without** the optional 8 m sentence. So the LUMPI fallback is `g1-v6pq` (the frames of 1047231) unless the answer itself covers the 8 x 8 x 2.5 m re-draw. The answer is recorded here when the entrant shares it.
+
+**Why we ask.** Neither calibration breaks a written rule: both fit only guard-allowed real frames ("hyperparameter selection or domain adaptation, provided no forbidden frame is touched"), and the 50 frames stay synthetic (FAQ, Oct 14). They are grey on three counts, so we ask before using them:
+- **The disqualification check** for "synthetic frames that suspiciously resemble held-out real frames". The V2X warp moves points onto real surfaces (median distance to the nearest real fit point 0.283 m to 0.124 m). The LUMPI re-weighting leaves the share within 1 mm of a real point at 0.002%.
+- **The FAQ's learned-synthesis line** ("real frames from the V2X-Real must not be used"): both fit tables to the track's own real frames.
+- **Our own rules** (docs/01 Sections 3.1 and 9): "affine or quantile warping applied only to the 50 submitted frames: Avoid"; "density on 8 m cells" as the coarse limit; "submitted synthetic frames come from the same generator configuration as the training corpus; no metric-only warping". Both levers change only the 50 frames, so the report would have to state an exception.
+- **Their 2026-11-10 approval** lists the 8 m density prior and the V2X beam table, not these.
+
+**The revision** (the entrant chose it on 2026-11-11 over the first draft) adds the two facts the organizers need: only the 50 frames change, and the V2X points end close to real surfaces. It also names the fit frames and says no leaderboard number is used.
+
+> Subject: KarmaRV: two realism-frame calibrations, allowed?
+>
+> Dear organizers,
+>
+> Before our last uploads, may we apply either of these calibrations to our 50 submitted synthetic frames? They change only the 50 frames; the detector and its training data stay as they are.
+>
+> Both are fitted only on unlabelled, non-forbidden real frames (LUMPI Measurement4 frames below 6400; V2X-Real frames at least 20 frames from any forbidden frame). No label, test or kit frame, and no leaderboard number is used; no real point is copied; the settings are fixed in advance on our own held-out real frames.
+>
+> 1. LUMPI: a finer version of our disclosed density prior (2 x 2 x 0.5 m cells instead of 8 x 8 x 2.5 m). Each frame is re-drawn from its own points in proportion to the real-to-synthetic share of its cell (still 50,000 points; repeated points get 2 cm jitter).
+> 2. V2X: in each (azimuth, elevation) bin, the ranges of our points are mapped onto the real range quantiles (points move only along their own ray), and the share of points per bin is rebalanced with points from our other synthetic frames. The moved points end up close to real surfaces (median distance to the nearest real point 0.12 m instead of 0.28 m).
+>
+> We would describe both in the report. If only one is acceptable, please say which.
+>
+> Best regards,
+> KarmaRV
+
+**On the answer** (pre-registered in 15.16):
+- **Both allowed:** LUMPI ships N1 `safe_frames`, V2X ships `aw_mid`.
+- **Only one allowed:** that one ships; the other track keeps its fallback.
+- **W alone allowed:** V2X ships `w_coarse`.
+- **No, or no answer** by Nov 13 12:00 UTC (V2X) or Nov 14 12:00 UTC (LUMPI): V2X ships `g1-v6`. LUMPI ships `g1-v6pq` (the frames of 1047231).
+- **Correction to the 15.16 fallback (2026-11-11, before any of these frames is scored).** The 8 m N1 variant is inside the approved granularity, but it too changes only the 50 frames. It has the same docs/01 Section 9 issue ("no metric-only warping"), so it ships only if the organizers' answer covers it. The optional last sentence below asks for exactly that.
+- **Optional last sentence** (replaces "If only one is acceptable, please say which."): "If only one is acceptable, or item 1 only on the 8 x 8 x 2.5 m cells of our disclosed prior, please say which."
+- **The held packages** (the rehearsal detections, frames swapped) are reproduction packages, git-ignored and with no registry row: `model-lumpi-track/routed-c2r/test/output/c2r_n1_pending/submission.zip` and `model-v2x-track/routed-c2r/test/output/c2r_aw_pending/submission.zip`. None is uploaded before a yes. On a yes, the chosen system is packaged for upload in the usual way (registry row, tracked copy).
+- **Kit checks (2026-11-11):** both valid. LUMPI `c2r_n1_pending`: 24,654 boxes, 225 s, md5 `2008e3ad0c877f3e55c7b8dfac17756e`. V2X `c2r_aw_pending`: 41,252 boxes, 242 s, md5 `dbe29e0f09fd2515341c42080649f717`. The detections are byte-identical to the rehearsal zips, and the frames to the calibrated sets. The kit run scores realism against our legal proxy 4 (not the kit's reference), which was already one of the judge sets: LUMPI R 0.9421 to 0.9484 (EMD 1.147 to 1.011), V2X R 0.9415 to 0.9527 (EMD 1.114 to 0.938). This is a consistency check, not new evidence.
+
+### B.4 The answer (2026-11-12, 08:33 CST = 14:33 UTC; the entrant's copy, not in git)
+
+- **Frames-only calibrations are not allowed on either track:** the 50 frames must represent the synthetic data the detector was trained on, so that realism and detection describe the same data.
+- **Both methods are allowed as part of the generator:** apply the calibration to the training data, retrain the detector on it, and submit 50 frames from that calibrated data. The report must describe the calibration, the real frames it was fitted on, and how the 50 frames were chosen.
+- **So, by the pre-registered table above:** neither held package ships (`c2r_n1_pending`, `c2r_aw_pending`; both withdrawn). V2X ships `g1-v6`. LUMPI ships `g1-v6`, **not** `g1-v6pq`: the answer also covers the PandarQT re-cast, which reached the frames of 1047204 and 1047231 without reaching their detectors' training data (Section 15.17).
+- The generator path the answer opens is lever B of Section 15.17.
+
+## Appendix C. Disclosure to the organizers on the LUMPI frames (revised 2026-11-12, 21:30 UTC; the entrant sends it)
+
+Revised after re-reading the thread (Section 15.18). The organizers' reply thanks us "for asking before uploading", and their ruling (d) says the board shows our highest score and we cannot choose it. So the email says plainly that the re-cast was uploaded before we asked, and the V2X question is now part of it.
+
+> Subject: KarmaRV: two LUMPI uploads under your frame rule, and one V2X question
+>
+> Dear organizers,
+>
+> Thank you for the answer. Under it, two of our LUMPI uploads do not qualify, and we should have asked before making them. In 1047204 and 1047231 (November 10), the 50 frames carried a sensor-model fix that our detectors were not trained on: the PandarQT's near-field ground returns, re-cast from its beam table in the dataset metadata. Please leave both out of our ranking, as the board would otherwise show 1047231; our best qualifying LUMPI entry is 1042287. From now on our frames come only from the data our detectors were trained on.
+>
+> One V2X question. Our 50 frames store 31% of points as (0,0,0), the real sensor's no-return encoding (the rate measured on unlabelled, non-forbidden frames). Our training frames hold only the valid points, and our detector removes (0,0,0) points in training and at inference, so they do not change what it sees. Is this acceptable? If not, we will change it.
+>
+> Best regards,
+> Rahul (KarmaRV)
+
+- The first draft (same day) had the V2X paragraph as optional. It is now recommended: the 2026-11-12 rule read literally covers anything that changes the frames without changing the training data, and our V2X entries lead the board.
