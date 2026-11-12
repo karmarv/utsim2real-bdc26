@@ -1,0 +1,23 @@
+name: voxelrcnn-ros-g1v6d3r1m
+strategy: S10
+track: v2x-track
+module: M9 (engine v6) / S10 R1.2
+derived_from: voxelrcnn-ros-g1v6r1m
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS, the parent's config unchanged
+data:
+  train: pcdet/g1-v6d3r1m
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 R1.2: generator draw 3 with the mass-calibrated R1 anchors (training
+  seed 666), an R1 bag partner'
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: 'S10 R1.2 (docs/decisions/2026-11-08-s10-clean-final-plan.md Sections 15.14.3
+  and 15.16.1): the configs of voxelrcnn-ros-g1v6r1m on pcdet/g1-v6d3r1m (draw 3''s
+  recipe and seed 3234 plus static_anchors_r1_v2m; R1 allowed by the organizers''
+  answer to question (c), 2026-11-10). Enters C2 through an R1 bag and rule 4. Needs
+  BDC_ALLOW_R1=1. Realism frames stay pcdet/g1-v6.
+
+  '

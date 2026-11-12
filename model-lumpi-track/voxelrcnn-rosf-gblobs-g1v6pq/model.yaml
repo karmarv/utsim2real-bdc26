@@ -9,7 +9,7 @@ architecture: Voxel R-CNN-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 d
 data:
   train: pcdet/g1-v6pq
   realval: pcdet/realval-v1
-realism_frames: pcdet/g1-v6
+realism_frames: pcdet/g1-v6pq
 postprocess: test/postprocess.yaml
 status: 'S10 L2 (package A): GBlobs rosf on pcdet/g1-v6pq (g1-v6 with the PandarQT
   near-field re-cast), training seed 666'

@@ -6,7 +6,7 @@ default:
   recenter: 0.0
 classes:
   Person:
-    nms_iou: 0.7
+    nms_iou: 0.5
     recenter: 0.5
     size_scale:
     - 1.16
@@ -14,32 +14,32 @@ classes:
     - 1.0
     z_offset: -0.1
   Car:
-    nms_iou: 0.6
+    nms_iou: 0.7
     size_scale:
     - 1.08
     - 1.08
     - 1.0
   Bicycle:
-    nms_iou: 0.1
-    recenter: 0.25
+    nms_iou: 0.5
+    recenter: 0.5
     size_scale:
     - 1.08
     - 1.08
     - 1.0
   Motorcycle:
     nms_iou: 0.4
-    recenter: 0.5
+    recenter: 0.25
   Bus:
-    nms_iou: 0.01
+    nms_iou: 0.7
   Truck:
     nms_iou: 0.6
-    z_offset: -0.1
+    z_offset: -0.2
     size_scale:
     - 1.08
     - 1.08
     - 1.08
   Van:
-    nms_iou: 0.01
+    nms_iou: 0.1
   Unknown: {}
 hedge:
   Bicycle:
@@ -47,12 +47,13 @@ hedge:
     - 0.3
   Motorcycle:
   - - Bicycle
+    - 0.6
+  Bus:
+  - - Truck
     - 0.3
   Truck:
   - - Van
     - 0.6
-  - - Unknown
-    - 0.1
   Car:
   - - Van
     - 0.1

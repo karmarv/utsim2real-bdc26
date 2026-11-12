@@ -13,12 +13,12 @@ classes:
     - 1.08
     z_offset: -0.1
   pedestrian:
-    nms_iou: 0.1
+    nms_iou: 0.7
     recenter: 0.25
     z_offset: 0.0
   truck:
     nms_iou: 0.7
-    z_offset: 0.0
+    z_offset: 0.1
     size_scale:
     - 1.0
     - 1.0

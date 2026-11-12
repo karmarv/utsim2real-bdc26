@@ -1,0 +1,185 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.5874809577504475,
+    "A_behaviour": 0.5877197946569833,
+    "A_tuned": 0.5877197946569833,
+    "behaviour_cfg": {
+      "nms_iou": 0.5,
+      "recenter": 0.25,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.21079627282372945,
+    "B_behaviour": 0.2091118406333415,
+    "B_tuned": 0.2091118406333415,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.5970697076294582
+    },
+    "hedge_from_Motorcycle": {
+      "factor": 0.1,
+      "A": 0.6007058448204194
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.8843629304050256,
+    "A_behaviour": 0.8843629304050256,
+    "A_tuned": 0.8851252391239749,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 25573,
+    "B_start": 0.7730932739825066,
+    "B_behaviour": 0.7730932739825066,
+    "B_tuned": 0.7712496210728196,
+    "hedge_from_Truck": {
+      "factor": 0.3,
+      "A": 0.8885353625854989
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.5097929131721333,
+    "A_behaviour": 0.5097929131721333,
+    "A_tuned": 0.5097929131721333,
+    "behaviour_cfg": {
+      "nms_iou": 0.1,
+      "recenter": 0.5,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.2111488636894717,
+    "B_behaviour": 0.2111488636894717,
+    "B_tuned": 0.2111488636894717,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.5541021921820939
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.1308577351586902,
+    "A_behaviour": 0.1308577351586902,
+    "A_tuned": 0.1308577351586902,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.25
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.0341358047942534,
+    "B_behaviour": 0.0341358047942534,
+    "B_tuned": 0.0341358047942534
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.007862967015100347,
+    "A_behaviour": 0.007998283597538758,
+    "A_tuned": 0.007998283597538758,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.023613750843679282,
+    "B_behaviour": 0.02374937619533756,
+    "B_tuned": 0.02374937619533756
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.26349334448402517,
+    "A_behaviour": 0.26409807466248286,
+    "A_tuned": 0.2647569403441206,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.16
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.17664049779005517,
+    "B_behaviour": 0.17621624005206732,
+    "B_tuned": 0.16823502710524701
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.0028209564242917427,
+    "A_behaviour": 0.0028209564242917427,
+    "A_tuned": 0.0028209564242917427,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0005228505034856701,
+    "B_behaviour": 0.0005228505034856701,
+    "B_tuned": 0.0005228505034856701,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.06310879468744066
+    },
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.0776263596383602
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.011400138878910506
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "run": "bag of 5 seeds (TTA tta)",
+  "members": [
+    "voxelrcnn-rosf-gblobs-g1v6pq",
+    "voxelrcnn-rosf-gblobs-g1v6d2",
+    "voxelrcnn-rosf-gblobs-g1v6d3",
+    "voxelrcnn-rosf-gblobs-g1v6d4",
+    "voxelrcnn-rosf-gblobs-g1v6d5"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.37439642235281345,
+  "realval_A_per_class": {
+    "Person": 0.6096693872651062,
+    "Car": 0.9007152252865346,
+    "Bicycle": 0.5836341215450176,
+    "Motorcycle": 0.13710491828211296,
+    "Bus": 0.005330306124601709,
+    "Truck": 0.2919497237579711,
+    "Van": 0.09237127420835022,
+    "Unknown": 0.012828760613973797
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.21966602461015952,
+  "realval_B_per_class": {
+    "Person": 0.24422809179359523,
+    "Car": 0.7910244000350127,
+    "Bicycle": 0.2528210351533726,
+    "Motorcycle": 0.04194347989459184,
+    "Bus": 0.02254259206586785,
+    "Truck": 0.1835916157661571,
+    "Van": 0.001510957562519212,
+    "Unknown": null
+  }
+}

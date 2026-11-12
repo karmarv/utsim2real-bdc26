@@ -1,0 +1,26 @@
+{
+  "ckpt": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/voxelrcnn-rosf-gblobs-swa-g1v6d5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+  "run": "run1_checkpoint_epoch_40_tta",
+  "realval_A_mAP_3d_0.5_R40": 0.3643718819583003,
+  "realval_A_per_class": {
+    "Person": 0.5932781082899163,
+    "Car": 0.8939072017266232,
+    "Bicycle": 0.5786317526843587,
+    "Motorcycle": 0.13160391816901107,
+    "Bus": 0.0021614034308935276,
+    "Truck": 0.2746150726267159,
+    "Van": 0.07640571678058265,
+    "Unknown": 0.0059699511844832805
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.2103259916651479,
+  "realval_B_per_class": {
+    "Person": 0.23140930934179652,
+    "Car": 0.7818160822591166,
+    "Bicycle": 0.2438837309843233,
+    "Motorcycle": 0.03933011850946089,
+    "Bus": 0.014698184032950066,
+    "Truck": 0.1584492303733019,
+    "Van": 0.0026952861550858832,
+    "Unknown": null
+  }
+}

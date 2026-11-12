@@ -1,0 +1,28 @@
+name: bag-voxelrcnn-ros-g1v6r1x6
+type: bag
+strategy: S10
+track: v2x-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-ros-g1v6 (plain members): weighted box fusion of the five generator
+  draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6 + pcdet/g1-v6d2 + pcdet/g1-v6d3 + pcdet/g1-v6d4 + pcdet/g1-v6d5 + pcdet/g1-v6r1m
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-ros-g1v6
+- voxelrcnn-ros-g1v6d2
+- voxelrcnn-ros-g1v6d3
+- voxelrcnn-ros-g1v6d4
+- voxelrcnn-ros-g1v6d5
+- voxelrcnn-ros-g1v6r1m
+iou:
+  default: 0.5
+  vehicle: 0.7
+realism_frames: pcdet/g1-v6
+status: 'S10 R1.1 bag check: bag-voxelrcnn-ros-g1v6x5 plus the R1 member (6 members)'
+notes: 'S10 R1.1 (docs/decisions/2026-11-08-s10-clean-final-plan.md Sections 15.14.3 and 15.16.1): the
+  members of bag-voxelrcnn-ros-g1v6x5 plus voxelrcnn-ros-g1v6r1m (pcdet/g1-v6r1m, R1 anchors); the iou
+  of bag-voxelrcnn-ros-g1v6x5. Checked against bag-voxelrcnn-ros-g1v6x5 (rule 4). Needs BDC_ALLOW_R1=1.
+
+  '
+derived_from: bag-voxelrcnn-ros-g1v6x5

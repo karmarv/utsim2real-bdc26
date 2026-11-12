@@ -6,14 +6,15 @@ default:
   recenter: 0.0
 classes:
   Person:
-    nms_iou: 0.7
-    recenter: 0.5
+    nms_iou: 0.6
+    recenter: 0.25
     size_scale:
     - 1.16
     - 1.16
-    - 0.92
+    - 1.0
+    z_offset: -0.1
   Car:
-    nms_iou: 0.01
+    nms_iou: 0.5
     size_scale:
     - 1.0
     - 1.0
@@ -27,30 +28,39 @@ classes:
     - 1.0
   Motorcycle:
     nms_iou: 0.4
+    recenter: 0.5
   Bus:
-    nms_iou: 0.7
+    nms_iou: 0.01
   Truck:
-    nms_iou: 0.7
+    nms_iou: 0.5
     size_scale:
     - 1.08
     - 1.08
-    - 1.08
+    - 1.0
     z_offset: -0.1
   Van:
-    nms_iou: 0.1
+    nms_iou: 0.01
+    z_offset: 0.2
   Unknown: {}
 hedge:
   Bicycle:
   - - Person
     - 0.3
   Motorcycle:
+  - - Person
+    - 0.1
   - - Bicycle
     - 0.6
   Truck:
+  - - Car
+    - 0.3
   - - Van
     - 0.6
   Car:
   - - Van
+    - 0.1
+  Van:
+  - - Unknown
     - 0.1
 selected_on: pcdet/realval-v1:val (real train split, guard-allowed)
 checked_on: pcdet/realval-v1:valB

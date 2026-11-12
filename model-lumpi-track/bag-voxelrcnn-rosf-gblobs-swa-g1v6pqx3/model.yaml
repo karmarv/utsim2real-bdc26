@@ -1,0 +1,26 @@
+name: bag-voxelrcnn-rosf-gblobs-swa-g1v6pqx3
+type: bag
+strategy: S10
+track: lumpi-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-rosf-gblobs-g1v6: weighted box fusion of the three generator draws'' tuned
+  predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6pq + pcdet/g1-v6d2 + pcdet/g1-v6d3
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-rosf-gblobs-swa-g1v6pq
+- voxelrcnn-rosf-gblobs-swa-g1v6d2
+- voxelrcnn-rosf-gblobs-swa-g1v6d3
+iou:
+  default: 0.5
+  Car: 0.7
+  Van: 0.7
+realism_frames: pcdet/g1-v6pq
+status: 'S10 L2: 3-draw GBlobs bag with the g1-v6pq member in place of draw 1 (averaged members)'
+notes: 'S10 L2 (docs/decisions/2026-11-08-s10-clean-final-plan.md Sections 15.15.7 and 15.16.5): bag-voxelrcnn-rosf-gblobs-swa-g1v6x3
+  with the g1-v6pq member (the PandarQT near-field re-cast of draw 1) in place of draw 1. No checkpoint and no tuned
+  knob of its own. A diagnostic bag check against the x3 bag (rule 4); the final C2 bags use the same swap.
+
+  '
+derived_from: bag-voxelrcnn-rosf-gblobs-swa-g1v6x3

@@ -1,0 +1,21 @@
+name: voxelnext-ros-swa-g1v6d6
+strategy: S10
+track: v2x-track
+module: M9 (engine v6) / S10 lever D1
+derived_from: voxelnext-ros-g1v6d6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: VoxelNeXt (fully sparse, centre-based) with the ROS augmentation of
+  voxelrcnn-ros-g1v5
+data:
+  train: pcdet/g1-v6d6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'S10 D1 probe: weight average of voxelnext-ros-g1v6d6 epochs 31-40 (no training)'
+expected: a fusion member with errors decorrelated from the two-stage families
+notes: 'S10 lever D1 (docs/decisions/2026-11-08-s10-clean-final-plan.md): mean of
+  the 10 checkpoints 31-40 of voxelnext-ros-g1v6d6 (common/tools/swa_ckpt.py), batch-norm
+  statistics averaged too; same corpus as the parent. Enters a portfolio only after
+  the S6 member check against its parent (S10 rule 4).
+
+  '

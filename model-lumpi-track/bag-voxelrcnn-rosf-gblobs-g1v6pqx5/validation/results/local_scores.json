@@ -1,0 +1,32 @@
+{
+  "run": "bag of 5 seeds",
+  "members": [
+    "voxelrcnn-rosf-gblobs-g1v6pq",
+    "voxelrcnn-rosf-gblobs-g1v6d2",
+    "voxelrcnn-rosf-gblobs-g1v6d3",
+    "voxelrcnn-rosf-gblobs-g1v6d4",
+    "voxelrcnn-rosf-gblobs-g1v6d5"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.36759822530889774,
+  "realval_A_per_class": {
+    "Person": 0.6032083853294734,
+    "Car": 0.8978018045604165,
+    "Bicycle": 0.5834709666504763,
+    "Motorcycle": 0.11444445057733812,
+    "Bus": 0.00555963162240284,
+    "Truck": 0.2863189727683145,
+    "Van": 0.08238336565386237,
+    "Unknown": 0.006468310367884475
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.21777431776026918,
+  "realval_B_per_class": {
+    "Person": 0.23363096675882633,
+    "Car": 0.7884434013939006,
+    "Bicycle": 0.25292767924682547,
+    "Motorcycle": 0.03836965150047828,
+    "Bus": 0.02309308250447855,
+    "Truck": 0.1863433645374572,
+    "Van": 0.0016120783799176651,
+    "Unknown": null
+  }
+}

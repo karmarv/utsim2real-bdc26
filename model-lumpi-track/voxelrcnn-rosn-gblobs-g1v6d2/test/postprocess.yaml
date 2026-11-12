@@ -23,8 +23,8 @@ classes:
     nms_iou: 0.1
     recenter: 0.5
     size_scale:
-    - 1.0
-    - 1.0
+    - 1.08
+    - 1.08
     - 1.0
   Motorcycle:
     nms_iou: 0.4
@@ -32,12 +32,12 @@ classes:
   Bus:
     nms_iou: 0.7
   Truck:
-    nms_iou: 0.6
+    nms_iou: 0.5
     size_scale:
     - 1.08
     - 1.08
     - 1.0
-    z_offset: -0.1
+    z_offset: -0.2
   Van:
     nms_iou: 0.1
   Unknown: {}
@@ -53,9 +53,10 @@ hedge:
   Truck:
   - - Car
     - 0.6
-  - - Bus
-    - 0.6
   - - Van
+    - 0.6
+  Bus:
+  - - Truck
     - 0.6
   Car:
   - - Van

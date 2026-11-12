@@ -12,9 +12,9 @@ classes:
     - 1.16
     - 1.16
     - 1.0
-    z_offset: 0.0
+    z_offset: -0.1
   Car:
-    nms_iou: 0.7
+    nms_iou: 0.5
     size_scale:
     - 1.08
     - 1.08
@@ -32,7 +32,7 @@ classes:
   Bus:
     nms_iou: 0.7
   Truck:
-    nms_iou: 0.01
+    nms_iou: 0.5
     z_offset: -0.1
     size_scale:
     - 1.08
@@ -47,20 +47,18 @@ hedge:
     - 0.3
   Truck:
   - - Car
-    - 0.3
+    - 0.1
   - - Van
     - 0.6
-  - - Unknown
-    - 0.1
   Motorcycle:
   - - Bicycle
     - 0.6
   Bus:
   - - Truck
-    - 0.3
+    - 0.6
   Van:
   - - Truck
-    - 0.1
+    - 0.3
   Car:
   - - Van
     - 0.1
