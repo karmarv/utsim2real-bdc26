@@ -186,6 +186,30 @@ def test_calibrated_static_blocks_keep_their_share_of_returns():
     assert keep == 0.3
 
 
+def test_frames_rule_needs_frames_from_the_detectors_training_data(tmp_path, monkeypatch):
+    """Rule 1b (organizers, 2026-11-12): a calibration may change the frames only if it changed the training data."""
+    import clean_check as cc
+
+    def card(name, **kw):
+        (tmp_path / name).mkdir()
+        (tmp_path / name / "dataset.yaml").write_text(yaml.safe_dump(kw))
+    card("v6", real_data_use="sensor metadata; density prior")
+    card("v6d2", real_data_use="sensor metadata; density prior")
+    card("v6pq", real_data_use="sensor metadata; density prior; near-field re-cast")
+    card("v6j", source="union", parts=[{"data": "v6d2"}])
+    monkeypatch.setattr(cc, "data_path", lambda track, corpus: tmp_path / corpus)
+    c0 = [("m1", ["v6"]), ("m2", ["v6d2"]), ("m3", ["v6j"])]
+    assert cc.frames_status(None, "v6", c0)[0]                          # C0 and 1042287
+    assert cc.frames_status(None, "v6d2", c0)[0]                        # a draw inside a union corpus counts
+    ok, why = cc.frames_status(None, "v6pq", c0)                        # c0pq / 1047231: frames-only re-cast
+    assert not ok and "no shipped checkpoint" in why
+    ok, why = cc.frames_status(None, "v6pq", c0 + [("pq", ["v6pq"])])   # one re-cast member is not enough
+    assert not ok and "3 of 4" in why and "re-cast" in why
+    assert cc.frames_status(None, "v6", c0 + [("pq", ["v6pq"])])[0]    # the uncalibrated frames stay valid
+    assert cc.frames_status(None, "v6pq", [("a", ["v6pq"]), ("b", ["v6pq"])])[0]   # lever B: every member retrained
+    assert "31%" in cc.null_note({"resample": {"null_fraction": 0.31}}) and cc.null_note({"resample": {}}) == ""
+
+
 def test_clean_check_blocks_r1_corpora_until_allowed(tmp_path, monkeypatch):
     import clean_check
     (tmp_path / "dataset.yaml").write_text(yaml.safe_dump({"real_data_use": "Measurement4 sensor metadata; S10 R1 static-block anchors",

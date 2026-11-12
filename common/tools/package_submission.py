@@ -91,6 +91,12 @@ def main():
         chosen = Path(a.syn_list).read_text().split()[:50] if a.syn_list else [Path(x).stem for x in names]
         null_frac = 0.0
     else:
+        # rule 1b (organizers, 2026-11-12): the frames must come from data the shipped detector was trained on
+        import clean_check
+        ok, why = clean_check.frames_status(track, a.synthetic, clean_check.shipped_checkpoints(track, model_dir, card))
+        if not ok and not a.reproduction:
+            raise SystemExit(f"refused by the frames rule (organizers, 2026-11-12; clean_check.py rule 1b): {why}")
+        print(("WARNING, a reproduction of an earlier upload: " if not ok else "") + f"rule 1b {why}")
         syn_root = data_path(track, a.synthetic)
         pool = (Path(a.syn_list).read_text().split() if a.syn_list
                 else (syn_root / "ImageSets" / f"{a.syn_split}.txt").read_text().split())

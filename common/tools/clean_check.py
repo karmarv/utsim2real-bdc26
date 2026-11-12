@@ -11,6 +11,11 @@ A corpus is clean when its card (`<corpus>/dataset.yaml`) names no real label ro
 placed on the twin's scene map (or not inserted at all), and its G2 clutter is anchored on the map; a union corpus is
 clean when every part is; the UrbanTwin data alone is clean. A card that cannot be read is not clean. Prints one line
 per member (CLEAN or LABEL, with the reason) and exits 1 if anything is not clean.
+
+Rule 1b, the frames rule (the organizers' answer of 2026-11-12): "a calibration may change the submitted frames only if
+it also changed the data your detector was trained on". For a routed model the realism frames must come from a corpus
+that a shipped checkpoint trained on, and every real-data item (calibration) on that corpus's card must also be on the
+training data of every shipped checkpoint. `package_submission.py` applies the same check to the corpus it packages.
 """
 import argparse
 import os
@@ -73,6 +78,78 @@ def member_status(track, model_dir: Path) -> tuple:
     return all(ok for ok, _ in res), [r for _, r in res]
 
 
+def _card(track, corpus: str) -> dict:
+    return yaml.safe_load((Path(data_path(track, corpus)) / "dataset.yaml").read_text())
+
+
+def _parts(card: dict) -> list:
+    parts = card.get("parts") or []
+    return yaml.safe_load(parts) if isinstance(parts, str) else parts
+
+
+def calibrations(track, corpus: str) -> set:
+    """The real-data items on a corpus card (its calibrations and statistics, `real_data_use` split at ';');
+    a union corpus carries the items of every part."""
+    card = _card(track, corpus)
+    if _parts(card):
+        return set().union(*(calibrations(track, p["data"]) for p in _parts(card)))
+    return {s.strip() for s in str(card.get("real_data_use") or "").split(";") if s.strip()}
+
+
+def leaves(track, corpus: str) -> set:
+    """The corpus and, for a union corpus, every part: the frames of any of them are training data."""
+    return {corpus}.union(*(leaves(track, p["data"]) for p in _parts(_card(track, corpus))))
+
+
+def checkpoint_corpora(track, model_dir: Path) -> list:
+    """[(checkpoint folder, its training corpora)] of a member folder; a seed bag gives one entry per seed."""
+    card = yaml.safe_load((model_dir / "model.yaml").read_text())
+    if card.get("type") == "bag":
+        return [x for s in card["members"] for x in checkpoint_corpora(track, model_dir.parent / s)]
+    return [(model_dir.name, corpora_of(card))]
+
+
+def shipped_checkpoints(track, model_dir: Path, card: dict) -> list:
+    """The checkpoints a model ships: the used members of a routed model, else the folder itself."""
+    if "route" in card or "fusion" in card:
+        names = dict.fromkeys(card["members"][k]["model"] for k in used_members(card))
+        return [x for n in names for x in checkpoint_corpora(track, model_dir.parent / n)]
+    return checkpoint_corpora(track, model_dir)
+
+
+def frames_status(track, frames: str, checkpoints: list) -> tuple:
+    """(ok, reason) of rule 1b for realism frames taken from corpus `frames` with these shipped checkpoints."""
+    try:
+        seen = [set().union(*(leaves(track, c) for c in cs)) for _, cs in checkpoints]
+        if not any(frames in s for s in seen):
+            return False, f"frames {frames}: no shipped checkpoint trained on this corpus"
+        fc = calibrations(track, frames)
+        short = {}
+        for name, cs in checkpoints:
+            miss = fc - set().union(*(calibrations(track, c) for c in cs))
+            if miss:
+                short[name] = miss
+    except Exception as e:                                # noqa: BLE001
+        return False, f"frames {frames}: card not readable ({e})"
+    if short:
+        item = sorted(set().union(*short.values()))[0]
+        return False, (f"frames {frames}: {len(short)} of {len(checkpoints)} shipped checkpoints never trained on data "
+                       f"with '{item[:100]}'")
+    k = sum(frames in s for s in seen)
+    return True, (f"frames {frames}: a training corpus of {k} of {len(checkpoints)} shipped checkpoints; each of its "
+                  f"{len(fc)} real-data items is in the training data of all of them")
+
+
+def null_note(track) -> str:
+    """The V2X (0,0,0) no-returns that packaging adds (not in the training corpora; the loader strips them)."""
+    try:
+        nf = float(track["resample"].get("null_fraction", 0.0))
+    except (KeyError, TypeError, AttributeError):
+        nf = 0.0
+    return (f"NOTE packaging adds {nf:.0%} (0,0,0) no-return points to each frame (the sensor's encoding); the training "
+            "corpora store none, and the loader strips them in training and at inference") if nf > 0 else ""
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("model_dir", nargs="?")
@@ -103,6 +180,11 @@ def main():
         ok, r = corpus_status(track, card["realism_frames"])
         bad += not ok
         print(f"{'CLEAN' if ok else 'LABEL'} realism frames {r}")
+        ok, r = frames_status(track, card["realism_frames"], shipped_checkpoints(track, m, card))
+        bad += not ok
+        print(f"{'FRAMES' if ok else 'FRAMES-FAIL'} rule 1b {r}")
+        if null_note(track):
+            print(null_note(track))
         print(f"{'PASS' if not bad else 'FAIL'} {m.name}: {len(seen)} member models, {bad} not clean")
     else:
         ok, rs = member_status(track, m)
