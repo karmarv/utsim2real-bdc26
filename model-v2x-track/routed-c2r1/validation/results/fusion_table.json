@@ -1,0 +1,308 @@
+{
+  "vehicle": {
+    "incumbent": "bvrrosswa6r1x6_tta",
+    "incumbent_A": 0.8495664289911333,
+    "incumbent_B": 0.8603092916832447,
+    "best": {
+      "members": [
+        "bvrrosswa6x4_tta12",
+        "bvrros6r1x6_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8531404608871359,
+      "B": 0.859845587015388
+    },
+    "dB": -0.0004637046678566126,
+    "p_gain": 0.48,
+    "ci90": [
+      -0.002839234763349885,
+      0.0032265287353671233
+    ],
+    "dA": 0.003574031896002583,
+    "pooled": {
+      "delta": 0.0025345977741736414,
+      "p_gain": 1.0
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "bvrrosswa6r1x6_tta+bvrros6r1x6_tta@0.3": {
+        "val": 0.832465175417456,
+        "valB": 0.839367811817554
+      },
+      "bvrrosswa6r1x6_tta+bvrros6r1x6_tta@0.5": {
+        "val": 0.8481137636881261,
+        "valB": 0.8577863217204499
+      },
+      "bvrrosswa6r1x6_tta+bvrros6r1x6_tta@0.7": {
+        "val": 0.8498596755247807,
+        "valB": 0.8589820619595251
+      },
+      "bvrrosswa6x4_tta12+bvrros6r1x6_tta@0.3": {
+        "val": 0.8393345545207233,
+        "valB": 0.8406030483420318
+      },
+      "bvrrosswa6x4_tta12+bvrros6r1x6_tta@0.5": {
+        "val": 0.8509919276438843,
+        "valB": 0.8566777969403659
+      },
+      "bvrrosswa6x4_tta12+bvrros6r1x6_tta@0.7": {
+        "val": 0.8531404608871359,
+        "valB": 0.859845587015388
+      },
+      "bvrros6r1x6_tta+bvrrosswa6x5_tta12@0.3": {
+        "val": 0.8358787898009463,
+        "valB": 0.8404270129239038
+      },
+      "bvrros6r1x6_tta+bvrrosswa6x5_tta12@0.5": {
+        "val": 0.8492544841455161,
+        "valB": 0.8556037206872487
+      },
+      "bvrros6r1x6_tta+bvrrosswa6x5_tta12@0.7": {
+        "val": 0.8515495539683847,
+        "valB": 0.859081731455858
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bvrrosswa6x4_tta12",
+          "bvrros6r1x6_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": -0.0004637046678566126,
+        "p_gain": 0.48,
+        "dA": 0.003574031896002583,
+        "pooled": {
+          "delta": 0.0025345977741736414,
+          "p_gain": 1.0
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bvrrosswa6x4_tta12",
+        "bvrros6r1x6_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.8531404608871359,
+      "B": 0.859845587015388
+    }
+  },
+  "pedestrian": {
+    "incumbent": "bvrrosswa6x5_tta12",
+    "incumbent_A": 0.3840568984508582,
+    "incumbent_B": 0.3772845735334899,
+    "best": {
+      "members": [
+        "bvrrosswa6x4_tta12",
+        "bvrros6x4_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.38788661094190446,
+      "B": 0.3739337735680396
+    },
+    "dB": -0.0033507999654502907,
+    "p_gain": 0.065,
+    "ci90": [
+      -0.0077267249543295615,
+      0.00019380897791115379
+    ],
+    "dA": 0.0038297124910462443,
+    "pooled": {
+      "delta": 0.0014996272045297299,
+      "p_gain": 0.81
+    },
+    "decision": "kept (pooled A+B condition failed)",
+    "search_fast_iou": {
+      "bvrrosswa6x5_tta12+bvrros6x5_tta12@0.3": {
+        "val": 0.38604675228821056,
+        "valB": 0.3737924085894738
+      },
+      "bvrrosswa6x5_tta12+bvrros6x5_tta12@0.5": {
+        "val": 0.3875752524047721,
+        "valB": 0.3743979863659187
+      },
+      "bvrrosswa6x5_tta12+bvrros6x5_tta12@0.7": {
+        "val": 0.3866757853849894,
+        "valB": 0.3725585284125805
+      },
+      "bvrrosswa6x5_tta12+bvrros6x4_tta12@0.3": {
+        "val": 0.38589124903558936,
+        "valB": 0.37422010295519437
+      },
+      "bvrrosswa6x5_tta12+bvrros6x4_tta12@0.5": {
+        "val": 0.38759428949914976,
+        "valB": 0.3746232830854675
+      },
+      "bvrrosswa6x5_tta12+bvrros6x4_tta12@0.7": {
+        "val": 0.38628231588801604,
+        "valB": 0.3724135521458698
+      },
+      "bvrrosswa6x4_tta12+bvrros6x5_tta12@0.3": {
+        "val": 0.38576595634494054,
+        "valB": 0.3743539988308354
+      },
+      "bvrrosswa6x4_tta12+bvrros6x5_tta12@0.5": {
+        "val": 0.3869615408193509,
+        "valB": 0.37426117020646527
+      },
+      "bvrrosswa6x4_tta12+bvrros6x5_tta12@0.7": {
+        "val": 0.38571900921548685,
+        "valB": 0.37187591672457626
+      },
+      "bvrrosswa6x4_tta12+bvrros6x4_tta12@0.3": {
+        "val": 0.38638901412616083,
+        "valB": 0.37375461855890785
+      },
+      "bvrrosswa6x4_tta12+bvrros6x4_tta12@0.5": {
+        "val": 0.3879244749422502,
+        "valB": 0.374448522593641
+      },
+      "bvrrosswa6x4_tta12+bvrros6x4_tta12@0.7": {
+        "val": 0.3867666820805238,
+        "valB": 0.3729551146887138
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bvrrosswa6x4_tta12",
+          "bvrros6x4_tta12"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": -0.0033507999654502907,
+        "p_gain": 0.065,
+        "dA": 0.0038297124910462443,
+        "pooled": {
+          "delta": 0.0014996272045297299,
+          "p_gain": 0.81
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bvrrosswa6x4_tta12",
+        "bvrros6x4_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.3879244749422502,
+      "B": 0.374448522593641
+    }
+  },
+  "truck": {
+    "incumbent": "bvrrosswa6r1x6_tta",
+    "incumbent_A": 0.8883005237000582,
+    "incumbent_B": 0.8361008943342482,
+    "best": {
+      "members": [
+        "bvrrosswa6r1x6_tta",
+        "bvrros6r1x6_tta"
+      ],
+      "iou": 0.3,
+      "A": 0.8900848962406046,
+      "B": 0.8343136132941826
+    },
+    "dB": -0.001787281040065536,
+    "p_gain": 0.265,
+    "ci90": [
+      -0.003130234990203762,
+      0.001400375376462892
+    ],
+    "dA": 0.0017843725405464195,
+    "pooled": {
+      "delta": 0.002441660778168986,
+      "p_gain": 0.93
+    },
+    "decision": "fused (pooled rule passed)",
+    "search_fast_iou": {
+      "bvrrosswa6r1x6_tta+bvrros6r1x6_tta@0.3": {
+        "val": 0.8900848962406046,
+        "valB": 0.8343136132941826
+      },
+      "bvrrosswa6r1x6_tta+bvrros6r1x6_tta@0.5": {
+        "val": 0.8880742711755397,
+        "valB": 0.8355427058853697
+      },
+      "bvrrosswa6r1x6_tta+bvrros6r1x6_tta@0.7": {
+        "val": 0.8878281472612459,
+        "valB": 0.8355469323645147
+      },
+      "bvrrosswa6r1x6_tta+bvrros6x5_tta@0.3": {
+        "val": 0.8880631346319927,
+        "valB": 0.832538414684722
+      },
+      "bvrrosswa6r1x6_tta+bvrros6x5_tta@0.5": {
+        "val": 0.8864928117081063,
+        "valB": 0.833841152487685
+      },
+      "bvrrosswa6r1x6_tta+bvrros6x5_tta@0.7": {
+        "val": 0.8864566060069936,
+        "valB": 0.8338478639060366
+      },
+      "bvrros6r1x6_tta+bvrrosswa6x5_tta12@0.3": {
+        "val": 0.8864396076440866,
+        "valB": 0.8338238380468626
+      },
+      "bvrros6r1x6_tta+bvrrosswa6x5_tta12@0.5": {
+        "val": 0.8871792872071735,
+        "valB": 0.8351771333979865
+      },
+      "bvrros6r1x6_tta+bvrrosswa6x5_tta12@0.7": {
+        "val": 0.8870599493600089,
+        "valB": 0.8351911144730098
+      },
+      "bvrrosswa6x5_tta12+bvrros6x5_tta@0.3": {
+        "val": 0.8837902202733765,
+        "valB": 0.8311633176281095
+      },
+      "bvrrosswa6x5_tta12+bvrros6x5_tta@0.5": {
+        "val": 0.8838380746782366,
+        "valB": 0.8320834386900209
+      },
+      "bvrrosswa6x5_tta12+bvrros6x5_tta@0.7": {
+        "val": 0.8844271798140824,
+        "valB": 0.8321024024164059
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bvrrosswa6r1x6_tta",
+          "bvrros6r1x6_tta"
+        ],
+        "iou": 0.3,
+        "lateA": null,
+        "earlyA": null,
+        "dB": -0.001787281040065536,
+        "p_gain": 0.265,
+        "dA": 0.0017843725405464195,
+        "pooled": {
+          "delta": 0.002441660778168986,
+          "p_gain": 0.93
+        },
+        "passed": true
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bvrrosswa6r1x6_tta",
+        "bvrros6r1x6_tta"
+      ],
+      "iou": 0.3,
+      "A": 0.8900848962406046,
+      "B": 0.8343136132941826
+    }
+  }
+}
