@@ -1,0 +1,31 @@
+name: bag-voxelrcnn-rosf-gblobs-g1v6x5
+type: bag
+strategy: S10-2
+track: lumpi-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-rosf-gblobs-g1v6: weighted box fusion of the
+  three generator draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6 + pcdet/g1-v6d2 + pcdet/g1-v6d3 + pcdet/g1-v6d4 + pcdet/g1-v6d5
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-rosf-gblobs-g1v6
+- voxelrcnn-rosf-gblobs-g1v6d2
+- voxelrcnn-rosf-gblobs-g1v6d3
+- voxelrcnn-rosf-gblobs-g1v6d4
+- voxelrcnn-rosf-gblobs-g1v6d5
+iou:
+  default: 0.5
+  Car: 0.7
+  Van: 0.7
+realism_frames: pcdet/g1-v6
+status: 'S10-2 L2 pool: 5-draw GBlobs bag (plain members), draw 1 without the PandarQT
+  re-cast'
+notes: 'S10-2 L2 (docs/decisions/2026-11-12-s10-10.2-clean-final-push.md Section 4):
+  the 5 generator draws of the GBlobs Voxel R-CNN fade member, all trained on the
+  uncalibrated g1-v6 family, so the bag ships with g1-v6 frames under rule 1b without
+  any re-cast member (the stricter reading of the 2026-11-12 frame rule). No checkpoint
+  and no tuned knob of its own.
+
+  '
+derived_from: bag-voxelrcnn-rosf-gblobs-swa-g1v6pqx5
