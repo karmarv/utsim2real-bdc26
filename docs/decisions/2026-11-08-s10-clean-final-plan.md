@@ -2025,7 +2025,7 @@ Option A (15.13) queued these as depth for the bags. Bags `bag-voxelnext-ros-g1v
 
 **Recommended order (times UTC):** A1 (V2X) and A2 (LUMPI) uploaded now; the disclosure sent; the 12-view wave and B's CPU work in parallel until about 22:00; B trains; V2X `C2` select about Nov 13 00:00-06:00, LUMPI `C2` select about 06:00-12:00; V2X `C2` upload Nov 13-14; LUMPI `C2` upload Nov 14; B's upload about Nov 14 12:00-18:00; last margin Nov 15 18:00.
 
-### 15.18 Release 10.2 and every organizer ruling: what is resolved, what is open (2026-11-12, 20:00-21:30 UTC; for the entrant's review)
+### 15.18 Release 10.2 and every organizer ruling: what is resolved, what is open (2026-11-12, 19:50-20:30 UTC; for the entrant's review)
 
 The entrant set the split on 2026-11-12: release 10.1 holds the uploads already made (LUMPI 1042287, 1047204, 1047231; V2X 1042294, 1046758) and becomes a full release; all later work is release 10.2. They asked that every organizer ruling on the feasibility of our final-phase systems be applied and resolved in 10.2. This section re-reads the whole email thread (the entrant's PDF copy, 2026-11-12; not in git, it holds contact details).
 
@@ -2192,7 +2192,7 @@ Drop question (d) if the V2X board already shows 1042294 when you send it.
 - **So, by the pre-registered table above:** neither held package ships (`c2r_n1_pending`, `c2r_aw_pending`; both withdrawn). V2X ships `g1-v6`. LUMPI ships `g1-v6`, **not** `g1-v6pq`: the answer also covers the PandarQT re-cast, which reached the frames of 1047204 and 1047231 without reaching their detectors' training data (Section 15.17).
 - The generator path the answer opens is lever B of Section 15.17.
 
-## Appendix C. Disclosure to the organizers on the LUMPI frames (revised 2026-11-12, 21:30 UTC; the entrant sends it)
+## Appendix C. Disclosure to the organizers on the LUMPI frames (revised 2026-11-12, 20:30 UTC; the entrant sends it)
 
 Revised after re-reading the thread (Section 15.18). The organizers' reply thanks us "for asking before uploading", and their ruling (d) says the board shows our highest score and we cannot choose it. So the email says plainly that the re-cast was uploaded before we asked, and the V2X question is now part of it.
 
@@ -2208,3 +2208,5 @@ Revised after re-reading the thread (Section 15.18). The organizers' reply thank
 > Rahul (KarmaRV)
 
 - The first draft (same day) had the V2X paragraph as optional. It is now recommended: the 2026-11-12 rule read literally covers anything that changes the frames without changing the training data, and our V2X entries lead the board.
+
+**Note (2026-11-12, 20:45 UTC).** The entrant froze 10.1 and sends the disclosure themselves. The plan from here to the close is a separate record: [`2026-11-12-s10-10.2-clean-final-push.md`](2026-11-12-s10-10.2-clean-final-push.md).
