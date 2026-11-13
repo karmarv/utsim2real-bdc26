@@ -1,0 +1,62 @@
+# S9 W6 (docs/decisions/2026-11-02-s9-clean-twin-plan.md Section 15.12): the parent data config unchanged, on pcdet/g1-v6.
+# R3 (docs/02-STRATEGY.md Section 8.7.1): the S5 ROS member config on pcdet/g1-v4 with generic ROS ranges.
+# OpenPCDet dataset config for model-lumpi-track/pointpillars-ut (loaded via _BASE_CONFIG_ from pcdet_model.yaml).
+# DATA_PATH is injected by common/tools/pcdet_train.py from model.yaml (data.train) and $BDC_DATA.
+DATASET: 'BDCDataset'
+DATA_PATH: 'injected-at-runtime'
+
+POINT_CLOUD_RANGE: [-40.0, -40.0, -5.0, 40.0, 40.0, 5.0]
+
+MAP_CLASS_TO_KITTI: {'Person': 'Pedestrian', 'Car': 'Car', 'Bicycle': 'Cyclist', 'Truck': 'Truck', 'Van': 'Van'}   # unused: BDCDataset.evaluation
+
+DATA_SPLIT: {'train': train, 'test': val}
+INFO_PATH: {'train': [custom_infos_train.pkl], 'test': [custom_infos_val.pkl]}
+
+POINT_FEATURE_ENCODING: {
+    encoding_type: absolute_coordinates_encoding,
+    used_feature_list: ['x', 'y', 'z'],
+    src_feature_list: ['x', 'y', 'z'],
+}
+
+DATA_AUGMENTOR:
+    DISABLE_AUG_LIST: ['placeholder']
+    AUG_CONFIG_LIST:
+        - NAME: gt_sampling
+          USE_ROAD_PLANE: False
+          DB_INFO_PATH: [custom_dbinfos_train.pkl]
+          PREPARE: {filter_by_min_points: ['Person:5', 'Car:5', 'Bicycle:5', 'Motorcycle:5', 'Bus:5', 'Truck:5', 'Van:5']}
+          SAMPLE_GROUPS: ['Person:6', 'Car:6', 'Bicycle:10', 'Motorcycle:6', 'Bus:3', 'Truck:6', 'Van:6']
+          NUM_POINT_FEATURES: 3
+          DATABASE_WITH_FAKELIDAR: False
+          REMOVE_EXTRA_WIDTH: [0.0, 0.0, 0.0]
+          LIMIT_WHOLE_SCENE: True
+
+        - NAME: bdc_object_scaling            # S5 run b (ROS): class-wise anisotropic object scaling about the box bottom
+          PROB: 0.7                           # ranges from legal real label sizes (docs/02-STRATEGY.md 8.5 review)
+          DEFAULT: {l: [0.9, 1.1], w: [0.9, 1.1], h: [0.95, 1.05]}
+          CLASS_RANGES: {               # R3: g1-v4 has real label sizes for Bus, Bicycle, Motorcycle and 63% of the Trucks
+            Truck: {l: [0.9, 1.5], w: [0.95, 1.1], h: [0.95, 1.1]},     # (queues leave room for 12-16 m in 36-42%): length tail only
+            Car: {l: [0.9, 1.1], w: [0.95, 1.15], h: [0.95, 1.2]}       # Car unchanged from S5; the rest: DEFAULT
+          }
+          CLASS_MAX: {Person: [2.0, 1.2, 2.2], Car: [6.2, 2.4, 2.6], Bicycle: [2.6, 1.1, 2.2], Motorcycle: [3.1, 1.4, 2.4], Bus: [13.6, 5.7, 3.8], Truck: [17.2, 4.2, 4.5], Van: [6.8, 2.4, 2.6]}   # R3: real 99th percentiles (realval A+B labels)
+
+        - NAME: random_world_flip           # ablate: the roadside layout is fixed (docs/04 M10)
+          ALONG_AXIS_LIST: ['x', 'y']
+
+        - NAME: random_world_rotation
+          WORLD_ROT_ANGLE: [-0.17453293, 0.17453293]   # +/-10 deg
+
+        - NAME: random_world_scaling
+          WORLD_SCALE_RANGE: [0.95, 1.05]
+
+DATA_PROCESSOR:
+    - NAME: mask_points_and_boxes_outside_range
+      REMOVE_OUTSIDE_BOXES: True
+
+    - NAME: shuffle_points
+      SHUFFLE_ENABLED: {'train': True, 'test': False}
+
+    - NAME: transform_points_to_voxels
+      VOXEL_SIZE: [0.15625, 0.15625, 10.0]            # 512 x 512 pillars over 80 m; one pillar spans z [-5, 5]
+      MAX_POINTS_PER_VOXEL: 32
+      MAX_NUMBER_OF_VOXELS: {'train': 40000, 'test': 40000}

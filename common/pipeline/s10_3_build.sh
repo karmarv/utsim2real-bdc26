@@ -4,9 +4,12 @@
 # common/tools/s10_3_recipe.py, so no step here selects anything; the steps measure, check and package.
 #   LUMPI: L3 = routed-c0's recipe on the 14 B1 checkpoints, then L6 = L3 + P (final_adjust of routed-s10-2-l5).
 #     bash common/pipeline/launch.sh <run> s103lumpi common/pipeline/s10_3_build.sh <run> lumpi
+#   2026-11-13 (record Section 10): N1 stopped; the same flow on the re-cast-only corpus (L3q, then L6q = L3q + P):
+#     bash common/pipeline/launch.sh <run> s103qlumpi common/pipeline/s10_3_build.sh <run> lumpi \
+#       routed-s10-3-l3q routed-s10-3-l6q pcdet/g1-v6pq
 #   V2X: V3 = routed-c1a's recipe (4 checkpoints), then V3x = routed-c2r's (V1, 1050253) recipe (7 checkpoints) if
 #   its three extra draws are tuned by the deadline. Runs the members' 12-view jobs on the first half that stops training.
-#     bash common/pipeline/launch.sh <run> s103v2x common/pipeline/s10_3_build.sh <run> v2x
+#     bash common/pipeline/launch.sh <run> s103v2x common/pipeline/s10_3_build.sh <run> v2x ["<hand-over event>"]
 # Events: "S10-3 <track> <system>: ..." in <run>/events.txt; logs <run>/s103_<system>_<step>.log.
 RUN=$1; T=$2
 source "$(dirname "$0")/lib_common.sh" 2>/dev/null || source "$(dirname "$0")/common.sh"
@@ -179,7 +182,7 @@ PY
   st "card: $BASE's card (copies fit included) plus P from $PFROM"
   run validate python common/tools/route_predictions.py validate "$MD" || return 1
   run clean python common/tools/clean_check.py "$MD" || return 1
-  gates "$SYS" routed-c0 "$BASE"
+  gates "$SYS" routed-c0 "$BASE" routed-s10-2-l5
   for f in "$BD"/test/output/predictions_*.json; do cp -p "$f" "$MD/test/output/"; done
   run merge merge_kit "$SYS" || return 1
   local NB; NB=$(python -c "import json;print(sum(len(v) for v in json.load(open('$MD/test/output/predictions.json')).values()))")
@@ -190,16 +193,18 @@ PY
 }
 
 if [ "$T" = lumpi ]; then
-  SYS=routed-s10-3-l3; st "armed: waits for the 14 B1 checkpoints (8-view) and B1's six 12-view jobs"
-  wait_ready routed-s10-3-l3
-  st "every member tuned; L3 build starts"
-  if build_recipe routed-s10-3-l3 routed-c0 s10-3-l3 pcdet/g1-v6n1; then
-    build_p routed-s10-3-l3 routed-s10-3-l6 s10-3-l6 pcdet/g1-v6n1 routed-s10-2-l5 && st "DONE" || st "L6 STOPPED"
-  else st "L3 STOPPED"; fi
+  L3=${3:-routed-s10-3-l3}; L6=${4:-routed-s10-3-l6}; FRL=${5:-pcdet/g1-v6n1}
+  SYS=$L3; st "armed: waits for the 14 checkpoints of $L3 (8-view) and their six 12-view jobs"
+  wait_ready "$L3"
+  st "every member tuned; $L3 build starts"
+  if build_recipe "$L3" routed-c0 "${L3#routed-}" "$FRL"; then
+    build_p "$L3" "$L6" "${L6#routed-}" "$FRL" routed-s10-2-l5 && st "DONE" || st "$L6 STOPPED"
+  else st "$L3 STOPPED"; fi
 else
+  HO=${3:-S10-2 hand-over complete}
   SYS=routed-s10-3-v3; st "armed: waits for c1a's 4 checkpoints (8-view), then runs their 12-view jobs on a free half"
-  until grep -q "S10-2 hand-over complete" "$E"; do sleep 120; done
-  N0=$(grep -n "S10-2 hand-over complete" "$E" | tail -n 1 | cut -d: -f1)
+  until grep -q "$HO" "$E"; do sleep 120; done
+  N0=$(grep -n "$HO" "$E" | tail -n 1 | cut -d: -f1)
   until tail -n +"$N0" "$E" | grep -qE "TRAIN_WORKER_DONE train[AB][34]$"; do sleep 120; done
   W=$(tail -n +"$N0" "$E" | grep -E "TRAIN_WORKER_DONE train[AB][34]$" | head -n 1 | awk '{print $NF}')
   case $W in trainA*) GP="1 3 5 7";; *) GP="0 2 4 6";; esac

@@ -1,0 +1,25 @@
+name: bag-voxelrcnn-rosf-g1v6pqx
+type: bag
+strategy: S10-3
+track: lumpi-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-rosf-g1v6: weighted box fusion of the two generator
+  draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6pq + pcdet/g1-v6d2pq
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-rosf-g1v6pq
+- voxelrcnn-rosf-g1v6d2pq
+iou:
+  default: 0.5
+  Car: 0.7
+  Van: 0.7
+realism_frames: pcdet/g1-v6pq
+status: 'S10-3: bag-voxelrcnn-rosf-g1v6x''s seed bag on the retrained seeds'
+notes: 'S10-3 (docs/decisions/2026-11-13-s10-10.3-final-system.md): bag-voxelrcnn-rosf-g1v6x
+  with every seed retrained on the calibrated generator; same iou, no checkpoint and
+  no tuned knob of its own.
+
+  '
+derived_from: bag-voxelrcnn-rosf-g1v6x

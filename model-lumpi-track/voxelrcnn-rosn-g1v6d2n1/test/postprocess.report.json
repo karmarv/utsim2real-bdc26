@@ -1,0 +1,189 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.5015197155732383,
+    "A_behaviour": 0.5015197155732383,
+    "A_tuned": 0.5015197155732383,
+    "behaviour_cfg": {
+      "nms_iou": 0.6,
+      "recenter": 0.5,
+      "size_scale": [
+        1.16,
+        1.16,
+        0.92
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.16,
+        1.16,
+        0.92
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.20173230436155637,
+    "B_behaviour": 0.20173230436155637,
+    "B_tuned": 0.20173230436155637,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.5053714104816844
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.858192941992618,
+    "A_behaviour": 0.8583124138050948,
+    "A_tuned": 0.8583124138050948,
+    "behaviour_cfg": {
+      "nms_iou": 0.5,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "n_gt_B": 25573,
+    "B_start": 0.7363274791438228,
+    "B_behaviour": 0.7364039381175627,
+    "B_tuned": 0.7364039381175627,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.8753803131916239
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.3209844729908913,
+    "A_behaviour": 0.32209124659628957,
+    "A_tuned": 0.32209124659628957,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "recenter": 0.5,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.11883610811019292,
+    "B_behaviour": 0.11838174067547466,
+    "B_tuned": 0.11838174067547466,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.40648857547520406
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.1523713418479916,
+    "A_behaviour": 0.1523713418479916,
+    "A_tuned": 0.1523713418479916,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.04336651435752573,
+    "B_behaviour": 0.04336651435752573,
+    "B_tuned": 0.04336651435752573
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.007608695652173913,
+    "B_behaviour": 0.007608695652173913,
+    "B_tuned": 0.007608695652173913
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.2425104281893468,
+    "A_behaviour": 0.2440570829934962,
+    "A_tuned": 0.2440570829934962,
+    "behaviour_cfg": {
+      "nms_iou": 0.01,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.08
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.15167097180254768,
+    "B_behaviour": 0.14996313690903448,
+    "B_tuned": 0.14996313690903448,
+    "hedge_from_Bus": {
+      "factor": 0.6,
+      "A": 0.2545296459151907
+    },
+    "hedge_from_Van": {
+      "factor": 0.3,
+      "A": 0.2594836511221996
+    }
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.00348297213622291,
+    "A_behaviour": 0.00348297213622291,
+    "A_tuned": 0.00348297213622291,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0,
+    "B_behaviour": 0.0,
+    "B_tuned": 0.0,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.05276246201886782
+    },
+    "hedge_from_Car": {
+      "factor": 0.3,
+      "A": 0.0715935024466495
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.005921052631578947
+    }
+  }
+}

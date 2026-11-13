@@ -1,0 +1,201 @@
+name: routed-s10-3-l3q
+strategy: S10-3
+track: lumpi-track
+module: M11 (TTA and fusion) with two-stage members
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: 'per-class routing and box fusion (up to 3 members) of clean members
+  only (S10 rule 1: corpora without real label rows, the g1-v6 family and UrbanTwin),
+  with test-time augmentation'
+members:
+  bpvros6x_tta:
+    model: bag-pvrcnnpp-ros-g1v6pqx
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrrosf6x_tta:
+    model: bag-voxelrcnn-rosf-g1v6pqx
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrrosn6x_tta:
+    model: bag-voxelrcnn-rosn-g1v6pqx
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  dsrosf6_tta12:
+    model: dsvt-rosf-g1v6pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  ppros6_tta:
+    model: pointpillars-ros-g1v6pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  ppros6d2_tta:
+    model: pointpillars-ros-g1v6d2pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pprosf6_tta:
+    model: pointpillars-rosf-g1v6pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros6j_tta:
+    model: pvrcnnpp-ros-g1v6jpq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros6j_tta12:
+    model: pvrcnnpp-ros-g1v6jpq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vnrosf6d2_tta:
+    model: voxelnext-rosf-g1v6d2pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnrosn6_tta12:
+    model: voxelnext-rosn-g1v6pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosf6_tta12:
+    model: voxelrcnn-rosf-g1v6pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosf6j_tta12:
+    model: voxelrcnn-rosf-g1v6jpq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosn6_tta12:
+    model: voxelrcnn-rosn-g1v6pq
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+data:
+  train: pcdet/g1-v6pq
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6pq
+status: 'S10-3 L3q: routed-c0''s recipe on the retrained members (docs/decisions/2026-11-13-s10-10.3-final-system.md)'
+notes: 'S10-3 L3q (docs/decisions/2026-11-13-s10-10.3-final-system.md): route, fusion,
+  calibration, budget, copies, stages and size calibration of routed-c0 unchanged,
+  no new selection; every member retrained on the calibrated generator (pcdet/g1-v6pq),
+  the organizers'' path of 2026-11-12 (calibration in the training data, detector
+  retrained on it, the 50 frames from that data).
+
+  '
+budget:
+  Person: 0.01
+  Bicycle: 0.01
+  Motorcycle: 0.01
+  Bus: 0.01
+  Truck: 0.01
+  Van: 0.01
+  Unknown: 0.075
+tail_copies:
+  Bus:
+    r: 1.0
+    n: 4
+  Person:
+    r: 0.2
+    n: 4
+    min_score: 0.7531
+route:
+  Person: vrrosn6_tta12
+  Car: vrrosf6_tta12
+  Bicycle: bppros6x_tta
+  Motorcycle: vnrosn6_tta12
+  Bus: ppros6_tta
+  Truck: bpvros6x_tta
+  Van: dsrosf6_tta12
+  Unknown: pprosf6_tta
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); also a gain on the pooled A+B frames (P(gain) >=
+    0.9)'
+  estimate_mAP_A: 0.3995
+  estimate_mAP_B: 0.2273
+fusion:
+  Person:
+    members:
+    - vrrosn6_tta12
+    - bvrrosf6x_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Car:
+    members:
+    - vrrosf6_tta12
+    - bvrrosn6x_tta
+    - vrrosf6j_tta12
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Bicycle:
+    members:
+    - ppros6d2_tta
+    - dsrosf6_tta12
+    - pvros6j_tta12
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  Motorcycle:
+    members:
+    - vnrosn6_tta12
+    - vnrosf6d2_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Truck:
+    members:
+    - bpvros6x_tta
+    - pvros6j_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+calibration: {}
+size_calibration:
+  anchors:
+  - - -9.55438795260801
+    - 16.298578446378514
+  - - 7.718669570567556
+    - -13.649307377132999
+  - - -19.382036958547815
+    - -1.4609732941645177
+  - - 18.994734146224232
+    - 13.52992077031405
+  - - -13.450910870091832
+    - -21.504620464347724
+  classes:
+    Car:
+      dl: -0.2
+      dw: 0.08
+      dh: 0.07
+    Person:
+      dh: 0.03
+candidate: L3q
+derived_from: routed-c0
