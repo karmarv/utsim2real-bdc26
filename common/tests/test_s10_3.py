@@ -52,3 +52,18 @@ def test_recipe_cards_keep_the_parents_knobs_and_retrain_every_member(track, new
             sc = yaml.safe_load((d / s / "model.yaml").read_text())
             assert sc["data"]["train"].endswith(suf) and sc["realism_frames"] == frames, s
     assert (d / new / "test" / "synthetic_ids.txt").read_text() == (d / parent / "test" / "synthetic_ids.txt").read_text()
+
+
+def test_partial_swap_keeps_every_other_member_and_the_frames(tmp_path, monkeypatch):
+    """L7 (record Section 12): --only replaces just the named single models; bags, frames and corpus stay the parent's."""
+    import s10_3_recipe
+    d = REPO / "model-lumpi-track"
+    if not (d / "voxelrcnn-rosf-g1v6pq" / "model.yaml").exists():
+        pytest.skip("re-cast members not made")
+    card = yaml.safe_load((d / "routed-c0" / "model.yaml").read_text())
+    mapping, bags, missing = s10_3_recipe.plan(d, card, "pq", {"voxelrcnn-rosf-g1v6", "voxelrcnn-rosn-g1v6"})
+    assert not bags and not missing
+    changed = {p: s for p, s in mapping.items() if p != s}
+    assert changed == {"voxelrcnn-rosf-g1v6": "voxelrcnn-rosf-g1v6pq", "voxelrcnn-rosn-g1v6": "voxelrcnn-rosn-g1v6pq"}
+    with pytest.raises(SystemExit):
+        s10_3_recipe.plan(d, card, "pq", {"bag-voxelrcnn-rosf-g1v6x"})

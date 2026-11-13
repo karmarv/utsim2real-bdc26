@@ -192,7 +192,9 @@ PY
   package "$SYS" "$TAG" "$FR" "$BZ"
 }
 
-if [ "$T" = lumpi ]; then
+if [ "${S10_3_LIB:-0}" = 1 ]; then
+  :                                  # sourced for its functions (common/pipeline/s10_3_l7.sh)
+elif [ "$T" = lumpi ]; then
   L3=${3:-routed-s10-3-l3}; L6=${4:-routed-s10-3-l6}; FRL=${5:-pcdet/g1-v6n1}
   SYS=$L3; st "armed: waits for the 14 checkpoints of $L3 (8-view) and their six 12-view jobs"
   wait_ready "$L3"

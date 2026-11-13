@@ -49,13 +49,19 @@ def load(track_dir: Path, name: str) -> dict:
     return yaml.safe_load(p.read_text())
 
 
-def plan(track_dir: Path, card: dict, suffix: str) -> tuple[dict, dict, list]:
-    """(model map parent -> sibling for the used members, new bags {name: card}, missing siblings)."""
+def plan(track_dir: Path, card: dict, suffix: str, only: set | None = None) -> tuple[dict, dict, list]:
+    """(model map parent -> sibling for the used members, new bags {name: card}, missing siblings).
+    With `only`, just those single (non-bag) parent models are mapped to their siblings; every other member stays."""
     mapping, bags, missing = {}, {}, []
     for n in used_members(card):
         parent = card["members"][n]["model"]
+        if only is not None and parent not in only:
+            mapping[parent] = parent
+            continue
         new = sibling(parent, suffix)
         pc = load(track_dir, parent)
+        if only is not None and pc.get("type") == "bag":
+            raise SystemExit(f"--only {parent}: a bag; a partial swap replaces single models only")
         if pc.get("type") == "bag":
             seeds = []
             for s in pc["members"]:
@@ -97,6 +103,9 @@ def main():
     ap.add_argument("--candidate", required=True)
     ap.add_argument("--same-members", action="store_true", help="copy the parent's members as they are (P versions)")
     ap.add_argument("--final-adjust-from", default=None, help="model folder whose final_adjust block (P) is copied")
+    ap.add_argument("--only", default=None,
+                    help="partial swap (L7, record Section 12): only these parent models (comma list, single models) are "
+                         "replaced by their retrained siblings; the card keeps the parent's frames and training corpus")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     T = load_track(f"{a.track}-track")
@@ -107,10 +116,15 @@ def main():
     new = dict(card)
     new["members"] = {n: dict(card["members"][n]) for n in used}
     bags = {}
+    only = set(a.only.split(",")) if a.only else None
     if not a.same_members:
-        if not (a.suffix and a.frames):
-            raise SystemExit("--suffix and --frames are needed unless --same-members")
-        mapping, bags, missing = plan(td, card, a.suffix)
+        if not (a.suffix and (a.frames or only)):
+            raise SystemExit("--suffix and --frames (or --only) are needed unless --same-members")
+        if only and a.frames:
+            raise SystemExit("--only keeps the parent's frames: no --frames")
+        mapping, bags, missing = plan(td, card, a.suffix, only)
+        if only and not only <= set(mapping):
+            raise SystemExit(f"--only names models the parent does not use: {sorted(only - set(mapping))}")
         for n in used:
             print(f"{n}: {card['members'][n]['model']} -> {mapping[card['members'][n]['model']]}")
         if missing:
@@ -120,16 +134,22 @@ def main():
             raise SystemExit("retrained siblings missing")
         for n in used:
             new["members"][n]["model"] = mapping[card["members"][n]["model"]]
-        new["data"] = {**card.get("data", {}), "train": a.frames}
-        new["realism_frames"] = a.frames
+        if not only:
+            new["data"] = {**card.get("data", {}), "train": a.frames}
+            new["realism_frames"] = a.frames
     if a.final_adjust_from:
         new["final_adjust"] = yaml.safe_load((td / a.final_adjust_from / "model.yaml").read_text())["final_adjust"]
     new.update({"name": a.name, "strategy": "S10-3", "candidate": a.candidate, "derived_from": a.parent,
-                "status": f"S10-3 {a.candidate}: {a.parent}'s recipe" + ("" if a.same_members else " on the retrained members")
+                "status": f"S10-3 {a.candidate}: {a.parent}'s recipe" + ("" if a.same_members else
+                          f" with {len(only)} member(s) retrained ({a.suffix})" if only else " on the retrained members")
                           + (" plus P (final_adjust)" if a.final_adjust_from else "") + f" ({REC})",
                 "notes": f"S10-3 {a.candidate} ({REC}): route, fusion, calibration, budget, copies, stages and size "
                          f"calibration of {a.parent} unchanged, no new selection"
-                         + ("" if a.same_members else f"; every member retrained on the calibrated generator ({a.frames}), "
+                         + ("" if a.same_members else
+                            f"; only {', '.join(sorted(only))} replaced by their siblings retrained on the '{a.suffix}' "
+                            f"corpora, every other member and the 50 frames ({card.get('realism_frames')}) as in "
+                            f"{a.parent}" if only else
+                            f"; every member retrained on the calibrated generator ({a.frames}), "
                             "the organizers' path of 2026-11-12 (calibration in the training data, detector retrained on "
                             "it, the 50 frames from that data)")
                          + (f"; P copied from {a.final_adjust_from}" if a.final_adjust_from else "") + ".\n"})

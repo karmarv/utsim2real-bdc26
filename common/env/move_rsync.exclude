@@ -1,0 +1,17 @@
+# rsync exclude list for moving the working tree to another server (release 10.3, record Section 12.4).
+# Nothing is deleted on the source; these files are just not copied. Use from the parent of the repository:
+#   cd /home/rahul/workspace/datacenter
+#   rsync -aH --info=progress2 --exclude-from=utsim2real-bdc26/common/env/move_rsync.exclude \
+#     utsim2real-bdc26 bdc26-data NEWHOST:/home/rahul/workspace/datacenter/
+# Keep the same absolute paths on the new server: cards, manifests and corpus symlinks name them.
+#
+# Epoch 1-39 checkpoints (372 GB): no release, card, manifest or script uses them; every one names checkpoint_epoch_40.pth.
+checkpoint_epoch_[0-9].pth
+checkpoint_epoch_[1-3][0-9].pth
+# Resume copies (25 GB): equal to epoch 40 for finished trainings; the stopped trainings (N1, the re-cast queue) are abandoned.
+latest_model.pth
+# Raw validation predictions before post-processing (155 GB): only re-tuning a member reads them (--reuse-raw), and they
+# are regenerated from the epoch-40 checkpoint when needed. The tuned predictions (validation/output, 334 GB) are kept.
+raw_pcdet_*.json
+# The wrong first build of g1-v6jpq (12 GB, record Section 10.3): never trained on.
+/bdc26-data/lumpi-track/pcdet/g1-v6jpq_recast_of_union_UNUSED/
