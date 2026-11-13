@@ -62,8 +62,29 @@
       "synthetic/"
     ]
   },
-  "codabench_submission_id": null,
-  "leaderboard": null,
+  "codabench_submission_id": "1051465",
+  "leaderboard": {
+    "score_combined": 0.541796,
+    "score_detection": 0.280193,
+    "score_realism": 0.9342,
+    "mAP_3d_0.5_R40": 0.196135,
+    "mAP_3d_0.5_R11": 0.203525,
+    "mAP_3d_0.7_R40": 0.099724,
+    "mAP_bev_0.5_R40": 0.208699,
+    "CD": 1.510278,
+    "MMD": 0.00010173,
+    "EMD": 1.272009,
+    "FPD": 0.42977,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.313927,
+    "AP_3d_0.5_R40_Car": 0.683313,
+    "AP_3d_0.5_R40_Bicycle": 0.13847,
+    "AP_3d_0.5_R40_Motorcycle": 0.017905,
+    "AP_3d_0.5_R40_Bus": 0.000244,
+    "AP_3d_0.5_R40_Truck": 0.066555,
+    "AP_3d_0.5_R40_Van": 0.152531,
+    "AP_3d_0.5_R40_Unknown": null
+  },
   "upload_file": {
     "name": "lumpi_s10-2-l5_submission.zip",
     "md5": "eca9d91051f50a16efa6c50d03778a0b"
@@ -72,6 +93,10 @@
     {
       "time": "2026-11-12 19:14",
       "action": "check_submission (team=None)"
+    },
+    {
+      "time": "2026-11-13 19:20",
+      "action": "uploaded by the entrant (release 10.3, safety upload); scored 0.541796 (codabench 1051465)"
     }
   ],
   "official_local_eval": {

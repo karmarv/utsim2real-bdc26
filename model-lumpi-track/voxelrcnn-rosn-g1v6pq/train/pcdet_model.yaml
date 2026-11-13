@@ -93,7 +93,7 @@ MODEL:
     ROI_HEAD:
         NAME: VoxelRCNNHead
         CLASS_AGNOSTIC: True
-        SCORE_BLEND_ALPHA: [0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 0.0, 0.5]            # per class in CLASS_NAMES order, chosen on realval-A (score_blend.py)
+        SCORE_BLEND_ALPHA: [0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.0, 0.5]            # per class in CLASS_NAMES order, chosen on realval-A (score_blend.py)
 
         SHARED_FC: [256, 256]
         CLS_FC: [256, 256]

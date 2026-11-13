@@ -1,0 +1,71 @@
+{
+ "phase": "Final (release 10.3; the entrant's safety LUMPI upload of 2026-11-13; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10-3 L5 (docs/decisions/2026-11-13-s10-10.3-final-system.md Section 10.6): routed-s10-2-l5 = C0 (routed-c0, 1042287) with its 14 checkpoints unchanged, plus P (final_adjust: size targets and Person copies, 10.2 record Section 11.4); rule 1 clean (13 member models); rule 1b: the 50 g1-v6 frames (byte-identical to 1042287's) come from a training corpus of 11 of the 16 shipped checkpoints, and each of its 7 real-data items is in the training data of all of them",
+ "codabench_competition": 16684,
+ "codabench_submission_id": 1051465,
+ "uploaded_file": "lumpi_s10-2-l5_submission.zip of this folder (md5 eca9d91051f50a16efa6c50d03778a0b, as in manifest.json)",
+ "submitted": "2026-11-13 (the entrant's message, about 19:20 UTC), after release 10.3 was published with these weights (about 17:20 UTC); exact time not read",
+ "leaderboard_checked": "not read by us: the public API shows a bot check and is not bypassed. The scores are those of the scoring output the entrant pasted.",
+ "realism_detail": {
+  "CD": 1.5102775686468233,
+  "MMD": 0.00010173495982623848,
+  "EMD": 1.2720093968576371,
+  "FPD": 0.42977002998350144,
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.0005234408773852402
+ },
+ "scores": {
+  "score_combined": 0.541796,
+  "score_detection": 0.280193,
+  "score_realism": 0.9342,
+  "mAP_3d_0.5_R40": 0.196135,
+  "mAP_3d_0.5_R11": 0.203525,
+  "mAP_3d_0.7_R40": 0.099724,
+  "mAP_bev_0.5_R40": 0.208699,
+  "CD": 1.510278,
+  "MMD": 0.00010173,
+  "EMD": 1.272009,
+  "FPD": 0.42977,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_Person": 0.313927,
+  "AP_3d_0.5_R40_Car": 0.683313,
+  "AP_3d_0.5_R40_Bicycle": 0.13847,
+  "AP_3d_0.5_R40_Motorcycle": 0.017905,
+  "AP_3d_0.5_R40_Bus": 0.000244,
+  "AP_3d_0.5_R40_Truck": 0.066555,
+  "AP_3d_0.5_R40_Van": 0.152531,
+  "AP_3d_0.5_R40_Unknown": null
+ },
+ "scoring_log": [
+  "[scoring] realism: CD 1.5102775686468233, MMD 0.00010173495982623848, EMD 1.2720093968576371, FPD 0.42977002998350144",
+  "[scoring] mAP_3d_0.5_R40 = 0.19613491907012198",
+  "(scoring output pasted by the entrant)"
+ ],
+ "vs_previous": {
+  "previous": "1042287 (C0, routed-c0: the best qualifying LUMPI entry until this upload)",
+  "delta": {
+   "score_combined": 0.000996,
+   "score_detection": 0.00166,
+   "score_realism": 0.0,
+   "mAP_3d_0.5_R40": 0.001162,
+   "mAP_3d_0.5_R11": 0.001243,
+   "mAP_3d_0.7_R40": 0.000486,
+   "mAP_bev_0.5_R40": 0.000516,
+   "CD": 0.0,
+   "MMD": 0.0,
+   "EMD": 0.0,
+   "FPD": 0.0,
+   "AP_3d_0.5_R40_Person": 0.008133,
+   "AP_3d_0.5_R40_Car": 0.0,
+   "AP_3d_0.5_R40_Bicycle": 0.0,
+   "AP_3d_0.5_R40_Motorcycle": 0.0,
+   "AP_3d_0.5_R40_Bus": 0.0,
+   "AP_3d_0.5_R40_Truck": 0.0,
+   "AP_3d_0.5_R40_Van": 0.0
+  }
+ },
+ "projection": "0.5422 central (C0 0.5408 + P: +0.0005 / +0.0013 / +0.0020); measured +0.000996, inside the band, below its centre. All of it is Person (+0.008133 AP): P's size targets and Person copies; every other class and the realism are unchanged."
+}
