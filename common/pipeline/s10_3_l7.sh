@@ -19,7 +19,7 @@ SYS=$L7; st "armed: waits for the 12-view tuning of voxelrcnn-rosf-g1v6pq and vo
 until grep -qE "WORKER_DONE t12l7_1$" "$E" && grep -qE "WORKER_DONE t12l7_3$" "$E"; do sleep 60; done
 if grep -qE "JOB_FAIL t12l7_" "$E"; then st "a 12-view job FAILED: no L7"; exit 1; fi
 
-ONLY=$(python - <<'PY'
+ONLY=$(python - 2> "$RUN/s103_l7_member_rule.log" <<'PY'
 import json, sys
 from pathlib import Path
 TD = Path("model-lumpi-track")
@@ -33,7 +33,7 @@ for parent, cls in (("voxelrcnn-rosf-g1v6", "Car"), ("voxelrcnn-rosn-g1v6", "Per
         keep.append(parent)
 print(",".join(keep))
 PY
-2> "$RUN/s103_l7_member_rule.log")
+)
 st "member rule: $(tr '\n' ' ' < "$RUN/s103_l7_member_rule.log")"
 [ -n "$ONLY" ] || { st "no member passes the member rule: no L7; L5 (1051465) stays the LUMPI entry"; exit 0; }
 

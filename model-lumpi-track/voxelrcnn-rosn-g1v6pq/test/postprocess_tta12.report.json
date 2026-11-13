@@ -1,0 +1,183 @@
+{
+  "Person": {
+    "n_gt_A": 22308,
+    "A_start": 0.5726716974942407,
+    "A_behaviour": 0.5726716974942407,
+    "A_tuned": 0.5783382260021697,
+    "behaviour_cfg": {
+      "nms_iou": 0.6,
+      "recenter": 0.5,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "z_offset": -0.1,
+      "size_scale": [
+        1.16,
+        1.16,
+        1.0
+      ]
+    },
+    "n_gt_B": 14277,
+    "B_start": 0.20371414640759378,
+    "B_behaviour": 0.20371414640759378,
+    "B_tuned": 0.1927126792376635,
+    "hedge_from_Bicycle": {
+      "factor": 0.3,
+      "A": 0.587095222737207
+    }
+  },
+  "Car": {
+    "n_gt_A": 35693,
+    "A_start": 0.888251452816372,
+    "A_behaviour": 0.8890594811472482,
+    "A_tuned": 0.888251452816372,
+    "behaviour_cfg": {
+      "nms_iou": 0.01,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.08
+      ]
+    },
+    "n_gt_B": 25573,
+    "B_start": 0.7769718234384635,
+    "B_behaviour": 0.765648665101748,
+    "B_tuned": 0.7769718234384635,
+    "behaviour_kept_start": true,
+    "hedge_from_Truck": {
+      "factor": 0.3,
+      "A": 0.8993439548469265
+    }
+  },
+  "Bicycle": {
+    "n_gt_A": 6189,
+    "A_start": 0.41137797367359596,
+    "A_behaviour": 0.41137797367359596,
+    "A_tuned": 0.41137797367359596,
+    "behaviour_cfg": {
+      "nms_iou": 0.1,
+      "recenter": 0.5,
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "convention_cfg": {
+      "size_scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "n_gt_B": 2182,
+    "B_start": 0.18797308042631955,
+    "B_behaviour": 0.18797308042631955,
+    "B_tuned": 0.18797308042631955,
+    "hedge_from_Motorcycle": {
+      "factor": 0.6,
+      "A": 0.4862822300631283
+    }
+  },
+  "Motorcycle": {
+    "n_gt_A": 30,
+    "A_start": 0.15802805669311398,
+    "A_behaviour": 0.15802805669311398,
+    "A_tuned": 0.15802805669311398,
+    "behaviour_cfg": {
+      "nms_iou": 0.4,
+      "recenter": 0.5
+    },
+    "convention_cfg": {},
+    "n_gt_B": 257,
+    "B_start": 0.052642364716235825,
+    "B_behaviour": 0.052642364716235825,
+    "B_tuned": 0.052642364716235825
+  },
+  "Bus": {
+    "n_gt_A": 217,
+    "A_start": 0.0037856636113397088,
+    "A_behaviour": 0.0037856636113397088,
+    "A_tuned": 0.0037856636113397088,
+    "behaviour_cfg": {
+      "nms_iou": 0.7
+    },
+    "convention_cfg": {},
+    "n_gt_B": 265,
+    "B_start": 0.023388015338121845,
+    "B_behaviour": 0.023388015338121845,
+    "B_tuned": 0.023388015338121845
+  },
+  "Truck": {
+    "n_gt_A": 1337,
+    "A_start": 0.2714327356747829,
+    "A_behaviour": 0.2747738334348152,
+    "A_tuned": 0.279465895925765,
+    "behaviour_cfg": {
+      "nms_iou": 0.7,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ],
+      "z_offset": -0.1
+    },
+    "convention_cfg": {
+      "z_offset": 0.0,
+      "size_scale": [
+        1.08,
+        1.08,
+        1.0
+      ]
+    },
+    "n_gt_B": 1478,
+    "B_start": 0.18725153101022346,
+    "B_behaviour": 0.1927649352887717,
+    "B_tuned": 0.19417373193608786
+  },
+  "Van": {
+    "n_gt_A": 1737,
+    "A_start": 0.005596454101256379,
+    "A_behaviour": 0.005596454101256379,
+    "A_tuned": 0.005596454101256379,
+    "behaviour_cfg": {
+      "nms_iou": 0.1
+    },
+    "convention_cfg": {},
+    "n_gt_B": 854,
+    "B_start": 0.0016666666666666666,
+    "B_behaviour": 0.0016666666666666666,
+    "B_tuned": 0.0016666666666666666,
+    "hedge_from_Truck": {
+      "factor": 0.6,
+      "A": 0.06928920449825188
+    },
+    "hedge_from_Car": {
+      "factor": 0.1,
+      "A": 0.07926357285069116
+    }
+  },
+  "Unknown": {
+    "n_gt_A": 18,
+    "A_start": 0.0,
+    "A_behaviour": 0.0,
+    "A_tuned": 0.0,
+    "behaviour_cfg": {},
+    "convention_cfg": {},
+    "hedge_from_Van": {
+      "factor": 0.1,
+      "A": 0.0029333743125490373
+    }
+  }
+}
