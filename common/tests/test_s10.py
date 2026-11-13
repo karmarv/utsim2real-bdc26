@@ -96,7 +96,7 @@ def test_class_config_carries_the_overhead_and_point_rescore_stages():
     from route_predictions import _class_config
     card = {"route": {"pedestrian": "a"}, "overhead_demotion": {"pedestrian": 5}, "point_rescore": {"pedestrian": 0.1}}
     cfg = _class_config(card, "pedestrian")
-    assert cfg[6] == 5 and cfg[7] == 0.1 and cfg[8] is None and len(cfg) == 9
+    assert cfg[6] == 5 and cfg[7] == 0.1 and cfg[8] is None and cfg[9] is None and len(cfg) == 10    # 9: S10-2 P
 
 
 def test_gate_revert_restores_the_incumbents_size_entry():

@@ -64,3 +64,92 @@ def test_s10_2_member_names_swap_the_corpus_tag():
     assert sm.new_name("voxelrcnn-rosf-g1v6j", "pcdet/g1-v6j", "g1-v6jn1") == "voxelrcnn-rosf-g1v6jn1"
     assert sm.new_name("voxelrcnn-ros-g1v6d2", "pcdet/g1-v6d2", "g1-v6d2aw") == "voxelrcnn-ros-g1v6d2aw"
     assert sm.new_name("voxelrcnn-rosf-gblobs-g1v6", "pcdet/g1-v6", "g1-v6n1") == "voxelrcnn-rosf-gblobs-g1v6n1"
+
+
+# S10-2 P (record Section 11.4): route_predictions.apply_final_adjust, the last stage of the routed merge
+P_SPEC = {"size": {"Person": {"target": [0.76, 0.74, 1.9], "alpha_h": 0.5},
+                   "Bicycle": {"target": [2.0, 0.85, 1.9], "alpha_lw": 0.25}},
+          "copies": {"Person": {"r": 0.2, "n": 4, "lw_scale": 1.1, "min_score": 0.3}}}
+
+
+def _p_toy(seed=0, n_frames=20):
+    rng = np.random.default_rng(seed)
+    preds, gts = {}, {}
+    for k in range(n_frames):
+        g = np.column_stack([rng.uniform(-20, 20, (6, 2)), np.full((6, 1), -1.0), np.tile([0.7, 0.7, 1.8, 0.0], (6, 1))])
+        b = g.copy()
+        b[:, :2] += rng.normal(0, 0.2, (6, 2))
+        b[:, 3:6] *= rng.uniform(0.8, 1.2, (6, 3))
+        fp = np.column_stack([rng.uniform(-20, 20, (4, 2)), np.full((4, 1), -1.0), np.tile([0.7, 0.7, 1.7, 0.0], (4, 1))])
+        boxes = np.vstack([b, fp])
+        scores = rng.uniform(0.05, 1.0, len(boxes))
+        preds[f"f{k}"] = ([{"box": list(map(float, x)), "score": float(s), "class": "Person"} for x, s in zip(boxes, scores)]
+                          + [{"box": [5.0, 5.0, -1.0, 1.7, 0.6, 1.2, 0.3], "score": 0.6, "class": "Bicycle"},
+                             {"box": [9.0, 1.0, -0.8, 4.4, 1.9, 1.6, 0.0], "score": 0.9, "class": "Car"}])
+        gts[f"f{k}"] = g
+    return preds, gts
+
+
+def test_final_adjust_size_moves_toward_the_target_and_keeps_the_bottom():
+    from route_predictions import apply_final_adjust
+    preds, _ = _p_toy()
+    out = apply_final_adjust(preds, {"size": P_SPEC["size"]})
+    for f in preds:
+        assert len(out[f]) == len(preds[f])                                   # no box added or removed
+        for d0, d1 in zip(preds[f], out[f]):
+            b0, b1 = np.array(d0["box"]), np.array(d1["box"])
+            assert d1["score"] == d0["score"] and d1["class"] == d0["class"]
+            if d0["class"] == "Person":
+                assert np.isclose(b1[5], b0[5] + 0.5 * (1.9 - b0[5])) and np.allclose(b1[3:5], b0[3:5])
+            elif d0["class"] == "Bicycle":
+                assert np.allclose(b1[3:5], b0[3:5] + 0.25 * (np.array([2.0, 0.85]) - b0[3:5])) and b1[5] == b0[5]
+            else:
+                assert np.array_equal(b1, b0)
+            assert np.isclose(b1[2] - b1[5] / 2, b0[2] - b0[5] / 2)        # the box bottom stays
+            assert np.allclose(b1[[0, 1, 6]], b0[[0, 1, 6]])
+    assert preds["f0"][0]["box"] != out["f0"][0]["box"]                        # the input is not modified in place
+
+
+def test_final_adjust_copies_rank_below_every_box_and_never_lower_ap():
+    from bdc26.evalap import ap_for_class
+    from route_predictions import apply_final_adjust
+
+    def ap(p, g):
+        fr = []
+        for f in g:
+            v = [d for d in p[f] if d["class"] == "Person"]
+            fr.append((np.array([d["box"] for d in v]).reshape(-1, 7), np.array([d["score"] for d in v]), g[f]))
+        return ap_for_class(fr, 0.5, "3d")["AP_R40"]
+
+    for seed in range(5):
+        preds, gts = _p_toy(seed)
+        sized = apply_final_adjust(preds, {"size": P_SPEC["size"]})
+        out = apply_final_adjust(preds, P_SPEC)
+        orig = [d["score"] for v in sized.values() for d in v if d["class"] == "Person"]
+        new = [d for f in out for d in out[f][len(sized[f]):]]
+        assert len(new) == 4 * sum(s >= 0.3 for s in orig) and all(d["class"] == "Person" for d in new)
+        assert max(d["score"] for d in new) < min(orig)
+        for f in sized:                                                       # the sized boxes first, unchanged
+            assert out[f][:len(sized[f])] == sized[f]
+            src = [d for d in sized[f] if d["class"] == "Person" and d["score"] >= 0.3]
+            cps = out[f][len(sized[f]):]
+            for i, d in enumerate(src):
+                for j in range(4):
+                    c = np.array(cps[4 * i + j]["box"])
+                    b = np.array(d["box"])
+                    assert np.isclose(np.hypot(*(c[:2] - b[:2])), 0.2) and np.allclose(c[3:5], 1.1 * b[3:5])
+        assert ap(out, gts) >= ap(sized, gts) - 1e-12
+        assert sum(d["class"] != "Person" for v in out.values() for d in v) == 2 * len(preds)
+
+
+def test_final_adjust_is_the_last_stage_and_a_stage_field():
+    import route_predictions as rp
+    preds, _ = _p_toy()
+    card = {"route": {"Person": "m", "Bicycle": "m", "Car": "m"}, "tail_copies": {"Person": {"r": 0.2, "n": 4}},
+            "size_calibration": {"classes": {"Person": {"dh": 0.03}}}}
+    base = rp.merge_card(card, {"m": preds})
+    assert rp.merge_card({**card, "final_adjust": P_SPEC}, {"m": preds}) == rp.apply_final_adjust(base, P_SPEC)
+    assert rp.merge_card({**card, "final_adjust": None}, {"m": preds}) == base
+    ci, cn = rp._class_config(card, "Person"), rp._class_config({**card, "final_adjust": P_SPEC}, "Person")
+    assert rp._only_stage_change(cn, ci)                                      # P alone is a stage change
+    assert rp._class_config({**card, "final_adjust": P_SPEC}, "Car") == rp._class_config(card, "Car")

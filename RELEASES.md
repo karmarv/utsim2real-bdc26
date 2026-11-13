@@ -65,6 +65,14 @@ The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [
 | LUMPI | **1050208** (`s10-2-l1`, L1) | `routed-c2r` (`c2rv6`): `C0` plus the late-A Person route | byte-identical to 1042287's (`g1-v6`) | `4a1fd4b242c5fd44ce1c0f5bfcbeb004` | 0.5413 / 0.5419 / 0.5422 | **0.540045** (mAP 0.194093, R 0.9342); -0.000755 against `C0`: Person 0.3058 -> 0.2994, all else and realism equal |
 | V2X | **1050253** (`s10-2-v1`, V1) | `routed-c2r`: the V2X `C2` rehearsal (rule 14b against `c1a`) | `g1-v6`, 31% no-return points, equal to 1046758's | `9f836506b943141b4cdce78648e143c7` | 0.8893 | **0.891305** (mAP 0.600907, R 0.940605); +0.002441 against `c1av5`: truck +0.0073, pedestrian +0.0012 |
 
+**Ready, not yet uploaded** (all checks of record Section 11.6 pass: rules 1 and 1b, rule 14 GO against `C0`, kit check valid, audit 6 of 6, re-merge identical):
+
+| Track | Package | System | Frames | md5 | Projected | Validation against `C0` |
+|---|---|---|---|---|---|---|
+| LUMPI | `s10-2-l5` (L5) | `routed-s10-2-l5`: `C0` unchanged plus P (`final_adjust`: Person height and Bicycle footprint moved toward the train-split median real box, Person copies) | byte-identical to 1042287's (`g1-v6`) | `eca9d91051f50a16efa6c50d03778a0b` | 0.5414 / 0.5422 / 0.5428 | A +0.0015, B +0.0023, late-A +0.0009 |
+
+**Built, not uploaded:** V2X `s10-2-v2` (V2): NO-GO against V1, equal on validation once the class gate reverted every class (record Section 11.6).
+
 **Withdrawn, never uploaded** (frames-only calibrations, not allowed under the answer): the LUMPI `c2r` package of 2026-11-11 (`g1-v6pq` frames; kept out of git), and the held LUMPI N1 and V2X `aw_mid` packages (git-ignored).
 
 **New members and bags** (all rule 1 clean; tuning and 12-view runs in progress): PV-RCNN++ draws `d4`, `d5`, GBlobs `d2`, `d3` and their averaged (epochs 31-40) versions; Voxel R-CNN R1 draws `d2r1m`, `d3r1m` (both tracks) and GBlobs averaged members; V2X VoxelNeXt `d6`; the bags `pvrcnnpp-ros-g1v6x5`, `voxelrcnn-rosn-gblobs-g1v6x3`, the GBlobs `pqx3`/`pqx5` bags, the R1 bags `r1s5`/`r1x6`/`r1x8` and V2X `voxelnext-ros-g1v6x6` (each also averaged). Measurements: [S10 record, Sections 15.16-15.17](docs/decisions/2026-11-08-s10-clean-final-plan.md).
@@ -72,7 +80,7 @@ The scripts sit in `model-<track>-track/<model>/test/`; every version's row in [
 **The organizers' rulings, resolved in 10.2** (all of them, against every upload: [S10 record, Section 15.18](docs/decisions/2026-11-08-s10-clean-final-plan.md)).
 - **Rule 1b in code.** The 2026-11-12 rule ("a calibration may change the submitted frames only if it also changed the data your detector was trained on") is now checked by `common/tools/clean_check.py`, and `package_submission.py` refuses frames that fail it. It passes 1042287, 1042294, 1046758 and both 10.2 packages; it fails the `c1pq`/`c0pq` frames and refuses to rebuild them as an upload.
 - **The board.** Under the 2026-11-09 ruling (d) the LUMPI board shows our highest score, 1047231, and we cannot choose another. The remedy is the disclosure (record Appendix C, which the entrant sends) and a qualifying upload above 0.5413.
-- **The plan to the close:** [`docs/decisions/2026-11-12-s10-10.2-clean-final-push.md`](docs/decisions/2026-11-12-s10-10.2-clean-final-push.md). Candidates L1-L4 (LUMPI) and V1-V3 (V2X); gates fixed before any result; every upload before 2026-11-15 18:00 UTC; proposed, for the entrant's review.
+- **The plan to the close:** [`docs/decisions/2026-11-12-s10-10.2-clean-final-push.md`](docs/decisions/2026-11-12-s10-10.2-clean-final-push.md). Candidates L1-L4 (LUMPI) and V1-V3 (V2X); gates fixed before any result; every upload before 2026-11-15 18:00 UTC. Revised after the L1 result and the board of 2026-11-12 (record Sections 11.4-11.5, adopted 2026-11-13): LUMPI L5, L3 and L6 (L2 stopped, L4 dropped); V2X V3 in any case.
 
 ## 10.1 (release, 2026-11-12; pre-release 2026-11-11): S10 Clean Final, the clean uploads of Nov 8 and Nov 10
 

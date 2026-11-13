@@ -291,7 +291,60 @@ def merge_card(card: dict, preds: dict, points_of=None) -> dict:
     out = apply_sparse_demotion(out, card.get("sparse_demotion"), points_of)
     out = apply_overhead_demotion(out, card.get("overhead_demotion"), points_of)    # S10 V5, after the S7 stage
     out = apply_tail_copies(out, card.get("final_copies"))
-    return apply_size_calibration(out, card.get("size_calibration"))
+    out = apply_size_calibration(out, card.get("size_calibration"))
+    return apply_final_adjust(out, card.get("final_adjust"))       # S10-2 P, the last stage
+
+
+def apply_final_adjust(preds: dict, spec: dict | None) -> dict:
+    """S10-2 P (record 2026-11-12-s10-10.2-clean-final-push.md Section 11.4), the last stage, after the size
+    calibration. model.yaml `final_adjust: {size: {class: {target: [l, w, h], alpha_lw: a, alpha_h: b}},
+    copies: {class: {r: metres, n: copies, lw_scale: s, min_score: t}}}`.
+    size: l and w move by alpha_lw, h by alpha_h toward the target box (a constant: the median real box of the
+    organizers' train split, LUMPI Measurement4 frames 0-6495), z += dh / 2 (the box bottom stays); no box is added or
+    removed and no score changes.
+    copies (after the size step): every box of the class scored >= t gets n copies shifted by r in BEV (directions
+    k * 2 pi / n), l and w times s, scored score * 0.99 * (smallest score of the class) / (largest), so every copy ranks
+    below every box of its class and the class AP cannot fall on any frame set (as for tail_copies). Copies are made
+    from the detector's own boxes only."""
+    if not spec:
+        return preds
+    out = {f: [dict(d) for d in v] for f, v in preds.items()}
+    for c, k in (spec.get("size") or {}).items():
+        t = np.asarray(k["target"], dtype=np.float64)
+        a_lw, a_h = float(k.get("alpha_lw", 0.0)), float(k.get("alpha_h", 0.0))
+        for v in out.values():
+            for d in v:
+                if d["class"] != c:
+                    continue
+                b = np.array(d["box"], dtype=np.float64)
+                h0 = b[5]
+                b[3] += a_lw * (t[0] - b[3])
+                b[4] += a_lw * (t[1] - b[4])
+                b[5] += a_h * (t[2] - b[5])
+                b[2] += (b[5] - h0) / 2
+                d["box"] = b.tolist()
+    for c, k in (spec.get("copies") or {}).items():
+        s = [d["score"] for v in out.values() for d in v if d["class"] == c]
+        if not s or max(s) <= 0:
+            continue
+        f = 0.99 * min(s) / max(s)
+        r, n = float(k["r"]), int(k.get("n", 4))
+        sc_, t = float(k.get("lw_scale", 1.0)), float(k.get("min_score", -np.inf))
+        offs = [(r * np.cos(2 * np.pi * j / n), r * np.sin(2 * np.pi * j / n)) for j in range(n)]
+        for fid, v in out.items():
+            add = []
+            for d in v:
+                if d["class"] != c or d["score"] < t:
+                    continue
+                for dx, dy in offs:
+                    b = list(d["box"])
+                    b[0] += dx
+                    b[1] += dy
+                    b[3] *= sc_
+                    b[4] *= sc_
+                    add.append({"box": b, "score": d["score"] * f, "class": c})
+            v.extend(add)
+    return out
 
 
 def apply_size_calibration(preds: dict, spec: dict | None) -> dict:
@@ -453,7 +506,7 @@ def pointscore_select(model_dir: Path, card: dict, track, classes, grid=(0.05, 0
     points_of = frame_points(track, card["data"]["realval"])
     gts, pre, counts = {}, {}, {}
     no_post = {**base_card, "budget": None, "tail_copies": None, "sparse_demotion": None, "overhead_demotion": None,
-               "final_copies": None, "size_calibration": None}
+               "final_copies": None, "size_calibration": None, "final_adjust": None}
     for split in ("val", "valB"):
         gts[split] = sc.load_split(root, split)
         preds = {n: json.loads(validation_predictions(model_dir.parent / card["members"][n]["model"], card, split,
@@ -470,6 +523,7 @@ def pointscore_select(model_dir: Path, card: dict, track, classes, grid=(0.05, 0
         out = apply_overhead_demotion(out, rest.get("overhead_demotion"), points_of)
         out = apply_tail_copies(out, rest.get("final_copies"))
         out = apply_size_calibration(out, rest.get("size_calibration"))
+        out = apply_final_adjust(out, rest.get("final_adjust"))
         return {i: out.get(i, []) for i in gts[split]}
 
     base = {s_: final(s_, None) for s_ in gts}
@@ -708,6 +762,7 @@ def validate(model_dir: Path, card: dict, track, registry_run: str = "routed") -
     tag += " + budget" if card.get("budget") else ""
     tag += " + sparse demotion" if card.get("sparse_demotion") else ""
     tag += " + overhead demotion" if card.get("overhead_demotion") else ""
+    tag += " + final adjust" if card.get("final_adjust") else ""
     scores = {"run": "routed (official metric)" + tag}
     for split, k in (("val", "A"), ("valB", "B")):
         preds = {}
@@ -1102,10 +1157,18 @@ def _restore_size_entry(card: dict, vs_card: dict, c: str) -> None:
 def _class_config(card: dict, c: str) -> tuple:
     return (card.get("route", {}).get(c), (card.get("calibration") or {}).get(c), (card.get("fusion") or {}).get(c),
             (card.get("budget") or {}).get(c), (card.get("tail_copies") or {}).get(c), (card.get("sparse_demotion") or {}).get(c),
-            (card.get("overhead_demotion") or {}).get(c), (card.get("point_rescore") or {}).get(c), _size_entry(card, c))
+            (card.get("overhead_demotion") or {}).get(c), (card.get("point_rescore") or {}).get(c), _size_entry(card, c),
+            _final_adjust_entry(card, c))
 
 
-STAGE_FIELDS = (4, 5, 6, 7)       # _class_config: tail copies, sparse, overhead and point-rescore stages
+def _final_adjust_entry(card: dict, c: str):
+    """The class's S10-2 P entry (size and copies parts) as a comparable string, None when the class has none."""
+    fa = {k: (v or {}).get(c) for k, v in (card.get("final_adjust") or {}).items()}
+    fa = {k: v for k, v in fa.items() if v is not None}
+    return json.dumps(fa, sort_keys=True) if fa else None
+
+
+STAGE_FIELDS = (4, 5, 6, 7, 9)    # _class_config: tail copies, sparse, overhead, point-rescore and final-adjust stages
 
 
 def _only_stage_change(cn: tuple, ci: tuple) -> bool:
@@ -1187,7 +1250,7 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
             if not lok:
                 ok, row["decision"] = False, "reverted (rule 15: no late-A gain)"
         if not ok:
-            route, cal, fus, bud, tail, sparse, overhead, prs, _ = _class_config(vs_card, c)
+            route, cal, fus, bud, tail, sparse, overhead, prs = _class_config(vs_card, c)[:8]
             need = set(fus["members"]) if fus else {route}
             missing = [n for n in need if n not in card["members"] or card["members"][n] != vs_card["members"][n]]
             if missing:
@@ -1202,6 +1265,17 @@ def final_gate(model_dir: Path, card: dict, track, vs_dir: Path, n_boot: int, se
                     d[c] = val
                 card[key] = d
             _restore_size_entry(card, vs_card, c)
+            if card.get("final_adjust") or vs_card.get("final_adjust"):             # S10-2 P: the incumbent's entry
+                fa = card.get("final_adjust") or {}
+                for part in ("size", "copies"):
+                    inc = ((vs_card.get("final_adjust") or {}).get(part) or {}).get(c)
+                    d = dict(fa.get(part) or {})
+                    if inc is None:
+                        d.pop(c, None)
+                    else:
+                        d[c] = inc
+                    fa[part] = d
+                card["final_adjust"] = fa
             reverted.append(c)
         report[c] = row
         print(c, json.dumps(row), flush=True)
