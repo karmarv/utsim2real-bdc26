@@ -5,11 +5,15 @@
 # half finishes, so the other half never idles.
 # 2026-11-13 (record Section 11.5, adopted): B2 (L4) is dropped, so only V3's trainings are queued; the freed time goes
 # to second seeds of L3's highest-weight members if gate G-D asks for them (queued separately).
-#   bash common/pipeline/launch.sh <run> s102after2 common/pipeline/s10_2_after_b1.sh <run>
+# 2026-11-13 (release 10.3, record docs/decisions/2026-11-13-s10-10.3-final-system.md): V2X also retrains V1's
+# three extra draws (the 5-draw bag of routed-c2r) on the calibrated generator, after c1a's four, so the V2X 10.3
+# system can be V1's recipe; c1a's recipe stays the fallback.
+#   bash common/pipeline/launch.sh <run> s103after common/pipeline/s10_2_after_b1.sh <run>
 RUN=$1
 source "$(dirname "$0")/lib_common.sh" 2>/dev/null || source "$(dirname "$0")/common.sh"
 E=$RUN/events.txt; N0=$(wc -l < "$E")
-NEXT=(v2x:dsvt-ros-g1v6aw v2x:voxelrcnn-ros-g1v6d2aw v2x:voxelrcnn-rosf-g1v6aw v2x:voxelrcnn-ros-g1v6aw)
+NEXT=(v2x:dsvt-ros-g1v6aw v2x:voxelrcnn-ros-g1v6d2aw v2x:voxelrcnn-rosf-g1v6aw v2x:voxelrcnn-ros-g1v6aw
+      v2x:voxelrcnn-ros-g1v6d3aw v2x:voxelrcnn-ros-g1v6d4aw v2x:voxelrcnn-ros-g1v6d5aw)
 T12=(voxelrcnn-rosf-g1v6jn1 pvrcnnpp-ros-g1v6jn1 dsvt-rosf-g1v6n1 voxelrcnn-rosn-g1v6n1 voxelrcnn-rosf-g1v6n1 voxelnext-rosn-g1v6n1)
 declare -A G=([trainA3]=1,3,5,7 [trainB3]=0,2,4,6) P=([trainA3]=29641 [trainB3]=29642)
 done_w() { tail -n +"$((N0 + 1))" "$E" | grep -q "TRAIN_WORKER_DONE $1$"; }

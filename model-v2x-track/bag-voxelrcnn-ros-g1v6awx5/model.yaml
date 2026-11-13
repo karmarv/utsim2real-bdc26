@@ -1,0 +1,27 @@
+name: bag-voxelrcnn-ros-g1v6awx5
+type: bag
+strategy: S10-3
+track: v2x-track
+module: M11 (fusion)
+architecture: 'seed bag of voxelrcnn-ros-g1v6 (plain members): weighted box fusion
+  of the five generator draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6aw + pcdet/g1-v6d2aw + pcdet/g1-v6d3aw + pcdet/g1-v6d4aw + pcdet/g1-v6d5aw
+  realval: pcdet/realval-v1
+members:
+- voxelrcnn-ros-g1v6aw
+- voxelrcnn-ros-g1v6d2aw
+- voxelrcnn-ros-g1v6d3aw
+- voxelrcnn-ros-g1v6d4aw
+- voxelrcnn-ros-g1v6d5aw
+iou:
+  default: 0.5
+  vehicle: 0.7
+realism_frames: pcdet/g1-v6aw
+status: 'S10-3: bag-voxelrcnn-ros-g1v6x5''s seed bag on the retrained seeds'
+notes: 'S10-3 (docs/decisions/2026-11-13-s10-10.3-final-system.md): bag-voxelrcnn-ros-g1v6x5
+  with every seed retrained on the calibrated generator; same iou, no checkpoint and
+  no tuned knob of its own.
+
+  '
+derived_from: bag-voxelrcnn-ros-g1v6x5

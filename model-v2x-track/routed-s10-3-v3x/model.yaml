@@ -1,0 +1,122 @@
+name: routed-s10-3-v3x
+strategy: S10-3
+track: v2x-track
+module: M11 (TTA and fusion) with two-stage members
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: 'per-class routing and box fusion (up to 3 members) of clean members
+  only (S10 rule 1: corpora without real label rows, the g1-v6 family and UrbanTwin),
+  with test-time augmentation'
+members:
+  bvrros6x5_tta:
+    model: bag-voxelrcnn-ros-g1v6awx5
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrros6x_tta12:
+    model: bag-voxelrcnn-ros-g1v6awx
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  dsros6_tta:
+    model: dsvt-ros-g1v6aw
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrros6_tta12:
+    model: voxelrcnn-ros-g1v6aw
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrros6d2_tta12:
+    model: voxelrcnn-ros-g1v6d2aw
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosf6_tta12:
+    model: voxelrcnn-rosf-g1v6aw
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+data:
+  train: pcdet/g1-v6aw
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6aw
+status: 'S10-3 V3x: routed-c2r''s recipe on the retrained members (docs/decisions/2026-11-13-s10-10.3-final-system.md)'
+notes: 'S10-3 V3x (docs/decisions/2026-11-13-s10-10.3-final-system.md): route, fusion,
+  calibration, budget, copies, stages and size calibration of routed-c2r unchanged,
+  no new selection; every member retrained on the calibrated generator (pcdet/g1-v6aw),
+  the organizers'' path of 2026-11-12 (calibration in the training data, detector
+  retrained on it, the 50 frames from that data).
+
+  '
+route:
+  vehicle: bvrros6x_tta12
+  pedestrian: bvrros6x_tta12
+  truck: bvrrosswa6x5_tta12
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); also a gain on the pooled A+B frames (P(gain) >=
+    0.9)'
+  estimate_mAP_A: 0.7063
+  estimate_mAP_B: 0.6891
+fusion:
+  truck:
+    members:
+    - bvrros6x5_tta
+    - vrrosf6_tta12
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  vehicle:
+    members:
+    - bvrros6x_tta12
+    - dsros6_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  pedestrian:
+    members:
+    - vrros6d2_tta12
+    - vrros6_tta12
+    - vrrosf6_tta12
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+calibration: {}
+budget:
+  vehicle: 0.01
+  pedestrian: 0.05
+  truck: 0.05
+tail_copies:
+  pedestrian:
+    r: 0.15
+    n: 4
+sparse_demotion:
+  vehicle: 6
+  pedestrian: 6
+  truck: 8
+overhead_demotion:
+  pedestrian: 5
+size_calibration:
+  anchors:
+  - - 0.0
+    - 0.0
+  classes:
+    vehicle:
+      dl: -0.3
+      dh: 0.03
+point_rescore: {}
+candidate: V3x
+derived_from: routed-c2r
