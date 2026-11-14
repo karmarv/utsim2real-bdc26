@@ -1,0 +1,62 @@
+{
+  "model": "routed-s10-5-v3xp",
+  "ckpt": "S10-5 routed-s10-5-v3xp: S10-5 V3xp: routed-s10-3-v3x as built plus PV (final_adjust of routed-s10-4-v4) (docs/decisions/2026-11-14-s10-10.5-final-push.md)",
+  "predictions": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-v2x-track/routed-s10-5-v3xp/test/output/predictions.json",
+  "synthetic_source": "pcdet/g1-v6aw",
+  "synthetic_selection": "model-v2x-track/routed-s10-5-v3xp/test/synthetic_ids.txt",
+  "synthetic_from_zip": null,
+  "null_fraction": 0.0,
+  "local_scores": {
+    "run": "routed (official metric) + fusion (pedestrian, truck, vehicle) + budget + sparse demotion + overhead demotion + final adjust",
+    "realval_A_mAP_3d_0.5_R40": 0.6705023191601441,
+    "realval_A_per_class": {
+      "vehicle": 0.854361663807801,
+      "pedestrian": 0.36539487437260304,
+      "truck": 0.7917504193000283
+    },
+    "realval_B_mAP_3d_0.5_R40": 0.6565078079176897,
+    "realval_B_per_class": {
+      "vehicle": 0.8602974146988303,
+      "pedestrian": 0.34609318008952666,
+      "truck": 0.7631328289647122
+    }
+  },
+  "track": "v2x-track",
+  "created": "2026-11-14 07:24",
+  "git_sha": "960acf0",
+  "zip_md5": "fdf66bbe44266158a57e0f3646a281d1",
+  "validation_errors": [],
+  "info": {
+    "uncompressed_bytes": 34360175,
+    "points_per_frame": [
+      50000,
+      50000
+    ],
+    "null_fraction": 0.31000000000000005,
+    "in_range_fraction": 1.0,
+    "n_boxes": 21318,
+    "boxes_per_class": {
+      "truck": 721,
+      "vehicle": 2162,
+      "pedestrian": 18435
+    },
+    "team": "KarmaRV",
+    "zip_roots": [
+      "declaration.txt",
+      "predictions.json",
+      "synthetic/"
+    ]
+  },
+  "codabench_submission_id": null,
+  "leaderboard": null,
+  "upload_file": {
+    "name": "v2x_s10-5-v3xp_submission.zip",
+    "md5": "fdf66bbe44266158a57e0f3646a281d1"
+  },
+  "history": [
+    {
+      "time": "2026-11-14 07:24",
+      "action": "check_submission (team=None)"
+    }
+  ]
+}

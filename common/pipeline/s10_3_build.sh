@@ -42,7 +42,7 @@ print("\n".join(sorted(out)))
 PY
 }
 tuned() { grep -qE "POST_DONE $T $1$" "$E"; }
-has12() { local O=model-$T-track/$1/validation/output; ls "$O" 2>/dev/null | grep -q "valB_run1_checkpoint_epoch_40_tta12.json"; }
+has12() { local O=model-$T-track/$1/validation/output; ls "$O" 2>/dev/null | grep -qx "pcdet_.*_valB_run1_checkpoint_epoch_40_tta12[.]json"; }   # not the raw file (10.5 fix)
 utc() { date -u +%s; }
 
 wait_ready() {    # system [deadline epoch]: 0 when every member is tuned (and 12-view where needed), 1 at the deadline

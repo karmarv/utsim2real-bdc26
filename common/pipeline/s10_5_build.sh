@@ -135,12 +135,21 @@ if [ "$MODE" = swap ]; then
   PARENT=$4; NAME=$5; CAND=$6; PZ=$7; shift 7; EXTRA=("$@")
   SYS=$NAME; MD=model-$T-track/$NAME
   if [ ${#EXTRA[@]} -gt 0 ]; then
-    st "armed: 12-view tuning of ${EXTRA[*]} on the second trainer half to finish (deadline 2026-11-14 14:30 UTC), then the class rule"
-    DL=$(date -u -d "2026-11-14 14:30" +%s)
-    until [ "$(ndone)" -ge 2 ] || [ "$(utc)" -ge "$DL" ]; do sleep 120; done
-    if [ "$(ndone)" -ge 2 ]; then
-      W=$(tail -n +"$N0" "$E" | grep -E "TRAIN_WORKER_DONE train[AB]4$" | tail -n 1 | awk '{print $NF}')
-      case $W in trainA*) GP="1 3 5 7";; *) GP="0 2 4 6";; esac
+    # T12_GPUS (relaunch of 2026-11-14 13:35 UTC): run the 12-view jobs at once on these idle GPUs, with deadline
+    # T12_DEADLINE, instead of waiting for the second trainer half (it would have left them 25 minutes)
+    DLS=${T12_DEADLINE:-2026-11-14 14:30}; DL=$(date -u -d "$DLS" +%s)
+    if [ -n "${T12_GPUS:-}" ]; then
+      st "relaunched: 12-view tuning of ${EXTRA[*]} at once on idle GPUs $T12_GPUS (deadline $DLS UTC), then the class rule"
+    else
+      st "armed: 12-view tuning of ${EXTRA[*]} on the second trainer half to finish (deadline $DLS UTC), then the class rule"
+      until [ "$(ndone)" -ge 2 ] || [ "$(utc)" -ge "$DL" ]; do sleep 120; done
+    fi
+    if [ -n "${T12_GPUS:-}" ] || [ "$(ndone)" -ge 2 ]; then
+      if [ -n "${T12_GPUS:-}" ]; then GP=$T12_GPUS; W="no trainer (idle GPUs)"
+      else
+        W=$(tail -n +"$N0" "$E" | grep -E "TRAIN_WORKER_DONE train[AB]4$" | tail -n 1 | awk '{print $NF}')
+        case $W in trainA*) GP="1 3 5 7";; *) GP="0 2 4 6";; esac
+      fi
       cp "$REPO/common/pipeline/s10_5_t12_job.sh" "$RUN/bin/s10_5_t12_job.sh"
       J=$RUN/jobs_tta12_${CAND}.txt; : > "$J"
       for m in "${EXTRA[@]}"; do qpush "$J" "bash $RUN/bin/s10_5_t12_job.sh $T $m"; done

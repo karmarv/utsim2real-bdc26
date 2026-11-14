@@ -17,10 +17,10 @@ classes:
     z_offset: 0.0
   truck:
     nms_iou: 0.7
-    z_offset: 0.1
+    z_offset: 0.2
     size_scale:
-    - 1.0
-    - 1.0
+    - 1.08
+    - 1.08
     - 1.08
 hedge:
   vehicle:

@@ -1,0 +1,91 @@
+{
+ "parent": "routed-s10-4-l8",
+ "rule": "pooled P(gain) >= 0.9, A and B drop <= 0.005, late-A >= 0 (fixed before results)",
+ "swaps": {
+  "bpvros6x_tta": "bpvros6x_tta12",
+  "bvrrosf6x_tta": "bvrrosf6x_tta12",
+  "bvrrosn6x_tta": "bvrrosn6x_tta12",
+  "ppros6_tta": "ppros6_tta12",
+  "ppros6d2_tta": "ppros6d2_tta12",
+  "pvros6j_tta": "pvros6j_tta12",
+  "vnrosf6d2_tta": "vnrosf6d2_tta12"
+ },
+ "classes": {
+  "Bicycle": {
+   "role": "swapped",
+   "members": [
+    "ppros6d2_tta"
+   ],
+   "delta_A": -0.0001159764927177731,
+   "delta_B": -0.0015362449383240495,
+   "delta_lateA": -0.0012891336884256477,
+   "pooled_delta": -5.282766714309606e-05,
+   "pooled_p_gain": 0.385,
+   "rule": "FAIL"
+  },
+  "Bus": {
+   "role": "swapped",
+   "members": [
+    "ppros6_tta"
+   ],
+   "delta_A": 0.0018484600917060522,
+   "delta_B": 0.001835772831146068,
+   "delta_lateA": 0.0006420508300110401,
+   "pooled_delta": 0.0018181183617689833,
+   "pooled_p_gain": 0.88,
+   "rule": "FAIL"
+  },
+  "Car": {
+   "role": "swapped",
+   "members": [
+    "bvrrosn6x_tta"
+   ],
+   "delta_A": 4.105700053069761e-05,
+   "delta_B": 0.0006925924774282555,
+   "delta_lateA": -0.0036297996262151244,
+   "pooled_delta": 1.2032770903114276e-05,
+   "pooled_p_gain": 0.29,
+   "rule": "FAIL"
+  },
+  "Motorcycle": {
+   "role": "swapped",
+   "members": [
+    "vnrosf6d2_tta"
+   ],
+   "delta_A": 0.014978404417992613,
+   "delta_B": 0.0008658831703107772,
+   "delta_lateA": 7.445461990916529e-05,
+   "pooled_delta": -0.0008094677314984533,
+   "pooled_p_gain": 0.685,
+   "rule": "FAIL"
+  },
+  "Person": {
+   "role": "swapped",
+   "members": [
+    "bvrrosf6x_tta"
+   ],
+   "delta_A": 0.003494721966241676,
+   "delta_B": -0.0002987777124322244,
+   "delta_lateA": 0.0036461758834123725,
+   "pooled_delta": 0.002112831409595728,
+   "pooled_p_gain": 1.0,
+   "rule": "PASS"
+  },
+  "Truck": {
+   "role": "swapped",
+   "members": [
+    "bpvros6x_tta",
+    "pvros6j_tta"
+   ],
+   "delta_A": -0.007445588087072297,
+   "delta_B": -0.02005411112325106,
+   "delta_lateA": 0.0011990459617839955,
+   "pooled_delta": -0.011424601252135347,
+   "pooled_p_gain": 0.0,
+   "rule": "FAIL"
+  }
+ },
+ "kept": [
+  "Person"
+ ]
+}

@@ -1,0 +1,35 @@
+{
+ "parent": "routed-s10-4-v4",
+ "rule": "pooled P(gain) >= 0.9, A and B drop <= 0.005, late-A >= 0 (fixed before results)",
+ "swaps": {
+  "bvrros6x5_tta": "bvrros6x5_tta12",
+  "dsros6_tta": "dsros6_tta12"
+ },
+ "classes": {
+  "truck": {
+   "role": "swapped",
+   "members": [
+    "bvrros6x5_tta"
+   ],
+   "delta_A": -0.003983788545133926,
+   "delta_B": 0.001148615743886472,
+   "delta_lateA": null,
+   "pooled_delta": -0.0009266536141796511,
+   "pooled_p_gain": 0.185,
+   "rule": "FAIL"
+  },
+  "vehicle": {
+   "role": "swapped",
+   "members": [
+    "dsros6_tta"
+   ],
+   "delta_A": -0.003956680039040927,
+   "delta_B": -0.0032921791664078937,
+   "delta_lateA": null,
+   "pooled_delta": -0.003972442518428876,
+   "pooled_p_gain": 0.0,
+   "rule": "FAIL"
+  }
+ },
+ "kept": []
+}
