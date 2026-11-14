@@ -1,0 +1,287 @@
+{
+  "tag": "10.4",
+  "repository": "karmarv/utsim2real-bdc26",
+  "created": "2026-11-13",
+  "versions": [
+    {
+      "version": "v2x:s10-4-v4",
+      "model": "model-v2x-track/routed-s10-4-v4",
+      "strategy": "S10-4",
+      "submission_zip": "model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip",
+      "zip_md5": "ea385593f3875b29b2ae85c332c31366",
+      "codabench_id": null,
+      "leaderboard_combined": null,
+      "reproduce_test": "model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh",
+      "reproduce_validation": "model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4_validation.sh",
+      "checkpoints": [
+        "v2x.dsvt-ros-g1v6.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v6.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v6d2.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v6d3.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v6d4.epoch40.pth",
+        "v2x.voxelrcnn-ros-g1v6d5.epoch40.pth",
+        "v2x.voxelrcnn-rosf-g1v6.epoch40.pth"
+      ]
+    },
+    {
+      "version": "lumpi:s10-4-l8",
+      "model": "model-lumpi-track/routed-s10-4-l8",
+      "strategy": "S10-4",
+      "submission_zip": "model-lumpi-track/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
+      "zip_md5": "bcf5761b259693d3d18f382133768dc5",
+      "codabench_id": null,
+      "leaderboard_combined": null,
+      "reproduce_test": "model-lumpi-track/routed-s10-4-l8/test/reproduce_s10-4-l8.sh",
+      "reproduce_validation": "model-lumpi-track/routed-s10-4-l8/test/reproduce_s10-4-l8_validation.sh",
+      "checkpoints": [
+        "lumpi.dsvt-rosf-g1v6.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v6.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v6d2.epoch40.pth",
+        "lumpi.pointpillars-rosf-g1v6.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6d2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6j.epoch40.pth",
+        "lumpi.voxelnext-rosf-g1v6d2.epoch40.pth",
+        "lumpi.voxelnext-rosn-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6d2.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6j.epoch40.pth",
+        "lumpi.voxelrcnn-rosn-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-rosn-g1v6d2.epoch40.pth"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "name": "lumpi.dsvt-rosf-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/dsvt-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "7cd97e641a3ffb4cbb8274ffa581ef5e",
+      "bytes": 103394778,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "834fd45e492eaf2ad7b46328339e919a",
+      "bytes": 59324053,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-ros-g1v6d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-ros-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "34467e66f6e95ce83d6a5bda453218da",
+      "bytes": 59324377,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.pointpillars-rosf-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pointpillars-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "097fc991bf32a468a7cb24db28c28141",
+      "bytes": 59324295,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "22f7189bf70847b5e441766016fa77cc",
+      "bytes": 200583607,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v6d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "50d3740c505ef8104cc3c6e4dc7b49e6",
+      "bytes": 200583155,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.pvrcnnpp-ros-g1v6j.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/pvrcnnpp-ros-g1v6j/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "26590df92d82a38daf1db15b7a4dd201",
+      "bytes": 200583355,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelnext-rosf-g1v6d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelnext-rosf-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "5efd5477f6affb9bdbbb46034134a0db",
+      "bytes": 92696590,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelnext-rosn-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelnext-rosn-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "83f0cb0d7b94425ae3b23f370257da08",
+      "bytes": 92695438,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-rosf-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "807f70a15f44f13aa365dd6db36f56a6",
+      "bytes": 231954959,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-rosf-g1v6d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-rosf-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "0d3eaa64ca814f1ea73d29e4dcd78c62",
+      "bytes": 231954825,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-rosf-g1v6j.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-rosf-g1v6j/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "ec0e3ddc18e8c704bf75c5e4b106b4eb",
+      "bytes": 231954895,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-rosn-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-rosn-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "0d4d13d918be04a395c6f1526e191757",
+      "bytes": 231954967,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "lumpi.voxelrcnn-rosn-g1v6d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-lumpi-track/voxelrcnn-rosn-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "8bec5262c80cfe81d4ac047b2d44bc02",
+      "bytes": 231954935,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "v2x.dsvt-ros-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/dsvt-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "04d992cf9397bfd6656cb0c95babd148",
+      "bytes": 101065893,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "22bacfe61e13d7dcc4c8ed5984cc8987",
+      "bytes": 229619992,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v6d2.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3ff5d89bb83c1d47773565e05dd39a1a",
+      "bytes": 229619940,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v6d3.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "3d18641390357be827c19f1d372ff20c",
+      "bytes": 229619950,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v6d4.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v6d4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "ab3e1781668e68a7d1b516dd3ae3a52e",
+      "bytes": 229619930,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-ros-g1v6d5.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-ros-g1v6d5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "bd4c383f2338875232dda1de02cb6c97",
+      "bytes": 229619946,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "v2x.voxelrcnn-rosf-g1v6.epoch40.pth",
+      "kind": "checkpoint",
+      "path": "model-v2x-track/voxelrcnn-rosf-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "md5": "0c587d704f02577bc3691066a3d59aa9",
+      "bytes": 229620248,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    },
+    {
+      "name": "lumpi_s10-4-l8_submission.zip",
+      "kind": "submission",
+      "path": "model-lumpi-track/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
+      "md5": "bcf5761b259693d3d18f382133768dc5",
+      "bytes": 25442620,
+      "used_by": [
+        "lumpi:s10-4-l8"
+      ]
+    },
+    {
+      "name": "v2x_s10-4-v4_submission.zip",
+      "kind": "submission",
+      "path": "model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip",
+      "md5": "ea385593f3875b29b2ae85c332c31366",
+      "bytes": 22127860,
+      "used_by": [
+        "v2x:s10-4-v4"
+      ]
+    }
+  ],
+  "total_bytes": 3754640608
+}

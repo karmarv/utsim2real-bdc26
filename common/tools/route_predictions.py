@@ -344,6 +344,31 @@ def apply_final_adjust(preds: dict, spec: dict | None) -> dict:
                     b[4] *= sc_
                     add.append({"box": b, "score": d["score"] * f, "class": c})
             v.extend(add)
+    # S10-4 L8 (record 2026-11-14-s10-10.4-plan.md Section 3), after the copies: `cross_copies: {class b: {from: class a,
+    # target: [l, w, h] (optional)}}`. Every box of class a gets one copy labelled b (centre and yaw kept; with a target,
+    # its size, bottom kept), scored score_a * 0.99 * (smallest score of b) / (largest score of a), so every copy ranks
+    # below every box of b and b's AP cannot fall on any frame set. Class a is unchanged. All copies are computed from
+    # the boxes as they stand before this step, so one cross copy is never the donor of another.
+    cross = spec.get("cross_copies") or {}
+    if cross:
+        before = {f: list(v) for f, v in out.items()}
+        for c, k in cross.items():
+            a = k["from"]
+            sa = [d["score"] for v in before.values() for d in v if d["class"] == a]
+            if not sa or max(sa) <= 0:
+                continue
+            sb = [d["score"] for v in before.values() for d in v if d["class"] == c]
+            f = 0.99 * (min(sb) if sb else max(sa)) / max(sa)
+            t = np.asarray(k["target"], dtype=np.float64) if k.get("target") else None
+            for fid, v in before.items():
+                for d in v:
+                    if d["class"] != a:
+                        continue
+                    b = np.array(d["box"], dtype=np.float64)
+                    if t is not None:
+                        b[2] += (t[2] - b[5]) / 2
+                        b[3:6] = t
+                    out[fid].append({"box": b.tolist(), "score": d["score"] * f, "class": c})
     return out
 
 

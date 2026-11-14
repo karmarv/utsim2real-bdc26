@@ -153,3 +153,38 @@ def test_final_adjust_is_the_last_stage_and_a_stage_field():
     ci, cn = rp._class_config(card, "Person"), rp._class_config({**card, "final_adjust": P_SPEC}, "Person")
     assert rp._only_stage_change(cn, ci)                                      # P alone is a stage change
     assert rp._class_config({**card, "final_adjust": P_SPEC}, "Car") == rp._class_config(card, "Car")
+
+
+# S10-4 L8 (record 2026-11-14-s10-10.4-plan.md Section 3): cross-class copies, the last part of final_adjust
+def test_final_adjust_cross_copies_rank_below_the_receiving_class_and_never_lower_its_ap():
+    from bdc26.evalap import ap_for_class
+    from route_predictions import apply_final_adjust
+
+    def ap(p, g, c):
+        fr = []
+        for f in g:
+            v = [d for d in p[f] if d["class"] == c]
+            fr.append((np.array([d["box"] for d in v]).reshape(-1, 7), np.array([d["score"] for d in v]), g[f]))
+        return ap_for_class(fr, 0.5, "3d")["AP_R40"]
+
+    spec = {"cross_copies": {"Bicycle": {"from": "Person", "target": [2.0, 0.85, 1.9]}, "Car": {"from": "Bicycle"}}}
+    for seed in range(5):
+        preds, gts = _p_toy(seed)
+        out = apply_final_adjust(preds, spec)
+        for f in preds:
+            assert out[f][:len(preds[f])] == preds[f]                        # every original box unchanged, first
+            new = out[f][len(preds[f]):]
+            src = [d for d in preds[f] if d["class"] == "Person"]
+            assert [d["class"] for d in new] == ["Bicycle"] * len(src) + ["Car"]   # one copy per donor, none of a copy
+            for d, c in zip(src, new):
+                b, cb = np.array(d["box"]), np.array(c["box"])
+                assert np.allclose(cb[[0, 1, 6]], b[[0, 1, 6]]) and np.allclose(cb[3:6], [2.0, 0.85, 1.9])
+                assert np.isclose(cb[2] - cb[5] / 2, b[2] - b[5] / 2)          # the box bottom stays
+            assert np.array_equal(np.array(new[-1]["box"]), np.array(preds[f][-2]["box"]))  # no target: geometry kept
+        for c in ("Bicycle", "Car"):
+            orig = [d["score"] for v in preds.values() for d in v if d["class"] == c]
+            cps = [d["score"] for f in out for d in out[f][len(preds[f]):] if d["class"] == c]
+            assert max(cps) < min(orig)
+            g = {f: gts[f] for f in gts}
+            assert ap(out, g, c) >= ap(preds, g, c) - 1e-12
+        assert apply_final_adjust(preds, {"cross_copies": {"Bus": {"from": "Truck"}}}) == preds   # no donor: nothing
