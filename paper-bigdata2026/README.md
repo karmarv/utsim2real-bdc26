@@ -1,6 +1,12 @@
 # paper-bigdata2026: the challenge report and the BigData Cup paper
 
-> Scope: the system that produced the challenge entries, strategies S1-S8 (the S8 entries of both tracks) and the final-phase submissions, as recorded in [`docs/01`](../docs/01-CHALLENGE-FACTS.md) to [`docs/07`](../docs/07-LITERATURE.md), the [decision records](../docs/decisions/README.md) and the track READMEs. Every number in the paper comes from a record in this repository; nothing is re-run for the paper. Sections 3-4 hold the report material on the final development-phase entries: the approach in the challenge's four steps, and the score breakdown of both tracks.
+> **Status 2026-11-14: two track reports, one per track, as the organizers asked (CodaBench message of 2026-11-13). Same structure; titles "Exploring UrbanTwin Sim2Real for Synthetic-Only Roadside LiDAR Detection: LUMPI Track, Team KarmaRV" and "...: V2X-Real Track, Team KarmaRV" (the entrant, 2026-11-14); affiliation Hitachi America, Ltd. R&D.**
+> - **Text:** [`report_lumpi.md`](report_lumpi.md) and [`report_v2x.md`](report_v2x.md), the single sources.
+> - **Word versions** (IEEE conference template, 10 US-letter pages each including references), named after the organizers' title convention "Final Report - IEEE Big Data Cup 2026 - Track Name - Team Name": [`Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx`](Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx) and [`Final_Report_IEEE_Big_Data_Cup_2026_V2X-Real_Track_KarmaRV.docx`](Final_Report_IEEE_Big_Data_Cup_2026_V2X-Real_Track_KarmaRV.docx).
+> - **PDF previews:** the `.pdf` next to each `.docx`, rendered by LibreOffice. Export the submission PDFs from Word.
+> - **Figures:** [`figures/`](figures)`fig_lumpi_*.png` and `fig_v2x_*.png`, seven per track, made by [`make_figures.py`](make_figures.py) from the `codabench_<id>.json` records, the routed validation outputs and legal frames.
+>
+> The entries are LUMPI L8 1051832 (0.54233) and V2X V4 1051825 (0.894399), both release 10.4. L9 (release 10.5, LUMPI) passed every gate and was held back by the entrant (not uploaded); the TransFusion-L member of L10 (10.5 record Section 10) was in training when the reports were last built, and the LUMPI report says so. LUMPI board of Nov 14, 19:48 UTC: L8 fourth (liella722 0.5786, dipper13579 0.5541, lukefinigan 0.5440). Release 10.5 has no V2X upload (the calibrated-corpus retraining lost 0.0586 mAP; the view-set swap passed no class). The combined report of 2026-11-13/14 (`report.md` and its .docx/.pdf) is superseded by the two track reports. Sections 3-4 below are working notes on the S8 development entries; their walkers were placed from real label rows, which the organizers later ruled out, and the reports supersede them. Every number comes from a record in this repository or is measured by `make_figures.py` on legal frames; no model is re-run for the reports.
 
 ## 1. Deliverables and dates
 
@@ -12,7 +18,7 @@
 
 The final phase closes Sat Nov 14, 16:00 PST, so the report's final-phase numbers arrive less than a day before it is due: draft everything else by **Nov 1**, when the system is frozen at the S7 entries (F1 = the S7.6 zips; their weights are the assets of release 7.0). Winners are announced Nov 25; IEEE BigData 2026 is Dec 14-17 in Phoenix.
 
-**Questions for the organizers** (send them with question 5 of `docs/01` Section 10): the submission channel and template for the Nov 15 report; whether the report is archival (published in the proceedings) or only a requirement for the prize; whether the Nov 20 camera-ready replaces it or is a separate paper.
+**Report channel (organizers' CodaBench message, 2026-11-13, both tracks).** Reports are valid if they reach the organizers by **Nov 15, 2026, 11:59 PM EST**. Recommended: upload to arXiv and email the link; or email the report source and PDF directly (to the first organizer, with the two Cc addresses of that message), stating the team, the participants and the submission IDs; including the report in a submission zip is possible but not recommended. Suggested title: "Final Report - IEEE Big Data Cup 2026 - Track Name - Team Name". One report per track.
 
 ## 2. Contributions (what the paper claims)
 
@@ -196,56 +202,101 @@ The site's "norm" of a realism term is 1 minus its normalized distance, and a CD
 - The V2X lead over the next team (+0.091) is detection; the LUMPI lead (+0.014) is smaller, and the LUMPI challengers' realism is higher (EMD 1.10 against our 1.30), and the open LUMPI points are almost all in detection of the rare classes (Bus, Motorcycle, Truck; paper Section 8, limitations).
 - Paper use: the first table is T1, the per-class tables are T2, the realism table feeds T4 ([Section 6](#6-tables-and-figures)).
 
-## 5. Outline and page budget
+## 5. The track reports as written (report_lumpi.md, report_v2x.md)
 
-The 8-page report; the 10-page paper adds Sections 7.3-7.4 and a longer related-work section.
+Both reports follow one structure; only the track's data, members, iterations and results differ.
 
-| # | Section | Pages | Content | Sources |
-|---|---|---|---|---|
-| 1 | Introduction | 0.75 | the task, the two tracks, the combined metric (0.6 detection + 0.4 realism), the four contributions, the headline results | `docs/01` Sections 1-4 |
-| 2 | Related work | 0.5 | sim-to-real LiDAR detection, roadside 3D detection, digital twins (UrbanTwin), LiDAR simulation and ray drop, test-time augmentation and box fusion | `docs/07` Sections 6-7 (R1-R44) |
-| 3 | Data, splits and rule compliance | 0.75 | the declaration; the forbidden-frame guard and exclusion windows; realval-A/B; the log of real-data use; the rules review | Sections 3.1 and 3.3 here; `docs/01` Sections 3 and 9; `docs/decisions/2026-10-14-rules-compliance-review.md`; data READMEs |
-| 4 | Synthetic data | 1.5 | engine G1 (walkers, actor scale, density, FOV), engine G2-lite (re-cast real-size actors, riders, clutter), the density prior, realism-frame selection | Sections 3.2 and 3.4 here; `docs/03` Section 3; `data-<track>-track/README.md` Section 8; `docs/02` Sections 8.7, 8.9 |
-| 5 | Detection | 1.25 | the four architectures and their training; object scaling; TTA; cross-architecture fusion; per-class routing, floors and post-processing; seed bags | Section 3.3 here; `docs/03` Section 4; `model-<track>-track/README.md` Section 7; `docs/02` Sections 8.3-8.6, 8.11-8.12 |
-| 6 | Validation and selection | 0.75 | the A/B protocol, the upload gate, the pooled rule (one paragraph), the Van judge; reproduction from the released weights | `docs/decisions/README.md` Section 3; root README Section 6.11 |
-| 7 | Results | 1.5 | 7.1 leaderboard progression per step (T1); 7.2 per-class results (T2); 7.3 ablations on realval-B (T3); 7.4 realism by component (T4) | Section 4 here; `docs/02` Sections 0 and 8.10; submission register; registries |
-| 8 | Limitations and lessons | 0.5 | what did not transfer (LUMPI Bicycle after R3, S5 on LUMPI, LUMPI Car in S7.6, GBlobs alone); classes left near zero (Bus, Motorcycle); the cost of a 100-frame test | `docs/02` Section 8.10 |
-| | References | 0.5 | | `docs/07` |
+| Section | Content | Main sources |
+|---|---|---|
+| I Introduction | the task, the track's three difficulties, team and submission IDs, contributions; Fig. 1 the two stacks and their checks | `docs/01`; the dataset paper [2]; the ECCV 2026 reports [7], [8] |
+| II Related work | simulators and twins, transfer, detectors and ensembles, realism metrics | `docs/07` |
+| III Track, data and protocol | Table I the track, the metric (1)-(2), the real-data boundary and the three rulings, validation splits, environment | `docs/01`; `data-*-track/README.md`; the S10 records |
+| IV Data observations | sensor and frame; class mix, size and density (Table II gaps and fixes, Fig. 2 frames, Fig. 3 data statistics); static structure; label provenance (LUMPI) or label coverage (V2X); realism (Table III) | `data-*-track/README.md`; `docs/02` Section 8; S9 and S10 records; `make_figures.py` on legal frames |
+| V The final system | CompleteTwin generator, training, inference, Table IV composition (and V2X Table V members), post-processing stages, the decision protocol and how its gates grew | model cards `routed-s10-4-l8`, `routed-s10-4-v4` and parents; scorecards; S9, S10 records |
+| VI Model observations | architectures per class, views, fusion, bags and seeds, localization, the clean rebuild, the error profile (LUMPI Tables V-VI) | registry and member score files; S2-S10 records |
+| VII Strategy evolution and trade-offs | the ten iterations; the iterations table (evidence, gate, trade-off, server change); Phases I-III; the upload codes; 10.5 (L9; V2X calibrated-corpus retraining); Fig. 4 what each iteration bought; Fig. 5 every scored upload | `codabench_<id>.json`; the S10, 10.2-10.5 records |
+| VIII Results | final-phase uploads table, Fig. 6 qualitative cases (three rule-chosen realval-B frames), Fig. 7 per-class AP, leaderboard, transfer | score files; 10.2 record Section 11; 10.4 and 10.5 records |
+| IX What did not work | the negative-results table; the required list of real-data uses | S7-S10 records; 10.2 record Section 9 |
+| X-XI Discussion, conclusion | lessons, limitations, reproducibility | releases 10.2-10.5 |
 
-## 6. Tables and figures
+New measurements made for the reports (by `make_figures.py`, legal frames only): objects per frame, box sizes and points per box by range for the released twin (`ut-v1`), CompleteTwin draw 1 (`g1-v6`) and realval-A+B (Fig. 3, numbers printed by the script); the realval-B qualitative frames (Fig. 6). Two findings came from them: on LUMPI, real Truck and Bus share one median size and real Vans are car-length, while CompleteTwin's trucks are shorter and its buses and vans longer; some person-sized objects in Measurement 6 carry Car or Van labels. On V2X, one realval-B scene part (`2023-04-04-15-58-18_30_0`, 11 frames) has no pedestrian label while the system finds 31.7 pedestrians per frame there; within 10 m CompleteTwin walkers carry about three times the real points.
 
-| ID | What | Source (exists) | To make |
+### 5.1 Names used in the paper and their repository codes
+
+The paper uses names, not repository codes. The corpora of the `g1-v6` family (`g1-v6`, draws `g1v6d2`-`d5`, unions) are **CompleteTwin**. Iterations are numbered by release tag:
+
+| Iteration (paper) | Repository code | Name in the paper | Release |
 |---|---|---|---|
-| T1 | leaderboard progression per step, combined split into detection and realism, both tracks | `docs/02` Section 8.10 (benefits table) | LaTeX table |
-| T2 | per-class AP, S1 and S7 (the S7.6 entries), both tracks | `docs/02` Section 8.10; `codabench_<id>.json` per submission | LaTeX table |
-| T3 | ablations on realval-B, one row per lever, both tracks | `docs/02` Section 0; `model-<track>-track/registry.csv` | LaTeX table |
-| T4 | realism R per generator component, held-out proxies | `data-<track>-track/README.md` Section 8 | LaTeX table |
-| F1 | pipeline diagram: generator, training, portfolio, gates | `docs/03` Section 2 | drawing |
-| F2 | real against synthetic frames, bird's-eye view, one per track | the prepared corpora | a plot script in this folder |
-| F3 | per-class gains per step (stacked bars) | T1, T2 | a plot script in this folder |
-| F4 | fusion and TTA: static false positives per frame and BEV-3D gap | `docs/02` Section 8.3.1 | a plot script in this folder |
+| 1 | S1, S1+C1 | Calibrated Twin | 0.1, 1.0 |
+| 2 | S2 | Center-Routed Small Objects (not adopted) | 2.0 |
+| 3 | S3 | Fused Portfolio | 3.0 |
+| 4 | S4 | Two-Stage Refinement | 4.0 |
+| 5 | S5 | Size-Aware Augmentation | 5.0 |
+| 5.1 | R3 (G2-lite) | Re-cast Twin | 5.1 |
+| 5.2 | R5 | Realism-Led Refinement | 5.2 |
+| 6 | S6 | Seed Bags | 6.0 |
+| 7 | S7, S7.6 | Visibility Rule | 7.0 |
+| 8 | S8, S8.2, S8.3 | Twelve-View Completion | 8.0, 8.1 |
+| 9 | S9 (`s9a`-`s9j`) | Label-Free Twin | 9.1, 9.2 |
+| 10.1-10.5 | S10 (`C0`, `c1av5` = OD, `s10-2-l1` = L1, `s10-2-v1` = V1, `s10-2-l5` = L5, `s10-4-v4` = V4, `s10-4-l8` = L8, `s10-5-l9` = L9; V3x/V3xp = "the calibrated corpus", V5 = "the view-set swap", not uploaded) | Clean Final | 10.1-10.5 |
+
+The final size adjustment is the repository's P (LUMPI) and PV (V2X); static-mass completion is R1; the calibrated corpus is `g1-v6aw` (range mapping `aw_mid`). On LUMPI, iteration 7 is named "generator-draw bags" (S7.6) because the Visibility Rule is V2X-only. Release 10.0 (the S9 close-out re-tag, removed) is not named in the reports.
+
+## 6. Figures and tables
+
+Every figure exists per track: `figures/fig_lumpi_<name>.png` and `figures/fig_v2x_<name>.png` (`make_figures.py --track lumpi v2x --only <name>`).
+
+| Item | `<name>` | What | Made from |
+|---|---|---|---|
+| Fig. 1 | `pipeline` | the generator stack, the detector stack and the evaluation and rule checks, with iteration tags and the timeline | drawn by `make_figures.py` (`PIPE` holds the track's layers, `ITERATIONS` the names) |
+| Fig. 2 | `frames` | a released twin frame, the same frame in CompleteTwin (one of the 50 submitted) and a real realval-A frame | `ut-v1`, `g1-v6`, `realval-v1` |
+| Fig. 3 | `data` | class mix, box length, points per box by range: released twin, CompleteTwin, real | the same three sources (`SOURCES`) |
+| Fig. 4 | `levers` | combined change per iteration, detection and realism parts | the entry path in `PATHS` and the score files |
+| Fig. 5 | `trajectory` | every scored upload by status, phases I-III shaded | the track's `codabench_<id>.json` files (`PHASES`) |
+| Fig. 6 | `qualitative` | three realval-B frames chosen by fixed rules (`QUAL_RULES`), matched at the official 3D IoU | the routed validation outputs of the entries (`routed-s10-4-l8`, `routed-s10-4-v4`) |
+| Fig. 7 | `perclass` | per-class AP: first upload, best development upload, best before the ruling, C0, entry | the score files (`PERCLASS`) |
+| Tables | | LUMPI I-IX, V2X I-VIII: track; twin gaps; realism by frame version; composition (V2X: and members); LUMPI: sampling by architecture, loss decomposition; iterations; final-phase uploads; negative results | `docs/01`, `data-*-track/README.md`, model cards, scorecards, score files, decision records |
 
 ## 7. Layout and build
 
 ```
 paper-bigdata2026/
-├── README.md        this file
-├── main.tex         IEEE conference template (IEEEtran), one file per section under sections/
-├── sections/        01-intro.tex ... 08-limitations.tex
-├── tables/          T1-T4 (.tex), written by make_tables.py from the records
-├── figures/         F1-F4, written by make_figures.py (F1 drawn by hand)
-├── refs.bib         from docs/07
-├── make_tables.py   reads the registries, codabench_<id>.json and the submission register
-└── make_figures.py  same sources; matplotlib from .venv_ut
+├── README.md                     this file
+├── report_lumpi.md, report_v2x.md    the two track reports (single sources)
+├── Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx / .pdf      built from report_lumpi.md
+├── Final_Report_IEEE_Big_Data_Cup_2026_V2X-Real_Track_KarmaRV.docx / .pdf   built from report_v2x.md
+├── template/ieee-conference-template-letter.docx   the IEEE conference template (US letter, Strict OOXML)
+├── figures/                      fig_lumpi_*.png, fig_v2x_*.png, 300 dpi
+├── make_figures.py               figures from the records and legal frames (matplotlib, scipy; .venv_ut)
+└── build_docx.py                 report_<track>.md -> .docx (standard library only); --pdf renders with soffice
 ```
 
-The server has no TeX installation: build on Overleaf (IEEE conference template) and keep the sources in this folder, so the tables and figures stay generated from the records. Commit the PDF of each submitted version next to the sources (`report-2026-11-15.pdf`, `camera-ready-2026-11-20.pdf`).
+```bash
+source common/env/activate.sh && python paper-bigdata2026/make_figures.py && python paper-bigdata2026/build_docx.py --pdf
+```
+
+- **Styles.** The builder keeps every style of the template: title, author, abstract, keywords, numbered headings, body text, bullets, table head, figure caption, references.
+- **Floats.** Full-width figures and the wide tables are floats anchored at the top or the bottom of a page (`<!-- wide top -->`, `<!-- wide bottom -->`), so the two-column text needs no section breaks. In LibreOffice:
+  - Place a top float's directive where its anchor falls in the **left column** of the page that should hold it; an anchor in the right column lets text laid out before it run under the float.
+  - Place a bottom float's directive high enough on its target page that the table fits below it; otherwise its height is reserved on that page and the table jumps to the next one.
+  - Keep one top float per page; two on one page are drawn over each other.
+  - A column table or figure that does not fit where it falls moves to the next column and leaves a gap; put it after a paragraph that can fill the column.
+  - Current pages: Fig. 1 on 2, Fig. 2 on 3, Fig. 3 on 4, the iterations table on 7, Fig. 6 on 8, the negative-results table at the bottom of 9 (both reports). After any edit, list each page's lines and captions (for example `pdftotext -f N -l N -layout` on each column) and look at the pages.
+- **Table widths.** Each column first gets the width of its longest cell (up to the table width), in proportion to what it needs; any spare width is shared by text length. Keep column tables to six or seven short columns.
+- **Numbering.** Figure and table numbers are written as text, and the builder checks them against the document order; references are numbered in order of first citation (each report cites only its own UT dataset, so its reference list has 37 entries).
+- **Final PDF.** Open each .docx in Word, check the floats, and export the PDF there.
 
 ## 8. Checklist
 
-- [ ] Final-phase scores recorded (`codabench_<id>.json`, the register in `docs/decisions/README.md` Section 2) before Section 7 is final.
-- [ ] Section 3 matches the declaration and the rules review word for word where it quotes them.
-- [ ] Organizers cited as Shahbaz and Agarwal; the UrbanTwin papers and datasets cited with their DOIs; licences acknowledged (LUMPI CC BY-NC 3.0, V2X-Real academic use, UT sets CC0).
-- [ ] Every number traceable to a record; development and final-phase numbers labelled as such.
-- [ ] Code release (top 3): a new public repository with the detector code and the weights of the final entries (the release 7.0 assets), prepared by the maintainer; the paper links to it, never to this repository (which is private).
-- [ ] No em dashes; IEEE reference style; figures readable in grayscale.
+- [x] Every number traceable to a record; development and final-phase numbers labelled as such.
+- [x] The required report items of the 2026-11-12 record (Section 9): the change and the removed uploads; every real-data use; label statistics; R1 (not shipped); the PandarQT re-cast (frames only, not qualifying); the V2X no-returns; the calibrations; the test-time stages; P.
+- [x] Organizers cited as Shahbaz and Agarwal; the dataset paper (IEEE OJ-ITS 2026, arXiv:2509.06781) and the UT dataset DOIs cited; licences named (LUMPI CC BY-NC 3.0, V2X-Real academic use).
+- [x] No em dashes; IEEE reference style; figures readable in grayscale (marker shapes carry the status).
+- [x] Affiliation: Hitachi America, Ltd. R&D (the entrant, 2026-11-14); team KarmaRV named in the Introduction.
+- [x] Release 10.4 (2026-11-14): V4 1051825 and L8 1051832 are the entries; abstract, Sections V-D, VI, VII, VIII, IX-X, Tables IV-VI and Figs. 1, 3-6 updated.
+- [x] Restructure (2026-11-14): new title and affiliation; CompleteTwin for `g1-v6`; iterations by name, every code defined where used; Fig. 1 redrawn as the two stacks with checks and the iteration timeline; Table IV (what worked) replaces the transfer table; 10 pages.
+- [x] Split into two track reports (2026-11-14, the entrant): same structure, track and team in the title, per-track figures, data, model, strategy and experiment observations; 10 pages each.
+- [x] Titles shortened (2026-11-14, the entrant); L9 marked held; the Nov 14 LUMPI board; the rare-class evidence of the 10.5 record (118 detectors; corpus counts); TransFusion-L cited as [38] (LUMPI).
+- [ ] If L10 or L11 (or L9) is uploaded and scored: add its row to the LUMPI Table VIII and its result to Sections I, VII-C and Table VII; if it beats L8, also the abstract, Section VIII and `ENTRY`, `PERCLASS`, `FINAL_CARD`, `PATHS` in `make_figures.py`.
+- [ ] Code release (top 3): a new public repository with the detector code and the weights of the final entries (release 10.4), prepared by the maintainer; the paper links to it, never to this repository (which is private).
+- [ ] Challenge reports due Nov 15, 11:59 PM EST, by email (one per track; team, participant and submission IDs stated in each); Cup camera-ready Nov 20 (up to 10 pages including references, IEEE two-column, single-blind).
