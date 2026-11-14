@@ -47,8 +47,24 @@
       "synthetic/"
     ]
   },
-  "codabench_submission_id": null,
-  "leaderboard": null,
+  "codabench_submission_id": "1051825",
+  "leaderboard": {
+    "score_combined": 0.894399,
+    "score_detection": 0.863595,
+    "score_realism": 0.940605,
+    "mAP_3d_0.5_R40": 0.604516,
+    "mAP_3d_0.5_R11": 0.608854,
+    "mAP_3d_0.7_R40": 0.150273,
+    "mAP_bev_0.5_R40": 0.660361,
+    "CD": 1.844265,
+    "MMD": 0.00033854,
+    "EMD": 1.109734,
+    "FPD": 0.747769,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_vehicle": 0.743154,
+    "AP_3d_0.5_R40_pedestrian": 0.410935,
+    "AP_3d_0.5_R40_truck": 0.659459
+  },
   "upload_file": {
     "name": "v2x_s10-4-v4_submission.zip",
     "md5": "ea385593f3875b29b2ae85c332c31366"

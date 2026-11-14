@@ -1,0 +1,71 @@
+{
+ "phase": "Final (release 10.4; the entrant's upload of 2026-11-14; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10-4 L8 (docs/decisions/2026-11-14-s10-10.4-plan.md Section 3): routed-s10-4-l8 = L5 (routed-s10-2-l5, 1051465) with its 14 checkpoints and every stage unchanged, plus Car l and w 25% of the way to the train-split median and cross-class copies (Motorcycle boxes also as Bicycle at the Bicycle median size, Truck boxes also as Bus, each below every box of its new class); rule 1 clean (13 member models); rule 1b: the 50 g1-v6 frames are byte-identical to 1051465's",
+ "codabench_competition": 16684,
+ "codabench_submission_id": 1051832,
+ "uploaded_file": "lumpi_s10-4-l8_submission.zip of this folder (md5 bcf5761b259693d3d18f382133768dc5, as in manifest.json)",
+ "submitted": "2026-11-14 (the entrant's message, about 03:15 UTC), after release 10.4 was pushed; exact time not read",
+ "leaderboard_checked": "not read by us: the public API shows a bot check and is not bypassed. The scores are those of the scoring output the entrant pasted.",
+ "scoring_log": [
+  "[scoring] realism: CD 1.5102775686468233, MMD 0.00010173495982623848, EMD 1.2720093968576371, FPD 0.42977002998350144",
+  "[scoring] mAP_3d_0.5_R40 = 0.1967588412307724",
+  "(scoring output pasted by the entrant)"
+ ],
+ "realism_detail": {
+  "CD": 1.5102775686468233,
+  "MMD": 0.00010173495982623848,
+  "EMD": 1.2720093968576371,
+  "FPD": 0.42977002998350144,
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.0005234408773852402
+ },
+ "scores": {
+  "score_combined": 0.54233,
+  "score_detection": 0.281084,
+  "score_realism": 0.9342,
+  "mAP_3d_0.5_R40": 0.196759,
+  "mAP_3d_0.5_R11": 0.203925,
+  "mAP_3d_0.7_R40": 0.101414,
+  "mAP_bev_0.5_R40": 0.209,
+  "CD": 1.510278,
+  "MMD": 0.00010173,
+  "EMD": 1.272009,
+  "FPD": 0.42977,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_Person": 0.313927,
+  "AP_3d_0.5_R40_Car": 0.683313,
+  "AP_3d_0.5_R40_Bicycle": 0.142675,
+  "AP_3d_0.5_R40_Motorcycle": 0.017905,
+  "AP_3d_0.5_R40_Bus": 0.000406,
+  "AP_3d_0.5_R40_Truck": 0.066555,
+  "AP_3d_0.5_R40_Van": 0.152531,
+  "AP_3d_0.5_R40_Unknown": null
+ },
+ "vs_previous": {
+  "previous": "1051465 (L5, routed-s10-2-l5: the best qualifying LUMPI entry until this upload)",
+  "delta": {
+   "score_combined": 0.000534,
+   "score_detection": 0.000891,
+   "score_realism": 0.0,
+   "mAP_3d_0.5_R40": 0.000624,
+   "mAP_3d_0.5_R11": 0.0004,
+   "mAP_3d_0.7_R40": 0.00169,
+   "mAP_bev_0.5_R40": 0.000301,
+   "CD": 0.0,
+   "MMD": 0.0,
+   "EMD": 0.0,
+   "FPD": 0.0,
+   "AP_3d_0.5_R40_Person": 0.0,
+   "AP_3d_0.5_R40_Car": 0.0,
+   "AP_3d_0.5_R40_Bicycle": 0.004205,
+   "AP_3d_0.5_R40_Motorcycle": 0.0,
+   "AP_3d_0.5_R40_Bus": 0.000162,
+   "AP_3d_0.5_R40_Truck": 0.0,
+   "AP_3d_0.5_R40_Van": 0.0
+  }
+ },
+ "projection": "0.5419 / 0.5421 / 0.5423 (L5 0.541796 + L8's stages); measured +0.000534, at the high band. Bicycle +0.004205 AP (the Motorcycle-as-Bicycle copies) and Bus +0.000162 (the Truck-as-Bus copies); Car and every other class and the realism unchanged."
+}

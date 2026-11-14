@@ -1,0 +1,62 @@
+{
+ "phase": "Final (release 10.4; the entrant's upload of 2026-11-14; the entrant's report)",
+ "status": "Finished",
+ "team": "KarmaRV",
+ "strategy": "S10-4 V4 (docs/decisions/2026-11-14-s10-10.4-plan.md Section 3): routed-s10-4-v4 = V1 (routed-c2r, 1050253) with its 11 checkpoints and every stage unchanged, plus PV (final_adjust: pedestrian h 50% and vehicle l and w 25% of the way to the realval-A median box); rule 1 clean (6 member models); rule 1b: the 50 g1-v6 frames are byte-identical to 1050253's",
+ "codabench_competition": 16685,
+ "codabench_submission_id": 1051825,
+ "uploaded_file": "v2x_s10-4-v4_submission.zip of this folder (md5 ea385593f3875b29b2ae85c332c31366, as in manifest.json)",
+ "submitted": "2026-11-14 (the entrant's message, about 03:15 UTC), after release 10.4 was pushed; exact time not read",
+ "leaderboard_checked": "not read by us: the public API shows a bot check and is not bypassed. The scores are those of the scoring output the entrant pasted.",
+ "scoring_log": [
+  "[scoring] realism: CD 1.8442651746440064, MMD 0.0003385394793231633, EMD 1.1097340725522227, FPD 0.7477689677293711",
+  "[scoring] mAP_3d_0.5_R40 = 0.6045162426261818",
+  "(scoring output pasted by the entrant)"
+ ],
+ "realism_detail": {
+  "CD": 1.8442651746440064,
+  "MMD": 0.0003385394793231633,
+  "EMD": 1.1097340725522227,
+  "FPD": 0.7477689677293711,
+  "n_syn_points_pre_subsample": 2500000,
+  "n_real_points_pre_subsample": 2500000,
+  "MMD_gamma": 0.001838611844386042
+ },
+ "scores": {
+  "score_combined": 0.894399,
+  "score_detection": 0.863595,
+  "score_realism": 0.940605,
+  "mAP_3d_0.5_R40": 0.604516,
+  "mAP_3d_0.5_R11": 0.608854,
+  "mAP_3d_0.7_R40": 0.150273,
+  "mAP_bev_0.5_R40": 0.660361,
+  "CD": 1.844265,
+  "MMD": 0.00033854,
+  "EMD": 1.109734,
+  "FPD": 0.747769,
+  "valid_submission": 1,
+  "AP_3d_0.5_R40_vehicle": 0.743154,
+  "AP_3d_0.5_R40_pedestrian": 0.410935,
+  "AP_3d_0.5_R40_truck": 0.659459
+ },
+ "vs_previous": {
+  "previous": "1050253 (V1, routed-c2r: the best qualifying V2X entry until this upload, rank 1)",
+  "delta": {
+   "score_combined": 0.003094,
+   "score_detection": 0.005156,
+   "score_realism": 0.0,
+   "mAP_3d_0.5_R40": 0.003609,
+   "mAP_3d_0.5_R11": 0.004226,
+   "mAP_3d_0.7_R40": 0.001181,
+   "mAP_bev_0.5_R40": 0.0,
+   "CD": 0.0,
+   "MMD": 0.0,
+   "EMD": 0.0,
+   "FPD": 0.0,
+   "AP_3d_0.5_R40_vehicle": 0.0,
+   "AP_3d_0.5_R40_pedestrian": 0.010827,
+   "AP_3d_0.5_R40_truck": 0.0
+  }
+ },
+ "projection": "0.8916 / 0.8926 / 0.8934 (V1 0.891305 + PV); measured +0.003094, above the high band. All of it is pedestrian (+0.010827 AP, PV's height step); vehicle, truck, BEV mAP and the realism are unchanged."
+}

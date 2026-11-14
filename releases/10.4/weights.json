@@ -9,8 +9,8 @@
       "strategy": "S10-4",
       "submission_zip": "model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip",
       "zip_md5": "ea385593f3875b29b2ae85c332c31366",
-      "codabench_id": null,
-      "leaderboard_combined": null,
+      "codabench_id": "1051825",
+      "leaderboard_combined": 0.894399,
       "reproduce_test": "model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh",
       "reproduce_validation": "model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4_validation.sh",
       "checkpoints": [
@@ -29,8 +29,8 @@
       "strategy": "S10-4",
       "submission_zip": "model-lumpi-track/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
       "zip_md5": "bcf5761b259693d3d18f382133768dc5",
-      "codabench_id": null,
-      "leaderboard_combined": null,
+      "codabench_id": "1051832",
+      "leaderboard_combined": 0.54233,
       "reproduce_test": "model-lumpi-track/routed-s10-4-l8/test/reproduce_s10-4-l8.sh",
       "reproduce_validation": "model-lumpi-track/routed-s10-4-l8/test/reproduce_s10-4-l8_validation.sh",
       "checkpoints": [
