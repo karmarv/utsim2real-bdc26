@@ -16,11 +16,13 @@ first-page footer. The builder replaces only the body. report.md uses a small Ma
   # Title                                  paper title
   plain lines after the title              author block, one Author line each, up to the first blank line
   **Abstract**- text / **Keywords**- text  abstract and keywords; the label gets the IEEE en dash
-  ## I. Heading / ### A. Heading           Heading 1 / Heading 2 (the numeral is dropped: Word numbers them)
+  ## I. Heading / ### A. Heading           Heading 1 / Heading 2 (the numeral is kept as text and the style's list
+                                           numbering is switched off, so a float cannot separate a number from its head)
   #### 1) Heading                          Heading 3
   ## Acknowledgment / ## References        unnumbered component heads (Heading 5)
   - item                                   bullet list
-  Table: TABLE I. Caption                  table head, followed by a pipe table
+  Table: TABLE I. Caption                  table head, followed by a pipe table; a row with only its first cell
+                                           filled is a group row spanning the table (e.g. | **Final phase** | | |)
   ![Fig. 1](figures/x.png) + *Fig. 1. Caption*   figure (column width) and its caption line
   <!-- wide --> / <!-- wide bottom -->     the next table or figure spans both columns, floated to the top / bottom of its page
   <!-- docx-skip --> ... <!-- /docx-skip -->   Markdown-only text
@@ -192,6 +194,15 @@ class Builder:
         for i, r in enumerate(rows):
             header = i == 0
             last = i == len(rows) - 1
+            if not header and r[0].strip() and not any(x.strip() for x in r[1:]):
+                # a group row (only the first cell filled): one shaded cell across the table, e.g. a phase heading
+                keep = "" if last else "<w:keepNext/>"
+                tc = (f'<w:tc><w:tcPr><w:tcW w:w="{sum(widths):.1f}pt" w:type="dxa"/><w:gridSpan w:val="{ncol}"/>'
+                      f'<w:shd w:val="clear" w:color="auto" w:fill="F2F2F2"/><w:vAlign w:val="center"/></w:tcPr>'
+                      f'<w:p><w:pPr><w:pStyle w:val="tablecopy"/>{keep}<w:spacing w:before="0pt" w:after="0pt"/>'
+                      f'<w:jc w:val="start"/></w:pPr>{runs(r[0].strip())}</w:p></w:tc>')
+                trs.append(f"<w:tr><w:trPr><w:cantSplit/></w:trPr>{tc}</w:tr>")
+                continue
             tcs = []
             for c, (txt, w) in enumerate(zip(r, widths)):
                 style = "tablecolhead" if header else "tablecopy"
@@ -286,19 +297,17 @@ class Builder:
                 h = s[3:].strip()
                 m = re.match(r"([IVX]+)\.\s+(.*)", h)
                 if m:
-                    self.body.append(para("Heading1", m.group(2)))
+                    self.body.append(para("Heading1", f"{m.group(1)}. {m.group(2)}", extra_ppr=NONUM))
                     in_refs = False
                 else:
                     self.body.append(para("Heading5", h))
                     in_refs = h.lower().startswith("reference")
             elif s.startswith("### "):
                 flush()
-                h = re.sub(r"^[A-Z]\.\s+", "", s[4:].strip())
-                self.body.append(para("Heading2", h))
+                self.body.append(para("Heading2", s[4:].strip(), extra_ppr=NONUM))
             elif s.startswith("#### "):
                 flush()
-                h = re.sub(r"^\d+\)\s+", "", s[5:].strip())
-                self.body.append(para("Heading3", h))
+                self.body.append(para("Heading3", s[5:].strip(), extra_ppr=NONUM))
             elif s.startswith("Table:"):
                 flush()
                 caption = s[len("Table:"):].strip()

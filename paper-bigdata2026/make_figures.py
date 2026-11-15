@@ -15,12 +15,10 @@ import os
 import re
 import sys
 from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.dates  # noqa: E402
 import matplotlib.ticker  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
@@ -53,8 +51,8 @@ CLASSES = {"lumpi": ["Person", "Car", "Bicycle", "Motorcycle", "Bus", "Truck", "
            "v2x": ["vehicle", "pedestrian", "truck"]}
 FIRST_QUALIFYING = {"lumpi": 1042287, "v2x": 1042294}     # organizers' ruling of 2026-11-09
 FRAMES_RULE_FAIL = {1047204, 1047231}                     # organizers' ruling of 2026-11-12
-ENTRY = {"lumpi": 1051832, "v2x": 1051825}                # best qualifying upload per track (release 10.4)
-FINAL_CARD = {"lumpi": ("routed-s10-4-l8", "2026-11-13_s10-4-l8"), "v2x": ("routed-s10-4-v4", "2026-11-13_s10-4-v4")}
+ENTRY = {"lumpi": 1053789, "v2x": 1051825}                # best qualifying upload per track (LUMPI 10.5, V2X 10.4)
+FINAL_CARD = {"lumpi": ("routed-s10-5-l12e", "2026-11-15_s10-5-l12e"), "v2x": ("routed-s10-4-v4", "2026-11-13_s10-4-v4")}
 
 
 def save(fig, t, name):
@@ -97,52 +95,61 @@ def submissions():
 # ------------------------------------------------------------------------------------------------------------------
 # Fig: the system as two stacks and their checks
 # ------------------------------------------------------------------------------------------------------------------
-# The iterations (release tags) with their named approaches; Fig. 1 timeline, Fig. 4 labels, Table IV.
-ITERATIONS = [("1", "Calibrated Twin", "I"), ("2", "Center-Routed", "I"), ("3", "Fused Portfolio", "I"),
-              ("4", "Two-Stage", "I"), ("5", "Size-Aware", "I"), ("5.1", "Re-cast Twin", "I"),
-              ("5.2", "Realism-Led", "I"), ("6", "Seed Bags", "I"), ("7", "Visibility Rule", "I"),
-              ("8", "Twelve-View", "I"), ("9", "Label-Free Twin", "II"), ("10", "Clean Final", "III")]
-NOT_ADOPTED = {"2"}
+# The adopted approaches in order (the entry path of Fig. 4), each with its phase: "dev" = development phase,
+# "final" = final phase (valid submissions). Fig. 1 timeline; the names match Table VII and Fig. 4.
+PHASE_FACE = {"dev": "white", "final": matplotlib.colors.to_rgba(INK2, 0.24)}
+TIMELINE = {
+    "lumpi": [("Calibrated", "Twin", "dev"), ("Fused", "Portfolio", "dev"), ("Two-Stage", "Refinement", "dev"),
+              ("Re-cast", "Twin", "dev"), ("Realism-Led", "Refinement", "dev"), ("Seed", "Bags", "dev"),
+              ("Generator-", "Draw Bags", "dev"), ("Twelve-View", "Completion", "dev"), ("Label-Free", "Twin", "dev"),
+              ("Person and", "Car Routes", "dev"), ("Clean", "Rebuild", "final"), ("Size", "Adjustment", "final"),
+              ("Cross-Class", "Copies", "final"), ("Copy", "Expansion", "final")],
+    "v2x": [("Calibrated", "Twin", "dev"), ("z", "Calibration", "dev"), ("Fused", "Portfolio", "dev"),
+            ("Two-Stage", "Refinement", "dev"), ("Size-Aware", "Augment.", "dev"), ("Re-cast", "Twin", "dev"),
+            ("Realism-Led", "Refinement", "dev"), ("Seed", "Bags", "dev"), ("Visibility", "Rule", "dev"),
+            ("Twelve-View", "Completion", "dev"), ("Pedestrian", "Re-fusion", "dev"), ("Clean", "Rebuild", "final"),
+            ("Overhead", "Demotion", "final"), ("Truck", "Route", "final"), ("Size", "Adjustment", "final")],
+}
 
 PIPE = {
     "lumpi": {
-        "gen": [("UT-LUMPI CARLA twin, 10k frames", "base"),
-                ("5-lidar rig: 50,000 points, beam tables", "1"),
-                ("actor scale 1/0.78; 19 real size quantiles", "1, 5.1"),
-                ("walkers (16 per frame), riders, scene map", "1, 9"),
-                ("Car, Van, Truck, Bus re-cast at real size", "5.1"),
-                ("clutter: poles, trees, hedges, fences, walls", "5.1"),
-                ("background density prior, 8 x 8 x 2.5 m", "5.2"),
-                ("CompleteTwin: label-free draws of 10k frames", "9, 10")],
-        "det": [("trained on CompleteTwin only, from scratch", "1, 10"),
-                ("13 members, PointPillars to DSVT-Pillar", "1, 4, 9"),
-                ("object scaling; sampling off (rosf, rosn)", "5, 9"),
-                ("seed bags and generator-draw bags", "6, 7"),
-                ("8- or 12-view test-time augmentation", "3, 8, 10"),
-                ("per-class routes, fusion of up to 3 members", "3, 9"),
-                ("floors, low-score and cross-class copies", "3, 8, 10"),
-                ("anchored sizes; Person, Bicycle, Car steps", "9, 10")],
+        "gen": [("UT-LUMPI CARLA twin, 10k frames", "released"),
+                ("5-lidar rig: 50,000 points, beam tables", "dev"),
+                ("actor scale 1/0.78; 19 real size quantiles", "dev"),
+                ("walkers (16 per frame), riders, scene map", "dev"),
+                ("Car, Van, Truck, Bus re-cast at real size", "dev"),
+                ("clutter: poles, trees, hedges, fences, walls", "dev"),
+                ("background density prior, 8 x 8 x 2.5 m", "dev"),
+                ("CompleteTwin: label-free draws", "dev, final")],
+        "det": [("trained on CompleteTwin only, from scratch", "final"),
+                ("13 members: PointPillars to DSVT", "dev, final"),
+                ("object scaling; sampling off (rosf, rosn)", "dev"),
+                ("seed bags and generator-draw bags", "dev"),
+                ("8- or 12-view test-time augmentation", "dev, final"),
+                ("per-class routes, fusion of up to 3 members", "dev"),
+                ("floors, low-score and cross-class copies", "dev, final"),
+                ("anchored sizes; Person, Bicycle, Car steps", "dev, final")],
         "groups": "28 windows of 100 s",
         "split": "realval-A, realval-B,",
         "split2": "late-A; realism proxies 1-5",
     },
     "v2x": {
-        "gen": [("UT-V2X-Real-IC CARLA twin, 10k frames", "base"),
-                ("OS1-64 beam table, field of view, 35k points", "1"),
-                ("19 real size quantiles; trucks at real length", "5.1"),
-                ("walkers (16 per frame), riders, scene map", "1, 9"),
-                ("vehicles and trucks re-cast at real size", "5.1"),
-                ("clutter: poles, trees, bollards, bins", "5.1"),
-                ("background density prior, 8 x 8 x 2.5 m", "5.2"),
-                ("CompleteTwin: 5 label-free draws, 10k each", "9, 10")],
-        "det": [("trained on CompleteTwin only, from scratch", "1, 10"),
-                ("6 members: Voxel R-CNN and DSVT-Pillar", "1, 4, 9"),
-                ("object scaling to the real size ceiling", "5"),
-                ("seed bags; generator-draw bags (truck: 5)", "6, 10"),
-                ("8- or 12-view test-time augmentation", "3, 8"),
-                ("per-class routes, cross-architecture fusion", "3, 10"),
-                ("visibility ranking, overhead demotion", "7, 10"),
-                ("anchored sizes; pedestrian, vehicle steps", "9, 10")],
+        "gen": [("UT-V2X-Real-IC CARLA twin, 10k frames", "released"),
+                ("OS1-64 beam table, field of view, 35k points", "dev"),
+                ("19 real size quantiles; trucks at real length", "dev"),
+                ("walkers (16 per frame), riders, scene map", "dev"),
+                ("vehicles and trucks re-cast at real size", "dev"),
+                ("clutter: poles, trees, bollards, bins", "dev"),
+                ("background density prior, 8 x 8 x 2.5 m", "dev"),
+                ("CompleteTwin: 5 label-free draws", "dev, final")],
+        "det": [("trained on CompleteTwin only, from scratch", "final"),
+                ("6 members: Voxel R-CNN, DSVT-Pillar", "dev, final"),
+                ("object scaling to the real size ceiling", "dev"),
+                ("seed bags; generator-draw bags (truck: 5)", "dev, final"),
+                ("8- or 12-view test-time augmentation", "dev"),
+                ("per-class routes, cross-architecture fusion", "dev, final"),
+                ("visibility ranking, overhead demotion", "dev, final"),
+                ("anchored sizes; pedestrian, vehicle steps", "dev, final")],
         "groups": "57 scenes",
         "split": "realval-A, realval-B",
         "split2": "(disjoint scenes); proxies 1-5",
@@ -155,7 +162,7 @@ def fig_pipeline(t, subs):
     cfg = PIPE[t]
     fig, ax = plt.subplots(figsize=(WIDE, 3.45))
     ax.set_xlim(0, 100)
-    ax.set_ylim(0, 52.8)
+    ax.set_ylim(-2.4, 52.8)
     ax.axis("off")
     lh, lg, y0 = 3.55, 0.62, 11.2                       # layer height, gap, first layer bottom
 
@@ -165,12 +172,12 @@ def fig_pipeline(t, subs):
                                     edgecolor=col, facecolor=matplotlib.colors.to_rgba(col, alpha)))
         ax.text(x + 1.0, y + lh / 2, text, ha="left", va="center", fontsize=5.3, color=INK,
                 fontweight="bold" if bold else "normal")
-        if tag:
+        if tag:                                          # phase tag: shaded when the final phase changed it
             tw = 0.62 * len(tag) + 1.6
             ax.add_patch(FancyBboxPatch((x + w - tw - 0.6, y + 0.65), tw, lh - 1.3,
                                         boxstyle="round,pad=0.0,rounding_size=0.6", linewidth=0.45,
-                                        edgecolor=INK2, facecolor="white"))
-            ax.text(x + w - tw / 2 - 0.6, y + lh / 2, tag, ha="center", va="center", fontsize=4.6, color=INK2)
+                                        edgecolor=INK2, facecolor=PHASE_FACE["final" if "final" in tag else "dev"]))
+            ax.text(x + w - tw / 2 - 0.6, y + lh / 2, tag, ha="center", va="center", fontsize=4.6, color=INK)
         return y
 
     gen, det = cfg["gen"], cfg["det"]
@@ -249,27 +256,31 @@ def fig_pipeline(t, subs):
                                      color=INK2))
     ax.text(45.0, yf - 1.45, "legal validation and label statistics set scalars only (sizes, densities, frame "
             "choice, routes, floors, offsets); no real frame, label or point enters training",
-            ha="center", va="center", fontsize=5.0, color=INK2, style="italic")
-    # iteration timeline (release tags); the tags in the stacks refer to it
+            ha="center", va="center", fontsize=5.6, color=INK2, style="italic")
+    # the adopted approaches in order, by phase (the entry path of Fig. 4 and Table VII)
     yi, hi = 0.25, 3.7
-    names = list(ITERATIONS)
-    wts = [max(len(n2), 9) + 2.5 for _, n2, _ in names]
+    names = TIMELINE[t]
+    wts = [max(len(a), len(b), 7) + 2.2 for a, b, _ in names]
     gap = 0.55
     scale = (99.2 - 0.8 - gap * (len(names) - 1)) / sum(wts)
     x = 0.8
-    for (n, n2, ph), wt in zip(names, wts):
+    spans = {}
+    for k, ((a, b, ph), wt) in enumerate(zip(names, wts)):
         cw = wt * scale
-        face = {"I": matplotlib.colors.to_rgba(INK2, 0.07), "II": matplotlib.colors.to_rgba(INK2, 0.16),
-                "III": matplotlib.colors.to_rgba(INK2, 0.28)}[ph]
         ax.add_patch(FancyBboxPatch((x, yi), cw, hi, boxstyle="round,pad=0.0,rounding_size=0.7", linewidth=0.55,
-                                    edgecolor=INK2, facecolor="white" if n in NOT_ADOPTED else face,
-                                    linestyle=(0, (2, 1.2)) if n in NOT_ADOPTED else "-"))
-        ax.text(x + cw / 2, yi + hi / 2 + 0.85, n, ha="center", va="center", fontsize=5.4, fontweight="bold", color=INK)
-        ax.text(x + cw / 2, yi + hi / 2 - 0.85, n2, ha="center", va="center", fontsize=4.8, color=INK)
-        if n != names[-1][0]:
+                                    edgecolor=INK2, facecolor=PHASE_FACE[ph]))
+        ax.text(x + cw / 2, yi + hi / 2 + 0.85, a, ha="center", va="center", fontsize=4.8, color=INK)
+        ax.text(x + cw / 2, yi + hi / 2 - 0.85, b, ha="center", va="center", fontsize=4.8, color=INK)
+        lo, hi_ = spans.get(ph, (x, x + cw))
+        spans[ph] = (min(lo, x), max(hi_, x + cw))
+        if k < len(names) - 1:
             ax.add_patch(FancyArrowPatch((x + cw + 0.02, yi + hi / 2), (x + cw + gap - 0.02, yi + hi / 2),
                                          arrowstyle="-|>", mutation_scale=3.5, linewidth=0.5, color=INK2))
         x += cw + gap
+    for ph, label in [("dev", "development phase (tag: dev)"), ("final", "final phase, valid submissions (tag: final)")]:
+        lo, hi_ = spans[ph]
+        ax.plot([lo + 0.2, lo + 0.2, hi_ - 0.2, hi_ - 0.2], [-0.35, -0.75, -0.75, -0.35], color=INK2, linewidth=0.6)
+        ax.text((lo + hi_) / 2, -1.65, label, ha="center", va="center", fontsize=5.2, color=INK2)
     save(fig, t, "pipeline")
 
 
@@ -327,7 +338,7 @@ def fig_frames(t, subs):
     panels = [(f"(a) released UrbanTwin, frame {sid}", pc / "ut-v1", sid),
               (f"(b) the same frame in CompleteTwin (submitted)", pc / "g1-v6", sid),
               ("(c) real, realval-A" + (f" frame {rid.split('__')[-1]}" if t == "lumpi" else ""), pc / "realval-v1", rid)]
-    fig, axs = plt.subplots(1, 3, figsize=(WIDE, 2.5))
+    fig, axs = plt.subplots(1, 3, figsize=(WIDE, 2.35))
     for ax, (title, root, fid) in zip(axs, panels):
         pts = np.load(root / "points" / f"{fid}.npy")
         boxes, names = read_labels(root / "labels" / f"{fid}.txt")
@@ -337,14 +348,17 @@ def fig_frames(t, subs):
         cnt = defaultdict(int)
         for n in names:
             cnt[GROUP.get(n, "vehicle")] += 1
-        plural = {"walker": "walkers", "two-wheeler": "two-wheelers", "vehicle": "vehicles", "large": "large"}
+        plural = ({"walker": "walkers", "two-wheeler": "two-wheelers", "vehicle": "vehicles", "large": "large"} if t == "lumpi"
+                  else {"walker": "pedestrians", "vehicle": "vehicles", "large": "trucks"})
         sub = ", ".join(f"{cnt[g]} {plural[g]}" for g in ["walker", "two-wheeler", "vehicle", "large"] if cnt[g])
         ax.set_title(f"{title}\n{valid:,} valid points\n{sub}", fontsize=6.1, pad=2, linespacing=1.15)
         ax.set_xlabel("x (m)", labelpad=1)
     axs[0].set_ylabel("y (m)", labelpad=1)
-    handles = [plt.Line2D([], [], color=GROUP_COLOR[g], linewidth=1.2, label=g) for g in ["walker", "two-wheeler", "vehicle", "large"]]
-    fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False, bbox_to_anchor=(0.5, -0.04))
+    shown = ({"walker": "walker", "two-wheeler": "two-wheeler", "vehicle": "vehicle", "large": "large"} if t == "lumpi"
+             else {"walker": "pedestrian", "vehicle": "vehicle", "large": "truck"})
+    handles = [plt.Line2D([], [], color=GROUP_COLOR[g], linewidth=1.2, label=lab) for g, lab in shown.items()]
     fig.tight_layout(w_pad=1.2)
+    fig.legend(handles=handles, loc="upper center", ncol=4, frameon=False, bbox_to_anchor=(0.5, 0.0))
     save(fig, t, "frames")
 
 
@@ -457,7 +471,7 @@ def fig_data(t, subs):
     lo, hi = ax.get_ylim()
     ax.set_yticks([v for v in ticks if lo <= v <= hi], [f"{v:,}" for v in ticks if lo <= v <= hi])
     ax.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-    ax.set_xlabel("distance from the sensor origin (m)")
+    ax.set_xlabel("distance from the frame origin (m)" if t == "lumpi" else "distance from the sensor (m)")
     ax.set_ylabel("median points per box")
     ax.set_title("(c) points on objects", pad=2)
     styles = [plt.Line2D([], [], color=INK2, linestyle=ls, linewidth=1.0, label=c) for c, ls in pair]
@@ -480,72 +494,21 @@ def fig_data(t, subs):
 
 
 # ------------------------------------------------------------------------------------------------------------------
-# Fig: score trajectory of every scored upload
-# ------------------------------------------------------------------------------------------------------------------
-STATUS_STYLE = {
-    "development": dict(marker="o", mfc="white", mec=C1, label="development phase"),
-    "removed": dict(marker="X", mfc=INK2, mec=INK2, label="final, removed (label-placed walkers)"),
-    "frames rule": dict(marker="v", mfc="white", mec=C2, label="final, frames rule (not qualifying)"),
-    "qualifying": dict(marker="s", mfc=C3, mec=C3, label="final, qualifying"),
-}
-PHASES = [(datetime(2026, 10, 3), datetime(2026, 11, 1)), (datetime(2026, 11, 1), datetime(2026, 11, 8)),
-          (datetime(2026, 11, 8), datetime(2026, 11, 15))]                  # development; label-free twin; clean final
-
-
-def fig_trajectory(t, subs):
-    fig, ax = plt.subplots(figsize=(COL, 2.05))
-    rows = [r for r in subs if r["track"] == t and r["date"]]
-    x = [datetime.strptime(r["date"], "%Y-%m-%d") for r in rows]
-    y = [r["scores"]["score_combined"] for r in rows]
-    ax.plot(x, y, color=GRID, linewidth=0.8, zorder=1)
-    present = []
-    for st, sty in STATUS_STYLE.items():
-        pts = [(xi, yi) for xi, yi, r in zip(x, y, rows) if r["status"] == st]
-        if pts:
-            present.append(st)
-            ax.plot(*zip(*pts), linestyle="none", markersize=4.2, markeredgewidth=0.8, zorder=3,
-                    **{k: v for k, v in sty.items() if k != "label"}, label=sty["label"])
-    best = next(r for r in rows if r["id"] == ENTRY[t])
-    ax.annotate(f"final entry {best['id']}\n{best['scores']['score_combined']:.4f}",
-                xy=(datetime.strptime(best["date"], "%Y-%m-%d"), best["scores"]["score_combined"]),
-                xytext=(-62, -32) if t == "v2x" else (-48, -62), textcoords="offset points", fontsize=6.2, color=INK,
-                arrowprops=dict(arrowstyle="-", color=INK2, linewidth=0.6))
-    first = rows[0]
-    ax.annotate(f"first upload (iteration 1)\n{first['scores']['score_combined']:.4f}",
-                xy=(datetime.strptime(first["date"], "%Y-%m-%d"), first["scores"]["score_combined"]),
-                xytext=(24, -4) if t == "v2x" else (28, 4), textcoords="offset points", fontsize=6.2, color=INK)
-    for (a, b), shade in zip(PHASES[1:], (0.06, 0.13)):
-        ax.axvspan(a, b, color=INK2, alpha=shade, linewidth=0, zorder=0)
-    for (a, b), lab in zip(PHASES, ["Phase I: iterations 1-8", "II: 9", "III: 10"]):
-        ax.text(a + (b - a) / 2, 0.03, lab, transform=ax.get_xaxis_transform(), ha="center", va="bottom",
-                fontsize=5.8, color=INK2)
-    ax.set_ylabel("combined score")
-    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%b %d"))
-    ax.xaxis.set_major_locator(matplotlib.dates.WeekdayLocator(byweekday=matplotlib.dates.MO))
-    handles = [plt.Line2D([], [], linestyle="none", markersize=4.2, markeredgewidth=0.8,
-                          **{k: v for k, v in STATUS_STYLE[s].items() if k != "label"}, label=STATUS_STYLE[s]["label"])
-               for s in present]
-    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False, bbox_to_anchor=(0.5, -0.13))
-    fig.tight_layout()
-    save(fig, t, "trajectory")
-
-
-# ------------------------------------------------------------------------------------------------------------------
 # Fig: per-class AP
 # ------------------------------------------------------------------------------------------------------------------
-PERCLASS = {"lumpi": [(965614, "first upload (iteration 1)"), (1022492, "best development upload (iteration 8)"),
-                      (1038963, "best upload before the ruling (iteration 9)"),
-                      (1042287, "clean rebuild C0 (iteration 10.1)"), (1051832, "final entry L8 (iteration 10.4)")],
-            "v2x": [(965633, "first upload (iteration 1)"), (1022246, "best development upload (iteration 8)"),
-                    (1038966, "best upload before the ruling (iteration 9)"),
-                    (1042294, "clean rebuild C0 (iteration 10.1)"), (1051825, "final entry V4 (iteration 10.4)")]}
+PERCLASS = {"lumpi": [(965614, "first system (Calibrated Twin)"),
+                      (1031132, "development-phase close (Person and Car Routes)"),
+                      (1042287, "Clean Rebuild (1042287)"), (1053789, "final entry (1053789)")],
+            "v2x": [(965633, "first system (Calibrated Twin)"),
+                    (1028491, "development-phase close (Pedestrian Re-fusion)"),
+                    (1042294, "Clean Rebuild (1042294)"), (1051825, "final entry (1051825)")]}
 
 
 def fig_perclass(t, subs):
     by_id = {r["id"]: r for r in subs}
     classes, stages = CLASSES[t], PERCLASS[t]
-    fig, ax = plt.subplots(figsize=(COL, 2.15))
-    colors = [GRID, PTS, INK2, C1, C2]
+    fig, ax = plt.subplots(figsize=(COL, 2.0))
+    colors = [GRID, INK2, C1, C2]
     k = len(stages)
     bw = 0.84 / k
     for j, (sid, lab) in enumerate(stages):
@@ -598,7 +561,7 @@ def match(preds, gts, gnames, thr=0.5, score_min=0.3):
 # On V2X, the false-positive case is taken only from scene parts that have pedestrian labels; the third case is the
 # frame with the most false positives overall, which lies in a scene part without any pedestrian label.
 QUAL_RULES = {"lumpi": [("best case", lambda c: c["tp"] - c["fp"] - c["wc"], None),
-                        ("most wrong-class boxes", lambda c: c["tp"] + 2 * c["wc"], None),
+                        ("most wrong-class boxes", lambda c: c["wc"] + 0.01 * c["tp"], None),
                         ("most missed objects", lambda c: c["missed"] + 0.01 * c["tp"], None)],
               "v2x": [("best case", lambda c: c["tp"] - c["fp"] - c["wc"], None),
                       ("most false positives (labelled scene)", lambda c: c["fp"] + 0.01 * c["tp"], "labelled"),
@@ -625,7 +588,7 @@ def fig_qualitative(t, subs):
                      "missed_n": int(missed.sum()), "labelled": scene_ped[fid.split("__")[0]] > 0})
     for c in cand:
         c["missed"] = c["missed_n"]
-    fig, axs = plt.subplots(1, 3, figsize=(WIDE, 2.5))
+    fig, axs = plt.subplots(1, 3, figsize=(WIDE, 2.35))
     chosen = []
     for ax, (rule_name, key, scope) in zip(axs, QUAL_RULES[t]):
         pool = [c for c in cand if c["fid"] not in chosen and (scope is None or c["labelled"] == (scope == "labelled"))]
@@ -657,30 +620,32 @@ def fig_qualitative(t, subs):
                plt.Line2D([], [], color=C3, linewidth=1.2, label="true positive"),
                plt.Line2D([], [], color=C4, linewidth=1.2, label="overlaps another class"),
                plt.Line2D([], [], color=C2, linewidth=1.2, label="false positive")]
-    fig.legend(handles=handles, loc="lower center", ncol=5, frameon=False, bbox_to_anchor=(0.5, -0.04))
     fig.tight_layout(w_pad=0.9)
+    fig.legend(handles=handles, loc="upper center", ncol=5, frameon=False, bbox_to_anchor=(0.5, 0.0))
     save(fig, t, "qualitative")
 
 
 # ------------------------------------------------------------------------------------------------------------------
 # Fig: what each step bought on the leaderboard (combined change split into detection and realism parts)
 # ------------------------------------------------------------------------------------------------------------------
-# The entry path: each upload replaced the previous entry (iteration 5 on LUMPI did not, so it is not on the path).
+# The entry path: each adopted approach replaced the previous entry (Size-Aware Augmentation on LUMPI and the LUMPI
+# Person Route did not, so they are not on the path). The removed upload made before the organizers' clarification is
+# left out: the Clean Rebuild is measured against the development-phase close. Phase "final" = valid submissions.
 PATHS = {
-    "lumpi": [(965614, "1 Calibrated Twin"), (974348, "3 Fused Portfolio"), (975871, "4 Two-Stage Refinement"),
-              (986489, "5.1 Re-cast Twin"), (990245, "5.2 Realism-Led Refinement"), (995869, "6 Seed Bags"),
-              (1014495, "7 generator-draw bags"), (1022492, "8 Twelve-View Completion"),
-              (1028541, "9 Label-Free Twin: walkers"), (1031132, "9 Person and Car routes"),
-              (1038963, "9 anchored size calibration"), (1042287, "10.1 clean rebuild (C0)"),
-              (1051465, "10.3 final size adjustment (L5)"),
-              (1051832, "10.4 Car size, class copies (L8)")],
-    "v2x": [(965633, "1 Calibrated Twin"), (972563, "1 range-dependent z offset"), (974400, "3 Fused Portfolio"),
-            (975938, "4 Two-Stage Refinement"), (978945, "5 Size-Aware Augmentation"),
-            (986496, "5.1 Re-cast Twin"), (990255, "5.2 Realism-Led Refinement"), (995877, "6 Seed Bags"),
-            (1001919, "7 Visibility Rule"), (1022246, "8 twelve-view ensembles"), (1028491, "9 re-fusion, new bags"),
-            (1038966, "9 anchored size calibration"), (1042294, "10.1 clean rebuild (C0)"),
-            (1046758, "10.1 overhead demotion (OD)"), (1050253, "10.2 truck route (V1)"),
-            (1051825, "10.4 final size adjustment (V4)")],
+    "lumpi": [(965614, "Calibrated Twin", "dev"), (974348, "Fused Portfolio", "dev"),
+              (975871, "Two-Stage Refinement", "dev"), (986489, "Re-cast Twin", "dev"),
+              (990245, "Realism-Led Refinement", "dev"), (995869, "Seed Bags", "dev"),
+              (1014495, "Generator-Draw Bags", "dev"), (1022492, "Twelve-View Completion", "dev"),
+              (1028541, "Label-Free Twin", "dev"), (1031132, "Person and Car Routes", "dev"),
+              (1042287, "Clean Rebuild (1042287)", "final"), (1051465, "Size Adjustment (1051465)", "final"),
+              (1051832, "Cross-Class Copies (1051832)", "final"), (1053789, "Copy Expansion (1053789)", "final")],
+    "v2x": [(965633, "Calibrated Twin", "dev"), (972563, "z Calibration", "dev"), (974400, "Fused Portfolio", "dev"),
+            (975938, "Two-Stage Refinement", "dev"), (978945, "Size-Aware Augmentation", "dev"),
+            (986496, "Re-cast Twin", "dev"), (990255, "Realism-Led Refinement", "dev"), (995877, "Seed Bags", "dev"),
+            (1001919, "Visibility Rule", "dev"), (1022246, "Twelve-View Completion", "dev"),
+            (1028491, "Pedestrian Re-fusion", "dev"), (1042294, "Clean Rebuild (1042294)", "final"),
+            (1046758, "Overhead Demotion (1046758)", "final"), (1050253, "Truck Route (1050253)", "final"),
+            (1051825, "Size Adjustment (1051825)", "final")],
 }
 
 
@@ -691,13 +656,14 @@ def det_score(s):
 def fig_levers(t, subs):
     by_id = {r["id"]: r for r in subs}
     path = PATHS[t]
-    fig, ax = plt.subplots(figsize=(COL, 0.15 * len(path) + 0.7))
-    labels, det, real = [], [], []
-    for (a, _), (b, lab) in zip(path, path[1:]):
+    fig, ax = plt.subplots(figsize=(COL, 0.115 * len(path) + 0.5))
+    labels, det, real, phases = [], [], [], []
+    for (a, _, _), (b, lab, ph) in zip(path, path[1:]):
         sa, sb = by_id[a]["scores"], by_id[b]["scores"]
         det.append(0.6 * (det_score(sb) - det_score(sa)))
         real.append(0.4 * (sb["score_realism"] - sa["score_realism"]))
         labels.append(lab)
+        phases.append(ph)
     y = np.arange(len(labels))[::-1]
     for yi, d, r in zip(y, det, real):
         pos, neg = 0.0, 0.0
@@ -710,21 +676,31 @@ def fig_levers(t, subs):
                 neg += v
         ax.text(max(pos, 0) + 0.0006, yi, f"{d + r:+.4f}", va="center", ha="left", fontsize=5.6, color=INK)
     ax.set_yticks(y, labels, fontsize=6.0)
+    for lab, ph in zip(ax.get_yticklabels(), phases):     # bold: the valid final-phase submissions
+        if ph == "final":
+            lab.set_fontweight("bold")
+            lab.set_color(INK)
+    nf = phases.index("final")                            # phase divider between the last dev and first final bar
+    ax.axhline(y[nf] + 0.5, color=INK2, linewidth=0.6, linestyle=(0, (3, 2)))
     ax.axvline(0, color=INK2, linewidth=0.6)
     ax.set_xlabel("change in combined score")
     s0, s1 = by_id[path[0][0]]["scores"]["score_combined"], by_id[path[-1][0]]["scores"]["score_combined"]
     ax.set_title(f"{NAME[t]}: {s0:.4f} to {s1:.4f} ({s1 - s0:+.4f})", pad=2)
     ax.grid(axis="y", visible=False)
     lo = min(min(det + real), 0) - 0.002
-    ax.set_xlim(lo, max(np.add(np.clip(det, 0, None), np.clip(real, 0, None))) + 0.011)
-    handles = [plt.Rectangle((0, 0), 1, 1, color=C1, label="detection, 0.6 x change of clip(mAP / 0.7)"),
-               plt.Rectangle((0, 0), 1, 1, color=C3, label="realism, 0.4 x change of R")]
-    ax.legend(handles=handles, loc="lower right", frameon=False, fontsize=5.8, handlelength=1.4)
+    hi = max(np.add(np.clip(det, 0, None), np.clip(real, 0, None))) + 0.011
+    ax.set_xlim(lo, hi)
+    for dy, va, txt in [(0.12, "bottom", "development phase"), (-0.12, "top", "final phase")]:
+        ax.text(hi - 0.0004, y[nf] + 0.5 + dy, txt, ha="right", va=va, fontsize=5.4, color=INK2, style="italic")
+    handles = [plt.Rectangle((0, 0), 1, 1, color=C1, label="detection part"),
+               plt.Rectangle((0, 0), 1, 1, color=C3, label="realism part")]
+    ax.legend(handles=handles, loc="center right", bbox_to_anchor=(1.0, 0.62), frameon=False, fontsize=6.0,
+              handlelength=1.4)
     fig.tight_layout()
     save(fig, t, "levers")
 
 
-FIGS = {"pipeline": fig_pipeline, "frames": fig_frames, "data": fig_data, "trajectory": fig_trajectory,
+FIGS = {"pipeline": fig_pipeline, "frames": fig_frames, "data": fig_data,
         "perclass": fig_perclass, "qualitative": fig_qualitative, "levers": fig_levers}
 
 
