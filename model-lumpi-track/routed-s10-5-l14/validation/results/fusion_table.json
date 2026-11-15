@@ -1,0 +1,982 @@
+{
+  "Person": {
+    "incumbent": "fusion vrrosn6_tta12+bvrrosf6x_tta12@0.7",
+    "incumbent_A": 0.596480673015796,
+    "incumbent_B": 0.22273804849616194,
+    "best": {
+      "members": [
+        "vrrosn6_tta12",
+        "bvrrosf6x_tta12"
+      ],
+      "iou": 0.7,
+      "A": 0.596480673015796,
+      "B": 0.22273804849616194
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "vrrosn6_tta12+bvrrosf6x_tta12@0.3": {
+        "val": 0.5935641622786111,
+        "lateA": 0.4511934600470143,
+        "valB": 0.2160867441053464
+      },
+      "vrrosn6_tta12+bvrrosf6x_tta12@0.5": {
+        "val": 0.5966956793179949,
+        "lateA": 0.45950916584539686,
+        "valB": 0.22294676488335902
+      },
+      "vrrosn6_tta12+bvrrosf6x_tta12@0.7": {
+        "val": 0.5965246185688958,
+        "lateA": 0.45957681131928824,
+        "valB": 0.2229505383298807
+      },
+      "bvrrosf6x_tta12+vrrosn6_tta@0.3": {
+        "val": 0.591111801748301,
+        "lateA": 0.4516469488884237,
+        "valB": 0.21686053639536357
+      },
+      "bvrrosf6x_tta12+vrrosn6_tta@0.5": {
+        "val": 0.5939317619389285,
+        "lateA": 0.45658044013713894,
+        "valB": 0.22413160032109086
+      },
+      "bvrrosf6x_tta12+vrrosn6_tta@0.7": {
+        "val": 0.5962901815429562,
+        "lateA": 0.45660916537130253,
+        "valB": 0.22397735433723928
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta@0.3": {
+        "val": 0.5861700684619195,
+        "lateA": 0.448443966759079,
+        "valB": 0.21723157102332208
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta@0.5": {
+        "val": 0.5913124666088413,
+        "lateA": 0.4529501633922862,
+        "valB": 0.22427536686353783
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta@0.7": {
+        "val": 0.5912302091102742,
+        "lateA": 0.4529561471638351,
+        "valB": 0.22419341534950088
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "late-A, top 3 through the gates",
+    "tested": [
+      {
+        "members": [
+          "vrrosn6_tta12",
+          "bvrrosf6x_tta12"
+        ],
+        "iou": 0.7,
+        "lateA": 0.45957681131928824,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrrosn6_tta12",
+        "bvrrosf6x_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.5966956793179949,
+      "B": 0.22294676488335902
+    }
+  },
+  "Car": {
+    "incumbent": "fusion vrrosf6_tta12+bvrrosn6x_tta+vrrosf6j_tta12@0.7",
+    "incumbent_A": 0.9052613980764587,
+    "incumbent_B": 0.796887786541299,
+    "best": {
+      "members": [
+        "vrrosf6_tta12",
+        "bvrrosn6x_tta",
+        "vrrosf6j_tta12"
+      ],
+      "iou": 0.7,
+      "A": 0.9052613980764587,
+      "B": 0.796887786541299
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bvrrosf6x_tta12+bvrrosn6x_tta@0.3": {
+        "val": 0.8914686574345353,
+        "valB": 0.7885147479317423
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta@0.5": {
+        "val": 0.9013120037035659,
+        "valB": 0.7888735021582967
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta@0.7": {
+        "val": 0.9042090075814319,
+        "valB": 0.7959573055706919
+      },
+      "bvrrosf6x_tta12+bvrrosfpyr6x_tta@0.3": {
+        "val": 0.8921439980443425,
+        "valB": 0.7859539448730833
+      },
+      "bvrrosf6x_tta12+bvrrosfpyr6x_tta@0.5": {
+        "val": 0.9044989390917305,
+        "valB": 0.7861758804527275
+      },
+      "bvrrosf6x_tta12+bvrrosfpyr6x_tta@0.7": {
+        "val": 0.9064779525645357,
+        "valB": 0.7926500673925447
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta@0.3": {
+        "val": 0.891170974085426,
+        "valB": 0.7910607608373603
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta@0.5": {
+        "val": 0.9003251563998182,
+        "valB": 0.7912998348264574
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta@0.7": {
+        "val": 0.9039380504542457,
+        "valB": 0.7979053296929417
+      },
+      "vrrosf6_tta12+bvrrosfpyr6x_tta@0.3": {
+        "val": 0.8922586070896991,
+        "valB": 0.7866915377092112
+      },
+      "vrrosf6_tta12+bvrrosfpyr6x_tta@0.5": {
+        "val": 0.9048336620556565,
+        "valB": 0.7868652813148312
+      },
+      "vrrosf6_tta12+bvrrosfpyr6x_tta@0.7": {
+        "val": 0.9065383752550978,
+        "valB": 0.7931570911800466
+      },
+      "bvrrosn6x_tta+bvrrosfpyr6x_tta@0.3": {
+        "val": 0.890861428776615,
+        "valB": 0.7863600914268273
+      },
+      "bvrrosn6x_tta+bvrrosfpyr6x_tta@0.5": {
+        "val": 0.9020881977104132,
+        "valB": 0.7866935828042987
+      },
+      "bvrrosn6x_tta+bvrrosfpyr6x_tta@0.7": {
+        "val": 0.9039438091085834,
+        "valB": 0.7928526891849541
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta+bvrrosfpyr6x_tta@0.3": {
+        "val": 0.891970008850096,
+        "valB": 0.7871861074141528
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta+bvrrosfpyr6x_tta@0.5": {
+        "val": 0.9041542673584917,
+        "valB": 0.7873018536367715
+      },
+      "bvrrosf6x_tta12+bvrrosn6x_tta+bvrrosfpyr6x_tta@0.7": {
+        "val": 0.9054175814751065,
+        "valB": 0.7945255145211924
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta+bvrrosfpyr6x_tta@0.3": {
+        "val": 0.8922068243255135,
+        "valB": 0.7875083997833072
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta+bvrrosfpyr6x_tta@0.5": {
+        "val": 0.9045386068591839,
+        "valB": 0.7876479137160326
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta+bvrrosfpyr6x_tta@0.7": {
+        "val": 0.9056671777840679,
+        "valB": 0.7949211465753592
+      },
+      "vrrosf6_tta12+bvrrosn6x_tta+vrrosf6j_tta12@0.7": {
+        "val": 0.9052613980764587,
+        "valB": 0.796887786541299
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vrrosf6_tta12",
+          "bvrrosn6x_tta",
+          "vrrosf6j_tta12"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vrrosf6_tta12",
+        "bvrrosfpyr6x_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.9065383752550978,
+      "B": 0.7931570911800466
+    }
+  },
+  "Bicycle": {
+    "incumbent": "fusion ppros6d2_tta+dsrosf6_tta12+pvros6j_tta12@0.5",
+    "incumbent_A": 0.6496279140295308,
+    "incumbent_B": 0.28621717490889653,
+    "best": {
+      "members": [
+        "ppros6d2_tta",
+        "dsrosf6_tta12",
+        "pvros6j_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.6496279140295308,
+      "B": 0.28621717490889653
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bppros6x_tta+dsrosf6_tta12@0.3": {
+        "val": 0.6367650334424422,
+        "valB": 0.28119750826393647
+      },
+      "bppros6x_tta+dsrosf6_tta12@0.5": {
+        "val": 0.6422846699426256,
+        "valB": 0.2822710846995603
+      },
+      "bppros6x_tta+dsrosf6_tta12@0.7": {
+        "val": 0.6409617872733376,
+        "valB": 0.28204703915248397
+      },
+      "bppros6x_tta+pvros6j_tta12@0.3": {
+        "val": 0.6120244899746108,
+        "valB": 0.26902975611503094
+      },
+      "bppros6x_tta+pvros6j_tta12@0.5": {
+        "val": 0.6151516075422666,
+        "valB": 0.2704611359012441
+      },
+      "bppros6x_tta+pvros6j_tta12@0.7": {
+        "val": 0.6142593795482345,
+        "valB": 0.27073853854553687
+      },
+      "ppros6d2_tta+dsrosf6_tta12@0.3": {
+        "val": 0.6334304297722397,
+        "valB": 0.2816572808070379
+      },
+      "ppros6d2_tta+dsrosf6_tta12@0.5": {
+        "val": 0.64032397028906,
+        "valB": 0.28300012325469115
+      },
+      "ppros6d2_tta+dsrosf6_tta12@0.7": {
+        "val": 0.6404542530646963,
+        "valB": 0.2830415338319773
+      },
+      "ppros6d2_tta+pvros6j_tta12@0.3": {
+        "val": 0.6156865164309061,
+        "valB": 0.27227358956238285
+      },
+      "ppros6d2_tta+pvros6j_tta12@0.5": {
+        "val": 0.6173804143738023,
+        "valB": 0.2748984800719146
+      },
+      "ppros6d2_tta+pvros6j_tta12@0.7": {
+        "val": 0.6174063466911002,
+        "valB": 0.2747653713137793
+      },
+      "dsrosf6_tta12+pvros6j_tta12@0.3": {
+        "val": 0.6297964472125267,
+        "valB": 0.270357044769988
+      },
+      "dsrosf6_tta12+pvros6j_tta12@0.5": {
+        "val": 0.6342492705073413,
+        "valB": 0.27160406507526264
+      },
+      "dsrosf6_tta12+pvros6j_tta12@0.7": {
+        "val": 0.6326454677097061,
+        "valB": 0.27104084974335924
+      },
+      "bppros6x_tta+dsrosf6_tta12+pvros6j_tta12@0.3": {
+        "val": 0.642651566336926,
+        "valB": 0.28201479918031075
+      },
+      "bppros6x_tta+dsrosf6_tta12+pvros6j_tta12@0.5": {
+        "val": 0.6481872547773022,
+        "valB": 0.28416576643286084
+      },
+      "bppros6x_tta+dsrosf6_tta12+pvros6j_tta12@0.7": {
+        "val": 0.6467064744075385,
+        "valB": 0.2842496782884699
+      },
+      "ppros6d2_tta+dsrosf6_tta12+pvros6j_tta12@0.3": {
+        "val": 0.6440944632707843,
+        "valB": 0.28354467311373355
+      },
+      "ppros6d2_tta+dsrosf6_tta12+pvros6j_tta12@0.5": {
+        "val": 0.6496279140295308,
+        "valB": 0.28621717490889653
+      },
+      "ppros6d2_tta+dsrosf6_tta12+pvros6j_tta12@0.7": {
+        "val": 0.6488077707908378,
+        "valB": 0.28605559696913446
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "ppros6d2_tta",
+          "dsrosf6_tta12",
+          "pvros6j_tta12"
+        ],
+        "iou": 0.5,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "ppros6d2_tta",
+        "dsrosf6_tta12",
+        "pvros6j_tta12"
+      ],
+      "iou": 0.5,
+      "A": 0.6496279140295308,
+      "B": 0.28621717490889653
+    }
+  },
+  "Motorcycle": {
+    "incumbent": "fusion vnrosn6_tta12+vnrosf6d2_tta@0.7",
+    "incumbent_A": 0.24004788066990593,
+    "incumbent_B": 0.04966088476030054,
+    "best": {
+      "members": [
+        "vnrosn6_tta12",
+        "vnrosf6d2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.24004788066990593,
+      "B": 0.04966088476030054
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "vnrosn6_tta12+vnrosf6d2_tta@0.3": {
+        "val": 0.2384316757905105,
+        "valB": 0.04708044079988501
+      },
+      "vnrosn6_tta12+vnrosf6d2_tta@0.5": {
+        "val": 0.23886961953633756,
+        "valB": 0.04731868806386756
+      },
+      "vnrosn6_tta12+vnrosf6d2_tta@0.7": {
+        "val": 0.24004788066990593,
+        "valB": 0.04966088476030054
+      },
+      "vnrosn6_tta12+bvnrosf6x_tta@0.3": {
+        "val": 0.21568139556548985,
+        "valB": 0.05155579742180831
+      },
+      "vnrosn6_tta12+bvnrosf6x_tta@0.5": {
+        "val": 0.21607098762396298,
+        "valB": 0.05195438772805161
+      },
+      "vnrosn6_tta12+bvnrosf6x_tta@0.7": {
+        "val": 0.2172380435805466,
+        "valB": 0.053562191863148326
+      },
+      "vnrosn6_tta+vnrosf6d2_tta@0.3": {
+        "val": 0.2278425382925378,
+        "valB": 0.04722458759212335
+      },
+      "vnrosn6_tta+vnrosf6d2_tta@0.5": {
+        "val": 0.2276693351267304,
+        "valB": 0.04805121368191414
+      },
+      "vnrosn6_tta+vnrosf6d2_tta@0.7": {
+        "val": 0.22875130718838904,
+        "valB": 0.050257993577574586
+      },
+      "vnrosn6_tta+bvnrosf6x_tta@0.3": {
+        "val": 0.2095600106104464,
+        "valB": 0.054974953164763155
+      },
+      "vnrosn6_tta+bvnrosf6x_tta@0.5": {
+        "val": 0.2097923333009124,
+        "valB": 0.05576715690520404
+      },
+      "vnrosn6_tta+bvnrosf6x_tta@0.7": {
+        "val": 0.21071197574515238,
+        "valB": 0.05757576647782261
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "vnrosn6_tta12",
+          "vnrosf6d2_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "vnrosn6_tta12",
+        "vnrosf6d2_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.24004788066990593,
+      "B": 0.04966088476030054
+    }
+  },
+  "Bus": {
+    "incumbent": "ppros6_tta",
+    "incumbent_A": 0.009871132545006446,
+    "incumbent_B": 0.061994469296807596,
+    "best": {
+      "members": [
+        "bppros6x_tta",
+        "pprosf6_tta"
+      ],
+      "iou": 0.3,
+      "A": 0.022675927417510296,
+      "B": 0.04758376553624417
+    },
+    "dB": -0.014410703760563429,
+    "p_gain": 0.195,
+    "ci90": [
+      -0.026431166110899306,
+      0.007699943799705693
+    ],
+    "dA": 0.01280479487250385,
+    "pooled": {
+      "delta": 0.011942489848356636,
+      "p_gain": 1.0
+    },
+    "decision": "routed member kept (class gate failed)",
+    "search_fast_iou": {
+      "ppros6_tta+pprosf6_tta@0.3": {
+        "val": 0.021484902088166502,
+        "valB": 0.044289456779619325
+      },
+      "ppros6_tta+pprosf6_tta@0.5": {
+        "val": 0.021526028356083488,
+        "valB": 0.04435139765718162
+      },
+      "ppros6_tta+pprosf6_tta@0.7": {
+        "val": 0.021251019588412322,
+        "valB": 0.044610927688225596
+      },
+      "ppros6_tta+pprosf6@0.3": {
+        "val": 0.020673971773534795,
+        "valB": 0.04578272064008622
+      },
+      "ppros6_tta+pprosf6@0.5": {
+        "val": 0.021206080804890927,
+        "valB": 0.04761124330733148
+      },
+      "ppros6_tta+pprosf6@0.7": {
+        "val": 0.020857748069184827,
+        "valB": 0.048193114524983385
+      },
+      "bppros6x_tta+pprosf6_tta@0.3": {
+        "val": 0.022675927417510296,
+        "valB": 0.04758376553624417
+      },
+      "bppros6x_tta+pprosf6_tta@0.5": {
+        "val": 0.02264121206219889,
+        "valB": 0.04755139520501343
+      },
+      "bppros6x_tta+pprosf6_tta@0.7": {
+        "val": 0.022270876947141728,
+        "valB": 0.047874404687713486
+      },
+      "bppros6x_tta+pprosf6@0.3": {
+        "val": 0.02114723203771542,
+        "valB": 0.04541344391150756
+      },
+      "bppros6x_tta+pprosf6@0.5": {
+        "val": 0.021230250209706075,
+        "valB": 0.04709611073487724
+      },
+      "bppros6x_tta+pprosf6@0.7": {
+        "val": 0.020863199128050274,
+        "valB": 0.046209888623816975
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bppros6x_tta",
+          "pprosf6_tta"
+        ],
+        "iou": 0.3,
+        "lateA": null,
+        "earlyA": null,
+        "dB": -0.014410703760563429,
+        "p_gain": 0.195,
+        "dA": 0.01280479487250385,
+        "pooled": {
+          "delta": 0.011942489848356636,
+          "p_gain": 1.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bppros6x_tta",
+        "pprosf6_tta"
+      ],
+      "iou": 0.3,
+      "A": 0.022675927417510296,
+      "B": 0.04758376553624417
+    }
+  },
+  "Truck": {
+    "incumbent": "fusion bpvros6x_tta+pvros6j_tta@0.7",
+    "incumbent_A": 0.3869672335908403,
+    "incumbent_B": 0.23765050666543122,
+    "best": {
+      "members": [
+        "bpvros6x_tta",
+        "pvros6j_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.3869672335908403,
+      "B": 0.23765050666543122
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bpvros6x_tta+pvros6j_tta@0.3": {
+        "val": 0.3807982416442374,
+        "valB": 0.23228524453318206
+      },
+      "bpvros6x_tta+pvros6j_tta@0.5": {
+        "val": 0.3834387048870407,
+        "valB": 0.2366180654673677
+      },
+      "bpvros6x_tta+pvros6j_tta@0.7": {
+        "val": 0.3869672335908403,
+        "valB": 0.23765050666543122
+      },
+      "pvros6d2_tta+pvros6_tta@0.3": {
+        "val": 0.3730408807096003,
+        "valB": 0.23115988877771426
+      },
+      "pvros6d2_tta+pvros6_tta@0.5": {
+        "val": 0.37540245763015245,
+        "valB": 0.23194200723512642
+      },
+      "pvros6d2_tta+pvros6_tta@0.7": {
+        "val": 0.3768485687356452,
+        "valB": 0.23220600622881107
+      },
+      "pvros6d2_tta+pvros6j_tta@0.3": {
+        "val": 0.38576018380742993,
+        "valB": 0.23001371293712633
+      },
+      "pvros6d2_tta+pvros6j_tta@0.5": {
+        "val": 0.3866689222219854,
+        "valB": 0.23419289058423756
+      },
+      "pvros6d2_tta+pvros6j_tta@0.7": {
+        "val": 0.38921731898594103,
+        "valB": 0.23537748157379434
+      },
+      "pvros6_tta+pvros6j_tta@0.3": {
+        "val": 0.3751012768570856,
+        "valB": 0.22052270308486688
+      },
+      "pvros6_tta+pvros6j_tta@0.5": {
+        "val": 0.3771190376689752,
+        "valB": 0.2253743359807924
+      },
+      "pvros6_tta+pvros6j_tta@0.7": {
+        "val": 0.3802044091193416,
+        "valB": 0.2254157144117098
+      },
+      "pvros6d2_tta+pvros6_tta+pvros6j_tta@0.3": {
+        "val": 0.3816624762195642,
+        "valB": 0.22794064963396288
+      },
+      "pvros6d2_tta+pvros6_tta+pvros6j_tta@0.5": {
+        "val": 0.38397384945522284,
+        "valB": 0.2322432805004019
+      },
+      "pvros6d2_tta+pvros6_tta+pvros6j_tta@0.7": {
+        "val": 0.3861095750988041,
+        "valB": 0.23258751412983597
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bpvros6x_tta",
+          "pvros6j_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "pvros6d2_tta",
+        "pvros6j_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.38921731898594103,
+      "B": 0.23537748157379434
+    }
+  },
+  "Van": {
+    "incumbent": "dsrosf6_tta12",
+    "incumbent_A": 0.10893676095879705,
+    "incumbent_B": 0.0011669653295423583,
+    "best": {
+      "members": [
+        "dsrosf6",
+        "pvrosn6_tta12"
+      ],
+      "iou": 0.7,
+      "A": 0.11836047909711216,
+      "B": 0.0014099307557338952
+    },
+    "dB": 0.00024296542619153686,
+    "p_gain": 1.0,
+    "ci90": [
+      8.80960334070791e-05,
+      0.000487323568744732
+    ],
+    "dA": 0.009423718138315107,
+    "pooled": {
+      "delta": -0.010220771285215438,
+      "p_gain": 0.005
+    },
+    "decision": "routed member kept (class gate failed)",
+    "search_fast_iou": {
+      "dsrosf6_tta+pvrosn6_tta@0.3": {
+        "val": 0.1161598772892849,
+        "lateA": 0.07158667100286879,
+        "earlyA": 0.1427334943358179,
+        "valB": 0.0015017435950855722
+      },
+      "dsrosf6_tta+pvrosn6_tta@0.5": {
+        "val": 0.11688754008008066,
+        "lateA": 0.071947354192583,
+        "earlyA": 0.14275281350363972,
+        "valB": 0.0015025095222108427
+      },
+      "dsrosf6_tta+pvrosn6_tta@0.7": {
+        "val": 0.11795980850170491,
+        "lateA": 0.07410463279220696,
+        "earlyA": 0.14358439128238207,
+        "valB": 0.0015025782722940188
+      },
+      "dsrosf6_tta+pvrosn6_tta12@0.3": {
+        "val": 0.11741355404575002,
+        "lateA": 0.07164719250921525,
+        "earlyA": 0.14368921670179285,
+        "valB": 0.0014577221408135052
+      },
+      "dsrosf6_tta+pvrosn6_tta12@0.5": {
+        "val": 0.11754640195674511,
+        "lateA": 0.07189360994073953,
+        "earlyA": 0.1436676866506418,
+        "valB": 0.0014564298101471906
+      },
+      "dsrosf6_tta+pvrosn6_tta12@0.7": {
+        "val": 0.1187147401852258,
+        "lateA": 0.07306044910474867,
+        "earlyA": 0.1445310868269628,
+        "valB": 0.0014279251389188272
+      },
+      "dsrosf6_tta+bpvrosn6x_tta@0.3": {
+        "val": 0.10976378552518577,
+        "lateA": 0.07093072570220552,
+        "earlyA": 0.13289660067826525,
+        "valB": 0.0016027428426813358
+      },
+      "dsrosf6_tta+bpvrosn6x_tta@0.5": {
+        "val": 0.11039552543631852,
+        "lateA": 0.07101279870117676,
+        "earlyA": 0.13342356255578264,
+        "valB": 0.0016035994716762508
+      },
+      "dsrosf6_tta+bpvrosn6x_tta@0.7": {
+        "val": 0.11114309866917642,
+        "lateA": 0.07181219476622365,
+        "earlyA": 0.13345056688991813,
+        "valB": 0.0015980317551707896
+      },
+      "dsrosf6_tta12+pvrosn6_tta@0.3": {
+        "val": 0.11549785482714219,
+        "lateA": 0.07223974920337613,
+        "earlyA": 0.1404840923054473,
+        "valB": 0.0015140578174976872
+      },
+      "dsrosf6_tta12+pvrosn6_tta@0.5": {
+        "val": 0.11569096700830613,
+        "lateA": 0.07298871581713304,
+        "earlyA": 0.1403737172985208,
+        "valB": 0.0015153760699425972
+      },
+      "dsrosf6_tta12+pvrosn6_tta@0.7": {
+        "val": 0.11694279695391177,
+        "lateA": 0.07478004918822403,
+        "earlyA": 0.1415728198791865,
+        "valB": 0.0015173586153391474
+      },
+      "dsrosf6_tta12+pvrosn6_tta12@0.3": {
+        "val": 0.115922148642457,
+        "lateA": 0.07269699527674521,
+        "earlyA": 0.1411744195851976,
+        "valB": 0.0014566121704119423
+      },
+      "dsrosf6_tta12+pvrosn6_tta12@0.5": {
+        "val": 0.11607380643937945,
+        "lateA": 0.07290133125352963,
+        "earlyA": 0.14111909370572215,
+        "valB": 0.0014495847356774173
+      },
+      "dsrosf6_tta12+pvrosn6_tta12@0.7": {
+        "val": 0.1174151037587863,
+        "lateA": 0.07406027699088766,
+        "earlyA": 0.1418945372489917,
+        "valB": 0.0014262610783216084
+      },
+      "dsrosf6_tta12+bpvrosn6x_tta@0.3": {
+        "val": 0.1086206552582611,
+        "lateA": 0.07238669137777609,
+        "earlyA": 0.13043431577735057,
+        "valB": 0.001571708119470916
+      },
+      "dsrosf6_tta12+bpvrosn6x_tta@0.5": {
+        "val": 0.10924032657721701,
+        "lateA": 0.07270576200058741,
+        "earlyA": 0.13092609062454202,
+        "valB": 0.001571725463336355
+      },
+      "dsrosf6_tta12+bpvrosn6x_tta@0.7": {
+        "val": 0.10967218998737911,
+        "lateA": 0.07377800725075383,
+        "earlyA": 0.13082687005212615,
+        "valB": 0.0015678134645284864
+      },
+      "dsrosf6+pvrosn6_tta@0.3": {
+        "val": 0.11737003899817129,
+        "lateA": 0.07035152614221978,
+        "earlyA": 0.1445752312967093,
+        "valB": 0.0014618322908120714
+      },
+      "dsrosf6+pvrosn6_tta@0.5": {
+        "val": 0.11793753289121196,
+        "lateA": 0.0708827881841637,
+        "earlyA": 0.14413840631958857,
+        "valB": 0.001462757763479042
+      },
+      "dsrosf6+pvrosn6_tta@0.7": {
+        "val": 0.11795177933674927,
+        "lateA": 0.07279070708529636,
+        "earlyA": 0.1434939351369544,
+        "valB": 0.0014575306195825325
+      },
+      "dsrosf6+pvrosn6_tta12@0.3": {
+        "val": 0.11732341212817579,
+        "lateA": 0.0697785780488913,
+        "earlyA": 0.14547792984818497,
+        "valB": 0.0014290382003704384
+      },
+      "dsrosf6+pvrosn6_tta12@0.5": {
+        "val": 0.11787774328371936,
+        "lateA": 0.07026248983661058,
+        "earlyA": 0.14502682683328802,
+        "valB": 0.0014278481329994372
+      },
+      "dsrosf6+pvrosn6_tta12@0.7": {
+        "val": 0.11836047909711216,
+        "lateA": 0.07138296612934826,
+        "earlyA": 0.1447409756589596,
+        "valB": 0.0014099307557338952
+      },
+      "dsrosf6+bpvrosn6x_tta@0.3": {
+        "val": 0.11118847922169997,
+        "lateA": 0.07041733988922833,
+        "earlyA": 0.13427681432999794,
+        "valB": 0.0015719325911825426
+      },
+      "dsrosf6+bpvrosn6x_tta@0.5": {
+        "val": 0.11168718377870687,
+        "lateA": 0.07077440340323135,
+        "earlyA": 0.13452580854086837,
+        "valB": 0.0015730201475073677
+      },
+      "dsrosf6+bpvrosn6x_tta@0.7": {
+        "val": 0.11148046690495036,
+        "lateA": 0.07092218333253074,
+        "earlyA": 0.13399539043356162,
+        "valB": 0.0015824380599427687
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "early-A rank, late-A gate (judge), top 3",
+    "tested": [
+      {
+        "members": [
+          "dsrosf6",
+          "pvrosn6_tta12"
+        ],
+        "iou": 0.3,
+        "lateA": 0.0697785780488913,
+        "earlyA": 0.14547792984818497,
+        "dB": 0.00026207287082808013,
+        "p_gain": 0.985,
+        "dA": 0.008386651169378742,
+        "pooled": {
+          "delta": -0.011825159365672397,
+          "p_gain": 0.0
+        },
+        "passed": false
+      },
+      {
+        "members": [
+          "dsrosf6",
+          "pvrosn6_tta12"
+        ],
+        "iou": 0.5,
+        "lateA": 0.07026248983661058,
+        "earlyA": 0.14502682683328802,
+        "dB": 0.0002608828034570789,
+        "p_gain": 1.0,
+        "dA": 0.008940982324922311,
+        "pooled": {
+          "delta": -0.011341247577953115,
+          "p_gain": 0.005
+        },
+        "passed": false
+      },
+      {
+        "members": [
+          "dsrosf6",
+          "pvrosn6_tta12"
+        ],
+        "iou": 0.7,
+        "lateA": 0.07138296612934826,
+        "earlyA": 0.1447409756589596,
+        "dB": 0.00024296542619153686,
+        "p_gain": 1.0,
+        "dA": 0.009423718138315107,
+        "pooled": {
+          "delta": -0.010220771285215438,
+          "p_gain": 0.005
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "dsrosf6_tta",
+        "pvrosn6_tta12"
+      ],
+      "iou": 0.7,
+      "A": 0.1187147401852258,
+      "B": 0.0014279251389188272
+    }
+  }
+}
