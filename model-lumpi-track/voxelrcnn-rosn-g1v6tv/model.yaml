@@ -1,0 +1,22 @@
+name: voxelrcnn-rosn-g1v6tv
+strategy: S10-5
+track: lumpi-track
+module: release 10.5, the train+val retraining (record Section 14)
+derived_from: voxelrcnn-rosn-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS without GT sampling (all 40 epochs) and with +/-1.5
+  deg pitch/roll; otherwise the parent config
+data:
+  train: pcdet/g1-v6tv
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'planned (10.5 train+val: the parent''s config, seed 666, on pcdet/g1-v6tv
+  = g1-v6 train + val, 10,000 synthetic frames)'
+expected: 'the no-GT-sampling arm of Section 12 (GT sampling lowers cross-domain AP,
+  Eskandar et al.): Person and Car at or above the fade member'
+notes: '10.5 (record Section 14, the entrant''s request of Nov 15): voxelrcnn-rosn-g1v6''s
+  config, unchanged, trained on g1-v6''s synthetic train and val splits combined (10,000
+  frames instead of 9,000). Synthetic only. Frames stay g1-v6.
+
+  '

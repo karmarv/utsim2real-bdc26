@@ -10,7 +10,7 @@
 #     bash common/pipeline/launch.sh <run> s105v5 common/pipeline/s10_5_build.sh <run> swap v2x routed-s10-4-v4 routed-s10-5-v5 V5 <V4 zip>
 # Events: "S10-5 <track> <system>: ..." in <run>/events.txt; logs <run>/s105_<system>_<step>.log.
 RUN=$1; MODE=$2
-TT=v2x; { [ "$MODE" = swap ] || [ "$MODE" = addmember ] || [ "$MODE" = p ]; } && TT=$3
+TT=v2x; { [ "$MODE" = swap ] || [ "$MODE" = addmember ] || [ "$MODE" = p ] || [ "$MODE" = replace ]; } && TT=$3
 source "$(dirname "$0")/lib_common.sh" 2>/dev/null || source "$(dirname "$0")/common.sh"
 export S10_3_LIB=1
 source "$REPO/common/pipeline/s10_3_build.sh" "$RUN" "$TT"
@@ -182,6 +182,65 @@ if [ "$MODE" = p ]; then
   #     routed-s10-5-l9 s10-5-l12c <L9 zip> routed-s10-4-l8
   SYS=$4; PARENT=$5; TAG=$6; PZ=$7; UPV=$8
   if p_build "$SYS" "$PARENT" "$TAG" "$PZ" "$UPV"; then
+    L=$(rule_line "$UPV"); LEVEL=${L% *}; DELTA=${L#* }
+    if { [ "$LEVEL" = GO ] || [ "$LEVEL" = JUDGEMENT ]; } && python -c "import sys; sys.exit(0 if float('$DELTA') > 0 else 1)"; then
+      st "UPLOAD RULE: PASS (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): goes to the entrant"
+    else st "UPLOAD RULE: FAIL (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): not uploaded"; fi
+  else st "STOPPED"; fi
+  st "DONE"; exit 0
+fi
+
+if [ "$MODE" = replace ]; then
+  # Record Section 14 (train+val retraining): the parent card with member models replaced (same keys, views and
+  # post-processing files): old=new pairs; a new seed bag is built in place (plain, 4-view, 12-view) once its seeds
+  # have their tuned outputs. Then validate, the per-class final check against the parent (s7_check: failing classes
+  # frozen at the parent), and the build with the parent's frames; upload rule against UPV.
+  #   bash common/pipeline/launch.sh <run> l16 common/pipeline/s10_5_build.sh <run> replace lumpi routed-s10-5-l12e \
+  #     routed-s10-5-l16 L16 <L12e zip> routed-s10-4-l8 voxelrcnn-rosf-g1v6=voxelrcnn-rosf-g1v6tv ...
+  PARENT=$4; NAME=$5; CAND=$6; PZ=$7; UPV=$8; shift 8; MAP=("$@")
+  SYS=$NAME; MD=model-$T-track/$NAME; PD=model-$T-track/$PARENT
+  st "armed: $PARENT with ${MAP[*]}; waits for the new members' plain, 4-view and 12-view outputs"
+  isbag() { python -c "import sys,yaml;sys.exit(0 if yaml.safe_load(open('model-$T-track/$1/model.yaml')).get('type')=='bag' else 1)"; }
+  outs12() { local m=$1 r=$2 S X; for S in val valB; do for X in "" _tta _tta12; do
+      [ -s "model-$T-track/$m/validation/output/pcdet_realval-v1_${S}_${r}_checkpoint_epoch_40${X}.json" ] || return 1; done; done; }
+  ready() { local pr n sd ok; for pr in "${MAP[@]}"; do n=${pr#*=}
+      if isbag "$n"; then
+        outs12 "$n" bag && continue
+        ok=1; for sd in $(python -c "import yaml;print(' '.join(yaml.safe_load(open('model-$T-track/$n/model.yaml'))['members']))"); do outs12 "$sd" run1 || ok=0; done
+        [ $ok = 1 ] || return 1
+        run "bag_$n" python common/tools/bag_predictions.py "model-$T-track/$n" || return 1
+        run "bag12_$n" python common/tools/bag_predictions.py "model-$T-track/$n" --tags _tta12 || return 1
+        st "bag $n: $(grep -E ': A' "$(lg "bag_$n")" | tr '\n' ';' | cut -c1-300)"
+        outs12 "$n" bag || return 1
+      else grep -qE "POST_DONE $T $n\$" "$E" && outs12 "$n" run1 || return 1; fi
+    done; }
+  until ready; do sleep 120; done
+  mkdir -p "$MD/test/output" "$MD/validation/results" "$MD/validation/output" "$MD/train" "$MD/submissions"
+  cp "$PD/test/make_submission.sh" "$PD/test/synthetic_ids.txt" "$MD/test/"
+  python - "$PD" "$MD" "$CAND" "${MAP[@]}" > "$(lg card)" 2>&1 <<'PY' || { st "card FAILED"; st "STOPPED"; exit 1; }
+import sys
+from pathlib import Path
+import yaml
+pd, md, cand, pairs = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], [p.split("=") for p in sys.argv[4:]]
+d = yaml.safe_load((pd / "model.yaml").read_text()); old2new = dict(pairs); hit = []
+for k, m in d["members"].items():
+    if m["model"] in old2new:
+        m["model"] = old2new[m["model"]]; hit.append(k)
+d.update({"name": md.name, "strategy": "S10-5", "candidate": cand, "derived_from": pd.name,
+          "status": f"S10-5 {cand}: {pd.name} with {', '.join(f'{a} -> {b}' for a, b in pairs)} (train+val retraining; docs/decisions/2026-11-14-s10-10.5-final-push.md Section 14)",
+          "notes": f"S10-5 {cand} (record Section 14): {pd.name}'s route, fusion sets, IoUs, weights and every stage unchanged; the member models above retrained on g1-v6 train+val (10,000 synthetic frames) replace the 9,000-frame ones; classes that fail the final check against {pd.name} are frozen at it.\n"})
+(md / "model.yaml").write_text(yaml.safe_dump(d, sort_keys=False))
+print(f"{md.name}: replaced the model of {len(hit)} member keys")
+PY
+  st "card: $(tr '\n' ';' < "$(lg card)")"
+  run validate_new python common/tools/route_predictions.py validate "$MD" || { st "STOPPED"; exit 1; }
+  python common/tools/s7_check.py check "$T" "$MD" "$PD" > "$(lg final_check)" 2>&1 || { st "final check FAILED"; st "STOPPED"; exit 1; }
+  FROZEN=$(grep -h '^FROZEN' "$(lg final_check)" | cut -d' ' -f2-)
+  st "final check vs $PARENT: $(grep -vh '^FROZEN' "$(lg final_check)" | cut -c1-200 | tr '\n' ';' | cut -c1-900)"
+  if [ -n "$FROZEN" ]; then run freeze python common/tools/freeze_classes.py "$MD" --from "$PD" $FROZEN || { st "STOPPED"; exit 1; }; fi
+  if python -c "import sys,yaml,json;a,b=(yaml.safe_load(open(f+'/model.yaml')) for f in sys.argv[1:]);sys.path.insert(0,'common/tools');from route_predictions import used_members;ua={k:a['members'][k] for k in used_members(a)};ub={k:b['members'][k] for k in used_members(b)};k=('route','fusion','calibration','budget','final_adjust','tail_copies');sys.exit(0 if ua==ub and all((a.get(x) or None)==(b.get(x) or None) for x in k) else 1)" "$MD" "$PD"; then
+    st "every class at $PARENT after the checks: no $CAND"; st "DONE"; exit 0; fi
+  if EXTRA_CMP=$UPV swap_build "$NAME" "$PARENT" "s10-5-$(echo "$CAND" | tr 'A-Z' 'a-z')" "$PZ"; then
     L=$(rule_line "$UPV"); LEVEL=${L% *}; DELTA=${L#* }
     if { [ "$LEVEL" = GO ] || [ "$LEVEL" = JUDGEMENT ]; } && python -c "import sys; sys.exit(0 if float('$DELTA') > 0 else 1)"; then
       st "UPLOAD RULE: PASS (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): goes to the entrant"
