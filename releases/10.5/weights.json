@@ -9,8 +9,8 @@
       "strategy": "S10-5",
       "submission_zip": "model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip",
       "zip_md5": "5117445dbdf2d17d6f84ae090203423a",
-      "codabench_id": null,
-      "leaderboard_combined": null,
+      "codabench_id": "1053789",
+      "leaderboard_combined": 0.542997,
       "reproduce_test": "model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh",
       "reproduce_validation": "model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e_validation.sh",
       "checkpoints": [

@@ -1,0 +1,73 @@
+{
+  "phase": "Final (release 10.5; the entrant's upload of 2026-11-15; the entrant's report)",
+  "status": "Finished",
+  "team": "KarmaRV",
+  "strategy": "S10-5 L12e (docs/decisions/2026-11-14-s10-10.5-final-push.md Sections 11-13): routed-s10-5-l12e = L8 (routed-s10-4-l8, 1051832) with its 14 checkpoints and every stage unchanged, plus Person on 12 test-time views (L9) and cross-class copies of the detector's own boxes, each ranked below every box of its new class: Bus and Van boxes as Truck, the top half of the Bicycle boxes as Person, the top 20% of the Car boxes as Van; rule 1 clean (13 member models); rule 1b: the 50 g1-v6 frames are byte-identical to 1051832's",
+  "codabench_competition": 16684,
+  "codabench_submission_id": 1053789,
+  "uploaded_file": "lumpi_s10-5-l12e_submission.zip of this folder (md5 5117445dbdf2d17d6f84ae090203423a, as in manifest.json)",
+  "submitted": "2026-11-15 (the entrant's message, about 15:30 UTC), after release 10.5 was pushed and published with this zip; exact time not read",
+  "leaderboard_checked": "not read by us: the public API shows a bot check and is not bypassed. The scores are those of the scoring output the entrant pasted.",
+  "scoring_log": [
+    "[scoring] realism: CD 1.5102775686468233, MMD 0.00010173495982623848, EMD 1.2720093968576371, FPD 0.42977002998350144",
+    "[scoring] mAP_3d_0.5_R40 = 0.1975367427564074",
+    "(scoring output pasted by the entrant)"
+  ],
+  "realism_detail": {
+    "CD": 1.5102775686468233,
+    "MMD": 0.00010173495982623848,
+    "EMD": 1.2720093968576371,
+    "FPD": 0.42977002998350144,
+    "n_syn_points_pre_subsample": 2500000,
+    "n_real_points_pre_subsample": 2500000,
+    "MMD_gamma": 0.0005234408773852402
+  },
+  "scores": {
+    "score_combined": 0.542997,
+    "score_detection": 0.282195,
+    "score_realism": 0.9342,
+    "mAP_3d_0.5_R40": 0.197537,
+    "mAP_3d_0.5_R11": 0.204606,
+    "mAP_3d_0.7_R40": 0.101725,
+    "mAP_bev_0.5_R40": 0.209819,
+    "CD": 1.510278,
+    "MMD": 0.00010173,
+    "EMD": 1.272009,
+    "FPD": 0.42977,
+    "valid_submission": 1,
+    "AP_3d_0.5_R40_Person": 0.315897,
+    "AP_3d_0.5_R40_Car": 0.683313,
+    "AP_3d_0.5_R40_Bicycle": 0.142675,
+    "AP_3d_0.5_R40_Motorcycle": 0.017905,
+    "AP_3d_0.5_R40_Bus": 0.000406,
+    "AP_3d_0.5_R40_Truck": 0.07003,
+    "AP_3d_0.5_R40_Van": 0.152531,
+    "AP_3d_0.5_R40_Unknown": null
+  },
+  "vs_previous": {
+    "previous": "1051832 (L8, routed-s10-4-l8: the best qualifying LUMPI entry until this upload)",
+    "delta": {
+      "score_combined": 0.000667,
+      "score_detection": 0.001111,
+      "score_realism": 0.0,
+      "mAP_3d_0.5_R40": 0.000778,
+      "mAP_3d_0.5_R11": 0.000681,
+      "mAP_3d_0.7_R40": 0.000311,
+      "mAP_bev_0.5_R40": 0.000819,
+      "CD": 0.0,
+      "MMD": 0.0,
+      "EMD": 0.0,
+      "FPD": 0.0,
+      "valid_submission": 0,
+      "AP_3d_0.5_R40_Person": 0.00197,
+      "AP_3d_0.5_R40_Car": 0.0,
+      "AP_3d_0.5_R40_Bicycle": 0.0,
+      "AP_3d_0.5_R40_Motorcycle": 0.0,
+      "AP_3d_0.5_R40_Bus": 0.0,
+      "AP_3d_0.5_R40_Truck": 0.003475,
+      "AP_3d_0.5_R40_Van": 0.0,
+      "AP_3d_0.5_R40_Unknown": null
+    }
+  },
+  "projection": "0.5426 / 0.5430 / 0.5434 (L8 0.54233 + rule-14 pooled realval +0.0012 x 6/7 x 0.3 / 0.6 / 1.0); measured 0.542997 (+0.000667), at the central band. Truck +0.003475 AP (the Bus and Van copies; realval +0.0044, about 0.8x), Person +0.00197 (12 views and the Bicycle copies; realval about +0.0037, about 0.5x), Van +0 (the Car copies; realval +0.0005); every other class and the realism unchanged. Rank 4 (lukefinigan 0.5440 needs +0.0010 more)."
+}
