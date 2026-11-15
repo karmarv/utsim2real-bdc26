@@ -1,0 +1,22 @@
+name: voxelrcnn-rosf-pyr-g1v6d2
+strategy: S10-5
+track: lumpi-track
+module: release 10.5, the 8-hour iteration, attempt A1 wave 2 (record Section 11)
+derived_from: voxelrcnn-rosf-g1v6d2
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS with GT-sampling fade (last 5 epochs) and +/-1.5 deg
+  pitch/roll, the parent's config unchanged; plus SE-SSD shape-aware augmentation
+  (pyramid dropout and sparsify)
+data:
+  train: pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (10.5 attempt A1 wave 2, training seed 2234, the second generator
+  draw, 4 GPUs)
+expected: 'a member trained on engine v6 (label-free walkers, LUMPI vehicle size convention,
+  map structure): Truck (LUMPI) and walker gains'
+notes: '10.5 attempt A1 wave 2 (record Section 11): voxelrcnn-rosf-g1v6d2''s config
+  with only random_local_pyramid_aug added; same corpus and seed.
+
+  '

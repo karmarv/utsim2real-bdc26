@@ -1,8 +1,35 @@
 {
   "tag": "10.5",
   "repository": "karmarv/utsim2real-bdc26",
-  "created": "2026-11-14",
+  "created": "2026-11-15",
   "versions": [
+    {
+      "version": "lumpi:s10-5-l12e",
+      "model": "model-lumpi-track/routed-s10-5-l12e",
+      "strategy": "S10-5",
+      "submission_zip": "model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip",
+      "zip_md5": "5117445dbdf2d17d6f84ae090203423a",
+      "codabench_id": null,
+      "leaderboard_combined": null,
+      "reproduce_test": "model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh",
+      "reproduce_validation": "model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e_validation.sh",
+      "checkpoints": [
+        "lumpi.dsvt-rosf-g1v6.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v6.epoch40.pth",
+        "lumpi.pointpillars-ros-g1v6d2.epoch40.pth",
+        "lumpi.pointpillars-rosf-g1v6.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6d2.epoch40.pth",
+        "lumpi.pvrcnnpp-ros-g1v6j.epoch40.pth",
+        "lumpi.voxelnext-rosf-g1v6d2.epoch40.pth",
+        "lumpi.voxelnext-rosn-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6d2.epoch40.pth",
+        "lumpi.voxelrcnn-rosf-g1v6j.epoch40.pth",
+        "lumpi.voxelrcnn-rosn-g1v6.epoch40.pth",
+        "lumpi.voxelrcnn-rosn-g1v6d2.epoch40.pth"
+      ]
+    },
     {
       "version": "lumpi:s10-5-l9",
       "model": "model-lumpi-track/routed-s10-5-l9",
@@ -39,6 +66,7 @@
       "md5": "7cd97e641a3ffb4cbb8274ffa581ef5e",
       "bytes": 103394778,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -49,6 +77,7 @@
       "md5": "834fd45e492eaf2ad7b46328339e919a",
       "bytes": 59324053,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -59,6 +88,7 @@
       "md5": "34467e66f6e95ce83d6a5bda453218da",
       "bytes": 59324377,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -69,6 +99,7 @@
       "md5": "097fc991bf32a468a7cb24db28c28141",
       "bytes": 59324295,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -79,6 +110,7 @@
       "md5": "22f7189bf70847b5e441766016fa77cc",
       "bytes": 200583607,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -89,6 +121,7 @@
       "md5": "50d3740c505ef8104cc3c6e4dc7b49e6",
       "bytes": 200583155,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -99,6 +132,7 @@
       "md5": "26590df92d82a38daf1db15b7a4dd201",
       "bytes": 200583355,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -109,6 +143,7 @@
       "md5": "5efd5477f6affb9bdbbb46034134a0db",
       "bytes": 92696590,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -119,6 +154,7 @@
       "md5": "83f0cb0d7b94425ae3b23f370257da08",
       "bytes": 92695438,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -129,6 +165,7 @@
       "md5": "807f70a15f44f13aa365dd6db36f56a6",
       "bytes": 231954959,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -139,6 +176,7 @@
       "md5": "0d3eaa64ca814f1ea73d29e4dcd78c62",
       "bytes": 231954825,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -149,6 +187,7 @@
       "md5": "ec0e3ddc18e8c704bf75c5e4b106b4eb",
       "bytes": 231954895,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -159,6 +198,7 @@
       "md5": "0d4d13d918be04a395c6f1526e191757",
       "bytes": 231954967,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
       ]
     },
@@ -169,7 +209,18 @@
       "md5": "8bec5262c80cfe81d4ac047b2d44bc02",
       "bytes": 231954935,
       "used_by": [
+        "lumpi:s10-5-l12e",
         "lumpi:s10-5-l9"
+      ]
+    },
+    {
+      "name": "lumpi_s10-5-l12e_submission.zip",
+      "kind": "submission",
+      "path": "model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip",
+      "md5": "5117445dbdf2d17d6f84ae090203423a",
+      "bytes": 25859564,
+      "used_by": [
+        "lumpi:s10-5-l12e"
       ]
     },
     {
@@ -183,5 +234,5 @@
       ]
     }
   ],
-  "total_bytes": 2253720108
+  "total_bytes": 2279579672
 }

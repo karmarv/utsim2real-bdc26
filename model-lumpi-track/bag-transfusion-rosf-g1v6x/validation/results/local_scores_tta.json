@@ -1,0 +1,30 @@
+{
+  "run": "bag of 3 seeds (TTA tta)",
+  "members": [
+    "transfusion-rosf-g1v6",
+    "transfusion-rosf-g1v6d2",
+    "transfusion-rosf-g1v6d3"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.34018976084719743,
+  "realval_A_per_class": {
+    "Person": 0.5109155555294727,
+    "Car": 0.8660392664135514,
+    "Bicycle": 0.49212352516005087,
+    "Motorcycle": 0.15085988620310534,
+    "Bus": 0.014144814242365689,
+    "Truck": 0.2707304143803869,
+    "Van": 0.07651486400144919,
+    "Unknown": 0.0033877379774451626
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.21080330049149043,
+  "realval_B_per_class": {
+    "Person": 0.2052663664194439,
+    "Car": 0.7771646412221377,
+    "Bicycle": 0.2320437607747372,
+    "Motorcycle": 0.04973459186043776,
+    "Bus": 0.019980524530374872,
+    "Truck": 0.18998864480928357,
+    "Van": 0.0014445738240181911,
+    "Unknown": null
+  }
+}

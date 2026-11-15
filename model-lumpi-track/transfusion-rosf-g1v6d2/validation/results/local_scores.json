@@ -1,0 +1,26 @@
+{
+  "ckpt": "/home/rahul/workspace/datacenter/utsim2real-bdc26/model-lumpi-track/transfusion-rosf-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+  "run": "run1_checkpoint_epoch_40",
+  "realval_A_mAP_3d_0.5_R40": 0.29710028833247776,
+  "realval_A_per_class": {
+    "Person": 0.453786194291809,
+    "Car": 0.8390306002215999,
+    "Bicycle": 0.40597441671152373,
+    "Motorcycle": 0.07002225891503462,
+    "Bus": 0.006338557902348109,
+    "Truck": 0.22639625719482886,
+    "Van": 0.07815373309019981,
+    "Unknown": 0.0030795879335535244
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.1832773583674066,
+  "realval_B_per_class": {
+    "Person": 0.17730848066057936,
+    "Car": 0.7332772906059606,
+    "Bicycle": 0.18317495091169117,
+    "Motorcycle": 0.027858964882243042,
+    "Bus": 0.014936270808614677,
+    "Truck": 0.1453174494896631,
+    "Van": 0.0010681012130942084,
+    "Unknown": null
+  }
+}

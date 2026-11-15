@@ -1,0 +1,30 @@
+{
+  "run": "bag of 3 seeds",
+  "members": [
+    "transfusion-rosf-g1v6",
+    "transfusion-rosf-g1v6d2",
+    "transfusion-rosf-g1v6d3"
+  ],
+  "realval_A_mAP_3d_0.5_R40": 0.3237584212893408,
+  "realval_A_per_class": {
+    "Person": 0.48599837195551254,
+    "Car": 0.8624285733128246,
+    "Bicycle": 0.45720784017438093,
+    "Motorcycle": 0.1216737782137198,
+    "Bus": 0.012120919285298185,
+    "Truck": 0.2473636629035624,
+    "Van": 0.07951580318008672,
+    "Unknown": 0.00351475610716262
+  },
+  "realval_B_mAP_3d_0.5_R40": 0.2004898406722365,
+  "realval_B_per_class": {
+    "Person": 0.19361876995633465,
+    "Car": 0.7580177092578859,
+    "Bicycle": 0.21591168719938567,
+    "Motorcycle": 0.03769806494403252,
+    "Bus": 0.019354011160590743,
+    "Truck": 0.1775034586889505,
+    "Van": 0.001325183498475412,
+    "Unknown": null
+  }
+}

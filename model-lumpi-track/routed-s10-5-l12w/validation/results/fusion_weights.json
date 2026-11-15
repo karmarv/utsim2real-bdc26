@@ -1,0 +1,50 @@
+{
+ "parent": "routed-s10-5-l9",
+ "rule": "best weight vector per class; pooled P(gain) >= 0.97, A and B drop <= 0.005, Person late-A >= 0 (fixed before results)",
+ "classes": {
+  "Person": {
+   "best": {
+    "weights": [
+     1.0,
+     0.67
+    ],
+    "delta_A": 0.00033976634452703713,
+    "delta_B": -0.0004351705625875446,
+    "delta_lateA": 0.002213304100435909,
+    "pooled_delta": -9.574677791840402e-05,
+    "p_gain": 0.405
+   },
+   "rule": "FAIL"
+  },
+  "Car": {
+   "best": {
+    "weights": [
+     2.0,
+     1.0,
+     1.0
+    ],
+    "delta_A": 8.661576230684087e-05,
+    "delta_B": 0.001539206602738985,
+    "delta_lateA": 0.0002546994159990934,
+    "pooled_delta": 0.0003379539046076685,
+    "p_gain": 0.845
+   },
+   "rule": "FAIL"
+  },
+  "Truck": {
+   "best": {
+    "weights": [
+     1.5,
+     1.0
+    ],
+    "delta_A": -0.002199450799422853,
+    "delta_B": -0.005220932898539837,
+    "delta_lateA": 0.000918489063717276,
+    "pooled_delta": -0.000397737155913902,
+    "p_gain": 0.25
+   },
+   "rule": "FAIL"
+  }
+ },
+ "kept": {}
+}

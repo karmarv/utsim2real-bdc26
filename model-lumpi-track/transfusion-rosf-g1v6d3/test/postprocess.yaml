@@ -12,10 +12,10 @@ classes:
     - 1.08
     - 1.08
     - 1.0
+    z_offset: -0.1
   Car:
-    nms_iou: 0.6
+    nms_iou: 0.01
   Bicycle:
-    nms_iou: 0.5
     recenter: 0.5
     size_scale:
     - 1.0
@@ -32,22 +32,25 @@ classes:
     - 1.08
     - 1.08
     - 1.08
-    z_offset: -0.1
+    z_offset: 0.0
   Van:
     nms_iou: 0.1
   Unknown: {}
 hedge:
   Bicycle:
   - - Person
-    - 0.6
+    - 0.3
   Truck:
   - - Car
-    - 0.6
+    - 0.1
   - - Van
     - 0.6
   Motorcycle:
   - - Bicycle
-    - 0.6
+    - 0.1
+  Van:
+  - - Truck
+    - 0.1
   Car:
   - - Van
     - 0.1

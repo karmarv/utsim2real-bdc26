@@ -188,3 +188,24 @@ def test_final_adjust_cross_copies_rank_below_the_receiving_class_and_never_lowe
             g = {f: gts[f] for f in gts}
             assert ap(out, g, c) >= ap(preds, g, c) - 1e-12
         assert apply_final_adjust(preds, {"cross_copies": {"Bus": {"from": "Truck"}}}) == preds   # no donor: nothing
+
+
+def test_final_adjust_cross_copies_several_donors_and_a_top_fraction():
+    """10.5 C3: `from` lists several donors; `top` keeps a donor's highest-scoring fraction; every copy ranks below
+    every box of the receiving class; a single donor string behaves as before."""
+    from route_predictions import apply_final_adjust
+    for seed in range(5):
+        preds, gts = _p_toy(seed)
+        one = apply_final_adjust(preds, {"cross_copies": {"Car": {"from": "Person"}}})
+        same = apply_final_adjust(preds, {"cross_copies": {"Car": {"from": ["Person"]}}})
+        assert one == same
+        out = apply_final_adjust(preds, {"cross_copies": {"Car": {"from": ["Person", "Bicycle"], "top": {"Person": 0.5}}}})
+        ps = sorted(d["score"] for v in preds.values() for d in v if d["class"] == "Person")
+        thr = float(np.quantile(ps, 0.5))
+        n_person = sum(1 for s in ps if s >= thr)
+        n_bike = sum(1 for v in preds.values() for d in v if d["class"] == "Bicycle")
+        new = [d for f in out for d in out[f][len(preds[f]):]]
+        assert len(new) == n_person + n_bike and all(d["class"] == "Car" for d in new)
+        orig = [d["score"] for v in preds.values() for d in v if d["class"] == "Car"]
+        if orig:
+            assert max(d["score"] for d in new) < min(orig)

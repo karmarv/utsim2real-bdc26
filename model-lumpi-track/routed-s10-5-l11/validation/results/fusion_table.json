@@ -1,0 +1,68 @@
+{
+  "Truck": {
+    "incumbent": "fusion bpvros6x_tta+pvros6j_tta@0.7",
+    "incumbent_A": 0.3869672335908403,
+    "incumbent_B": 0.23765050666543122,
+    "best": {
+      "members": [
+        "bpvros6x_tta",
+        "pvros6j_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.3869672335908403,
+      "B": 0.23765050666543122
+    },
+    "dB": 0.0,
+    "p_gain": 0.0,
+    "ci90": [
+      0.0,
+      0.0
+    ],
+    "dA": 0.0,
+    "pooled": {
+      "delta": 0.0,
+      "p_gain": 0.0
+    },
+    "decision": "incumbent fusion kept (it is the best candidate)",
+    "search_fast_iou": {
+      "bpvros6x_tta+pvros6j_tta12@0.7": {
+        "val": 0.3827199291538977,
+        "valB": 0.222553335460166
+      },
+      "bpvros6x_tta+pvros6j_tta@0.7": {
+        "val": 0.3869672335908403,
+        "valB": 0.23765050666543122
+      }
+    },
+    "gate": "pooled rule (6.0)",
+    "rank": "joint A/B, best only",
+    "tested": [
+      {
+        "members": [
+          "bpvros6x_tta",
+          "pvros6j_tta"
+        ],
+        "iou": 0.7,
+        "lateA": null,
+        "earlyA": null,
+        "dB": 0.0,
+        "p_gain": 0.0,
+        "dA": 0.0,
+        "pooled": {
+          "delta": 0.0,
+          "p_gain": 0.0
+        },
+        "passed": false
+      }
+    ],
+    "a_only_pick": {
+      "members": [
+        "bpvros6x_tta",
+        "pvros6j_tta"
+      ],
+      "iou": 0.7,
+      "A": 0.3869672335908403,
+      "B": 0.23765050666543122
+    }
+  }
+}

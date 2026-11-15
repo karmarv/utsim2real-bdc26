@@ -10,7 +10,7 @@
 #     bash common/pipeline/launch.sh <run> s105v5 common/pipeline/s10_5_build.sh <run> swap v2x routed-s10-4-v4 routed-s10-5-v5 V5 <V4 zip>
 # Events: "S10-5 <track> <system>: ..." in <run>/events.txt; logs <run>/s105_<system>_<step>.log.
 RUN=$1; MODE=$2
-TT=v2x; { [ "$MODE" = swap ] || [ "$MODE" = addmember ]; } && TT=$3
+TT=v2x; { [ "$MODE" = swap ] || [ "$MODE" = addmember ] || [ "$MODE" = p ]; } && TT=$3
 source "$(dirname "$0")/lib_common.sh" 2>/dev/null || source "$(dirname "$0")/common.sh"
 export S10_3_LIB=1
 source "$REPO/common/pipeline/s10_3_build.sh" "$RUN" "$TT"
@@ -170,6 +170,22 @@ if [ "$MODE" = swap ]; then
     if { [ "$LEVEL" = GO ] || [ "$LEVEL" = JUDGEMENT ]; } && python -c "import sys; sys.exit(0 if float('$DELTA') > 0 else 1)"; then
       st "UPLOAD RULE: PASS (rule 14 vs $PARENT $LEVEL, pooled mAP delta $DELTA): goes to the entrant"
     else st "UPLOAD RULE: FAIL (rule 14 vs $PARENT $LEVEL, pooled mAP delta $DELTA): not uploaded"; fi
+  else st "STOPPED"; fi
+  st "DONE"; exit 0
+fi
+
+if [ "$MODE" = p ]; then
+  # Record Section 11 (attempt C3): a P-type system, the parent's card plus stage changes already written in the card;
+  # the parent's member kit predictions and frames; upload rule against the scored entry UPV (rule 14 GO, or JUDGEMENT
+  # with a pooled delta above 0).
+  #   bash common/pipeline/launch.sh <run> s105l12c common/pipeline/s10_5_build.sh <run> p lumpi routed-s10-5-l12c \
+  #     routed-s10-5-l9 s10-5-l12c <L9 zip> routed-s10-4-l8
+  SYS=$4; PARENT=$5; TAG=$6; PZ=$7; UPV=$8
+  if p_build "$SYS" "$PARENT" "$TAG" "$PZ" "$UPV"; then
+    L=$(rule_line "$UPV"); LEVEL=${L% *}; DELTA=${L#* }
+    if { [ "$LEVEL" = GO ] || [ "$LEVEL" = JUDGEMENT ]; } && python -c "import sys; sys.exit(0 if float('$DELTA') > 0 else 1)"; then
+      st "UPLOAD RULE: PASS (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): goes to the entrant"
+    else st "UPLOAD RULE: FAIL (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): not uploaded"; fi
   else st "STOPPED"; fi
   st "DONE"; exit 0
 fi

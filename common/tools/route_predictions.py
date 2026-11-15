@@ -353,22 +353,27 @@ def apply_final_adjust(preds: dict, spec: dict | None) -> dict:
     if cross:
         before = {f: list(v) for f, v in out.items()}
         for c, k in cross.items():
-            a = k["from"]
-            sa = [d["score"] for v in before.values() for d in v if d["class"] == a]
-            if not sa or max(sa) <= 0:
-                continue
+            # 10.5 C3: `from` may list several donors; `top: {donor: fraction}` keeps only the donor's highest-scoring
+            # fraction of boxes (a quantile of its own scores in the same predictions; label-free, for the box budget)
+            donors = k["from"] if isinstance(k["from"], list) else [k["from"]]
             sb = [d["score"] for v in before.values() for d in v if d["class"] == c]
-            f = 0.99 * (min(sb) if sb else max(sa)) / max(sa)
             t = np.asarray(k["target"], dtype=np.float64) if k.get("target") else None
-            for fid, v in before.items():
-                for d in v:
-                    if d["class"] != a:
-                        continue
-                    b = np.array(d["box"], dtype=np.float64)
-                    if t is not None:
-                        b[2] += (t[2] - b[5]) / 2
-                        b[3:6] = t
-                    out[fid].append({"box": b.tolist(), "score": d["score"] * f, "class": c})
+            for a in donors:
+                sa = [d["score"] for v in before.values() for d in v if d["class"] == a]
+                if not sa or max(sa) <= 0:
+                    continue
+                f = 0.99 * (min(sb) if sb else max(sa)) / max(sa)
+                top = (k.get("top") or {}).get(a)
+                thr = float(np.quantile(sa, 1.0 - top)) if top else -np.inf
+                for fid, v in before.items():
+                    for d in v:
+                        if d["class"] != a or d["score"] < thr:
+                            continue
+                        b = np.array(d["box"], dtype=np.float64)
+                        if t is not None:
+                            b[2] += (t[2] - b[5]) / 2
+                            b[3:6] = t
+                        out[fid].append({"box": b.tolist(), "score": d["score"] * f, "class": c})
     return out
 
 

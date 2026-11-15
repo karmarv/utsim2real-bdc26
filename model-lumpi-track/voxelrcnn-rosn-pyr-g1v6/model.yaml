@@ -1,0 +1,21 @@
+name: voxelrcnn-rosn-pyr-g1v6
+strategy: S10-5
+track: lumpi-track
+module: release 10.5, the 8-hour iteration, attempt A1 wave 2 (record Section 11)
+derived_from: voxelrcnn-rosn-g1v6
+framework: OpenPCDet 0.6.0 (233f849), BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: Voxel R-CNN-ROS without GT sampling (all 40 epochs) and with +/-1.5
+  deg pitch/roll; otherwise the parent config; plus SE-SSD shape-aware augmentation
+  (pyramid dropout and sparsify)
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: planned (10.5 attempt A1 wave 2, training seed 666, 4 GPUs)
+expected: 'the no-GT-sampling arm of Section 12 (GT sampling lowers cross-domain AP,
+  Eskandar et al.): Person and Car at or above the fade member'
+notes: '10.5 attempt A1 wave 2 (record Section 11): voxelrcnn-rosn-g1v6''s config
+  with only random_local_pyramid_aug added; same corpus and seed.
+
+  '
