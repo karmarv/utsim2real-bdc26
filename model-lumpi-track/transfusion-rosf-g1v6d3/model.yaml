@@ -1,0 +1,28 @@
+name: transfusion-rosf-g1v6d3
+strategy: S10-5
+track: lumpi-track
+module: release 10.5, the detection-architecture arm (docs/decisions/2026-11-14-s10-10.5-final-push.md
+  Section 10)
+derived_from: transfusion-rosf-g1v6
+framework: OpenPCDet 0.6.0 (233f849) with common/patches/openpcdet_transfusion_novel.patch,
+  BDCDataset adapter (common/bdc26/detect/pcdet_dataset.py)
+architecture: TransFusion-L (Bai et al., CVPR 2022) - VoxelResBackBone8x and the BEV
+  backbone of voxelrcnn-rosf-g1v6, with the transformer query head (class-aware heat-map
+  query initialisation, 200 queries, Hungarian matching, one decoder layer) in place
+  of the CenterHead + RoI head; same data config (ROS, GT-sampling fade, tilt)
+data:
+  train: pcdet/g1-v6d3
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+postprocess: test/postprocess.yaml
+status: 'planned (release 10.5 architecture arm: the third generator draw, training
+  seed 3234, GPUs 4-7; starts only if the continuation rule of record Section 10.5
+  passes)'
+expected: a fusion member whose errors are decorrelated from the CenterHead families
+  (one query set shared by all classes, matched jointly); Person, Bicycle and Car
+  are where fusion can use it
+notes: 'Release 10.5 architecture arm (record Section 10.5): transfusion-rosf-g1v6''s
+  config on the third generator draw pcdet/g1-v6d3 (seed 3234), for the bag bag-transfusion-rosf-g1v6x.
+  Frames stay g1-v6.
+
+  '

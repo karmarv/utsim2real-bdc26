@@ -1,0 +1,128 @@
+# Release 10.5 architecture arm (docs/decisions/2026-11-14-s10-10.5-final-push.md Section 10): TransFusion-L, from
+# OpenPCDet's cfgs/nuscenes_models/transfusion_lidar.yaml (233f849) on voxelrcnn-rosf-g1v6's backbone and data config.
+# Changes for this data: no velocity (8-value box code, common/patches/openpcdet_transfusion_novel.patch); 8 classes;
+# Person, Bicycle and Motorcycle skip the heat-map local-max (as nuScenes' pedestrian and cone); 300 queries
+# (dense scenes: about 55 objects per synthetic frame); range and voxels of the parent; near-raw final output
+# (score 0.01), per-class NMS and box calibration by bdc26.detect.postprocess as for every member.
+# S9 arm M1 (docs/decisions/2026-11-02-s9-clean-twin-plan.md): the parent config with GT-sampling fade (no copy-paste in the
+# last 5 of 40 epochs; cross-domain evidence: Eskandar et al. CVPR 2024) and the bdc_world_tilt augmentation (pcdet_dataset.yaml).
+# R3 (docs/02-STRATEGY.md Section 8.7.1): this config trained on pcdet/g1-v4 (g1-v3 recipe + engine G2-lite).
+# S5 run b (docs/02-STRATEGY.md Section 8.5): voxelrcnn-g1v3 trained with class-wise object scaling (ROS, pcdet_dataset.yaml).
+# S4 member (docs/02-STRATEGY.md Section 8.4): Voxel R-CNN on the S1 corpus pcdet/g1-v3, xyz only, synthetic data only.
+# Stage 1 is the S2 CenterPoint (same voxels 0.1 x 0.1 x 0.25 m in [-5, 5] m z, VoxelResBackBone8x, the S2 head groups);
+# stage 2 pools the multi-scale sparse voxel features on a 6 x 6 x 6 grid inside each proposal and regresses a box
+# residual plus an IoU-quality score. Target: the S3 portfolio loses 0.18 (A) / 0.29 (B) Person AP and 0.29 / 0.15
+# Truck AP to localization (Section 8.4 review); Person near misses are noise in centre and size, which a stage that
+# sees the points of each box can reduce. Unknown has no synthetic labels and no test GT. Built from OpenPCDet's mainline cfgs/waymo_models/voxel_rcnn_with_centerhead_dyn_voxel.yaml
+# (233f849) with MeanVFE (no torch_scatter). Changes for this data, each with its reason:
+# - proposals: up to 300 per head at score >= 0.03 (dense scenes: 17 Persons and 28 Cars per realval-A frame, and the S3 lesson that
+#   low-score boxes still carry AP); the RoI head refines every proposal.
+# - REG_FG_THRESH 0.45 (mainline 0.55): the boxes to correct are near misses at IoU 0.25-0.5, so regression must
+#   also train on such proposals.
+# - SCORE_BLEND_ALPHA (bdc26 patch, common/bdc26/detect/pcdet_patches.py): final score = stage-1 heat-map score^a x
+#   stage-2 IoU score^(1-a); mainline uses the IoU score alone (a = 0); a is chosen on realval-A.
+# - final post-processing stays near-raw (score 0.01, NMS 0.9): per-class NMS and box calibration are done by
+#   bdc26.detect.postprocess, tuned on real validation like every member.
+CLASS_NAMES: ['Person', 'Car', 'Bicycle', 'Motorcycle', 'Bus', 'Truck', 'Van', 'Unknown']
+
+DATA_CONFIG:
+    _BASE_CONFIG_: pcdet_dataset.yaml
+
+MODEL:
+    NAME: TransFusion
+
+    VFE:
+        NAME: MeanVFE
+
+    BACKBONE_3D:
+        NAME: VoxelResBackBone8x
+        USE_BIAS: False
+
+    MAP_TO_BEV:
+        NAME: HeightCompression
+        NUM_BEV_FEATURES: 256
+
+    BACKBONE_2D:
+        NAME: BaseBEVBackbone
+        LAYER_NUMS: [5, 5]
+        LAYER_STRIDES: [1, 2]
+        NUM_FILTERS: [128, 256]
+        UPSAMPLE_STRIDES: [1, 2]
+        NUM_UPSAMPLE_FILTERS: [256, 256]
+        USE_CONV_FOR_NO_STRIDE: True
+
+    DENSE_HEAD:
+        CLASS_AGNOSTIC: False
+        NAME: TransFusionHead
+        USE_BIAS_BEFORE_NORM: False
+        NUM_PROPOSALS: 300
+        HIDDEN_CHANNEL: 128
+        NUM_CLASSES: 8
+        NUM_HEADS: 8
+        NMS_KERNEL_SIZE: 3
+        FFN_CHANNEL: 256
+        DROPOUT: 0.1
+        BN_MOMENTUM: 0.1
+        ACTIVATION: relu
+        NUM_HM_CONV: 2
+        SMALL_CLASS_IDS: [0, 2, 3]
+        SEPARATE_HEAD_CFG:
+            HEAD_ORDER: ['center', 'height', 'dim', 'rot']
+            HEAD_DICT: {
+                'center': {'out_channels': 2, 'num_conv': 2},
+                'height': {'out_channels': 1, 'num_conv': 2},
+                'dim': {'out_channels': 3, 'num_conv': 2},
+                'rot': {'out_channels': 2, 'num_conv': 2},
+            }
+        TARGET_ASSIGNER_CONFIG:
+            FEATURE_MAP_STRIDE: 8
+            DATASET: BDC
+            GAUSSIAN_OVERLAP: 0.1
+            MIN_RADIUS: 2
+            HUNGARIAN_ASSIGNER:
+                cls_cost: {'gamma': 2.0, 'alpha': 0.25, 'weight': 0.15}
+                reg_cost: {'weight': 0.25}
+                iou_cost: {'weight': 0.25}
+        LOSS_CONFIG:
+            LOSS_WEIGHTS: {
+                    'cls_weight': 1.0,
+                    'bbox_weight': 0.25,
+                    'hm_weight': 1.0,
+                    'code_weights': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+                }
+            LOSS_CLS:
+                use_sigmoid: True
+                gamma: 2.0
+                alpha: 0.25
+        POST_PROCESSING:
+            SCORE_THRESH: 0.0
+            POST_CENTER_RANGE: [-45.0, -45.0, -10.0, 45.0, 45.0, 10.0]
+
+    POST_PROCESSING:
+        RECALL_THRESH_LIST: [0.3, 0.5, 0.7]
+        SCORE_THRESH: 0.01
+        OUTPUT_RAW_SCORE: False
+        EVAL_METRIC: kitti
+
+OPTIMIZATION:
+    BATCH_SIZE_PER_GPU: 4
+    NUM_EPOCHS: 40
+    OPTIMIZER: adam_onecycle
+    LR: 0.001
+    WEIGHT_DECAY: 0.01
+    MOMENTUM: 0.9
+    BETAS: [0.9, 0.999]
+    MOMS: [0.9, 0.8052631]
+    PCT_START: 0.4
+    DIV_FACTOR: 10
+    DECAY_STEP_LIST: [35, 45]
+    LR_DECAY: 0.1
+    LR_CLIP: 0.0000001
+    LR_WARMUP: False
+    WARMUP_EPOCH: 1
+    GRAD_NORM_CLIP: 35
+
+HOOK:
+    DisableAugmentationHook:
+        DISABLE_AUG_LIST: ['gt_sampling']
+        NUM_LAST_EPOCHS: 5

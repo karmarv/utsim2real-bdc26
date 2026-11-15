@@ -10,7 +10,7 @@
 #     bash common/pipeline/launch.sh <run> s105v5 common/pipeline/s10_5_build.sh <run> swap v2x routed-s10-4-v4 routed-s10-5-v5 V5 <V4 zip>
 # Events: "S10-5 <track> <system>: ..." in <run>/events.txt; logs <run>/s105_<system>_<step>.log.
 RUN=$1; MODE=$2
-TT=v2x; [ "$MODE" = swap ] && TT=$3
+TT=v2x; { [ "$MODE" = swap ] || [ "$MODE" = addmember ]; } && TT=$3
 source "$(dirname "$0")/lib_common.sh" 2>/dev/null || source "$(dirname "$0")/common.sh"
 export S10_3_LIB=1
 source "$REPO/common/pipeline/s10_3_build.sh" "$RUN" "$TT"
@@ -115,7 +115,7 @@ swap_build() {    # system parent tag parent-zip: the view-swap card end to end;
   run validate python common/tools/route_predictions.py validate "$MD" || return 1
   run clean python common/tools/clean_check.py "$MD" || { st "rules 1/1b FAILED: $(tail -n 2 "$(lg clean)" | tr '\n' ' ')"; return 1; }
   st "rules 1 and 1b: $(grep -E '^(FRAMES|PASS)' "$(lg clean)" | tr '\n' ' ' | cut -c1-300)"
-  gates "$SYS" "$PARENT"
+  gates "$SYS" "$PARENT" ${EXTRA_CMP:-}
   for n in $(used_of "$SYS"); do
     if [ "$(python -c "import yaml;a=yaml.safe_load(open('$MD/model.yaml'))['members']['$n'];b=yaml.safe_load(open('$PARENT_DIR/model.yaml'))['members'].get('$n');print(int(a==b))")" = 1 ] \
        && [ -s "$PARENT_DIR/test/output/predictions_$n.json" ]; then cp -p "$PARENT_DIR/test/output/predictions_$n.json" "$MD/test/output/"
@@ -170,6 +170,100 @@ if [ "$MODE" = swap ]; then
     if { [ "$LEVEL" = GO ] || [ "$LEVEL" = JUDGEMENT ]; } && python -c "import sys; sys.exit(0 if float('$DELTA') > 0 else 1)"; then
       st "UPLOAD RULE: PASS (rule 14 vs $PARENT $LEVEL, pooled mAP delta $DELTA): goes to the entrant"
     else st "UPLOAD RULE: FAIL (rule 14 vs $PARENT $LEVEL, pooled mAP delta $DELTA): not uploaded"; fi
+  else st "STOPPED"; fi
+  st "DONE"; exit 0
+fi
+
+if [ "$MODE" = addmember ]; then
+  # Record Section 10 (the architecture arm; rules written before any result): the parent card plus new members (plain
+  # and 4-view), `extend`, `fuse` (up to 3 members, the 6.0 pooled rule; LUMPI: Person ranked on late-A, the Van judge),
+  # LUMPI Bicycle, Motorcycle and Bus frozen at the parent (S9 rule 2), the per-class final check against the parent
+  # (s7_check: failing classes frozen), then the build with the parent's frames; upload rule against the scored entry UPV.
+  #   bash common/pipeline/launch.sh <run> s105l10 common/pipeline/s10_5_build.sh <run> addmember lumpi routed-s10-5-l9 \
+  #     routed-s10-5-l10 L10 <L9 zip> routed-s10-4-l8 tf6:transfusion-rosf-g1v6
+  PARENT=$4; NAME=$5; CAND=$6; PZ=$7; UPV=$8; shift 8; SPECS=("$@")
+  SYS=$NAME; MD=model-$T-track/$NAME; PD=model-$T-track/$PARENT
+  st "armed: waits for the tuned plain and 4-view outputs of ${SPECS[*]}; parent $PARENT, upload rule against $UPV"
+  # A member may be a seed bag (model.yaml type: bag): it is fused (bag_predictions.py, plain, 4-view and, with TTA12=1,
+  # 12 views) once every seed has its tuned outputs. TTA12=1 also adds each member's 12-view sibling after the main fuse
+  # (S8's swap stage, fuse --swap-variant tta12), as S9_TTA12 did.
+  isbag() { python -c "import sys,yaml;sys.exit(0 if yaml.safe_load(open('model-$T-track/$1/model.yaml')).get('type')=='bag' else 1)"; }
+  outs() { local m=$1 r=$2 S X; for S in val valB; do for X in "" _tta ${TTA12:+_tta12}; do
+      [ -s "model-$T-track/$m/validation/output/pcdet_realval-v1_${S}_${r}_checkpoint_epoch_40${X}.json" ] || return 1; done; done; }
+  seed_ok() { grep -qE "POST_DONE $T $1$" "$E" && outs "$1" run1; }
+  ready() { local s m sd ok; for s in "${SPECS[@]}"; do m=${s#*:}
+      if isbag "$m"; then
+        outs "$m" bag && continue
+        ok=1; for sd in $(python -c "import yaml;print(' '.join(yaml.safe_load(open('model-$T-track/$m/model.yaml'))['members']))"); do seed_ok "$sd" || ok=0; done
+        [ $ok = 1 ] || return 1
+        run "bag_$m" python common/tools/bag_predictions.py "model-$T-track/$m" || return 1
+        if [ -n "${TTA12:-}" ]; then run "bag12_$m" python common/tools/bag_predictions.py "model-$T-track/$m" --tags _tta12 || return 1; fi
+        st "bag $m: $(grep -E ': A' "$(lg "bag_$m")" | tr '\n' ';' | cut -c1-300)"
+        outs "$m" bag || return 1
+      else seed_ok "$m" || return 1; fi
+    done; }
+  until ready; do grep -qE "(POST_FAIL|TRAIN_FAIL) $T ${SPECS[0]#*:}" "$E" && { st "member failed: STOPPED"; exit 1; }; sleep 120; done
+  mkdir -p "$MD/test/output" "$MD/validation/results" "$MD/validation/output" "$MD/train" "$MD/submissions"
+  cp "$PD/test/make_submission.sh" "$PD/test/synthetic_ids.txt" "$MD/test/"
+  RT=$PD/validation/results/route_table.json; [ -f "$RT" ] || RT=${RT_FROM:-model-$T-track/routed-c0}/validation/results/route_table.json
+  cp "$RT" "$MD/validation/results/route_table.json"; st "route table from $RT (extend adds the members it lacks)"
+  python - "$PD" "$MD" "$CAND" "${SPECS[@]}" > "$(lg card)" 2>&1 <<'PY' || { st "card FAILED"; st "STOPPED"; exit 1; }
+import sys
+from pathlib import Path
+import yaml
+pd, md, cand, specs = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3], sys.argv[4:]
+d = yaml.safe_load((pd / "model.yaml").read_text())
+ck = "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth"
+for s in specs:
+    k, m = s.split(":")
+    c = ck.replace("/run1/", "/bag/") if yaml.safe_load((md.parent / m / "model.yaml").read_text()).get("type") == "bag" else ck
+    d["members"][k] = {"model": m, "ckpt": c}
+    d["members"][k + "_tta"] = {"model": m, "ckpt": c, "tta": "flip4+yaw+z", "postprocess": "test/postprocess_tta.yaml"}
+d.update({"name": md.name, "strategy": "S10-5", "candidate": cand, "derived_from": pd.name,
+          "status": f"S10-5 {cand}: {pd.name} plus {' '.join(specs)} (extend, fuse, rare classes frozen, final check; "
+                    "docs/decisions/2026-11-14-s10-10.5-final-push.md Section 10)",
+          "notes": f"S10-5 {cand} (record Section 10): the architecture arm; rules fixed before results.\n"})
+(md / "model.yaml").write_text(yaml.safe_dump(d, sort_keys=False))
+print(f"{md.name}: {len(d['members'])} members, added {' '.join(specs)}")
+PY
+  st "card: $(tr '\n' ';' < "$(lg card)")"
+  FUSEX=(); [ "$T" = lumpi ] && FUSEX=(--late-rank Person --gate-top 3 --judge Van)
+  run extend python common/tools/route_predictions.py extend "$MD" || { st "STOPPED"; exit 1; }
+  run fuse python common/tools/route_predictions.py fuse "$MD" --max-members 3 --pooled-rule "${FUSEX[@]}" || { st "STOPPED"; exit 1; }
+  st "fuse: $(grep -hoE '^[A-Za-z]+ .*"decision": "[^"]*"' "$(lg fuse)" | sed -E 's/ \{.*"decision": / /' | tr '\n' ';' | cut -c1-600)"
+  st "fused sets: $(python -c "import yaml;d=yaml.safe_load(open('$MD/model.yaml'));print('; '.join(f\"{c} {'+'.join(f['members'])}@{f['iou']}\" for c, f in d['fusion'].items()))" | cut -c1-600)"
+  if [ -n "${TTA12:-}" ]; then
+    python - "$MD" "${SPECS[@]}" > "$(lg tta12_card)" 2>&1 <<'PY' || { st "tta12 card FAILED"; st "STOPPED"; exit 1; }
+import sys
+from pathlib import Path
+import yaml
+md = Path(sys.argv[1]); d = yaml.safe_load((md / "model.yaml").read_text()); added = []
+for s in sys.argv[2:]:
+    k = s.split(":")[0]; m0 = d["members"][k + "_tta"]
+    d["members"][k + "_tta12"] = {"model": m0["model"], "ckpt": m0["ckpt"], "tta": "flip4+yaw+z+scale", "tta_tag": "tta12",
+                                  "postprocess": "test/postprocess_tta12.yaml"}
+    added.append(k + "_tta12")
+(md / "model.yaml").write_text(yaml.safe_dump(d, sort_keys=False))
+print("12-view siblings:", " ".join(added))
+PY
+    st "$(cat "$(lg tta12_card)")"
+    run fuse_tta12 python common/tools/route_predictions.py fuse "$MD" --max-members 3 --pooled-rule --swap-variant tta12 "${FUSEX[@]}" || { st "STOPPED"; exit 1; }
+    st "fuse tta12: $(grep -hoE '^[A-Za-z]+ .*"decision": "[^"]*"' "$(lg fuse_tta12)" | sed -E 's/ \{.*"decision": / /' | tr '\n' ';' | cut -c1-600)"
+  fi
+  if [ "$T" = lumpi ]; then run freeze_rare python common/tools/freeze_classes.py "$MD" --from "$PD" Bicycle Motorcycle Bus || { st "STOPPED"; exit 1; }; fi
+  run validate_fused python common/tools/route_predictions.py validate "$MD" || { st "STOPPED"; exit 1; }
+  python common/tools/s7_check.py check "$T" "$MD" "$PD" > "$(lg final_check)" 2>&1 || { st "final check FAILED"; st "STOPPED"; exit 1; }
+  FROZEN=$(grep -h '^FROZEN' "$(lg final_check)" | cut -d' ' -f2-)
+  st "final check vs $PARENT: $(grep -vh '^FROZEN' "$(lg final_check)" | cut -c1-200 | tr '\n' ';' | cut -c1-900)"
+  if [ -n "$FROZEN" ]; then run freeze python common/tools/freeze_classes.py "$MD" --from "$PD" $FROZEN || { st "STOPPED"; exit 1; }; fi
+  if python -c "import sys,yaml;a,b=(yaml.safe_load(open(f+'/model.yaml')) for f in sys.argv[1:]);k=('route','fusion','calibration','budget','final_adjust','tail_copies');sys.exit(0 if all((a.get(x) or None)==(b.get(x) or None) for x in k) else 1)" "$MD" "$PD"; then
+    st "every class at $PARENT after the checks: no $CAND"; st "DONE"; exit 0; fi
+  [ -n "${DRY:-}" ] && { st "dry run: stops before the build"; st "DONE"; exit 0; }
+  if EXTRA_CMP=$UPV swap_build "$NAME" "$PARENT" "s10-5-$(echo "$CAND" | tr 'A-Z' 'a-z')" "$PZ"; then
+    L=$(rule_line "$UPV"); LEVEL=${L% *}; DELTA=${L#* }
+    if { [ "$LEVEL" = GO ] || [ "$LEVEL" = JUDGEMENT ]; } && python -c "import sys; sys.exit(0 if float('$DELTA') > 0 else 1)"; then
+      st "UPLOAD RULE: PASS (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): goes to the entrant"
+    else st "UPLOAD RULE: FAIL (rule 14 vs $UPV $LEVEL, pooled mAP delta $DELTA): not uploaded"; fi
   else st "STOPPED"; fi
   st "DONE"; exit 0
 fi

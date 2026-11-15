@@ -1,0 +1,460 @@
+name: routed-s10-5-l10dry
+strategy: S10-5
+candidate: L10dry
+track: lumpi-track
+module: M11 (TTA and fusion) with two-stage members
+framework: members' OpenPCDet checkpoints, each with its own test/postprocess.yaml
+architecture: 'per-class routing and box fusion (up to 3 members) of clean members
+  only (S10 rule 1: corpora without real label rows, the g1-v6 family and UrbanTwin),
+  with test-time augmentation'
+members:
+  bppros6x:
+    model: bag-pointpillars-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bppros6x_tta:
+    model: bag-pointpillars-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bpvros6x:
+    model: bag-pvrcnnpp-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bpvros6x_tta:
+    model: bag-pvrcnnpp-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bpvrosf6x:
+    model: bag-pvrcnnpp-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bpvrosf6x_tta:
+    model: bag-pvrcnnpp-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bpvrosn6x:
+    model: bag-pvrcnnpp-rosn-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bpvrosn6x_tta:
+    model: bag-pvrcnnpp-rosn-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvnros6x:
+    model: bag-voxelnext-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bvnros6x_tta:
+    model: bag-voxelnext-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvnrosf6x:
+    model: bag-voxelnext-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bvnrosf6x_tta:
+    model: bag-voxelnext-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrros6x:
+    model: bag-voxelrcnn-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bvrros6x_tta:
+    model: bag-voxelrcnn-ros-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrrosf6x:
+    model: bag-voxelrcnn-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bvrrosf6x_tta:
+    model: bag-voxelrcnn-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrrosn6x:
+    model: bag-voxelrcnn-rosn-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+  bvrrosn6x_tta:
+    model: bag-voxelrcnn-rosn-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  dsros6:
+    model: dsvt-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  dsros6_tta:
+    model: dsvt-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  dsros6_tta12:
+    model: dsvt-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  dsrosf6:
+    model: dsvt-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  dsrosf6_tta:
+    model: dsvt-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  dsrosf6_tta12:
+    model: dsvt-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  ppros6:
+    model: pointpillars-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  ppros6_tta:
+    model: pointpillars-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  ppros6d2:
+    model: pointpillars-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  ppros6d2_tta:
+    model: pointpillars-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pprosf6:
+    model: pointpillars-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pprosf6_tta:
+    model: pointpillars-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros6:
+    model: pvrcnnpp-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvros6_tta:
+    model: pvrcnnpp-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros6_tta12:
+    model: pvrcnnpp-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  pvros6d2:
+    model: pvrcnnpp-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvros6d2_tta:
+    model: pvrcnnpp-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros6j:
+    model: pvrcnnpp-ros-g1v6j
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvros6j_tta:
+    model: pvrcnnpp-ros-g1v6j
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvros6j_tta12:
+    model: pvrcnnpp-ros-g1v6j
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  pvrosf6:
+    model: pvrcnnpp-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvrosf6_tta:
+    model: pvrcnnpp-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvrosf6_tta12:
+    model: pvrcnnpp-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  pvrosf6d2:
+    model: pvrcnnpp-rosf-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvrosf6d2_tta:
+    model: pvrcnnpp-rosf-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvrosn6:
+    model: pvrcnnpp-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvrosn6_tta:
+    model: pvrcnnpp-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  pvrosn6_tta12:
+    model: pvrcnnpp-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  pvrosn6d2:
+    model: pvrcnnpp-rosn-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  pvrosn6d2_tta:
+    model: pvrcnnpp-rosn-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnros6:
+    model: voxelnext-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vnros6_tta:
+    model: voxelnext-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnros6_tta12:
+    model: voxelnext-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vnros6d2:
+    model: voxelnext-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vnros6d2_tta:
+    model: voxelnext-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnrosf6:
+    model: voxelnext-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vnrosf6_tta:
+    model: voxelnext-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnrosf6_tta12:
+    model: voxelnext-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vnrosf6d2:
+    model: voxelnext-rosf-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vnrosf6d2_tta:
+    model: voxelnext-rosf-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnrosn6:
+    model: voxelnext-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vnrosn6_tta:
+    model: voxelnext-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vnrosn6_tta12:
+    model: voxelnext-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrros6:
+    model: voxelrcnn-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrros6_tta:
+    model: voxelrcnn-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrros6_tta12:
+    model: voxelrcnn-ros-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrros6d2:
+    model: voxelrcnn-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrros6d2_tta:
+    model: voxelrcnn-ros-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrrosf6:
+    model: voxelrcnn-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrrosf6_tta:
+    model: voxelrcnn-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrrosf6_tta12:
+    model: voxelrcnn-rosf-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosf6d2:
+    model: voxelrcnn-rosf-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrrosf6d2_tta:
+    model: voxelrcnn-rosf-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrrosf6j:
+    model: voxelrcnn-rosf-g1v6j
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrrosf6j_tta:
+    model: voxelrcnn-rosf-g1v6j
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrrosf6j_tta12:
+    model: voxelrcnn-rosf-g1v6j
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosn6:
+    model: voxelrcnn-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrrosn6_tta:
+    model: voxelrcnn-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  vrrosn6_tta12:
+    model: voxelrcnn-rosn-g1v6
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  vrrosn6d2:
+    model: voxelrcnn-rosn-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  vrrosn6d2_tta:
+    model: voxelrcnn-rosn-g1v6d2
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+  bvrrosf6x_tta12:
+    model: bag-voxelrcnn-rosf-g1v6x
+    ckpt: train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z+scale
+    tta_tag: tta12
+    postprocess: test/postprocess_tta12.yaml
+  dry6:
+    model: voxelrcnn-rosf-g1v6jn1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+  dry6_tta:
+    model: voxelrcnn-rosf-g1v6jn1
+    ckpt: train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
+    tta: flip4+yaw+z
+    postprocess: test/postprocess_tta.yaml
+data:
+  train: pcdet/g1-v6
+  realval: pcdet/realval-v1
+realism_frames: pcdet/g1-v6
+status: 'S10-5 L10dry: routed-s10-5-l9 plus dry6:voxelrcnn-rosf-g1v6jn1 (extend, fuse,
+  rare classes frozen, final check; docs/decisions/2026-11-14-s10-10.5-final-push.md
+  Section 10)'
+notes: 'S10-5 L10dry (record Section 10): the architecture arm; rules fixed before
+  results.
+
+  '
+budget:
+  Person: 0.01
+  Bicycle: 0.01
+  Motorcycle: 0.01
+  Bus: 0.01
+  Truck: 0.01
+  Van: 0.01
+  Unknown: 0.075
+tail_copies:
+  Bus:
+    r: 1.0
+    n: 4
+  Person:
+    r: 0.2
+    n: 4
+    min_score: 0.7531
+route:
+  Person: vrrosn6_tta12
+  Car: vrrosf6_tta12
+  Bicycle: bppros6x_tta
+  Motorcycle: vnrosn6_tta12
+  Bus: ppros6_tta
+  Truck: bpvros6x_tta
+  Van: dsrosf6_tta12
+  Unknown: pprosf6_tta
+route_selection:
+  rule: 'joint: rank members by the mean of realval-A and realval-B AP; a class leaves
+    its current member only through the class gate (dB >= 0.01, paired bootstrap x200
+    P(gain) >= 0.9, dA >= -0.005); also a gain on the pooled A+B frames (P(gain) >=
+    0.9)'
+  estimate_mAP_A: 0.3995
+  estimate_mAP_B: 0.2273
+fusion:
+  Person:
+    members:
+    - vrrosn6_tta12
+    - bvrrosf6x_tta12
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Car:
+    members:
+    - vrrosf6_tta12
+    - bvrrosn6x_tta
+    - vrrosf6j_tta12
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Bicycle:
+    members:
+    - ppros6d2_tta
+    - dsrosf6_tta12
+    - pvros6j_tta12
+    weights:
+    - 1.0
+    - 1.0
+    - 1.0
+    iou: 0.5
+    calibration: {}
+  Motorcycle:
+    members:
+    - vnrosn6_tta12
+    - vnrosf6d2_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+  Truck:
+    members:
+    - bpvros6x_tta
+    - pvros6j_tta
+    weights:
+    - 1.0
+    - 1.0
+    iou: 0.7
+    calibration: {}
+calibration: null

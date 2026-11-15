@@ -1083,6 +1083,11 @@ def fuse_select(model_dir: Path, card: dict, track, n_boot: int, seed: int, clas
     text += yaml.safe_dump({"fusion": fusion}, sort_keys=False)
     if card.get("budget"):
         text += yaml.safe_dump({"budget": card["budget"]}, sort_keys=False)
+    # 10.5 fix: the card text is cut at `fusion:`, so keys written after it (S10's calibration, size_calibration,
+    # final_adjust, derived_from) were lost; keep every key of the card that the new text lacks
+    rest = {k: v for k, v in card.items() if k not in (yaml.safe_load(text) or {})}
+    if rest:
+        text += yaml.safe_dump(rest, sort_keys=False)
     (model_dir / "model.yaml").write_text(text)
     (model_dir / "validation" / "results" / "fusion_table.json").write_text(json.dumps(report, indent=2))
     return fusion

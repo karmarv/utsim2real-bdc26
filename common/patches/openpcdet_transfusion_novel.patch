@@ -1,0 +1,34 @@
+diff --git a/pcdet/models/dense_heads/transfusion_head.py b/pcdet/models/dense_heads/transfusion_head.py
+index 742211b..02ff9d1 100644
+--- a/pcdet/models/dense_heads/transfusion_head.py
++++ b/pcdet/models/dense_heads/transfusion_head.py
+@@ -92,7 +92,8 @@ class TransFusionHead(nn.Module):
+         self.loss_heatmap = loss_utils.GaussianFocalLoss()
+         self.loss_heatmap_weight = self.model_cfg.LOSS_CONFIG.LOSS_WEIGHTS['hm_weight']
+ 
+-        self.code_size = 10
++        # bdc26 patch (release 10.5): boxes without velocity (no 'vel' head) use an 8-value code
++        self.code_size = 10 if 'vel' in self.model_cfg.SEPARATE_HEAD_CFG.HEAD_DICT else 8
+ 
+         # a shared convolution
+         self.shared_conv = nn.Conv2d(in_channels=input_channels,out_channels=hidden_channel,kernel_size=3,padding=1)
+@@ -170,6 +171,10 @@ class TransFusionHead(nn.Module):
+         if self.dataset_name == "nuScenes":
+             local_max[ :, 8, ] = F.max_pool2d(heatmap[:, 8], kernel_size=1, stride=1, padding=0)
+             local_max[ :, 9, ] = F.max_pool2d(heatmap[:, 9], kernel_size=1, stride=1, padding=0)
++        # bdc26 patch (release 10.5): no local-max suppression for the small classes listed in SMALL_CLASS_IDS
++        elif self.model_cfg.get('SMALL_CLASS_IDS'):
++            for c in self.model_cfg.SMALL_CLASS_IDS:
++                local_max[:, c, ] = F.max_pool2d(heatmap[:, c], kernel_size=1, stride=1, padding=0)
+         # for Pedestrian & Cyclist in Waymo
+         elif self.dataset_name == "Waymo":
+             local_max[ :, 1, ] = F.max_pool2d(heatmap[:, 1], kernel_size=1, stride=1, padding=0)
+@@ -382,7 +387,7 @@ class TransFusionHead(nn.Module):
+         return loss_all,loss_dict
+ 
+     def encode_bbox(self, bboxes):
+-        code_size = 10
++        code_size = self.code_size
+         targets = torch.zeros([bboxes.shape[0], code_size]).to(bboxes.device)
+         targets[:, 0] = (bboxes[:, 0] - self.point_cloud_range[0]) / (self.feature_map_stride * self.voxel_size[0])
+         targets[:, 1] = (bboxes[:, 1] - self.point_cloud_range[1]) / (self.feature_map_stride * self.voxel_size[1])
