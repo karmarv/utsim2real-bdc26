@@ -1,0 +1,23 @@
+name: bag-pvrcnnpp-ros-pyr-g1v6x
+type: bag
+strategy: S10-5
+track: lumpi-track
+module: release 10.5, the iteration, A1 wave 3 (record Section 11)
+architecture: 'seed bag of pvrcnnpp-ros-pyr-g1v6: weighted box fusion of the two generator
+  draws'' tuned predictions (common/tools/bag_predictions.py)'
+data:
+  train: pcdet/g1-v6 + pcdet/g1-v6d2
+  realval: pcdet/realval-v1
+members:
+- pvrcnnpp-ros-pyr-g1v6
+- pvrcnnpp-ros-pyr-g1v6d2
+iou:
+  default: 0.5
+  Car: 0.7
+  Van: 0.7
+realism_frames: pcdet/g1-v6
+status: planned (10.5 A1 wave 3, L15)
+notes: '10.5 A1 wave 3 (record Section 11): the shape-augmented counterpart of bag-pvrcnnpp-ros-g1v6x
+  (same iou). No checkpoint and no tuned knob of its own.
+
+  '
