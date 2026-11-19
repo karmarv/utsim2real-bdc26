@@ -167,7 +167,7 @@ The final phase is blind, and LUMPI detection changes have transferred unreliabl
 
 **Non-score work in the same period.**
 - The disclosure email ([audit Appendix A](2026-10-26-rules-compliance-audit.md)) before the final phase opens. The top three must release code for verification, and the walker rows are the one moderate-risk item.
-- The 4-8 page report (Nov 15) from [`paper-bigdata2026/README.md`](../../paper-bigdata2026/final-report/README.md) Sections 3-4.
+- The 4-8 page report (Nov 15) from [`docs/paper-bigdata2026/final-report/README.md`](../paper-bigdata2026/final-report/README.md) Sections 3-4.
 
 ### 5.4 Not doing, and why
 

@@ -167,7 +167,7 @@ Achlioptas et al. 1707.02392 (CD/EMD for point clouds); Gretton et al., JMLR 201
 
 ## 6. Named references (R1-R42)
 
-The root README, [`02-STRATEGY.md`](02-STRATEGY.md) and the track model READMEs cite these as **[Rn]**, and each citation links to the entry below. Each entry gives the work, a link, what we use it for, and the evidence we rely on. Numbers are as reported by each source and are not comparable across papers. R1-R23 were verified on 2026-09-30; R24-R42 were added on 2026-10-06 for the next strategies ([Section 7](#7-detector-research-for-the-next-strategies-2026-10-06)).
+[`DEVELOPMENT.md`](../DEVELOPMENT.md), [`02-STRATEGY.md`](02-STRATEGY.md) and the track model READMEs cite these as **[Rn]**, and each citation links to the entry below. Each entry gives the work, a link, what we use it for, and the evidence we rely on. Numbers are as reported by each source and are not comparable across papers. R1-R23 were verified on 2026-09-30; R24-R42 were added on 2026-10-06 for the next strategies ([Section 7](#7-detector-research-for-the-next-strategies-2026-10-06)).
 
 ### Challenge, data and framework
 

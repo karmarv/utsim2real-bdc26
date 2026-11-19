@@ -1,6 +1,6 @@
 # 03. System architecture
 
-> The target system for both tracks, as a set of modules with explicit data contracts. `04-IMPLEMENTATION-GUIDE.md` turns each module into step-by-step work packages with acceptance tests. Track-specific parameters live in the track guides: [`data-lumpi-track/README.md`](../data-lumpi-track/README.md), [`data-v2x-track/README.md`](../data-v2x-track/README.md), [`model-lumpi-track/README.md`](../model-lumpi-track/DEVELOPMENT.md), [`model-v2x-track/README.md`](../model-v2x-track/DEVELOPMENT.md).
+> The target system for both tracks, as a set of modules with explicit data contracts. `04-IMPLEMENTATION-GUIDE.md` turns each module into step-by-step work packages with acceptance tests. Track-specific parameters live in the track guides: [`data-lumpi-track/README.md`](../data-lumpi-track/README.md), [`data-v2x-track/README.md`](../data-v2x-track/README.md), [`model-lumpi-track/DEVELOPMENT.md`](../model-lumpi-track/DEVELOPMENT.md), [`model-v2x-track/DEVELOPMENT.md`](../model-v2x-track/DEVELOPMENT.md).
 
 ---
 
@@ -70,7 +70,7 @@ flowchart TD
     PK --> UPL --> LOG --> REL
 ```
 
-Every real-data arrow passes the guard; no arrow leads from real data into a training label or a training input. The rules behind each arrow: [`01-CHALLENGE-FACTS.md` Section 3](01-CHALLENGE-FACTS.md#3-rules) and the root README Section 2.4.
+Every real-data arrow passes the guard; no arrow leads from real data into a training label or a training input. The rules behind each arrow: [`01-CHALLENGE-FACTS.md` Section 3](01-CHALLENGE-FACTS.md#3-rules) and the `DEVELOPMENT.md` Section 2.4.
 
 ## 3. Generation engines
 
@@ -218,7 +218,7 @@ flowchart LR
 | M9 engine G2 | `common/bdc26/render/g2.py` (G2-lite), `data-<track>/prepare_g1.py` | **G2-lite done (R3)**: real-size actors re-cast with Open3D and the real sensors, riders, static clutter, calibrated dropout; corpora `g1-v4` (both tracks) and `g1-v5` (V2X, R5 density prior); fresh draws with `--seed` (S7.4/S7.5). The Twin-Raycast scene mesh was not built | - |
 | M10 detector v2 | `model-<track>/<model>/` via `common/tools/new_model.py` | **Done**: CenterPoint (stride 8 and 4), Voxel R-CNN and PV-RCNN++ beside PointPillars, class-wise object scaling (ROS), seeds and generator draws; seed bags (`common/tools/bag_predictions.py`, folders `bag-*`) | - |
 | M11 inference | `common/bdc26/detect/postprocess.py`, `common/tools/tune_postprocess.py`, `common/tools/route_predictions.py`, `model-<track>/<model>/validation/tune_and_eval.sh` | **Done**: per-class NMS, score floor, re-centering, size calibration, z offset, hedges; 8-view TTA; per-class routing, cross-architecture weighted box fusion, score floors, z calibration, V2X tail copies and sparse-box demotion (S7), the LUMPI Van judge; gates in `pooled_check.py` and `s7_check.py` | - |
-| M12 selection + packaging | `common/tools/{select_realism_frames,package_submission,check_submission,reproduce_submission,reproduce_validation,release_weights}.py`, `model-<track>/<model>/test/make_submission.sh` | **Done**: frame selection against legal proxies; one command from predictions to a validated zip; the kit scorer check; reproduction scripts per scored version; release weights as GitHub assets (6.0, 7.0) | the 4-8 page report (`paper-bigdata2026/`) |
+| M12 selection + packaging | `common/tools/{select_realism_frames,package_submission,check_submission,reproduce_submission,reproduce_validation,release_weights}.py`, `model-<track>/<model>/test/make_submission.sh` | **Done**: frame selection against legal proxies; one command from predictions to a validated zip; the kit scorer check; reproduction scripts per scored version; release weights as GitHub assets (6.0, 7.0) | the 4-8 page report (`docs/paper-bigdata2026/final-report/`) |
 
 ## 7. Core data contracts
 

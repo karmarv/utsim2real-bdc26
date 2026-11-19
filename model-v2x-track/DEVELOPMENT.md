@@ -18,12 +18,12 @@
 | Submitted zip | current entry and F1: [`routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip`](archive/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (md5 `73518975aed7`); S7 step 1, equal: [`routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip`](archive/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (tag 7.0; both use the same 10 checkpoints, release assets of 7.0 and 6.0, [`releases/7.0/weights.json`](../releases/7.0/weights.json)); S6b: [`v2x_s6b_submission.zip`](archive/routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (tag 6.0); R5: [`v2x_r5_submission.zip`](archive/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (tag 5.2); R3: [`v2x_r3_submission.zip`](archive/routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (tag 5.1) |
 | Realism of the submitted frames | **R = 0.933 on the server** (R5 frames from `g1-v5`: background density prior, 31% nulls; 0.937 on held-out legal proxies); R3 frames 0.927 (`g1-v4`); S1-S5 0.920 (`g1-v3`) |
 | Submit | Section 6.7 |
-| Strategy | S1, S1+C1, S3, S4, S5, R3, R5, S6 (variant b), S7 step 1 and **S7.6 submitted**; **S7 is the entry**: step 1 brought pedestrian +0.015 on the leaderboard (Section 7.12), and S7.6 (1014682) rebuilt it with no class changed; S7 step 2 (visibility-matched training labels) and S7.4 stayed below the upload gate; S2 done without a new V2X version (Section 7.5); next: the final phase, root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
+| Strategy | S1, S1+C1, S3, S4, S5, R3, R5, S6 (variant b), S7 step 1 and **S7.6 submitted**; **S7 is the entry**: step 1 brought pedestrian +0.015 on the leaderboard (Section 7.12), and S7.6 (1014682) rebuilt it with no class changed; S7 step 2 (visibility-matched training labels) and S7.4 stayed below the upload gate; S2 done without a new V2X version (Section 7.5); next: the final phase, `DEVELOPMENT.md` Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
 | Experiment log | [`registry.csv`](registry.csv) |
 
 ## 1. Folder conventions and models
 
-Same conventions as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-track/DEVELOPMENT.md) Section 1): one folder per model with `model.yaml`, `README.md`, `train/`, `validation/`, `test/`, `submissions/`; experiment log `registry.csv`; new models with `python common/tools/new_model.py v2x <name> --from <existing>`.
+Same conventions as Track 1 ([`model-lumpi-track/DEVELOPMENT.md`](../model-lumpi-track/DEVELOPMENT.md) Section 1): one folder per model with `model.yaml`, `README.md`, `train/`, `validation/`, `test/`, `submissions/`; experiment log `registry.csv`; new models with `python common/tools/new_model.py v2x <name> --from <existing>`.
 
 | Model | Data | Role | Status |
 |---|---|---|---|
@@ -96,7 +96,7 @@ UT-V2X frames resampled to 35,000 valid points, plus 12-16 procedural walkers pe
 
 ## 5. Lifecycle
 
-The lifecycle is the same as Track 1 ([`model-lumpi-track/README.md`](../model-lumpi-track/DEVELOPMENT.md) Section 5 diagram): preparation (corpus `g1-v5`), training on synthetic data only, real validation and tuning, seed and draw bags, the portfolio (route, fuse, score floors, walker tail copies, sparse-box demotion) with its gates, test inference, evaluation, the entrant's upload and the record, reproduction and release. The entry is S7.6 [`routed-g12`](archive/routed-g12).
+The lifecycle is the same as Track 1 ([`model-lumpi-track/DEVELOPMENT.md`](../model-lumpi-track/DEVELOPMENT.md) Section 5 diagram): preparation (corpus `g1-v5`), training on synthetic data only, real validation and tuning, seed and draw bags, the portfolio (route, fuse, score floors, walker tail copies, sparse-box demotion) with its gates, test inference, evaluation, the entrant's upload and the record, reproduction and release. The entry is S7.6 [`routed-g12`](archive/routed-g12).
 
 ## 6. Selected model lifecycle, step by step
 
@@ -121,7 +121,7 @@ About 1 hour; checkpoints in `train/output/pcdet_model/run1/ckpt/`.
 CUDA_VISIBLE_DEVICES=4 bash model-v2x-track/archive/pointpillars-g1v3/validation/tune_and_eval.sh \
     model-v2x-track/archive/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth
 ```
-Two-phase per-class tuning on realval-A (behaviour knobs guarded by realval-B; box-convention knobs on A), hedges, official-metric scores on A and B (`validation/results/local_scores.json`, `registry.csv`). Mechanics: [`model-lumpi-track/README.md`](../model-lumpi-track/DEVELOPMENT.md) Section 6.3.
+Two-phase per-class tuning on realval-A (behaviour knobs guarded by realval-B; box-convention knobs on A), hedges, official-metric scores on A and B (`validation/results/local_scores.json`, `registry.csv`). Mechanics: [`model-lumpi-track/DEVELOPMENT.md`](../model-lumpi-track/DEVELOPMENT.md) Section 6.3.
 
 ### 6.4 Routing
 ```bash
@@ -426,7 +426,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.11](../docs/02-STRATEGY.md#811-s7-
 | leaderboard gain / realval-A gain, / realval-B gain (S6b -> S7) | 0.87, 0.67 | 0.98, 0.79 | 0.85, 0.66 | (unchanged) | |
 S3 changed only the detections (same 50 frames, identical realism): the leaderboard BEV-3D gap fell from 0.083 to 0.070 (realval-B: 0.129 to 0.062), 3D@0.7 rose from 0.0555 to 0.0755. The S1+C1 z calibration changed only z, so BEV AP and realism are identical; it gained more on the test frames than on realval-B for pedestrians (+0.046 vs +0.026) and about the same for vehicles (+0.020 vs +0.023), and the leaderboard BEV-3D gap fell from 0.105 to 0.083.
 
-Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
+Realism on the server: CD 2.215, MMD 0.00329, EMD 1.414, FPD 1.092, R 0.9203 (local proxy 4: 2.181, 0.00384, 1.441, 1.126, 0.9188). Vehicle and pedestrian transfer close to realval-B; the truck route (the UT-only run, chosen on realval-A) loses the most (analysis: Section 9.4; next strategy: `DEVELOPMENT.md` Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
 
 ### 9.2 Artifacts
 
@@ -599,7 +599,7 @@ Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, 
 - Track facts live in `data-v2x-track/track.yaml`, never as constants in code.
 - Dataset versions are immutable: build a new name and record it in [`data-v2x-track/README.md`](../data-v2x-track/README.md) Section 9 with the command that built it.
 - A model is a folder (`python common/tools/new_model.py v2x <name> --from <model>`); outputs stay in git-ignored `output/`; decisions go to `registry.csv` and the model README.
-- A strategy is named (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8); every CodaBench submission is listed under it in the root README Section 9 and in Section 9 here.
+- A strategy is named (`DEVELOPMENT.md` Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8); every CodaBench submission is listed under it in the `DEVELOPMENT.md` Section 9 and in Section 9 here.
 - Real data only through the guard, with a purpose string; a new use of real data gets a decision record before it influences a submission.
 - Evaluate with the official metric (`bdc26.evalap.evaluate`, `bdc26.realism.score`); never report KITTI-style numbers as challenge numbers.
 - Match the surrounding code; new dependencies go into `requirements.txt`.

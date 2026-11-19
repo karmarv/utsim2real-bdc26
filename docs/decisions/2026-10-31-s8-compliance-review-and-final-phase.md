@@ -107,7 +107,7 @@ Fallbacks, all in releases 8.0 and 8.1 with IDENTICAL reproduction scripts: LUMP
 | When | Item | Notes |
 |---|---|---|
 | each final upload | record like a development one | `codabench_<id>.json` (status, file, time; the score stays hidden until the close), the register, track README Section 9, root README Section 9 |
-| Nov 15 | **the 4-8 page report** (every team) | source: `paper-bigdata2026/README.md` Sections 3-4, the decision records and the progression tracker. Include: where the 50 frames came from (FAQ), every real-data use of Section 3 and audit items 4 and 19, the test-time processing of S8-6, and the integrity practice (guard, pre-registration, train-split gates). Channel and template: Q4 |
+| Nov 15 | **the 4-8 page report** (every team) | source: `docs/paper-bigdata2026/final-report/README.md` Sections 3-4, the decision records and the progression tracker. Include: where the 50 frames came from (FAQ), every real-data use of Section 3 and audit items 4 and 19, the test-time processing of S8-6, and the integrity practice (guard, pre-registration, train-split gates). Channel and template: Q4 |
 | Nov 20 | camera-ready, "final report and solutions"; top-3 per track "must be ready to release code for verification" | prepare a verification bundle from release 8.1: code, the weights and the reproduction scripts (IDENTICAL from the release assets). It contains no real data, no kit file and no real-derived prior; the scripts that rebuild the priors from the public datasets go instead (V2X-Real is "All Rights Reserved") |
 | Nov 25 | winners | |
 | Dec 14-17 | IEEE BigData 2026, Phoenix (paper track for the top 3: up to 10 pages) | |

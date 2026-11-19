@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Build the Word versions of the two track reports, inside the IEEE conference template.
 
-    python paper-bigdata2026/build_docx.py                    # both tracks: report_lumpi.md, report_v2x.md -> OUTPUT
-    python paper-bigdata2026/build_docx.py --track lumpi      # one track
-    python paper-bigdata2026/build_docx.py --pdf              # also render a PDF with LibreOffice (preview only)
+    python docs/paper-bigdata2026/final-report/build_docx.py                    # both tracks: report_lumpi.md, report_v2x.md -> OUTPUT
+    python docs/paper-bigdata2026/final-report/build_docx.py --track lumpi      # one track
+    python docs/paper-bigdata2026/final-report/build_docx.py --pdf              # also render a PDF with LibreOffice (preview only)
 
 OUTPUT names follow the organizers' report title (Final Report - IEEE Big Data Cup 2026 - Track Name - Team Name):
 Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx and ..._V2X-Real_Track_KarmaRV.docx.

@@ -11,7 +11,7 @@ development history (strategies S1-S10, every release and decision record) is in
 **Contents:** [1 Final results](#1-final-results) · [2 The final systems](#2-the-final-systems) ·
 [3 Repository layout](#3-repository-layout) · [4 Reproduce the final submissions](#4-reproduce-the-final-submissions) ·
 [5 Real-data use and compliance](#5-real-data-use-and-compliance) · [6 Papers](#6-papers) ·
-[7 Development history](#7-development-history)
+[7 Development history](#7-development-history) · [8 Licence](#8-licence)
 
 ## 1. Final results
 
@@ -23,16 +23,15 @@ submission on its track):
 | **V2X-Real** ([16685](https://www.codabench.org/competitions/16685/)) | **joint 1st** (46 teams) | **1051825** | **0.8944** (0.894399) | 0.6045 (0.604516) | 0.9406 (0.940605) | [`model-v2x-track/routed-s10-4-v4`](model-v2x-track/routed-s10-4-v4) | [10.4](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.4) |
 | **LUMPI** ([16684](https://www.codabench.org/competitions/16684/)) | **2nd** (44 teams) | **1053789** | **0.5430** (0.542997) | 0.1975 (0.197537) | 0.9342 (0.934200) | [`model-lumpi-track/routed-s10-5-l12e`](model-lumpi-track/routed-s10-5-l12e) | [10.5](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.5) |
 
-Per-class 3D AP@0.5 (R40), official:
-
-| V2X-Real | vehicle 0.7432 | pedestrian 0.4109 | truck 0.6595 | | | | |
-|---|---|---|---|---|---|---|---|
-| **LUMPI** | **Person 0.3159** | **Car 0.6833** | **Bicycle 0.1427** | **Motorcycle 0.0179** | **Bus 0.0004** | **Truck 0.0700** | **Van 0.1525** |
+| Track | Per-class 3D AP@0.5 (R40), official |
+|---|---|
+| V2X-Real | vehicle 0.7432, pedestrian 0.4109, truck 0.6595 |
+| LUMPI | Person 0.3159, Car 0.6833, Bicycle 0.1427, Motorcycle 0.0179, Bus 0.0004, Truck 0.0700, Van 0.1525 |
 
 - **Confirmations from the organizers (Nov 18, 2026):** submission **1053789** is the KarmaRV entry on record for the
   LUMPI track (an earlier result email listed another ID by mistake), and both papers (CyberChair SC04204 and SC04205)
-  were received and follow the guidelines. The V2X-Real joint 1st place is with one other team (0.8947), within the
-  realism scorer's sampling variation.
+  were received and follow the guidelines. The V2X-Real 1st place is shared with one other team, as announced by the
+  organizers.
 - **Combined score** = 0.6 x clip(mAP / 0.7) + 0.4 x R, where R is the realism of the 50 submitted synthetic frames
   (Chamfer, MMD, EMD and Frechet distances to held-out real frames).
 - Server records of the two entries:
@@ -84,8 +83,8 @@ utsim2real-bdc26/
 │   ├── README.md
 │   └── DEVELOPMENT.md
 ├── releases/<tag>/weights.json   per release: every checkpoint and zip (GitHub asset name, path, md5, versions)
-├── docs/                         plan of record and decision records (docs/decisions/)
-└── paper-bigdata2026/            papers (paper-v2x-real/, paper-lumpi/) and the final challenge reports (final-report/)
+└── docs/                         plan of record, decision records (decisions/), and paper-bigdata2026/: the papers
+                                  (paper-v2x-real/, paper-lumpi/) and the final challenge reports (final-report/)
 ```
 
 Checkpoints are not in git: they are assets of the GitHub releases (Section 4.4) and land at
@@ -100,19 +99,44 @@ every member (`member_predictions_<tag>.zip`). Two levels of reproduction:
 
 | Level | What it shows | Needs | Time |
 |---|---|---|---|
-| **A. Exact re-merge** (Section 4.5) | the committed system card (`model.yaml`: routes, fusion, test-time stages) turns the members' saved test predictions into the scored `predictions.json`, **identical** to the last digit | environment and starting kits; no GPU, no checkpoint | under 1 minute per track |
+| **A. Exact re-merge** (Section 4.5) | the committed system card (`model.yaml`: routes, fusion, test-time stages) turns the members' saved test predictions into the scored `predictions.json`, **identical** to the last digit | the environment (Section 4.2) and the starting kits; no checkpoint, no GPU at run time | under 1 minute per track |
 | **B. Full re-inference** (Section 4.6) | the released checkpoints, run from scratch on the 50 kit test frames, give the same predictions up to GPU floating-point nondeterminism; the repackaged zip passes the official starting-kit scorer and its 50 synthetic frames are byte-identical to the scored ones | one GPU and the checkpoints (Section 4.4) | 12 to 17 minutes per track on one RTX A6000 |
+
+**Quick start** (each step is explained in Sections 4.1-4.6):
+
+```bash
+# 1. Environment (Section 4.2). On a machine other than ours, first export CUDA_HOME and TORCH_CUDA_ARCH_LIST.
+git clone https://github.com/karmarv/utsim2real-bdc26.git && cd utsim2real-bdc26
+python3.10 -m venv .venv_ut
+bash common/env/setup_venv_ut.sh
+source common/env/activate.sh
+
+# 2. Starting kits (Section 4.3): download both zips from CodaBench into common/kit/, then unpack them.
+mkdir -p common/kit
+python data-v2x-track/ingest_kit.py common/kit/v2x_real_starting_kit.zip
+python data-lumpi-track/ingest_kit.py common/kit/lumpi_starting_kit.zip
+
+# 3. Level A: exact re-merge, CPU only (Section 4.5). Prints IDENTICAL for each track.
+python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 --saved model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip
+python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e --saved model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip
+
+# 4. Level B: checkpoints (Section 4.4), then full re-inference on one GPU (Section 4.6).
+python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
+python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh
+```
 
 ### 4.1 Prerequisites
 
 | Item | Requirement | Tested with |
 |---|---|---|
 | OS | Linux x86_64 | Ubuntu 20.04, kernel 5.4 |
-| GPU | one NVIDIA GPU, 24 GB or more (12-view test-time augmentation of the larger members), compute capability 7.0 to 9.0 (the pinned torch 2.1.2+cu121 predates Blackwell) | RTX A6000 48 GB |
+| GPU (Level B only) | one NVIDIA GPU with compute capability 7.0 to 9.0 (the pinned torch 2.1.2+cu121 predates Blackwell); 32 GB or more is the safe choice: up to 29 GB was in use during our LUMPI run (12-view test-time augmentation; PyTorch's cache included), and smaller cards are untested | RTX A6000 48 GB |
 | Driver and CUDA | NVIDIA driver >= 530 (CUDA 12.1 wheels); a CUDA 12.x toolkit with `nvcc` to build OpenPCDet's ops (`CUDA_HOME`) | driver 570, CUDA 12.8 |
 | Python | 3.10 with `venv` | 3.10.13 |
 | Build tools | git, curl, a C++17 compiler (gcc 9 or newer) | gcc 9.4 |
-| Disk | about 25 GB: virtual environment and OpenPCDet build (about 8 GB), checkpoints (V2X 1.5 GB, LUMPI 2.3 GB), starting kits | |
+| Disk | about 15 GB: the clone (about 3 GB; the history holds every scored zip), virtual environment and OpenPCDet build (about 7 GB), checkpoints (V2X 1.5 GB, LUMPI 2.3 GB), starting kits and outputs | |
 | Starting kits | the two CodaBench starting kits (Files tab of each competition; CodaBench login) | |
 
 No real dataset is needed to reproduce the test-set submissions.
@@ -153,19 +177,21 @@ To keep data elsewhere, `export BDC_DATA=/path/to/data` before `source common/en
 ### 4.3 Starting kits (test frames and the official scorer)
 
 Download `lumpi_starting_kit.zip` and `v2x_real_starting_kit.zip` from the Files tabs of the two CodaBench competitions
-into `common/kit/` (git-ignored), then unpack them into `$BDC_DATA`:
+into `common/kit/` (create it with `mkdir -p common/kit`; its zips are git-ignored), then unpack them into `$BDC_DATA`:
 
 ```bash
 python data-v2x-track/ingest_kit.py common/kit/v2x_real_starting_kit.zip
 python data-lumpi-track/ingest_kit.py common/kit/lumpi_starting_kit.zip
 ```
 
-The 50 test frames are used for inference and format checks only.
+Each command unpacks its kit to `$BDC_DATA/<track>-track/kit/` and prints a format report. The 50 test frames are used
+for inference and format checks only.
 
 ### 4.4 Checkpoints
 
 The checkpoints of each entry are assets of its GitHub release; the manifest in `releases/<tag>/weights.json` lists
-every file with its md5. Download and verify (no GitHub token needed):
+every file with its md5. Download and verify (no GitHub token needed; files already present with the right md5, such
+as the scored zips that are in git, are skipped; each checkpoint lands at its path in the manifest):
 
 ```bash
 python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4        # V2X: 7 checkpoints + the scored zip
@@ -185,7 +211,8 @@ python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e 
 
 Each command merges the saved member predictions with the committed `model.yaml`
 ([`route_predictions.py`](common/tools/route_predictions.py) `merge_card`) and compares the result box by box with the
-`predictions.json` inside the scored zip. Expected (our run on a fresh clone, Nov 19, 2026):
+`predictions.json` inside the scored zip; it exits with 0 when they are identical. Expected (our runs on a fresh clone
+and with no GPU visible, Nov 19, 2026; 24 s and 10 s):
 
 ```
 re-merge of 6 saved members with model-v2x-track/routed-s10-4-v4/model.yaml: IDENTICAL to the scored model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip
@@ -220,7 +247,9 @@ LUMPI: [`reproduce_s10-5-l12e.sh`](model-lumpi-track/routed-s10-5-l12e/test/repr
    this prints the verdict and sets the exit code.
 
 Outputs go to `model-<track>/<system>/test/output/` (git-ignored); the repackaged zip is
-`test/output/repro-<tag>/submission.zip`.
+`test/output/repro-<tag>/submission.zip`. The V2X script ends with `reproduction: EQUIVALENT ...` and exit code 0. The
+LUMPI script ends with `reproduction: DIFFERENT under the strict rule only by 1 box fusion merge/split decision(s) ...`
+and exit code 1, for the one box explained below.
 
 **The comparison.** Boxes are matched per frame and class (Hungarian assignment on centres, within 0.5 m). A run is
 EQUIVALENT when no box scored above 0.3 is left unmatched and 99% of the matched boxes agree within 0.1 m and 0.01 in
@@ -256,7 +285,18 @@ The official leaderboard numbers (Section 1) come from the organizers' server, w
 truth and a held-out realism reference that the starting kit does not carry; the server's scoring record of each entry
 is committed next to its zip (`codabench_<id>.json`).
 
-### 4.7 Optional: validation and retraining
+### 4.7 Troubleshooting
+
+- `source common/env/activate.sh` activates a conda environment instead of `.venv_ut`: the setup did not finish (it
+  marks the environment ready only after its checks pass). Rerun `bash common/env/setup_venv_ut.sh` and read its first
+  error.
+- `no kernel image is available for execution on the device`, or an import error from `pcdet`: OpenPCDet's ops were
+  built for another GPU architecture or CUDA toolkit. Set `CUDA_HOME` and `TORCH_CUDA_ARCH_LIST` (Section 4.2), remove
+  `$BDC_DATA/third_party/OpenPCDet`, and rerun the setup.
+- `forbidden_frames.txt missing` or `starting kit not ingested`: run Section 4.3 in an activated shell.
+- `CUDA out of memory` in Level B: use a GPU that no other job shares, or a larger one (Section 4.1).
+
+### 4.8 Optional: validation and retraining
 
 - **Validation reproduction** (real validation data needed): each system folder also has
   `test/reproduce_<tag>_validation.sh`, which re-merges the members' realval predictions and recomputes the local scores
@@ -297,10 +337,10 @@ The challenge reports (Section 6) give the full real-data-use statement the orga
 
 | Track | IEEE BigData 2026 proceedings (CyberChair) | Files |
 |---|---|---|
-| V2X-Real | SC04204, "Pedestrian Synthesis and Detector Fusion for Synthetic-Only Roadside LiDAR Detection on V2X-Real" | [`paper-bigdata2026/paper-v2x-real/`](paper-bigdata2026/paper-v2x-real) |
-| LUMPI | SC04205, "Digital Twin Augmentation and Classwise Detector Fusion for Synthetic-Only Multi-LiDAR Detection on LUMPI" | [`paper-bigdata2026/paper-lumpi/`](paper-bigdata2026/paper-lumpi) |
+| V2X-Real | SC04204, "Pedestrian Synthesis and Detector Fusion for Synthetic-Only Roadside LiDAR Detection on V2X-Real" | [`docs/paper-bigdata2026/paper-v2x-real/`](docs/paper-bigdata2026/paper-v2x-real) |
+| LUMPI | SC04205, "Digital Twin Augmentation and Classwise Detector Fusion for Synthetic-Only Multi-LiDAR Detection on LUMPI" | [`docs/paper-bigdata2026/paper-lumpi/`](docs/paper-bigdata2026/paper-lumpi) |
 
-The final challenge reports are in [`paper-bigdata2026/final-report/`](paper-bigdata2026/final-report). arXiv versions
+The final challenge reports are in [`docs/paper-bigdata2026/final-report/`](docs/paper-bigdata2026/final-report). arXiv versions
 are in moderation (Nov 18, 2026).
 
 ## 7. Development history
@@ -312,3 +352,8 @@ are in moderation (Nov 18, 2026).
 - [`docs/decisions/`](docs/decisions): the decision records, from the first submission to the final push.
 - `model-<track>/archive/`: every model folder of the development that the final systems do not use (configs, tuned
   post-processing, validation results, scored zips of earlier entries).
+
+## 8. Licence
+
+Code: Apache 2.0 ([`LICENSE`](LICENSE)). Data keeps its own licence (UT twins CC0; LUMPI CC BY-NC 3.0; V2X-Real UCLA
+Academic licence). No real frame or real label is in this repository; the validation results hold scores only.

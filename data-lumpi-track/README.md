@@ -1,6 +1,6 @@
 # Track 1 data: LUMPI (`data-lumpi-track/`)
 
-> Everything about the data of Track 1 (CodaBench 16684): sources and licences, the sensor rig and coordinate frame, classes, the guard, every preparation script with its inputs and outputs, the synthetic-data generator (engine G1), the dataset versions on disk, and what we measured. The model side is in [`model-lumpi-track/README.md`](../model-lumpi-track/DEVELOPMENT.md); the project-wide developer guide is the [root README](../DEVELOPMENT.md).
+> Everything about the data of Track 1 (CodaBench 16684): sources and licences, the sensor rig and coordinate frame, classes, the guard, every preparation script with its inputs and outputs, the synthetic-data generator (engine G1), the dataset versions on disk, and what we measured. The model side is in [`model-lumpi-track/DEVELOPMENT.md`](../model-lumpi-track/DEVELOPMENT.md); the project-wide developer guide is [`DEVELOPMENT.md`](../DEVELOPMENT.md).
 
 ## 0. At a glance
 

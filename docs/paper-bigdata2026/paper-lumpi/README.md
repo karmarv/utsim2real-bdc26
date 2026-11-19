@@ -2,7 +2,7 @@
 
 Status 2026-11-18 19:45 CST, revision 5 (organizer-guideline fixes; no rank claim): **ready for upload.** 9 pages (limit 10 incl. references), IEEE two-column, US letter, CyberChair letter template (`template/ieee-conference-template-letter.docx`, identical to the file from the camera-ready instructions page). Every page checked: full-width figures at the page tops, no table or figure split across columns or pages, no overlaps, no column gap above 0.50 in, last page balanced.
 
-Ranked entry: **CodaBench 1053789** (0.5430, mAP 0.198, realism 0.934), marked as the leaderboard entry in "My Submissions"; verification of the organizers' "1052645" requested.
+Ranked entry: **CodaBench 1053789** (0.5430, mAP 0.198, realism 0.934), marked as the leaderboard entry in "My Submissions"; the organizers confirmed on Nov 18 that 1053789 is the entry on record (their "1052645" was a typo).
 
 ## Files
 

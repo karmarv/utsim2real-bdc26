@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Figures of the two track reports (report_lumpi.md, report_v2x.md), made from the repository's records and legal data.
 
-    source common/env/activate.sh && python paper-bigdata2026/make_figures.py [--track lumpi v2x] [--only NAME ...]
+    source common/env/activate.sh && python docs/paper-bigdata2026/final-report/make_figures.py [--track lumpi v2x] [--only NAME ...]
 
 Every figure reads committed records (codabench_<id>.json, the routed validation outputs, the decision records' tables,
 which are copied below as constants with their source) or legal real-validation and synthetic frames under $BDC_DATA.
-No test frame of the starting kit is read. Output: paper-bigdata2026/figures/fig_<track>_<name>.png at 300 dpi, sized
+No test frame of the starting kit is read. Output: docs/paper-bigdata2026/final-report/figures/fig_<track>_<name>.png at 300 dpi, sized
 for the IEEE columns (3.45 in) or the full text width (7.1 in).
 """
 import argparse
@@ -26,7 +26,7 @@ from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Polygon  # noqa:
 from scipy.spatial import cKDTree  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parent
+REPO = next(p for p in HERE.parents if (p / "common" / "bdc26").is_dir())      # the repository root
 sys.path.insert(0, str(REPO / "common"))
 from bdc26.evalap import iou_matrix  # noqa: E402
 

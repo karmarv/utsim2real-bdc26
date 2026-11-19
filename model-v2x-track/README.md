@@ -56,7 +56,7 @@ All seven checkpoints are trained on synthetic data only (the `g1-v6` corpus fam
 | realval-B (local) | 0.8810 | 0.4013 | 0.8528 | 0.7117 | | |
 
 Truck's validation scores overstate its test AP (124 test boxes); see the V2X-Real report in
-[`paper-bigdata2026/final-report/`](../paper-bigdata2026/final-report).
+[`docs/paper-bigdata2026/final-report/`](../docs/paper-bigdata2026/final-report).
 
 ## 4. Reproduce
 

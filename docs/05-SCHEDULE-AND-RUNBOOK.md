@@ -100,7 +100,7 @@ Topology: NVLink pairs (0-1, 2-3, 4-5, 6-7) and NUMA nodes {GPU 0-3, CPU 0-63,12
 
 ## 4. Storage plan
 
-One data root, `$BDC_DATA` (default `<repo>/../bdc26-data` on the workspace drive `/`; 1.3 TB free after the downloads on Sep 30), set by `common/env/bdc26.env`; `/data` only for archives. Layout and dataset versions: root `README.md` Section 3 and `data-<track>/README.md` Sections 3 and 9. Free space on `/` is shared and has swung by more than 1 TB in a day: check `df -h /` before large jobs.
+One data root, `$BDC_DATA` (default `<repo>/../bdc26-data` on the workspace drive `/`; 1.3 TB free after the downloads on Sep 30), set by `common/env/bdc26.env`; `/data` only for archives. Layout and dataset versions: `DEVELOPMENT.md` Section 3 and `data-<track>/README.md` Sections 3 and 9. Free space on `/` is shared and has swung by more than 1 TB in a day: check `df -h /` before large jobs.
 
 | Item | Size | Status |
 |---|---|---|

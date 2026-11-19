@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Build the Word versions of the two track reports, inside the IEEE conference template.
 
-    python paper-bigdata2026/build_docx.py                    # both tracks: report_lumpi.md, report_v2x.md -> OUTPUT
-    python paper-bigdata2026/build_docx.py --track lumpi      # one track
-    python paper-bigdata2026/build_docx.py --pdf              # also render a PDF with LibreOffice (preview only)
+    python docs/paper-bigdata2026/paper-lumpi/build_docx.py                    # both tracks: report_lumpi.md, report_v2x.md -> OUTPUT
+    python docs/paper-bigdata2026/paper-lumpi/build_docx.py --track lumpi      # one track
+    python docs/paper-bigdata2026/paper-lumpi/build_docx.py --pdf              # also render a PDF with LibreOffice (preview only)
 
 OUTPUT names follow the organizers' report title (Final Report - IEEE Big Data Cup 2026 - Track Name - Team Name):
 Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx and ..._V2X-Real_Track_KarmaRV.docx.
@@ -42,8 +42,9 @@ from xml.sax.saxutils import escape
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE / "template" / "ieee-conference-template-letter.docx"
-OUTPUTS = {"lumpi": "Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx",
-           "v2x": "Final_Report_IEEE_Big_Data_Cup_2026_V2X-Real_Track_KarmaRV.docx"}
+OUTPUTS = {"lumpi": "Vishwakarma_BigDataCup2026_LUMPI.docx"}                 # paper build (2026-11-18): one track per folder
+SOURCES = {"lumpi": "paper_lumpi.md"}
+FOOTER = ""                                  # first-page footer; --footer sets the IEEE copyright line for camera-ready
 R_NS = "http://purl.oclc.org/ooxml/officeDocument/relationships"
 A_NS = "http://purl.oclc.org/ooxml/drawingml/main"
 PIC_NS = "http://purl.oclc.org/ooxml/drawingml/picture"
@@ -81,7 +82,11 @@ def runs(text: str, size: int | None = None) -> str:
         if size:
             rpr.append(f'<w:sz w:val="{size}"/><w:szCs w:val="{size}"/>')
         pr = f"<w:rPr>{''.join(rpr)}</w:rPr>" if rpr else ""
-        out.append(f'<w:r>{pr}<w:t xml:space="preserve">{escape(tok)}</w:t></w:r>')
+        for k, piece in enumerate(tok.split("\u2011")):            # U+2011 -> Word non-breaking hyphen
+            if k:
+                out.append(f'<w:r>{pr}<w:noBreakHyphen/></w:r>')
+            if piece:
+                out.append(f'<w:r>{pr}<w:t xml:space="preserve">{escape(piece)}</w:t></w:r>')
     return "".join(out)
 
 
@@ -108,12 +113,13 @@ class Builder:
 
     # -- elements ---------------------------------------------------------------------------------------------
     @staticmethod
-    def float_block(inner: str, place: str = "top") -> str:
-        """A full-width float: a borderless one-cell table anchored at the top (or bottom) of the page, so a wide
-        figure or table spans both columns without section breaks (the usual IEEE two-column layout)."""
-        width = FULL_PT
-        return (f'<w:tbl><w:tblPr><w:tblpPr w:leftFromText="0" w:rightFromText="0" w:topFromText="120" w:bottomFromText="200" '
-                f'w:vertAnchor="margin" w:horzAnchor="margin" w:tblpXSpec="center" w:tblpYSpec="{place}"/>'
+    def float_block(inner: str, place: str = "top", column: bool = False) -> str:
+        """A float: a borderless one-cell table anchored at the top (or bottom) of the page. Full width spans both
+        columns without section breaks (the usual IEEE two-column layout); `column` floats at the top of its column."""
+        width = COL_PT if column else FULL_PT
+        horz = 'w:horzAnchor="text" w:tblpX="0"' if column else 'w:horzAnchor="margin" w:tblpXSpec="center"'
+        return (f'<w:tbl><w:tblPr><w:tblpPr w:leftFromText="0" w:rightFromText="0" w:topFromText="0" w:bottomFromText="200" '
+                f'w:vertAnchor="margin" {horz} w:tblpYSpec="{place}"/>'
                 f'<w:tblOverlap w:val="never"/><w:tblW w:w="{width:.1f}pt" w:type="dxa"/><w:jc w:val="center"/>'
                 f'<w:tblBorders><w:top w:val="nil"/><w:start w:val="nil"/><w:bottom w:val="nil"/><w:end w:val="nil"/>'
                 f'<w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders><w:tblLayout w:type="fixed"/>'
@@ -149,6 +155,8 @@ class Builder:
         cap = para("figurecaption", f"Fig. {self.fig_no}.\u2003{m.group(2)}", extra_ppr=NONUM)
         if wide:
             self.body.append(self.float_block(pic + cap, place))
+        elif place == "col":
+            self.body.append(self.float_block(pic + cap, "top", column=True))
         else:
             self.body.append(pic.replace('w:before="0pt"', 'w:before="6pt"'))
             self.body.append(cap)
@@ -220,6 +228,9 @@ class Builder:
         if wide:
             inner = head.replace(NONUM, NONUM + '<w:spacing w:before="0pt" w:after="4pt"/>', 1)   # spacing after numPr
             self.body.append(self.float_block(inner + tbl + '<w:p><w:pPr><w:spacing w:before="0pt" w:after="0pt"/></w:pPr></w:p>', place))
+        elif place == "col":
+            inner = head.replace(NONUM, NONUM + '<w:spacing w:before="0pt" w:after="4pt"/>', 1)
+            self.body.append(self.float_block(inner + tbl + '<w:p><w:pPr><w:spacing w:before="0pt" w:after="0pt"/></w:pPr></w:p>', "top", column=True))
         else:
             self.body.append(head)
             self.body.append(tbl)
@@ -251,6 +262,8 @@ class Builder:
                     for ref in re.split(r"(?=\[\d+\]\s)", text):
                         if ref.strip():
                             self.reference(ref.strip())
+                elif text.startswith("where "):                 # continues a display equation: no indent
+                    self.body.append(para("BodyText", text, extra_ppr='<w:ind w:firstLine="0"/>'))
                 else:
                     self.body.append(para("BodyText", text))
                 para_buf.clear()
@@ -268,6 +281,10 @@ class Builder:
                 flush()
                 wide_next = True
                 place_next = "bottom" if "bottom" in s else "top"
+            elif s == "<!-- float -->":                       # column-width float at the top of its column
+                flush()
+                wide_next = False
+                place_next = "col"
             elif s.startswith("<!--"):
                 pass
             elif s.startswith("# ") and not title_done:
@@ -322,6 +339,7 @@ class Builder:
                     j += 1
                 self.table(caption, rows, wide_next, place_next)
                 wide_next = False
+                place_next = "top"
                 i = j
                 continue
             elif re.match(r"!\[.*\]\(.*\)", s):
@@ -336,6 +354,15 @@ class Builder:
                     i = j
                 self.figure(caption, HERE / m.group(2), wide_next, place_next)
                 wide_next = False
+                place_next = "top"
+            elif s.startswith("$$ "):
+                # display equation: "$$ <equation> | (<n>)", centred in the column with its number flush right
+                flush()
+                eq, _, num = s[3:].rpartition("|")
+                tab = '<w:r><w:tab/></w:r>'
+                ppr = ('<w:keepNext/><w:tabs><w:tab w:val="clear" w:pos="14.40pt"/><w:tab w:val="center" w:pos="126pt"/><w:tab w:val="right" w:pos="251pt"/></w:tabs>'
+                       '<w:spacing w:before="4pt" w:after="4pt"/><w:ind w:firstLine="0"/><w:jc w:val="start"/>')
+                self.body.append(para("BodyText", extra_ppr=ppr, body=tab + runs(eq.strip()) + tab + runs(num.strip())))
             elif s.startswith("- "):
                 flush()
                 self.body.append(para("bulletlist", s[2:].strip()))
@@ -352,8 +379,14 @@ class Builder:
         doc = files["word/document.xml"].decode("utf8")
         start = doc.index("<w:body>") + len("<w:body>")
         end = doc.index("</w:body>")
-        doc = doc[:start] + "".join(self.body) + sect(2) + doc[end:]
+        # balanced last page (IEEE): the two-column section ends with a continuous break, then an empty one-column section
+        tiny = '<w:spacing w:before="0pt" w:after="0pt" w:line="1pt" w:lineRule="exact"/><w:rPr><w:sz w:val="2"/></w:rPr>'
+        tail = f'<w:p><w:pPr>{tiny}{sect(2)}</w:pPr></w:p><w:p><w:pPr>{tiny}</w:pPr></w:p>'
+        doc = doc[:start] + "".join(self.body) + tail + sect(1) + doc[end:]
         files["word/document.xml"] = doc.encode("utf8")
+        meta = getattr(self, "meta", None)
+        if meta:                                    # document properties: the PDF Title/Author come from here
+            files["docProps/core.xml"] = core_xml(**meta).encode("utf8")
         rels = files["word/_rels/document.xml.rels"].decode("utf8")
         add = "".join(f'<Relationship Id="{rid}" Type="{IMG_REL}" Target="media/{p.name}"/>' for rid, p in self.images)
         files["word/_rels/document.xml.rels"] = rels.replace("</Relationships>", add + "</Relationships>").encode("utf8")
@@ -363,7 +396,7 @@ class Builder:
         files["[Content_Types].xml"] = ct.encode("utf8")
         # the template's first-page footer carries a placeholder copyright line: blank it until IEEE supplies it
         foot = files["word/footer1.xml"].decode("utf8")
-        files["word/footer1.xml"] = foot.replace("XXX-X-XXXX-XXXX-X/XX/$XX.00 ©20XX IEEE", "").encode("utf8")
+        files["word/footer1.xml"] = foot.replace("XXX-X-XXXX-XXXX-X/XX/$XX.00 ©20XX IEEE", escape(FOOTER)).encode("utf8")
         for _, p in self.images:
             files[f"word/media/{p.name}"] = p.read_bytes()
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
@@ -372,15 +405,46 @@ class Builder:
                 z.writestr(k, files[k])
 
 
+
+def pdf_metadata(src: str) -> dict:
+    """Title, author, subject and keywords for the document properties (and so the PDF metadata)."""
+    first = src.splitlines()[0]
+    title = first[2:].replace("\u2011", "-").replace("\u00a0", " ").strip()
+    kw = re.search(r"^\*\*Keywords\*\*-\s*(.*)$", src, flags=re.M)
+    track = "V2X-Real" if "V2X" in title else "LUMPI"
+    return {"title": title, "author": "Rahul Vishwakarma",
+            "subject": f"IEEE BigData 2026 Cup, UCF UrbanTwin Sim2Real LiDAR Challenge, {track} track",
+            "keywords": ""}   # LibreOffice splits keyword phrases into single words, so none are set
+
+
+def core_xml(title: str, author: str, subject: str, keywords: str) -> str:
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
+            'xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" '
+            'xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+            f'<dc:title>{escape(title)}</dc:title><dc:subject>{escape(subject)}</dc:subject>'
+            f'<dc:creator>{escape(author)}</dc:creator><cp:keywords>{escape(keywords)}</cp:keywords>'
+            f'<cp:lastModifiedBy>{escape(author)}</cp:lastModifiedBy><cp:revision>1</cp:revision>'
+            f'<dcterms:created xsi:type="dcterms:W3CDTF">{now}</dcterms:created>'
+            f'<dcterms:modified xsi:type="dcterms:W3CDTF">{now}</dcterms:modified></cp:coreProperties>')
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--track", nargs="*", choices=sorted(OUTPUTS), default=sorted(OUTPUTS))
     ap.add_argument("--pdf", action="store_true", help="render a PDF next to the .docx with LibreOffice (soffice)")
+    ap.add_argument("--footer", default="", help="first-page footer text, e.g. the IEEE copyright line of the camera-ready")
+    ap.add_argument("--out", default=None, help="output .docx name (default: OUTPUTS)")
     a = ap.parse_args()
+    global FOOTER
+    FOOTER = a.footer
     for t in a.track:
         b = Builder()
-        b.parse((HERE / f"report_{t}.md").read_text(encoding="utf8"))
-        out = HERE / OUTPUTS[t]
+        src = (HERE / SOURCES[t]).read_text(encoding="utf8")
+        b.parse(src)
+        b.meta = pdf_metadata(src)
+        out = HERE / (a.out or OUTPUTS[t])
         b.write(out)
         print(f"{out.name}: {b.fig_no} figures, {b.tab_no} tables, {b.ref_no} references, {len(b.body)} body elements")
         if a.pdf:

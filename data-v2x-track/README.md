@@ -1,6 +1,6 @@
 # Track 2 data: V2X-Real (`data-v2x-track/`)
 
-> Everything about the data of Track 2 (CodaBench 16685): sources and licences, the sensor and coordinate frame, classes, the forbidden-frame mapping and guard, every preparation script with its inputs and outputs, the synthetic-data generator (engine G1) and its calibration against legal real data, the dataset versions on disk, and what we measured. The model side is in [`model-v2x-track/README.md`](../model-v2x-track/DEVELOPMENT.md); the project-wide developer guide is the [root README](../DEVELOPMENT.md).
+> Everything about the data of Track 2 (CodaBench 16685): sources and licences, the sensor and coordinate frame, classes, the forbidden-frame mapping and guard, every preparation script with its inputs and outputs, the synthetic-data generator (engine G1) and its calibration against legal real data, the dataset versions on disk, and what we measured. The model side is in [`model-v2x-track/DEVELOPMENT.md`](../model-v2x-track/DEVELOPMENT.md); the project-wide developer guide is [`DEVELOPMENT.md`](../DEVELOPMENT.md).
 
 ## 0. At a glance
 

@@ -66,7 +66,7 @@ All 14 checkpoints are trained on synthetic data only (the UT-LUMPI-based `g1-v6
 | realval-B (local) | 0.2502 | 0.8034 | 0.2868 | 0.0497 | 0.0645 | 0.2422 | 0.0012 | 0.2426 | | |
 
 The gap between validation and test is discussed in the LUMPI report in
-[`paper-bigdata2026/final-report/`](../paper-bigdata2026/final-report).
+[`docs/paper-bigdata2026/final-report/`](../docs/paper-bigdata2026/final-report).
 
 ## 4. Reproduce
 

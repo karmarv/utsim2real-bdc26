@@ -15,10 +15,10 @@
 | Realism of the submitted frames | **R = 0.932 on the server** (R3 frames from `g1-v4`, engine G2-lite; 0.934 on held-out legal proxies); S1-S5 frames 0.891 (0.906 locally); raw UT frames 0.59 |
 | Local combined estimate | 0.565 (B) and 0.586 (B with Van read from realval-A) for S6; leaderboard 0.5228 (Section 9); ECCV winner 0.479 |
 | Competition | **rank 1 of 22** (S7.6, 0.5228, 2026-10-27; second Raj Patil 0.4960, 1009661, Oct 26; third dipper13579 0.4885, new on Oct 27); earlier: rank 1 of 21 (S6, 0.5228, 2026-10-17); second Raj Patil 0.4914 (980383, Oct 12) with mAP 0.1337 and realism R about 0.942 (ours 0.932) |
-| CodaBench | **1014495 (S7.6): combined 0.5228** (0.522846; mAP 0.1749, R 0.9323), rank 1 of 22 on 2026-10-27; before: 995869 (S6, 0.522754), 990245 (R5, 0.5198), 986489 (R3, 0.5169), 975871 (S4, 0.5040), 978931 (S5, 0.5039, not listed), 974348 (S3, 0.5015 by its log), 965614 (S1, 0.4728) (Section 9; root README Section 9) |
+| CodaBench | **1014495 (S7.6): combined 0.5228** (0.522846; mAP 0.1749, R 0.9323), rank 1 of 22 on 2026-10-27; before: 995869 (S6, 0.522754), 990245 (R5, 0.5198), 986489 (R3, 0.5169), 975871 (S4, 0.5040), 978931 (S5, 0.5039, not listed), 974348 (S3, 0.5015 by its log), 965614 (S1, 0.4728) (Section 9; `DEVELOPMENT.md` Section 9) |
 | Submitted zip | current entry and F1, S7.6: [`routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip`](archive/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (tag 7.0; weights as release assets, [`releases/7.0/weights.json`](../releases/7.0/weights.json)); S6: [`routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip`](archive/routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (tag 6.0; weights as release assets, [`releases/6.0/weights.json`](../releases/6.0/weights.json)); R5: [`lumpi_r5_submission.zip`](archive/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (tag 5.2); R3: [`lumpi_r3_submission.zip`](archive/routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (tag 5.1) |
 | Submit | `bash model-lumpi-track/archive/routed-g10/test/make_submission.sh <tag> [team]` (Section 6.7; team defaults to `$BDC_TEAM`) |
-| Strategy | S1, S3, S4, S5, R3, R5, S6 and **S7.6 submitted**; **S7.6 is the entry** (+0.0001 over S6: Car -0.004, Truck +0.005 on the leaderboard); before: S6 (Section 7.11: Van 0.117 -> 0.141 on the leaderboard); S2 done, below the upload gate (Section 7.5); S5 not confirmed (Section 7.8); next: the final phase with the S7.6 zip as F1, root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
+| Strategy | S1, S3, S4, S5, R3, R5, S6 and **S7.6 submitted**; **S7.6 is the entry** (+0.0001 over S6: Car -0.004, Truck +0.005 on the leaderboard); before: S6 (Section 7.11: Van 0.117 -> 0.141 on the leaderboard); S2 done, below the upload gate (Section 7.5); S5 not confirmed (Section 7.8); next: the final phase with the S7.6 zip as F1, `DEVELOPMENT.md` Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#812-s7-final-revisions-s74-s76-2026-10-26) Sections 8.8 and 8.12 |
 | Experiment log | [`registry.csv`](registry.csv) (one row per evaluation and submission) |
 
 ## 1. Folder conventions
@@ -445,7 +445,7 @@ Full tables: [`docs/02-STRATEGY.md` Section 8.6.1](../docs/02-STRATEGY.md#861-s6
 | S1 realval-B | 0.166 | 0.134 | 0.770 | 0.102 | 0.015 | 0.012 | 0.131 | 0.001 |
 | S1 leaderboard / realval-A | 0.52 | 0.34 | 0.72 | 0.20 | | | 0.14 | 0.97 |
 
-Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (local proxy 4: 1.629, 0.00117, 1.530, 3.447, 0.9057). Van and Car transfer; Person, Bicycle and Truck lose most of their realval-A AP, so the realval-A selection does not represent the test window well (analysis: Section 9.4; next strategy: root README Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
+Realism on the server: CD 1.690, MMD 0.00187, EMD 1.647, FPD 5.095, R 0.8912 (local proxy 4: 1.629, 0.00117, 1.530, 3.447, 0.9057). Van and Car transfer; Person, Bicycle and Truck lose most of their realval-A AP, so the realval-A selection does not represent the test window well (analysis: Section 9.4; next strategy: `DEVELOPMENT.md` Section 8 and [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8).
 
 ### 9.2 Artifacts
 
@@ -615,7 +615,7 @@ Tools ([`common/tools/`](../common/tools)): `pcdet_build_infos`, `pcdet_train`, 
 - Track facts live in `data-lumpi-track/track.yaml`, never as constants in code.
 - Dataset versions are immutable: build a new name and record it in [`data-lumpi-track/README.md`](../data-lumpi-track/README.md) Section 9 with the command that built it.
 - A model is a folder (`python common/tools/new_model.py lumpi <name> --from <model>`); outputs stay in git-ignored `output/`; decisions go to `registry.csv` and the model README.
-- A strategy is named (root README Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8); every CodaBench submission is listed under it in the root README Section 9 and in Section 9 here.
+- A strategy is named (`DEVELOPMENT.md` Section 8, [`docs/02-STRATEGY.md`](../docs/02-STRATEGY.md#8-strategy-routes-after-s1) Section 8); every CodaBench submission is listed under it in the `DEVELOPMENT.md` Section 9 and in Section 9 here.
 - Real data only through the guard, with a purpose string; a new use of real data gets a decision record before it influences a submission.
 - Evaluate with the official metric (`bdc26.evalap.evaluate`, `bdc26.realism.score`); never report KITTI-style numbers as challenge numbers.
 - Match the surrounding code; new dependencies go into `requirements.txt`.

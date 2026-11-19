@@ -1,4 +1,4 @@
-# paper-bigdata2026: the challenge report and the BigData Cup paper
+# Final challenge reports (`docs/paper-bigdata2026/final-report/`)
 
 > **Status 2026-11-15: two track reports, one per track, as the organizers asked (CodaBench message of 2026-11-13). Same structure; titles "UrbanTwin Sim2Real for Synthetic-Only LiDAR Detection: LUMPI Track, Team KarmaRV" and "...: V2X-Real Track, Team KarmaRV" (the entrant, 2026-11-15); affiliation Hitachi America, Ltd. R&D. The entrant's guidance of 2026-11-15: no dates, deadlines or ranks anywhere; the abstract on the approach, its gains and its gaps, ending with the code link https://github.com/karmarv/utsim2real-bdc26; organizer clarifications as points; Section VII by challenge phase (development, then the valid final-phase submissions) with named approaches and bold submission IDs, not release numbers.**
 > - **Text:** [`report_lumpi.md`](report_lumpi.md) and [`report_v2x.md`](report_v2x.md), the single sources.
@@ -12,7 +12,7 @@
 
 | Deliverable | Due | Length and format | Who | Channel |
 |---|---|---|---|---|
-| Challenge report | **Nov 15, 2026** | 4-8 pages, IEEE two-column | every team | ASK ([`docs/01` Section 10](../docs/01-CHALLENGE-FACTS.md#10-questions-for-the-organizers-email-muhammadshahbazucfedu-on-day-1), question 5) |
+| Challenge report | **Nov 15, 2026** | 4-8 pages, IEEE two-column | every team | ASK ([`docs/01` Section 10](../../01-CHALLENGE-FACTS.md#10-questions-for-the-organizers-email-muhammadshahbazucfedu-on-day-1), question 5) |
 | Cup paper (paper track, CyberChair subarea SC04) | camera-ready **Nov 20, 2026** | up to 10 pages including references, IEEE two-column | top 3 per track (invited) | CyberChair |
 | Code release for verification | with the paper | a public repository with the detector code and the weights of the final entries | top 3 per track | GitHub (Section 8) |
 
@@ -30,10 +30,10 @@ The final phase closes Sat Nov 14, 16:00 PST, so the report's final-phase number
 ## 3. The approach in the challenge's four steps
 
 The challenge website describes the protocol in four steps: get the data, synthesize, train sim-only, submit. This section maps the system behind the final development-phase entries onto those steps (material for paper Sections 3-6). Both entries are S8 (2026-10-30): the S7.6 system plus 12-view TTA fusions of the walker class and, on LUMPI, the non-negative completion; rank 1 on both, and F1 of the final phase:
-- Track 1, LUMPI: [`routed-g11d`](../model-lumpi-track/routed-g11d/model.yaml), CodaBench 1022492, combined 0.5257, 15 checkpoints (the S7.6 ones; before it S8.2 [`routed-g11c`](../model-lumpi-track/routed-g11c/model.yaml), 1022399, 0.5254, and S8 U2 [`routed-g11b`](../model-lumpi-track/routed-g11b/model.yaml), 1022250, 0.5239; S7.6 was [`routed-g10`](../model-lumpi-track/routed-g10/model.yaml), 1014495, 0.5228).
-- Track 2, V2X-Real: [`routed-g13`](../model-v2x-track/routed-g13/model.yaml), CodaBench 1022246, combined 0.9022, 10 checkpoints (the S7.6 ones; S7.6 was [`routed-g12`](../model-v2x-track/routed-g12/model.yaml), 1014682, 0.8982, identical to 1001919).
+- Track 1, LUMPI: [`routed-g11d`](../../../model-lumpi-track/archive/routed-g11d/model.yaml), CodaBench 1022492, combined 0.5257, 15 checkpoints (the S7.6 ones; before it S8.2 [`routed-g11c`](../../../model-lumpi-track/archive/routed-g11c/model.yaml), 1022399, 0.5254, and S8 U2 [`routed-g11b`](../../../model-lumpi-track/archive/routed-g11b/model.yaml), 1022250, 0.5239; S7.6 was [`routed-g10`](../../../model-lumpi-track/archive/routed-g10/model.yaml), 1014495, 0.5228).
+- Track 2, V2X-Real: [`routed-g13`](../../../model-v2x-track/archive/routed-g13/model.yaml), CodaBench 1022246, combined 0.9022, 10 checkpoints (the S7.6 ones; S7.6 was [`routed-g12`](../../../model-v2x-track/archive/routed-g12/model.yaml), 1014682, 0.8982, identical to 1001919).
 
-The checkpoints of both are the assets of releases 8.0 and 8.1 ([`releases/8.0/weights.json`](../releases/8.0/weights.json)), byte-identical to release 7.0: S8 adds test-time views and post-processing only.
+The checkpoints of both are the assets of releases 8.0 and 8.1 ([`releases/8.0/weights.json`](../../../releases/8.0/weights.json)), byte-identical to release 7.0: S8 adds test-time views and post-processing only.
 
 ### 3.1 Get the data
 
@@ -51,7 +51,7 @@ The checkpoints of both are the assets of releases 8.0 and 8.1 ([`releases/8.0/w
   - realval-B checks: LUMPI 867 frames of Measurements 5-6 (another session); V2X 298 frames of other scenes (split by scene name).
   - five realism proxies of 50 frames each: 1-3 to fit, 4-5 held out for honest estimates.
 
-Sources: [`data-lumpi-track/README.md`](../data-lumpi-track/README.md) Sections 7-8, [`data-v2x-track/README.md`](../data-v2x-track/README.md) Sections 6-7, [`docs/01`](../docs/01-CHALLENGE-FACTS.md#3-rules) Section 3.
+Sources: [`data-lumpi-track/README.md`](../../../data-lumpi-track/README.md) Sections 7-8, [`data-v2x-track/README.md`](../../../data-v2x-track/README.md) Sections 6-7, [`docs/01`](../../01-CHALLENGE-FACTS.md#3-rules) Section 3.
 
 ### 3.2 Synthesize
 
@@ -119,9 +119,9 @@ V2X portfolio (`routed-g12`; TTA unless marked plain):
 
 **Where real labels enter.** The site's "No real labels, ever" holds for the detector weights. Real labels still enter in two places, and the report states both:
 - validation and selection: V2X settled by the organizers' FAQ; LUMPI Measurements 5-6 still open;
-- generator statistics: walker placement copies real label rows, a moderate risk in the [compliance audit](../docs/decisions/2026-10-26-rules-compliance-audit.md), disclosed to the organizers.
+- generator statistics: walker placement copies real label rows, a moderate risk in the [compliance audit](../../decisions/2026-10-26-rules-compliance-audit.md), disclosed to the organizers.
 
-Sources: track model READMEs Sections 2-3 and 7; the two `model.yaml` files; [`docs/decisions/README.md`](../docs/decisions/README.md#32-gates) Section 3.2; [`docs/01`](../docs/01-CHALLENGE-FACTS.md#31-our-operating-interpretation) Section 3.1.
+Sources: track model READMEs Sections 2-3 and 7; the two `model.yaml` files; [`docs/decisions/README.md`](../../decisions/README.md#32-gates) Section 3.2; [`docs/01`](../../01-CHALLENGE-FACTS.md#31-our-operating-interpretation) Section 3.1.
 
 ### 3.4 Submit
 
@@ -134,7 +134,7 @@ Before each upload, `check_submission.py --official` validates the zip, runs the
 
 ## 4. Score breakdown of the final entries (development phase)
 
-The final development entries are S8 (2026-10-30): LUMPI S8.3 (release 8.1) and V2X S8 (release 8.0). Server records: [`codabench_1022492.json`](../model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/codabench_1022492.json) and [`codabench_1022246.json`](../model-v2x-track/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json); the S7.6 entries before them were [`codabench_1014495.json`](../model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json) and [`codabench_1014682.json`](../model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json). Recomputing the combined score from the per-class AP and the four realism distances, with the kit's formula and normalization (`config.json`), reproduces both to six decimals:
+The final development entries are S8 (2026-10-30): LUMPI S8.3 (release 8.1) and V2X S8 (release 8.0). Server records: [`codabench_1022492.json`](../../../model-lumpi-track/archive/routed-g11d/submissions/2026-10-30_s8d/codabench_1022492.json) and [`codabench_1022246.json`](../../../model-v2x-track/archive/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json); the S7.6 entries before them were [`codabench_1014495.json`](../../../model-lumpi-track/archive/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json) and [`codabench_1014682.json`](../../../model-v2x-track/archive/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json). Recomputing the combined score from the per-class AP and the four realism distances, with the kit's formula and normalization (`config.json`), reproduces both to six decimals:
 
 ```
 combined = 0.6 * clip(mAP / 0.7)  +  0.4 * R
@@ -259,7 +259,7 @@ Every figure exists per track: `figures/fig_lumpi_<name>.png` and `figures/fig_v
 ## 7. Layout and build
 
 ```
-paper-bigdata2026/
+docs/paper-bigdata2026/final-report/
 ├── README.md                     this file
 ├── report_lumpi.md, report_v2x.md    the two track reports (single sources)
 ├── Final_Report_IEEE_Big_Data_Cup_2026_LUMPI_Track_KarmaRV.docx / .pdf      built from report_lumpi.md
@@ -271,7 +271,7 @@ paper-bigdata2026/
 ```
 
 ```bash
-source common/env/activate.sh && python paper-bigdata2026/make_figures.py && python paper-bigdata2026/build_docx.py --pdf
+source common/env/activate.sh && python docs/paper-bigdata2026/final-report/make_figures.py && python docs/paper-bigdata2026/final-report/build_docx.py --pdf
 ```
 
 - **Styles.** The builder keeps every style of the template: title, author, abstract, keywords, numbered headings, body text, bullets, table head, figure caption, references.
