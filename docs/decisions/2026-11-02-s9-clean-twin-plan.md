@@ -448,7 +448,7 @@ The training seed is 666 for all. VoxelNeXt on `g1-v6` joins only if M1 passes.
 - **Final check against `routed-g13`:** pedestrian is kept (A +0.006, B +0.002, pooled +0.0041, P 0.965, train split +0.013). Vehicle and truck equal the entry.
 - **Rule 4, last clause:** no used member was trained on `g1-v6`, so the zip carries `routed-g13`'s realism frames.
 - **Package:**
-  - `model-v2x-track/routed-g15/submissions/2026-11-02_s9a/submission.zip`
+  - `model-v2x-track/archive/routed-g15/submissions/2026-11-02_s9a/submission.zip`
   - kit check valid, 38,824 boxes, 221 s
   - scorecard: A 0.738, B 0.725; B against `routed-g13` is +0.0006 mAP (P 0.60)
   - projection +0.0007 combined, below the +0.003 notice bar but above bar (b)
@@ -568,7 +568,7 @@ These are the same checks the portfolios run, done early to order the queue (`$B
 - **Projection:** A +0.0127, B +0.0062, combined **+0.0049**.
 - **Scorecard:** B against `routed-g11d` is Person +0.0435 (P 1.00) and mAP +0.0062.
 - **Realism** (held-out proxies 4 and 5): R 0.9399, the same frames as `s9a`. Against the S8 frames' 0.9337 on the same proxies, that adds about +0.002 combined on top of the projection.
-- **Zip:** `model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip`, sha256 `a00f5f9d...97552bf6`, kit check valid with 38,466 boxes.
+- **Zip:** `model-lumpi-track/archive/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip`, sha256 `a00f5f9d...97552bf6`, kit check valid with 38,466 boxes.
   - Its CLI merge equals the timed q0.95 build, file by file.
   - The re-merge reproduction is identical (`test/reproduce_s9a2.sh`).
 - **Over-time zip:** `s9a`, with t = 0.0841, stays in place unchanged and is not to be uploaded.
@@ -762,7 +762,7 @@ The entrant uploaded both zips unchanged. Both were checked on the public `get_l
   - Even the lowest rung (q0.95) is well under the 38,466 bound.
   - After the fit, Person changed by A +0.0065, B +0.0147, pooled +0.0116, P 1.00, with neither split down. The train-split result is A +0.0065.
 
-**The zip:** `model-lumpi-track/routed-g13/submissions/2026-11-02_s9b/lumpi_s9b_submission.zip`
+**The zip:** `model-lumpi-track/archive/routed-g13/submissions/2026-11-02_s9b/lumpi_s9b_submission.zip`
 
 | Check | Result |
 |---|---|
@@ -809,7 +809,7 @@ The entrant uploaded both zips unchanged. Both were checked on the public `get_l
 - **Final check against `routed-g13`:** Person changed by A +0.0126, B -0.0013, pooled +0.0051, P 1.00. Every other class is unchanged.
 - **Rule 1(b):** the copy fit moved the Person threshold from t 0.7311 to **0.7316** (q0.95, 29,031 kit boxes). The Person deltas after the fit are the same.
 
-**The zip:** `model-lumpi-track/routed-g14/submissions/2026-11-03_s9c/lumpi_s9c_submission.zip`
+**The zip:** `model-lumpi-track/archive/routed-g14/submissions/2026-11-03_s9c/lumpi_s9c_submission.zip`
 
 | Check | Result |
 |---|---|
@@ -921,7 +921,7 @@ These are the first and second LUMPI uploads of Nov 3. Rule 6 allows at most 3 p
 - **Realism (rule 4):** the same 50 `g1-v6` frames, byte-identical to `s9c`'s. The local stand-in R is 0.940414, with CD, MMD, EMD and FPD identical to `s9c`. Only `predictions.json` differs between the two zips.
 - **Local mAP:** A 0.4072 (`s9c` 0.4069), B 0.2361 (0.2351).
 - **Projection against `routed-g14`:** dA +0.0003, dB +0.0010, combined +0.0003. Bar (b), projection > 0, is met. The advisory +0.003 notice bar is not.
-- **File:** `model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip`, md5 `20d2d5fac2408a2fb91d03985645b70d`, sha256 `c25f3edc...6227efc2` (identical to `submission.zip`).
+- **File:** `model-lumpi-track/archive/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip`, md5 `20d2d5fac2408a2fb91d03985645b70d`, sha256 `c25f3edc...6227efc2` (identical to `submission.zip`).
 
 **Test-time re-inference.** The package step writes 14 member test predictions. Five of them differ from the `s9c` build in the last digits (`vrros_tta`, `vrros4_tta`, `pvros4_tta`, `vrrosf6_tta12`, `pvros6_tta12`), and the other nine are identical. This is the known EQUIVALENT-not-IDENTICAL behaviour of inference on shared GPUs (9.1 dry run, `gpu_queue.sh`).
 - In the four unchanged classes that use them, 97.5-100% of the test boxes are within 5 cm of an `s9c` box: Person 4,341 of 4,342, Bicycle 4,747 of 4,757, Bus 2,380 of 2,440 (fused at IoU 0.3, where small shifts regroup boxes), and Van 2,244 of 2,246. Scores differ by at most 0.004.
@@ -1634,8 +1634,8 @@ In the final check against `routed-g15`, every delta is 0.0. So `routed-g18` equ
 
 | Track | Entry | Submission | Combined | Zip (md5 verified 13:30 UTC) |
 |---|---|---|---|---|
-| LUMPI | `s9d` | 1031132 | 0.542490 | `model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip` (`20d2d5fac2408a2fb91d03985645b70d`, 25,112,078 bytes) |
-| V2X | `s9a` | 1028491 | 0.902971 | `model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip` (`3e59e5b3c76b440bd11aeba0304cc75e`, 22,128,040 bytes) |
+| LUMPI | `s9d` | 1031132 | 0.542490 | `model-lumpi-track/archive/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip` (`20d2d5fac2408a2fb91d03985645b70d`, 25,112,078 bytes) |
+| V2X | `s9a` | 1028491 | 0.902971 | `model-v2x-track/archive/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip` (`3e59e5b3c76b440bd11aeba0304cc75e`, 22,128,040 bytes) |
 
 **F1 (Section 9).** F1 is these two zips, unchanged, uploaded once the final phase opens (Nov 6, 05:00 UTC). Both kit checks ran in about 220-265 s on this machine, well inside the 1,200 s limit. F5 is the same zips again on the last full day, unless the organizers answer Q3 "best counts". *(Superseded on 2026-11-07: the close-out zips `s9j` and `s9f` were uploaded in the final phase and scored higher; Section 15.32.)*
 
@@ -1678,7 +1678,7 @@ The build follows the `s9_portfolio.sh` LUMPI steps after the fuse, without `fre
 - **Copy fit.** UNCHANGED (t = 0.7316), so the Person copy threshold is `s9d`'s.
 - **Kit check.** Valid, 22,901 boxes, 188.6 s.
 - **Projection against `routed-g15`.** dA +0.0307, dB +0.0087, combined **+0.0101** (bar +0.003: passed). This is recorded before any upload (rule 6).
-- **File.** `model-lumpi-track/routed-g21/submissions/2026-11-05_s9iu/lumpi_s9iu_submission.zip`, md5 `44c6b91f1429ba787cdbbf9eead162af`, sha256 `f01d5e62...7601eab`, 24,961,966 bytes (identical to `submission.zip`).
+- **File.** `model-lumpi-track/archive/routed-g21/submissions/2026-11-05_s9iu/lumpi_s9iu_submission.zip`, md5 `44c6b91f1429ba787cdbbf9eead162af`, sha256 `f01d5e62...7601eab`, 24,961,966 bytes (identical to `submission.zip`).
 
 **Against the scored `s9d` zip:**
 - **Unchanged.** The 50 realism frames are byte-identical. Car, Bus, Truck, Van and Unknown are identical in every frame.
@@ -1785,7 +1785,7 @@ The anchors are the sensors' xy: V2X the frame origin, LUMPI the five sensors of
 | Kit check | valid, 24,874 boxes, 196.5 s; copy fit UNCHANGED (t = 0.7316) | valid, 38,824 boxes, 220.1 s |
 | Projection against `routed-g15` | dA +0.0007, dB +0.0009, combined **+0.0004** | dA +0.0044, dB +0.0015, combined **+0.0015** |
 | Against the scored zip | Car and Person boxes moved; scores, order and counts identical; every other class identical; frames byte-identical | vehicle and pedestrian boxes moved; the same otherwise |
-| File | `model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip`, md5 `60d6d37a1dc4de5dc5bd28490e4a4b60`, 25,112,126 bytes | `model-v2x-track/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip`, md5 `ae8ceb825b0eb04e64cfd9ab3e54d8ec`, 22,127,572 bytes |
+| File | `model-lumpi-track/archive/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip`, md5 `60d6d37a1dc4de5dc5bd28490e4a4b60`, 25,112,126 bytes | `model-v2x-track/archive/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip`, md5 `ae8ceb825b0eb04e64cfd9ab3e54d8ec`, 22,127,572 bytes |
 
 Both pass bar (b) (projection > 0) and the kit check, so both are upload-ready. Each is an F1 candidate against its track's entry, by the combined score only (rule 6). The projections are recorded here before any upload. The code is in two places:
 - `route_predictions.apply_size_calibration`, the last stage of `merge_card`, and the selection tool `common/tools/size_calibration.py`;
@@ -1851,7 +1851,7 @@ The entrant asked whether DSVT, the sparse voxel transformer in mainline OpenPCD
 **Viability on our stack (measured today):**
 - **Code.** DSVT's code and Waymo configs are in our OpenPCDet checkout (`233f849`).
 - **Dependency.** Its one missing package is `torch_scatter`, which is used only by the dynamic VFEs (`scatter_mean`, `scatter_max(...)[0]`). `common/bdc26/detect/pcdet_patches.py` now supplies both with torch 2.1's `scatter_reduce`. It matches a reference loop exactly (`test_s9.py`), so no new package is needed.
-- **Member folder.** `model-lumpi-track/dsvt-ros-g1v6`: DSVT-Pillar, 0.2 m dynamic pillars on a 400 x 400 grid, a CenterPoint head with our head groups, the same data and augmentation as `voxelnext-ros-g1v6`, 40 epochs.
+- **Member folder.** `model-lumpi-track/archive/dsvt-ros-g1v6`: DSVT-Pillar, 0.2 m dynamic pillars on a 400 x 400 grid, a CenterPoint head with our head groups, the same data and augmentation as `voxelnext-ros-g1v6`, 40 epochs.
 - **Smoke run on `g1-v6`** (one GPU, shared with training): it builds and trains, and the loss falls from 264 to 51 in 100 iterations. Memory is about 23 GB per GPU at batch 4, and an iteration takes 1.78 s.
 - **Projection:** about 6-8 h for 40 epochs on a 4-GPU worker per track, or 2-2.5x VoxelNeXt. Its 8-view validation tuning takes about 4-5 h on LUMPI.
 

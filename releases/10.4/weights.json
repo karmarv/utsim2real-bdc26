@@ -25,14 +25,14 @@
     },
     {
       "version": "lumpi:s10-4-l8",
-      "model": "model-lumpi-track/routed-s10-4-l8",
+      "model": "model-lumpi-track/archive/routed-s10-4-l8",
       "strategy": "S10-4",
-      "submission_zip": "model-lumpi-track/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
+      "submission_zip": "model-lumpi-track/archive/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
       "zip_md5": "bcf5761b259693d3d18f382133768dc5",
       "codabench_id": "1051832",
       "leaderboard_combined": 0.54233,
-      "reproduce_test": "model-lumpi-track/routed-s10-4-l8/test/reproduce_s10-4-l8.sh",
-      "reproduce_validation": "model-lumpi-track/routed-s10-4-l8/test/reproduce_s10-4-l8_validation.sh",
+      "reproduce_test": "model-lumpi-track/archive/routed-s10-4-l8/test/reproduce_s10-4-l8.sh",
+      "reproduce_validation": "model-lumpi-track/archive/routed-s10-4-l8/test/reproduce_s10-4-l8_validation.sh",
       "checkpoints": [
         "lumpi.dsvt-rosf-g1v6.epoch40.pth",
         "lumpi.pointpillars-ros-g1v6.epoch40.pth",
@@ -265,7 +265,7 @@
     {
       "name": "lumpi_s10-4-l8_submission.zip",
       "kind": "submission",
-      "path": "model-lumpi-track/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
+      "path": "model-lumpi-track/archive/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip",
       "md5": "bcf5761b259693d3d18f382133768dc5",
       "bytes": 25442620,
       "used_by": [

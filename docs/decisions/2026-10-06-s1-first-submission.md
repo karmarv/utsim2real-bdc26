@@ -24,29 +24,29 @@
 
 **Reproduce (weights and test run).** Generated on 2026-10-15 by `common/tools/reproduce_submission.py`, which also wrote each `test/reproduce_<tag>.sh`. The script runs the test-frame inference of every used member from the checkpoint listed (checkpoints are not in git; their md5s are in `validation/results/reproduce_<tag>.json`), merges with the committed `model.yaml`, compares with the scored zip, repackages the same 50 frames and runs the official kit scorer. It uses the members' current post-processing files: for the exact files of the time, check out release tag 1.0 (the S1 code is also at 0.1) first; the compare step reports any difference. Checked on 2026-10-15: the saved member predictions re-merge to the scored predictions exactly for every upload, and S1 LUMPI re-run from its checkpoints gives identical boxes and frames.
 
-**Reproduce (LUMPI, `model-lumpi-track/routed-g1`, tag `first`).** Scored zip `model-lumpi-track/routed-g1/submissions/2026-10-02_first/submission_lumpi.zip` (md5 `ea2c76393d6f8868762d6bac1ac03fa8`, CodaBench 965614); realism frames `pcdet/g1-v2` listed in `model-lumpi-track/routed-g1/submissions/2026-10-02_first/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (17095 boxes).
+**Reproduce (LUMPI, `model-lumpi-track/archive/routed-g1`, tag `first`).** Scored zip `model-lumpi-track/archive/routed-g1/submissions/2026-10-02_first/submission_lumpi.zip` (md5 `ea2c76393d6f8868762d6bac1ac03fa8`, CodaBench 965614); realism frames `pcdet/g1-v2` listed in `model-lumpi-track/archive/routed-g1/submissions/2026-10-02_first/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (17095 boxes).
 
 | Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
 |---|---|---|---|---|---|---|
-| `g1` | `model-lumpi-track/pointpillars-g1` | `model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `16e68b8b9142` | 6.0: `lumpi.pointpillars-g1.epoch40.pth` | - | `model-lumpi-track/pointpillars-g1/test/postprocess.yaml` |
-| `g1v3` | `model-lumpi-track/pointpillars-g1v3` | `model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `e403acdc3ae3` | 6.0: `lumpi.pointpillars-g1v3.epoch40.pth` | - | `model-lumpi-track/pointpillars-g1v3/test/postprocess.yaml` |
+| `g1` | `model-lumpi-track/archive/pointpillars-g1` | `model-lumpi-track/archive/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `16e68b8b9142` | 6.0: `lumpi.pointpillars-g1.epoch40.pth` | - | `model-lumpi-track/archive/pointpillars-g1/test/postprocess.yaml` |
+| `g1v3` | `model-lumpi-track/archive/pointpillars-g1v3` | `model-lumpi-track/archive/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `e403acdc3ae3` | 6.0: `lumpi.pointpillars-g1v3.epoch40.pth` | - | `model-lumpi-track/archive/pointpillars-g1v3/test/postprocess.yaml` |
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/reproduce_first.sh     # inference with these weights, merge, compare, repackage, kit check
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g1/test/reproduce_first_validation.sh   # realval-A/B from the weights against the recorded scorecard
-python common/tools/reproduce_submission.py model-lumpi-track/routed-g1 --tag first   # quick check: re-merge the saved member predictions
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g1/test/reproduce_first.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g1/test/reproduce_first_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-lumpi-track/archive/routed-g1 --tag first   # quick check: re-merge the saved member predictions
 ```
 
-**Reproduce (V2X, `model-v2x-track/routed-g1`, tag `first`).** Scored zip `model-v2x-track/routed-g1/submissions/2026-10-02_first/submission.zip` (md5 `5343da990d5cdd1f34df379433479e2a`, CodaBench 965633); realism frames `pcdet/g1-v3` listed in `model-v2x-track/routed-g1/submissions/2026-10-02_first/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (18728 boxes).
+**Reproduce (V2X, `model-v2x-track/archive/routed-g1`, tag `first`).** Scored zip `model-v2x-track/archive/routed-g1/submissions/2026-10-02_first/submission.zip` (md5 `5343da990d5cdd1f34df379433479e2a`, CodaBench 965633); realism frames `pcdet/g1-v3` listed in `model-v2x-track/archive/routed-g1/submissions/2026-10-02_first/synthetic_ids.txt`. Re-merge of the saved member predictions: identical (18728 boxes).
 
 | Member | Model folder | Weights (epoch 40) | md5 | Release asset | TTA | Post-processing |
 |---|---|---|---|---|---|---|
-| `g1v2` | `model-v2x-track/pointpillars-g1v2` | `model-v2x-track/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `7c3e9a1c074a` | - | - | `model-v2x-track/pointpillars-g1v2/test/postprocess.yaml` |
-| `g1v3` | `model-v2x-track/pointpillars-g1v3` | `model-v2x-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `b330667c2981` | - | - | `model-v2x-track/pointpillars-g1v3/test/postprocess.yaml` |
-| `ut` | `model-v2x-track/pointpillars-ut` | `model-v2x-track/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `2081ca05e332` | - | - | `model-v2x-track/pointpillars-ut/test/postprocess.yaml` |
+| `g1v2` | `model-v2x-track/archive/pointpillars-g1v2` | `model-v2x-track/archive/pointpillars-g1v2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `7c3e9a1c074a` | - | - | `model-v2x-track/archive/pointpillars-g1v2/test/postprocess.yaml` |
+| `g1v3` | `model-v2x-track/archive/pointpillars-g1v3` | `model-v2x-track/archive/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `b330667c2981` | - | - | `model-v2x-track/archive/pointpillars-g1v3/test/postprocess.yaml` |
+| `ut` | `model-v2x-track/archive/pointpillars-ut` | `model-v2x-track/archive/pointpillars-ut/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth` | `2081ca05e332` | - | - | `model-v2x-track/archive/pointpillars-ut/test/postprocess.yaml` |
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g1/test/reproduce_first.sh     # inference with these weights, merge, compare, repackage, kit check
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g1/test/reproduce_first_validation.sh   # realval-A/B from the weights against the recorded scorecard
-python common/tools/reproduce_submission.py model-v2x-track/routed-g1 --tag first   # quick check: re-merge the saved member predictions
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g1/test/reproduce_first.sh     # inference with these weights, merge, compare, repackage, kit check
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g1/test/reproduce_first_validation.sh   # realval-A/B from the weights against the recorded scorecard
+python common/tools/reproduce_submission.py model-v2x-track/archive/routed-g1 --tag first   # quick check: re-merge the saved member predictions
 ```

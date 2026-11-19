@@ -1,6 +1,6 @@
 # 2026-10-18 S7 Visibility Rule (V2X): step 1 uploaded and confirmed (V2X 1001919 0.8982, pedestrian +0.015), rank 1; step 2 below the upload gate; 2026-10-26 review: conventions saturated
 
-**Version.** Strategy S7, V2X only, two change sets on top of the S6 entry (`model-v2x-track/routed-g8b`, 995877, 0.8931):
+**Version.** Strategy S7, V2X only, two change sets on top of the S6 entry (`model-v2x-track/archive/routed-g8b`, 995877, 0.8931):
 - **Step 1, `routed-g9`:** `routed-g8b` plus a per-class **sparse-box demotion** stage on the final predictions (no training).
 - **Step 2, `routed-g10`:** members retrained on the same frames with **visibility-matched labels** (corpus `pcdet/g1-v5m`), as seed bags, through the pooled rule on top of step 1.
 
@@ -27,7 +27,7 @@ Exploratory probe of the review (2026-10-18, before this record; final `routed-g
 6. **Upload gate (6.0):** projected gain at least +0.003 combined (0.6 x the mean of the A and B mAP gains x 0.6 / 0.7), kit scorer valid in under 400 s; one change set per upload (step 1 first, step 2 only after step 1 is confirmed or rejected).
 7. **Unchanged:** the 50 realism frames (the `g1-v5` frames of the S6 entry); no class or knob chosen from leaderboard numbers; feature freeze Sun Oct 25 (step 2 is dropped if it is not through its gate by then).
 
-**Results, step 1** (2026-10-18, `route_predictions.py sparse model-v2x-track/routed-g9`, 12 min CPU; `validation/results/sparse_table.json`). Final predictions, official 3D AP@0.5 R40, realval-A / realval-B, and the pooled A+B delta against `routed-g8b`:
+**Results, step 1** (2026-10-18, `route_predictions.py sparse model-v2x-track/archive/routed-g9`, 12 min CPU; `validation/results/sparse_table.json`). Final predictions, official 3D AP@0.5 R40, realval-A / realval-B, and the pooled A+B delta against `routed-g8b`:
 
 | k | pedestrian | pooled | vehicle | pooled |
 |---|---|---|---|---|
@@ -45,7 +45,7 @@ Exploratory probe of the review (2026-10-18, before this record; final `routed-g
 
 **Gate, step 1** (6.0 rules). The pooled check on the final predictions (`pooled_check.py`) passes for vehicle (+0.0022) and pedestrian (+0.0197), both P 1.00. Neither split drops. Projection 0.6 x mean(+0.0068, +0.0088) = +0.0047 mAP, so **+0.0040 combined against the bar +0.003: upload gate passed**. Realism is identical: the 50 frames of the S6 entry, local R 0.937 as packaged, and the kit realism 0.935395 is bit-equal to 995877's. Kit scorer: valid, 141 s, 24,284 boxes.
 
-**Package, step 1.** `model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip` (md5 `c1483d590242d4fe6b4eefff96c1619c`). It was merged from the saved kit predictions of the six `routed-g8b` members, the exact predictions behind 995877. Against `v2x_s6b_submission.zip`:
+**Package, step 1.** `model-v2x-track/archive/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip` (md5 `c1483d590242d4fe6b4eefff96c1619c`). It was merged from the saved kit predictions of the six `routed-g8b` members, the exact predictions behind 995877. Against `v2x_s6b_submission.zip`:
 - every box and every frame is identical, and only scores change;
 - only `predictions.json` and the declaration date differ.
 
@@ -87,7 +87,7 @@ The re-merge check is identical, and `test/reproduce_s7.sh` re-predicts the memb
 
 **Decision, step 1.** `routed-g9` is decision-ready and passes every pre-registered rule. Upload `v2x_s7_submission.zip` unchanged to CodaBench 16685. It is one change set: two classes are re-ranked, and nothing else changes. Projection 0.893 + 0.004 = about **0.897**. LUMPI is unchanged (rule 1).
 
-**Outcome, step 1** (uploaded unchanged by the entrant; scored 2026-10-19 02:52 UTC; public leaderboard API; server record [`codabench_1001919.json`](../../model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json), manifest via `--record`):
+**Outcome, step 1** (uploaded unchanged by the entrant; scored 2026-10-19 02:52 UTC; public leaderboard API; server record [`codabench_1001919.json`](../../model-v2x-track/archive/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json), manifest via `--record`):
 
 | | V2X 1001919 (S7 step 1) | Previous entry 995877 (S6 variant b) | Change |
 |---|---|---|---|
@@ -117,6 +117,6 @@ The re-merge check is identical, and `test/reproduce_s7.sh` re-predicts the memb
 
 **Reproduce (step 1).**
 - Members: those of `routed-g8b` (record [`2026-10-16-s6-variance-controlled.md`](2026-10-16-s6-variance-controlled.md), weights in release 6.0).
-- Model card: `model-v2x-track/routed-g9/model.yaml` (adds `sparse_demotion`).
-- Script: `CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g9/test/reproduce_s7.sh` on an idle GPU.
+- Model card: `model-v2x-track/archive/routed-g9/model.yaml` (adds `sparse_demotion`).
+- Script: `CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g9/test/reproduce_s7.sh` on an idle GPU.
 - The stage counts points of the kit test frames themselves, at inference only, as re-centering already does.

@@ -5,14 +5,14 @@
   "versions": [
     {
       "version": "lumpi:c0",
-      "model": "model-lumpi-track/routed-c0",
+      "model": "model-lumpi-track/archive/routed-c0",
       "strategy": "S10",
-      "submission_zip": "model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip",
+      "submission_zip": "model-lumpi-track/archive/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip",
       "zip_md5": "1de9f12c1f18d045e5b0c05e08a2f793",
       "codabench_id": "1042287",
       "leaderboard_combined": 0.5408,
-      "reproduce_test": "model-lumpi-track/routed-c0/test/reproduce_c0.sh",
-      "reproduce_validation": "model-lumpi-track/routed-c0/test/reproduce_c0_validation.sh",
+      "reproduce_test": "model-lumpi-track/archive/routed-c0/test/reproduce_c0.sh",
+      "reproduce_validation": "model-lumpi-track/archive/routed-c0/test/reproduce_c0_validation.sh",
       "checkpoints": [
         "lumpi.dsvt-rosf-g1v6.epoch40.pth",
         "lumpi.pointpillars-ros-g1v6.epoch40.pth",
@@ -32,14 +32,14 @@
     },
     {
       "version": "lumpi:c0pq",
-      "model": "model-lumpi-track/routed-c0",
+      "model": "model-lumpi-track/archive/routed-c0",
       "strategy": "S10",
-      "submission_zip": "model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip",
+      "submission_zip": "model-lumpi-track/archive/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip",
       "zip_md5": "aa167c395f3d8c4549b063d9e269a863",
       "codabench_id": "1047231",
       "leaderboard_combined": 0.541329,
-      "reproduce_test": "model-lumpi-track/routed-c0/test/reproduce_c0pq.sh",
-      "reproduce_validation": "model-lumpi-track/routed-c0/test/reproduce_c0pq_validation.sh",
+      "reproduce_test": "model-lumpi-track/archive/routed-c0/test/reproduce_c0pq.sh",
+      "reproduce_validation": "model-lumpi-track/archive/routed-c0/test/reproduce_c0pq_validation.sh",
       "checkpoints": [
         "lumpi.dsvt-rosf-g1v6.epoch40.pth",
         "lumpi.pointpillars-ros-g1v6.epoch40.pth",
@@ -59,14 +59,14 @@
     },
     {
       "version": "lumpi:c1pq",
-      "model": "model-lumpi-track/routed-c1",
+      "model": "model-lumpi-track/archive/routed-c1",
       "strategy": "S10",
-      "submission_zip": "model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip",
+      "submission_zip": "model-lumpi-track/archive/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip",
       "zip_md5": "6c2da31f4146a174caba4923709f87c4",
       "codabench_id": "1047204",
       "leaderboard_combined": 0.539575,
-      "reproduce_test": "model-lumpi-track/routed-c1/test/reproduce_c1pq.sh",
-      "reproduce_validation": "model-lumpi-track/routed-c1/test/reproduce_c1pq_validation.sh",
+      "reproduce_test": "model-lumpi-track/archive/routed-c1/test/reproduce_c1pq.sh",
+      "reproduce_validation": "model-lumpi-track/archive/routed-c1/test/reproduce_c1pq_validation.sh",
       "checkpoints": [
         "lumpi.dsvt-rosf-g1v6.epoch40.pth",
         "lumpi.pointpillars-ros-g1v6.epoch40.pth",
@@ -89,14 +89,14 @@
     },
     {
       "version": "v2x:c0",
-      "model": "model-v2x-track/routed-c0",
+      "model": "model-v2x-track/archive/routed-c0",
       "strategy": "S10",
-      "submission_zip": "model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip",
+      "submission_zip": "model-v2x-track/archive/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip",
       "zip_md5": "c70e8a341b7647d8ae7712a09ba1baf6",
       "codabench_id": "1042294",
       "leaderboard_combined": 0.888471,
-      "reproduce_test": "model-v2x-track/routed-c0/test/reproduce_c0.sh",
-      "reproduce_validation": "model-v2x-track/routed-c0/test/reproduce_c0_validation.sh",
+      "reproduce_test": "model-v2x-track/archive/routed-c0/test/reproduce_c0.sh",
+      "reproduce_validation": "model-v2x-track/archive/routed-c0/test/reproduce_c0_validation.sh",
       "checkpoints": [
         "v2x.dsvt-ros-g1v6.epoch40.pth",
         "v2x.voxelrcnn-ros-g1v6.epoch40.pth",
@@ -106,14 +106,14 @@
     },
     {
       "version": "v2x:c1av5",
-      "model": "model-v2x-track/routed-c1a",
+      "model": "model-v2x-track/archive/routed-c1a",
       "strategy": "S10",
-      "submission_zip": "model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip",
+      "submission_zip": "model-v2x-track/archive/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip",
       "zip_md5": "2f3d80cbfed8c0f4064a8ba77aa5ecb5",
       "codabench_id": "1046758",
       "leaderboard_combined": 0.888864,
-      "reproduce_test": "model-v2x-track/routed-c1a/test/reproduce_c1av5.sh",
-      "reproduce_validation": "model-v2x-track/routed-c1a/test/reproduce_c1av5_validation.sh",
+      "reproduce_test": "model-v2x-track/archive/routed-c1a/test/reproduce_c1av5.sh",
+      "reproduce_validation": "model-v2x-track/archive/routed-c1a/test/reproduce_c1av5_validation.sh",
       "checkpoints": [
         "v2x.dsvt-ros-g1v6.epoch40.pth",
         "v2x.voxelrcnn-ros-g1v6.epoch40.pth",
@@ -173,7 +173,7 @@
     {
       "name": "lumpi.pointpillars-rosf-swa-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "cd4a95561238f4ae705c7de396347f80",
       "bytes": 19816664,
       "used_by": [
@@ -278,7 +278,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "55d9aa9a076a71db46e0eb41e35c8f3a",
       "bytes": 77459322,
       "used_by": [
@@ -288,7 +288,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6d2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "8da559c0f081ef9a666a9421b8cf05b3",
       "bytes": 77459322,
       "used_by": [
@@ -298,7 +298,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6d3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "fb15b9c0afb5aac2eb0d0b246018383f",
       "bytes": 77459322,
       "used_by": [
@@ -308,7 +308,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6d4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6d4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6d4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "0218d798222adb1817f50728fbc1c5c0",
       "bytes": 77459322,
       "used_by": [
@@ -386,7 +386,7 @@
     {
       "name": "lumpi.routed-c0.c0.lumpi_s10_submission.zip",
       "kind": "submission",
-      "path": "model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip",
+      "path": "model-lumpi-track/archive/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip",
       "md5": "1de9f12c1f18d045e5b0c05e08a2f793",
       "bytes": 25133656,
       "used_by": [
@@ -396,7 +396,7 @@
     {
       "name": "lumpi.routed-c0.c0pq.lumpi_s10_submission.zip",
       "kind": "submission",
-      "path": "model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip",
+      "path": "model-lumpi-track/archive/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip",
       "md5": "aa167c395f3d8c4549b063d9e269a863",
       "bytes": 25218465,
       "used_by": [
@@ -406,7 +406,7 @@
     {
       "name": "lumpi.routed-c1.c1pq.lumpi_s10_submission.zip",
       "kind": "submission",
-      "path": "model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip",
+      "path": "model-lumpi-track/archive/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip",
       "md5": "6c2da31f4146a174caba4923709f87c4",
       "bytes": 25245458,
       "used_by": [
@@ -416,7 +416,7 @@
     {
       "name": "v2x.routed-c0.c0.v2x_s10_submission.zip",
       "kind": "submission",
-      "path": "model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip",
+      "path": "model-v2x-track/archive/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip",
       "md5": "c70e8a341b7647d8ae7712a09ba1baf6",
       "bytes": 22128808,
       "used_by": [
@@ -426,7 +426,7 @@
     {
       "name": "v2x.routed-c1a.c1av5.v2x_s10_submission.zip",
       "kind": "submission",
-      "path": "model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip",
+      "path": "model-v2x-track/archive/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip",
       "md5": "2f3d80cbfed8c0f4064a8ba77aa5ecb5",
       "bytes": 22141408,
       "used_by": [

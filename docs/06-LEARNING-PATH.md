@@ -54,7 +54,7 @@
 - Yin et al., "CenterPoint", CVPR 2021, arXiv:2006.11275.
 - OpenPCDet `docs/GETTING_STARTED.md` and `docs/CUSTOM_DATASET_TUTORIAL.md`.
 
-**Do (modules M3 + M4).** Read `common/bdc26/evalap.py` next to OpenPCDet's `kitti_object_eval_python/eval.py` and explain every difference; run `pytest -q common/tests -k "iou or ap"` and add one fixture of your own (a rotated box pair with a hand-computed IoU). Then train `model-v2x-track/pointpillars-ut` (`train/train.sh`), run `validation/evaluate.sh`, and read its per-class AP in `validation/results/`.
+**Do (modules M3 + M4).** Read `common/bdc26/evalap.py` next to OpenPCDet's `kitti_object_eval_python/eval.py` and explain every difference; run `pytest -q common/tests -k "iou or ap"` and add one fixture of your own (a rotated box pair with a hand-computed IoU). Then train `model-v2x-track/archive/pointpillars-ut` (`train/train.sh`), run `validation/evaluate.sh`, and read its per-class AP in `validation/results/`.
 
 **Check yourself.** Why do anchor-free heads cope better with unusual box sizes? What does GT-sampling do to the class balance of a batch?
 

@@ -167,7 +167,7 @@ The final phase is blind, and LUMPI detection changes have transferred unreliabl
 
 **Non-score work in the same period.**
 - The disclosure email ([audit Appendix A](2026-10-26-rules-compliance-audit.md)) before the final phase opens. The top three must release code for verification, and the walker rows are the one moderate-risk item.
-- The 4-8 page report (Nov 15) from [`paper-bigdata2026/README.md`](../../paper-bigdata2026/README.md) Sections 3-4.
+- The 4-8 page report (Nov 15) from [`paper-bigdata2026/README.md`](../../paper-bigdata2026/final-report/README.md) Sections 3-4.
 
 ### 5.4 Not doing, and why
 
@@ -204,7 +204,7 @@ The final phase is blind, and LUMPI detection changes have transferred unreliabl
 7. **Audit rules a-e** apply unchanged: no model is fitted on real labels, no statistic of the test frames or the public test GT is used, and nothing is chosen from leaderboard numbers.
 
 8. **Amendment at the go (Fri 09:44 CDT; written before any 12-view result).** The go came about 10 h after the timeline above assumed; the cut-off for U2 (packaged by 15:00 CDT) stands. So that U2 fits:
-   - **Folders.** U1 is `model-lumpi-track/routed-g11` (tag `s8a`), U2 is `model-lumpi-track/routed-g11b` (tag `s8b`): the final check compares two folders.
+   - **Folders.** U1 is `model-lumpi-track/archive/routed-g11` (tag `s8a`), U2 is `model-lumpi-track/archive/routed-g11b` (tag `s8b`): the final check compares two folders.
    - **U1 constants.** Floors: Bicycle, Motorcycle, Bus, Truck and Van at 0.01; Person 0.01, Car none and Unknown 0.075 unchanged. Person copies: r 0.2 m, 4 copies, `min_score` t = 0.0508, the median of the 142,612 Person scores of `routed-g10` on realval-A (1,280 frames).
    - **U2 candidates.** The `_tta12` variant (views `flip4+yaw+z+scale`, post-processing tuned on A from the neutral start as for `_tta`, reported on B) only for the 7 TTA checkpoints in the incumbent fusions of the unfrozen classes: Person `pp4`, `vrros4s2`; Car `pvros` (the 6-seed bag `bagpv4x` stays at 8 views: about 6 GPU-hours); Truck `pvros4d2`, `ppros`; Van `vrros4`, `g1`. No select or fuse search: per class **one candidate**, the incumbent fusion with each of these members replaced by its `_tta12` sibling, same IoU and weights (`fuse --pooled-rule --swap-variant tta12`, the S7.6 swap pattern, Person ranked on late-A as in S7.6).
    - **U2 checks.** U1's floors and copies, then the final check against U1 (`s7_check.py check`, the rule 4 conditions; Van by its S6 judge; Bicycle, Motorcycle and Bus frozen at U1). A failing class keeps U1.
@@ -248,10 +248,10 @@ Pipeline: `common/pipeline/s8_portfolio.sh` (stages `u1`, `u1pkg`, `u2`, `v2x`);
   - realval-A mAP 0.3891 (+0.0010), realval-B 0.2262 (+0.0012), late-A 0.360;
   - per class on B: Person +0.0062 (pooled +0.0060, P 1.00), Motorcycle +0.0015, Bicycle +0.0005, the rest 0;
   - **projection +0.0006**: above 0, so U1 passes bar (b); it does not meet the 6.0 bar (+0.003).
-- **Zip.** `model-lumpi-track/routed-g11/submissions/2026-10-30_s8a/lumpi_s8a_submission.zip`, md5 `055507e5c90c00b257dd0763413086ad`. Official kit check valid, 318 s, 32,079 boxes. The 50 realism frames are byte-identical to the scored `s7s` zip. Reproduction scripts: `test/reproduce_s8a.sh`, `test/reproduce_s8a_validation.sh`.
+- **Zip.** `model-lumpi-track/archive/routed-g11/submissions/2026-10-30_s8a/lumpi_s8a_submission.zip`, md5 `055507e5c90c00b257dd0763413086ad`. Official kit check valid, 318 s, 32,079 boxes. The 50 realism frames are byte-identical to the scored `s7s` zip. Reproduction scripts: `test/reproduce_s8a.sh`, `test/reproduce_s8a_validation.sh`.
 - The over-budget first package was never uploaded; it was moved out of the repository.
 
-### 8.2 V2X U2, `model-v2x-track/routed-g13` / `s8v`: passes bar (b)
+### 8.2 V2X U2, `model-v2x-track/archive/routed-g13` / `s8v`: passes bar (b)
 
 - **Inputs.** `_tta12` variants of the 4 non-bag TTA members in the entry's fusions. The members' own gains on realval-A / B:
   - `voxelrcnn-ros-g1v3`: pedestrian +0.0095 / +0.0112;
@@ -266,7 +266,7 @@ Pipeline: `common/pipeline/s8_portfolio.sh` (stages `u1`, `u1pkg`, `u2`, `v2x`);
   - Pedestrian is kept: dA +0.0070, dB +0.0103, pooled +0.0074 at P 1.00, train-split frames +0.0052.
   - Vehicle and truck are frozen at the entry; their test predictions are identical to the entry's.
 - **Local result.** realval-A mAP 0.7363 (+0.0023), realval-B 0.7240 (+0.0034); **projection +0.0015**.
-- **Zip.** `model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip`, md5 `b9c82e3de0c37babf146549eeedabbf6`. Kit check valid, 128 s, 21,354 boxes (pedestrian 16,550 -> 13,620). The 50 realism frames are byte-identical to the scored `s7s` zip. Reproduction scripts: `test/reproduce_s8v.sh`, `test/reproduce_s8v_validation.sh`.
+- **Zip.** `model-v2x-track/archive/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip`, md5 `b9c82e3de0c37babf146549eeedabbf6`. Kit check valid, 128 s, 21,354 boxes (pedestrian 16,550 -> 13,620). The 50 realism frames are byte-identical to the scored `s7s` zip. Reproduction scripts: `test/reproduce_s8v.sh`, `test/reproduce_s8v_validation.sh`.
 
 ### 8.3 LUMPI U2, `routed-g11b` / `s8b`: passes bar (b)
 
@@ -286,7 +286,7 @@ Pipeline: `common/pipeline/s8_portfolio.sh` (stages `u1`, `u1pkg`, `u2`, `v2x`);
 - **Local result.**
   - realval-A mAP 0.3909, realval-B 0.2266, late-A 0.3605;
   - **projection +0.0011 against the entry, +0.0006 against U1**.
-- **Zip.** `model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/lumpi_s8b_submission.zip`, md5 `c85189b48795db4647119189f7a5a2d3`. Kit check valid, 328 s, 32,038 boxes. Realism frames byte-identical to `s7s`. Reproduction scripts: `test/reproduce_s8b.sh`, `test/reproduce_s8b_validation.sh`.
+- **Zip.** `model-lumpi-track/archive/routed-g11b/submissions/2026-10-30_s8b/lumpi_s8b_submission.zip`, md5 `c85189b48795db4647119189f7a5a2d3`. Kit check valid, 328 s, 32,038 boxes. Realism frames byte-identical to `s7s`. Reproduction scripts: `test/reproduce_s8b.sh`, `test/reproduce_s8b_validation.sh`.
 
 ### 8.4 Uploads (the entrant uploads) and F1
 
@@ -300,7 +300,7 @@ All three pass bar (b): projection above 0, every changed class through the fina
 
 What S8 showed: the 12-view set gained only for walkers (LUMPI Person, V2X pedestrian), where 8-view fusion was weakest. Car, Truck and Van stayed flat.
 
-**Entry unchanged by the S8 code.** After all S8 changes, `model-lumpi-track/routed-g10/test/reproduce_s7s.sh` rebuilt the scored `s7s` zip **IDENTICAL**: 23,270 boxes, 0 frames differing, realism frames identical, kit check 261 s. The test suite (`common/tests`, 106 tests) passes.
+**Entry unchanged by the S8 code.** After all S8 changes, `model-lumpi-track/archive/routed-g10/test/reproduce_s7s.sh` rebuilt the scored `s7s` zip **IDENTICAL**: 23,270 boxes, 0 frames differing, realism frames identical, kit check 261 s. The test suite (`common/tests`, 106 tests) passes.
 
 ### 8.5 Leaderboard results (release 8.0)
 
@@ -308,8 +308,8 @@ The entrant uploaded `s8v` and `s8b` unchanged; `s8a` (U1) was not uploaded, bec
 
 | Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank (2026-10-30 20:09 UTC) | Change against S7.6 |
 |---|---|---|---|---|---|---|---|---|
-| LUMPI | `routed-g11b` / `s8b` | [1022250](../../model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/codabench_1022250.json) | 19:57 | **0.523901** | 0.1762 | 0.9323 | **1 of 22** (Raj Patil 0.5118, 1021347) | +0.00106: Person 0.1802 -> 0.1865 (+0.0063), Truck 0.0632 -> 0.0653 (+0.0021), Motorcycle +0.0003; Car, Bicycle, Bus, Van and realism identical |
-| V2X | `routed-g13` / `s8v` | [1022246](../../model-v2x-track/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json) | 19:52 | **0.902153** | 0.6170 | 0.9332 | **1 of 25** (Raj Patil 0.8112, 1016446) | +0.00398: pedestrian 0.4288 -> 0.4428 (+0.0139); vehicle, truck and realism identical |
+| LUMPI | `routed-g11b` / `s8b` | [1022250](../../model-lumpi-track/archive/routed-g11b/submissions/2026-10-30_s8b/codabench_1022250.json) | 19:57 | **0.523901** | 0.1762 | 0.9323 | **1 of 22** (Raj Patil 0.5118, 1021347) | +0.00106: Person 0.1802 -> 0.1865 (+0.0063), Truck 0.0632 -> 0.0653 (+0.0021), Motorcycle +0.0003; Car, Bicycle, Bus, Van and realism identical |
+| V2X | `routed-g13` / `s8v` | [1022246](../../model-v2x-track/archive/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json) | 19:52 | **0.902153** | 0.6170 | 0.9332 | **1 of 25** (Raj Patil 0.8112, 1016446) | +0.00398: pedestrian 0.4288 -> 0.4428 (+0.0139); vehicle, truck and realism identical |
 
 **Reading.**
 - **Every change transferred with the sign the local checks gave.** LUMPI projected +0.0011 and scored +0.00106. V2X projected +0.0015 and scored +0.0040: pedestrian gained +0.0139 on the test frames against +0.0103 on realval-B and +0.0070 on realval-A.
@@ -334,7 +334,7 @@ The entrant asked, at 12:50 CDT, for the 12-view approach in the scope rule 8 ha
    - LUMPI: Person, Car, Truck and Van only; Person ranked on late-A with the top 3 through the gates; U1's floors and copies (t = 0.274) kept; Bicycle, Motorcycle and Bus frozen.
    - V2X: every class; budget `--pooled`, copies and the sparse stage re-derived, as in `s8v`.
 4. **Final check** (`s7_check.py check`, the rule 4 conditions; LUMPI Van by its judge) against the latest built version of the track. LUMPI is checked against `routed-g11b` (`s8b`), V2X against `routed-g13` (`s8v`). A failing class keeps that version's configuration.
-5. **Versions and bar.** LUMPI `routed-g11c` / `s8c`, V2X `model-v2x-track/routed-g14` / `s8w`. Each is uploaded only under bar (b), against the version it was checked against, with the kit check under 400 s. A version that changes no class is not built.
+5. **Versions and bar.** LUMPI `routed-g11c` / `s8c`, V2X `model-v2x-track/archive/routed-g14` / `s8w`. Each is uploaded only under bar (b), against the version it was checked against, with the kit check under 400 s. A version that changes no class is not built.
 6. **Cut-off.** Packaged by 18:00 CDT (23:00 UTC), or not offered: the phase closes at 19:00 CDT and LUMPI scoring takes 6-8 min.
 7. **Not in S8.2.** The 20-view set (flip, rotation and scale views together), because the GPU time goes to the bags. Also Bicycle, Motorcycle and Bus, and anything chosen from leaderboard numbers.
 8. **Probed and dropped (CPU, before any S8.2 result): the U1 completion on V2X.** `s8v`'s kit check leaves 270 s of headroom, so the probe tested the completion on `s8v`'s validation predictions:
@@ -357,7 +357,7 @@ The entrant asked, at 12:50 CDT, for the 12-view approach in the scope rule 8 ha
   - Final check against `s8b`: Car is kept (dA +0.0018, dB -0.0010, train split +0.0018).
   - Local A 0.3911, B 0.2265; **projection against `s8b` +0.00003**, above 0, so `s8c` passes bar (b) by its letter.
   - Kit check valid: 319 s, 31,048 boxes. Only Car differs from `s8b` (12,748 -> 11,758 boxes), and the realism frames are byte-identical.
-  - Zip `model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip`, md5 `ead9da5ec4eb683e526efe4b72483dfc`.
+  - Zip `model-lumpi-track/archive/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip`, md5 `ead9da5ec4eb683e526efe4b72483dfc`.
   - **Reading:** a near-zero local change in the class whose local gains did not transfer in S7.6 (Car +0.006 on both splits, -0.004 on the leaderboard). The expected leaderboard change is within noise either way.
 - **Leaderboard: `s8c` uploaded by the entrant, 1022399 (2026-10-30 21:37 UTC): 0.525439**, rank 1 of 22 (Raj Patil 0.5118).
   - Against `s8b` (1022250): +0.00154. Car 0.6482 -> 0.6608 (+0.0126); every other class and the realism are identical.
@@ -408,7 +408,7 @@ The entrant asked at 17:00 CDT for a last rule-aligned increment that fits the r
   - Person +0.0015 / +0.0020, Bus +0.0006 / +0.0015;
   - **projection +0.0002** against `s8c`.
 - **Kit check** valid: 361 s, 37,396 boxes.
-- **Zip:** `model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip`, md5 `d5bd41769788c902b6e49095236aafd6`.
+- **Zip:** `model-lumpi-track/archive/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip`, md5 `d5bd41769788c902b6e49095236aafd6`.
 
 ### 10.3 Leaderboard: `s8d` (the LUMPI entry and F1)
 

@@ -3,7 +3,7 @@
   "tag": "s10-4-v4",
   "scored_zip": "model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip",
   "zip_md5": "ea385593f3875b29b2ae85c332c31366",
-  "codabench": null,
+  "codabench": "1051825",
   "remerge_check": {
     "frames_equal_keys": true,
     "boxes": [

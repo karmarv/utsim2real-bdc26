@@ -5,14 +5,14 @@
   "versions": [
     {
       "version": "lumpi:s10-2-l1",
-      "model": "model-lumpi-track/routed-c2r",
+      "model": "model-lumpi-track/archive/routed-c2r",
       "strategy": "S10",
-      "submission_zip": "model-lumpi-track/routed-c2r/submissions/2026-11-12_s10-2-l1/lumpi_s10-2-l1_submission.zip",
+      "submission_zip": "model-lumpi-track/archive/routed-c2r/submissions/2026-11-12_s10-2-l1/lumpi_s10-2-l1_submission.zip",
       "zip_md5": "4a1fd4b242c5fd44ce1c0f5bfcbeb004",
       "codabench_id": "1050208",
       "leaderboard_combined": 0.540045,
-      "reproduce_test": "model-lumpi-track/routed-c2r/test/reproduce_s10-2-l1.sh",
-      "reproduce_validation": "model-lumpi-track/routed-c2r/test/reproduce_s10-2-l1_validation.sh",
+      "reproduce_test": "model-lumpi-track/archive/routed-c2r/test/reproduce_s10-2-l1.sh",
+      "reproduce_validation": "model-lumpi-track/archive/routed-c2r/test/reproduce_s10-2-l1_validation.sh",
       "checkpoints": [
         "lumpi.dsvt-rosf-g1v6.epoch40.pth",
         "lumpi.pointpillars-ros-g1v6.epoch40.pth",
@@ -38,14 +38,14 @@
     },
     {
       "version": "v2x:s10-2-v1",
-      "model": "model-v2x-track/routed-c2r",
+      "model": "model-v2x-track/archive/routed-c2r",
       "strategy": "S10",
-      "submission_zip": "model-v2x-track/routed-c2r/submissions/2026-11-12_s10-2-v1/v2x_s10-2-v1_submission.zip",
+      "submission_zip": "model-v2x-track/archive/routed-c2r/submissions/2026-11-12_s10-2-v1/v2x_s10-2-v1_submission.zip",
       "zip_md5": "9f836506b943141b4cdce78648e143c7",
       "codabench_id": "1050253",
       "leaderboard_combined": 0.891305,
-      "reproduce_test": "model-v2x-track/routed-c2r/test/reproduce_s10-2-v1.sh",
-      "reproduce_validation": "model-v2x-track/routed-c2r/test/reproduce_s10-2-v1_validation.sh",
+      "reproduce_test": "model-v2x-track/archive/routed-c2r/test/reproduce_s10-2-v1.sh",
+      "reproduce_validation": "model-v2x-track/archive/routed-c2r/test/reproduce_s10-2-v1_validation.sh",
       "checkpoints": [
         "v2x.dsvt-ros-g1v6.epoch40.pth",
         "v2x.voxelrcnn-ros-g1v6.epoch40.pth",
@@ -91,7 +91,7 @@
     {
       "name": "lumpi.pointpillars-rosf-swa-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "cd4a95561238f4ae705c7de396347f80",
       "bytes": 19816664,
       "used_by": [
@@ -171,7 +171,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-gblobs-swa-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-gblobs-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-gblobs-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "b6a678849d6166e10b4fca05217a98fe",
       "bytes": 77474938,
       "used_by": [
@@ -181,7 +181,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-gblobs-swa-g1v6d2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-gblobs-swa-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-gblobs-swa-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "5388eeb5cc28a0761d8eef6a27069ebf",
       "bytes": 77474938,
       "used_by": [
@@ -191,7 +191,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-gblobs-swa-g1v6d3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-gblobs-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-gblobs-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "e6e9d8d61a770b74319a8355ddad2390",
       "bytes": 77474938,
       "used_by": [
@@ -201,7 +201,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "55d9aa9a076a71db46e0eb41e35c8f3a",
       "bytes": 77459322,
       "used_by": [
@@ -211,7 +211,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6d2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "8da559c0f081ef9a666a9421b8cf05b3",
       "bytes": 77459322,
       "used_by": [
@@ -221,7 +221,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6d3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "fb15b9c0afb5aac2eb0d0b246018383f",
       "bytes": 77459322,
       "used_by": [
@@ -231,7 +231,7 @@
     {
       "name": "lumpi.voxelrcnn-rosf-swa-g1v6d4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-rosf-swa-g1v6d4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-rosf-swa-g1v6d4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "0218d798222adb1817f50728fbc1c5c0",
       "bytes": 77459322,
       "used_by": [
@@ -331,7 +331,7 @@
     {
       "name": "lumpi_s10-2-l1_submission.zip",
       "kind": "submission",
-      "path": "model-lumpi-track/routed-c2r/submissions/2026-11-12_s10-2-l1/lumpi_s10-2-l1_submission.zip",
+      "path": "model-lumpi-track/archive/routed-c2r/submissions/2026-11-12_s10-2-l1/lumpi_s10-2-l1_submission.zip",
       "md5": "4a1fd4b242c5fd44ce1c0f5bfcbeb004",
       "bytes": 25171501,
       "used_by": [
@@ -341,7 +341,7 @@
     {
       "name": "v2x_s10-2-v1_submission.zip",
       "kind": "submission",
-      "path": "model-v2x-track/routed-c2r/submissions/2026-11-12_s10-2-v1/v2x_s10-2-v1_submission.zip",
+      "path": "model-v2x-track/archive/routed-c2r/submissions/2026-11-12_s10-2-v1/v2x_s10-2-v1_submission.zip",
       "md5": "9f836506b943141b4cdce78648e143c7",
       "bytes": 22129478,
       "used_by": [

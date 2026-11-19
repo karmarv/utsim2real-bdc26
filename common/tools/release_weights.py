@@ -15,7 +15,8 @@ Manifest: releases/<tag>/weights.json (in git). For every asset its name, reposi
 that use it; for every version its model folder, submission zip, CodaBench id and leaderboard score, and its
 reproduction scripts. Checkpoint assets are named <track>.<model folder>.epoch40.pth and go back to
 model-<track>/<model>/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth (git-ignored), the paths every
-model.yaml, decision record and test/reproduce_<tag>.sh refer to. The GitHub token is read from $GITHUB_TOKEN or
+model.yaml, decision record and test/reproduce_<tag>.sh refer to. Fetching from a public repository needs no token; for
+publishing (or a private repository) the GitHub token is read from $GITHUB_TOKEN or
 $GH_TOKEN or typed at a hidden prompt (common/tools/_github.py); the repository is private, so fetching needs one too.
 """
 import argparse
@@ -164,7 +165,9 @@ def fetch(tag: str, version: str | None, force: bool) -> None:
             print(f"{a['path']}: present, md5 ok")
             continue
         if rel is None:
-            rel = _github.release(m["repository"], tag)
+            rel = _github.release(m["repository"], tag, required=False)      # a public repository: no token needed
+            if rel is None:
+                rel = _github.release(m["repository"], tag)                   # a private one: asks for a token
             if rel is None:
                 raise SystemExit(f"no GitHub release {tag} in {m['repository']} (or the token cannot read it)")
             by_name = {x["name"]: x for x in rel["assets"]}

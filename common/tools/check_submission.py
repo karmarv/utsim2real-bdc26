@@ -20,6 +20,9 @@
    under the server's execution budget (1,200 s) and reports validity, realism, wall time and peak memory. The
    stand-in AP is meaningless (those labels belong to other frames); only validity and cost matter.
    The result is stored as `official_local_eval` in the manifest.json next to the zip (read by scorecard.py).
+   Without that real data (a fresh clone: only the starting kit), the kit's own reference_data_dummy is used (its 5
+   dummy realism frames repeated to the server's 50, no detection GT): validity, format and the scorer's run are
+   checked; its realism number is meaningless and its run time understates the server's ("reference": "kit dummy").
 """
 import argparse
 import hashlib
@@ -71,11 +74,28 @@ def update_manifest(zip_path: Path, team: str | None, errors: list, info: dict) 
     man.write_text(json.dumps(m, indent=2))
 
 
+def has_legal_reference(track) -> bool:
+    return ((track.pcdet / "realval-v1" / "ImageSets" / "val.txt").exists()
+            and len(list((track.pcdet / "realism-proxy-4" / "points").glob("*.npy"))) >= 50)
+
+
 def official(track, zip_path: Path) -> dict:
     kit = track.kit
+    legal = has_legal_reference(track)
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         ref = td / "reference"
+        if not legal:                                       # a fresh clone: the kit's dummy reference
+            shutil.copytree(kit / "reference_data_dummy", ref)
+            cfg = json.loads((ref / "config.json").read_text())
+            cfg["n_realism_frames"] = 50                    # the server's count (the dummy config says 5)
+            (ref / "config.json").write_text(json.dumps(cfg))
+            dummy = sorted((ref / "realism_reference").glob("*.bin"))
+            for i in range(len(dummy), 50):                 # the 5 dummy frames repeated up to 50 (format check only)
+                shutil.copy(dummy[i % len(dummy)], ref / "realism_reference" / f"dummy_{i:04d}.bin")
+            gt = json.loads((ref / "detection_gt.json").read_text())
+            return run_kit(kit, zip_path, ref, td, gt, "kit dummy (no legal real data here): validity and format only; "
+                                                         "realism and run time are not indicative of the server")
         (ref / "realism_reference").mkdir(parents=True)
         cfg = json.loads((kit / "reference_data_dummy" / "config.json").read_text())
         cfg["n_realism_frames"] = 50
@@ -91,23 +111,27 @@ def official(track, zip_path: Path) -> dict:
             raise SystemExit("need pcdet/realism-proxy-4 (data-<track>/prepare_realval.py) for a local realism reference")
         for i, f in enumerate(proxy, 1):
             np.load(f)[:, :3].astype(np.float32).tofile(ref / "realism_reference" / f"{i:04d}.bin")
-        work = td / "kit"
-        shutil.copytree(kit / "scoring_program", work / "scoring_program")
-        shutil.copy(kit / "local_eval.py", work / "local_eval.py")
-        t0 = time.time()
-        try:
-            p = subprocess.run([sys.executable, "local_eval.py", str(zip_path.resolve()), str(ref)], cwd=work,
-                               capture_output=True, text=True, timeout=BUDGET_S)
-        except subprocess.TimeoutExpired:
-            return {"valid": False, "error": f"exceeded the server's {BUDGET_S} s execution limit locally"}
-        wall = time.time() - t0
-        peak_mb = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024
-        scores = json.loads((work / "scores.json").read_text()) if (work / "scores.json").exists() else {}
-        return {"valid": bool(scores.get("valid_submission")), "error": scores.get("error_message"),
-                "stand_in_gt_boxes": sum(len(v) for v in gt.values()),
-                "score_realism": scores.get("score_realism"), "CD": scores.get("CD"), "MMD": scores.get("MMD"),
-                "EMD": scores.get("EMD"), "FPD": scores.get("FPD"), "wall_s": round(wall, 1), "peak_rss_mb": round(peak_mb),
-                "budget_s": BUDGET_S, "returncode": p.returncode, "stderr_tail": p.stderr[-800:] if p.returncode else ""}
+        return run_kit(kit, zip_path, ref, td, gt, "legal real data: realism-proxy-4 frames, realval-v1 labels as stand-in GT")
+
+
+def run_kit(kit: Path, zip_path: Path, ref: Path, td: Path, gt: dict, reference: str) -> dict:
+    work = td / "kit"
+    shutil.copytree(kit / "scoring_program", work / "scoring_program")
+    shutil.copy(kit / "local_eval.py", work / "local_eval.py")
+    t0 = time.time()
+    try:
+        p = subprocess.run([sys.executable, "local_eval.py", str(zip_path.resolve()), str(ref)], cwd=work,
+                           capture_output=True, text=True, timeout=BUDGET_S)
+    except subprocess.TimeoutExpired:
+        return {"valid": False, "error": f"exceeded the server's {BUDGET_S} s execution limit locally"}
+    wall = time.time() - t0
+    peak_mb = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024
+    scores = json.loads((work / "scores.json").read_text()) if (work / "scores.json").exists() else {}
+    return {"valid": bool(scores.get("valid_submission")), "error": scores.get("error_message"), "reference": reference,
+            "stand_in_gt_boxes": sum(len(v) for v in gt.values()),
+            "score_realism": scores.get("score_realism"), "CD": scores.get("CD"), "MMD": scores.get("MMD"),
+            "EMD": scores.get("EMD"), "FPD": scores.get("FPD"), "wall_s": round(wall, 1), "peak_rss_mb": round(peak_mb),
+            "budget_s": BUDGET_S, "returncode": p.returncode, "stderr_tail": p.stderr[-800:] if p.returncode else ""}
 
 
 def main():

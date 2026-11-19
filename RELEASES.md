@@ -1,5 +1,11 @@
 # Releases
 
+**Final ranked entries** (details and reproduction in the [README](README.md)): LUMPI **1053789** (0.542997,
+`routed-s10-5-l12e`, weights in **10.5**) and V2X-Real **1051825** (0.894399, `routed-s10-4-v4`, weights in **10.4**).
+Since Nov 19, 2026 the model folders that the final systems do not use are in `model-<track>/archive/`, and the paths in
+`releases/<tag>/weights.json` point there; a reproduction script inside an archived folder runs from a checkout of its
+tag, where the folder is at its original path.
+
 Each release tag fixes the code, the documentation and the submission files of the leaderboard entries at that point. The zip of every leaderboard entry is committed next to its manifest, byte for byte the file that was scored (md5 below and in the folder's `manifest.json`): in 1.0 as `submission_<track>.zip`; from S2 on under its upload name `<track>_<strategy>_submission.zip`, written by the packager (the upload copies of leaderboard entries are committed; the ignore rule for upload copies was lifted on 2026-10-10). The full submission register, with the gate result of every version, is [`docs/decisions/README.md` Section 2](docs/decisions/README.md#2-submission-register).
 
 From 6.0 on, a release also carries **the weights of its leaderboard entries** as GitHub release assets (checkpoints are not in git), listed with their repository paths and md5 in `releases/<tag>/weights.json`, so the entries can be rebuilt from a fresh clone (root README Section 6.11). `releases/<tag>/github.json` records the published release as GitHub shows it: URL, commit, label, upload times and the sha256 of every asset, checked against the local files. Real data is never a release asset: the assets are checkpoints trained on synthetic data only and the scored zips (synthetic frames, predictions, declaration).
@@ -82,7 +88,7 @@ One package passes its rules: L9 on LUMPI. Plan, rules fixed before results, res
 
 | Track | System | What it is | Result |
 |---|---|---|---|
-| LUMPI | **L9** `routed-s10-5-l9` | L8 (1051832) with Person's fusion member on 12 test-time views (the same checkpoints); the other five classes failed the class rule fixed before results | rule 14 GO (pooled +0.0003, P 1.00, grouped 0.95); 31,724 boxes; kit valid; audit PASS; frames L8's, byte-identical; [`lumpi_s10-5-l9_submission.zip`](model-lumpi-track/routed-s10-5-l9/submissions/2026-11-14_s10-5-l9/lumpi_s10-5-l9_submission.zip), md5 `fb619ddd83f37d08f9e53d27b2392d6c`; projection 0.5424 / 0.5425 / 0.5426 |
+| LUMPI | **L9** `routed-s10-5-l9` | L8 (1051832) with Person's fusion member on 12 test-time views (the same checkpoints); the other five classes failed the class rule fixed before results | rule 14 GO (pooled +0.0003, P 1.00, grouped 0.95); 31,724 boxes; kit valid; audit PASS; frames L8's, byte-identical; [`lumpi_s10-5-l9_submission.zip`](model-lumpi-track/archive/routed-s10-5-l9/submissions/2026-11-14_s10-5-l9/lumpi_s10-5-l9_submission.zip), md5 `fb619ddd83f37d08f9e53d27b2392d6c`; projection 0.5424 / 0.5425 / 0.5426 |
 | V2X | V3xp `routed-s10-5-v3xp` (not uploaded) | V1's recipe with its 7 checkpoints retrained on `g1-v6aw`, plus PV | the retrained system loses 0.0586 pooled realval mAP against V1 (rule 14 NO-GO; all six members read lose 0.03 to 0.08), while its kit realism gains 0.0112; its rule (above -0.0027) fails; the line was stopped on the entrant's decision |
 | V2X | V5 `routed-s10-5-v5` (not built) | V4 with 12 views for truck or vehicle | no class passes the class rule |
 
@@ -108,7 +114,7 @@ detection change (retrained checkpoints, 12-view views) is release 10.5 (the ent
 | Track | System | What it is | Frames | Result |
 |---|---|---|---|---|
 | V2X | **V4** `routed-s10-4-v4` | V1 (1050253) unchanged plus PV: pedestrian height 50% and vehicle length and width 25% of the way to the realval-A median box (the V2X set of legal real statistics) | V1's, byte-identical | **1051825: 0.894399** (+0.003094 over V1; pedestrian +0.010827 AP); rule 14 GO (pooled +0.0015, P 0.95); kit valid; audit 6/6; [`v2x_s10-4-v4_submission.zip`](model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip), md5 `ea385593f3875b29b2ae85c332c31366` |
-| LUMPI | **L8** `routed-s10-4-l8` | L5 (1051465) unchanged plus Car length and width 25% of the way to the train-split median and cross-class copies (Motorcycle boxes also as Bicycle, Truck boxes also as Bus, each below every box of its new class) | L5's, byte-identical | **1051832: 0.54233** (+0.000534 over L5; Bicycle +0.004205, Bus +0.000162 AP); rule 14 GO (pooled +0.0003, P 1.00); 31,807 boxes; kit valid; audit 6/6; [`lumpi_s10-4-l8_submission.zip`](model-lumpi-track/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip), md5 `bcf5761b259693d3d18f382133768dc5` |
+| LUMPI | **L8** `routed-s10-4-l8` | L5 (1051465) unchanged plus Car length and width 25% of the way to the train-split median and cross-class copies (Motorcycle boxes also as Bicycle, Truck boxes also as Bus, each below every box of its new class) | L5's, byte-identical | **1051832: 0.54233** (+0.000534 over L5; Bicycle +0.004205, Bus +0.000162 AP); rule 14 GO (pooled +0.0003, P 1.00); 31,807 boxes; kit valid; audit 6/6; [`lumpi_s10-4-l8_submission.zip`](model-lumpi-track/archive/routed-s10-4-l8/submissions/2026-11-13_s10-4-l8/lumpi_s10-4-l8_submission.zip), md5 `bcf5761b259693d3d18f382133768dc5` |
 
 - **Projections:** V4 0.8916 / 0.8926 / 0.8934 (the result is above the high band); L8 0.5419 / 0.5421 / 0.5423 (at the
   high band).
@@ -142,12 +148,12 @@ detection change (retrained checkpoints, 12-view views) is release 10.5 (the ent
 **Plan change (2026-11-13 14:00 UTC, the entrant):** "Lets move on to the next since this is not working ... LUMPI changes are urgent and then we need V2X so its okay to roll these improvements under the 10.3 effort ... as long as we capture the decision trajectory." The trajectory is in the record, Section 10.
 
 **Safety upload (2026-11-13 17:00 UTC, the entrant: "Yes, prepare L5").** L6q builds after the challenge site's stated close (Nov 15 00:00 UTC; the CodaBench pages close Nov 16 04:59 UTC), so L5 goes up first as a qualifying LUMPI entry.
-- Upload file: [`lumpi_s10-2-l5_submission.zip`](model-lumpi-track/routed-s10-2-l5/submissions/2026-11-12_s10-2-l5/lumpi_s10-2-l5_submission.zip), md5 `eca9d91051f50a16efa6c50d03778a0b`, to LUMPI (16684).
+- Upload file: [`lumpi_s10-2-l5_submission.zip`](model-lumpi-track/archive/routed-s10-2-l5/submissions/2026-11-12_s10-2-l5/lumpi_s10-2-l5_submission.zip), md5 `eca9d91051f50a16efa6c50d03778a0b`, to LUMPI (16684).
 - Re-checked 2026-11-13 at 17:10 UTC with `s10_2_audit_upload.py`: 6 of 6 PASS. The md5 is the manifest's upload md5; the contents are 52 entries with the declaration verbatim and no kit-format error; rules 1 and 1b pass (13 models clean; `g1-v6` is a training corpus of 11 of 16 shipped checkpoints); the frames are byte-identical to `g1-v6` (44 train, 6 val) and to 1042287's frames.
 - The checks at 10.2 (record 2026-11-12, Section 11.6): rule 14 GO against `C0`, kit check valid (realism 0.940414, 27,344 boxes, 259 s), re-merge identical (maximum difference 0.0).
 - Projection: 0.5422 central (`C0` 0.5408 + P). That is above 1047231 (0.5413, whose frames do not qualify), but not sure to pass 0.5440. The best upload counts, so L6q can follow if it passes its rule (record Section 10.3). L5's server score does not enter that rule.
 - Weights: the 14 checkpoints are `C0`'s, each byte-identical to its entry in [`releases/10.1/weights.json`](releases/10.1/weights.json) (12 are also 10.2 assets).
-- **Scored** (the entrant's upload, about 19:20 UTC; scoring output pasted by the entrant): **1051465, combined 0.541796**, detection 0.280193, realism 0.9342, mAP 0.196135. Against 1042287 (`C0`): +0.000996 combined, +0.001162 mAP, realism unchanged (the same frames). The whole gain is Person (+0.008133 AP, P's Person copies and size targets); every other class is identical. The projection was +0.0005 / +0.0013 / +0.0020; the result sits inside the band, below its centre. Record: [`codabench_1051465.json`](model-lumpi-track/routed-s10-2-l5/submissions/2026-11-12_s10-2-l5/codabench_1051465.json).
+- **Scored** (the entrant's upload, about 19:20 UTC; scoring output pasted by the entrant): **1051465, combined 0.541796**, detection 0.280193, realism 0.9342, mAP 0.196135. Against 1042287 (`C0`): +0.000996 combined, +0.001162 mAP, realism unchanged (the same frames). The whole gain is Person (+0.008133 AP, P's Person copies and size targets); every other class is identical. The projection was +0.0005 / +0.0013 / +0.0020; the result sits inside the band, below its centre. Record: [`codabench_1051465.json`](model-lumpi-track/archive/routed-s10-2-l5/submissions/2026-11-12_s10-2-l5/codabench_1051465.json).
 - **Published** on 2026-11-13 at about 17:20 UTC from the entrant's terminal: `main` and the tag pushed (82af835..72b0516), then [release 10.3](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.3) created as a pre-release. `release_weights.py publish` uploaded all 15 assets and ended with "all assets uploaded and sizes match".
 
 ## 10.2 (2026-11-12 to 2026-11-13): S10 final week, after the organizers' frame answer
@@ -203,11 +209,11 @@ detection change (retrained checkpoints, 12-view views) is release 10.5 (the ent
 
 | Track | Version | CodaBench id | Combined | 3D mAP@0.5 | Realism R (EMD) | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | `C0`: the first clean system | 1042287 (2026-11-08) | 0.5408 | 0.1950 | 0.9342 (1.2720) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip) (`1de9f12c1f18d045e5b0c05e08a2f793`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 1 LUMPI (16684) | `c1pq`: `C0` plus one Person route; frames with the PandarQT near-field re-cast | 1047204 (2026-11-11) | 0.5396 (0.539575) | 0.1929 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip) (`6c2da31f4146a174caba4923709f87c4`) | [S10 record, Sections 15.15.7-15.15.8](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 1 LUMPI (16684) | `c0pq`: `C0`'s detections with the `c1pq` frames (the best LUMPI score; its frames do not qualify under the 2026-11-12 answer) | 1047231 (2026-11-11) | **0.5413** (0.541329) | 0.1950 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip) (`aa167c395f3d8c4549b063d9e269a863`) | [S10 record, Sections 15.15.9-15.15.10](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 2 V2X-Real (16685) | `C0`: the first clean system | 1042294 (2026-11-08) | 0.8885 (0.888471) | 0.5976 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip) (`c70e8a341b7647d8ae7712a09ba1baf6`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
-| 2 V2X-Real (16685) | `c1av5`: `C0` plus the V5 overhead demotion of pedestrian boxes (**the best clean V2X entry**) | 1046758 (2026-11-10) | **0.8889** (0.888864) | 0.5981 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip) (`2f3d80cbfed8c0f4064a8ba77aa5ecb5`) | [S10 record, Sections 15.14.6-15.14.7](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `C0`: the first clean system | 1042287 (2026-11-08) | 0.5408 | 0.1950 | 0.9342 (1.2720) | [`lumpi_s10_submission.zip`](model-lumpi-track/archive/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip) (`1de9f12c1f18d045e5b0c05e08a2f793`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `c1pq`: `C0` plus one Person route; frames with the PandarQT near-field re-cast | 1047204 (2026-11-11) | 0.5396 (0.539575) | 0.1929 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/archive/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip) (`6c2da31f4146a174caba4923709f87c4`) | [S10 record, Sections 15.15.7-15.15.8](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 1 LUMPI (16684) | `c0pq`: `C0`'s detections with the `c1pq` frames (the best LUMPI score; its frames do not qualify under the 2026-11-12 answer) | 1047231 (2026-11-11) | **0.5413** (0.541329) | 0.1950 | 0.9355 (1.2464) | [`lumpi_s10_submission.zip`](model-lumpi-track/archive/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip) (`aa167c395f3d8c4549b063d9e269a863`) | [S10 record, Sections 15.15.9-15.15.10](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 2 V2X-Real (16685) | `C0`: the first clean system | 1042294 (2026-11-08) | 0.8885 (0.888471) | 0.5976 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/archive/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip) (`c70e8a341b7647d8ae7712a09ba1baf6`) | [S10 record, Section 13](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
+| 2 V2X-Real (16685) | `c1av5`: `C0` plus the V5 overhead demotion of pedestrian boxes (**the best clean V2X entry**) | 1046758 (2026-11-10) | **0.8889** (0.888864) | 0.5981 | 0.9406 (1.1097) | [`v2x_s10_submission.zip`](model-v2x-track/archive/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip) (`2f3d80cbfed8c0f4064a8ba77aa5ecb5`) | [S10 record, Sections 15.14.6-15.14.7](docs/decisions/2026-11-08-s10-clean-final-plan.md) |
 
 Server records: `codabench_<id>.json` in each submission folder.
 
@@ -252,8 +258,8 @@ Server records: `codabench_<id>.json` in each submission folder.
 
 ```bash
 python common/tools/release_weights.py fetch --tag 10.1 --version lumpi:c0pq      # or lumpi:c0, lumpi:c1pq, v2x:c0, v2x:c1av5
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-c0/test/reproduce_c0pq.sh
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-c1a/test/reproduce_c1av5.sh
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-c0/test/reproduce_c0pq.sh
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-c1a/test/reproduce_c1av5.sh
 ```
 
 **Reproduction.**
@@ -278,7 +284,7 @@ CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-c1a/test/reproduce_c1av5.sh
 
     ```bash
     git checkout main && python common/tools/release_weights.py fetch --tag 10.0 --version lumpi:s9j     # or v2x:s9f
-    git checkout 10.0 && CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g22/test/reproduce_s9j.sh
+    git checkout 10.0 && CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g22/test/reproduce_s9j.sh
     ```
 - **The report** describes the change and lists both ids as removed.
 
@@ -288,11 +294,11 @@ CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-c1a/test/reproduce_c1av5.sh
 
 | Track | Version | CodaBench id | Phase | Combined | 3D mAP@0.5 | Realism R | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S9 close-out `s9j` | 1038963 | final (F2) | **0.5428** (0.542809) | 0.1973 | 0.9342 | [`lumpi_s9j_submission.zip`](model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip) (`60d6d37a1dc4de5dc5bd28490e4a4b60`) | [s9 clean twin, Sections 15.31-15.32](docs/decisions/2026-11-02-s9-clean-twin-plan.md#1532-final-phase-s9j-and-s9f-score-above-the-development-entries-release-92-2026-11-07-0345-utc) |
-| 2 V2X-Real (16685) | S9 close-out `s9f` | 1038966 | final (F2) | **0.9038** (0.903777) | 0.6189 | 0.9332 | [`v2x_s9f_submission.zip`](model-v2x-track/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip) (`ae8ceb825b0eb04e64cfd9ab3e54d8ec`) | same |
-| 1 LUMPI (16684) | S9 `s9d` | 1031132 | development (rank 1 of 25 at the close) | 0.5425 (0.542490) | 0.1969 | 0.9342 | [`lumpi_s9d_submission.zip`](model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip) (`20d2d5fac2408a2fb91d03985645b70d`) | [s9 clean twin, Sections 15.6-15.7](docs/decisions/2026-11-02-s9-clean-twin-plan.md) |
+| 1 LUMPI (16684) | S9 close-out `s9j` | 1038963 | final (F2) | **0.5428** (0.542809) | 0.1973 | 0.9342 | [`lumpi_s9j_submission.zip`](model-lumpi-track/archive/routed-g22/submissions/2026-11-05_s9j/lumpi_s9j_submission.zip) (`60d6d37a1dc4de5dc5bd28490e4a4b60`) | [s9 clean twin, Sections 15.31-15.32](docs/decisions/2026-11-02-s9-clean-twin-plan.md#1532-final-phase-s9j-and-s9f-score-above-the-development-entries-release-92-2026-11-07-0345-utc) |
+| 2 V2X-Real (16685) | S9 close-out `s9f` | 1038966 | final (F2) | **0.9038** (0.903777) | 0.6189 | 0.9332 | [`v2x_s9f_submission.zip`](model-v2x-track/archive/routed-g19/submissions/2026-11-05_s9f/v2x_s9f_submission.zip) (`ae8ceb825b0eb04e64cfd9ab3e54d8ec`) | same |
+| 1 LUMPI (16684) | S9 `s9d` | 1031132 | development (rank 1 of 25 at the close) | 0.5425 (0.542490) | 0.1969 | 0.9342 | [`lumpi_s9d_submission.zip`](model-lumpi-track/archive/routed-g15/submissions/2026-11-03_s9d/lumpi_s9d_submission.zip) (`20d2d5fac2408a2fb91d03985645b70d`) | [s9 clean twin, Sections 15.6-15.7](docs/decisions/2026-11-02-s9-clean-twin-plan.md) |
 
-Server records: [`codabench_1038963.json`](model-lumpi-track/routed-g22/submissions/2026-11-05_s9j/codabench_1038963.json), [`codabench_1038966.json`](model-v2x-track/routed-g19/submissions/2026-11-05_s9f/codabench_1038966.json), [`codabench_1031132.json`](model-lumpi-track/routed-g15/submissions/2026-11-03_s9d/codabench_1031132.json).
+Server records: [`codabench_1038963.json`](model-lumpi-track/archive/routed-g22/submissions/2026-11-05_s9j/codabench_1038963.json), [`codabench_1038966.json`](model-v2x-track/archive/routed-g19/submissions/2026-11-05_s9f/codabench_1038966.json), [`codabench_1031132.json`](model-lumpi-track/archive/routed-g15/submissions/2026-11-03_s9d/codabench_1031132.json).
 - **What changed.** One new last stage of the merge: an anchored box-size calibration (`size_calibration` in `model.yaml`, `route_predictions.apply_size_calibration`). It keeps the box end nearest a sensor, moves the far end, and keeps the box bottom. The constants were selected on realval A and B with a pre-registered grid and the 6.0 pooled rule (`common/tools/size_calibration.py`). Each zip was packaged from its development entry's cached member predictions, so only the calibrated classes' box geometry differs from the scored entries.
 - **LUMPI `s9j` against `s9d`: +0.00032** (projected +0.0004). Person +0.0036, Car -0.0010, 3D mAP@0.7 +0.0070; every other class and the realism are identical.
 - **V2X `s9f` against `s9a` (1028491, 0.902971): +0.00081** (projected +0.0015). Vehicle +0.0078, pedestrian -0.0050, truck identical, 3D mAP@0.7 +0.0338; the realism is identical.
@@ -304,8 +310,8 @@ Server records: [`codabench_1038963.json`](model-lumpi-track/routed-g22/submissi
 - the S9 members trained after 9.1, and the fuse fix (16 workers and `gc.freeze`).
 ```bash
 python common/tools/release_weights.py fetch --tag 9.2 --version lumpi:s9j                 # or v2x:s9f, lumpi:s9d
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g22/test/reproduce_s9j.sh
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g19/test/reproduce_s9f.sh
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g22/test/reproduce_s9j.sh
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g19/test/reproduce_s9f.sh
 ```
 Dry run on 2026-11-07 (`$BDC_DATA/logs/s9/r920`, each test-frame script alone on an idle GPU). Both test-frame scripts come back **EQUIVALENT**, the same result as 9.1 and `s9d` (record Section 15.26):
 - **LUMPI `reproduce_s9j.sh`:** 24,870 against 24,874 boxes. 24,868 are matched, with centres within 0.0006 m at the 99th percentile. All 8 unmatched boxes score below 0.3. Kit check valid in 209 s.
@@ -321,10 +327,10 @@ The validation scripts were dry-run the same day: the realval-A/B inference was 
 
 | Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S9 `s9a2` | 1028541 | 2026-11-02 19:11 | **0.5357** (0.535667) | 0.1890 | 0.9342 | **1 of 24** (next 0.5132) | [`lumpi_s9a2_submission.zip`](model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip) (`45e4eda799949770cece154a990eb979`) | [s9 clean twin, Section 14.9](docs/decisions/2026-11-02-s9-clean-twin-plan.md#149-leaderboard-s9a2-and-s9a-release-91) |
-| 2 V2X-Real (16685) | S9 `s9a` | 1028491 | 2026-11-02 18:24 | **0.9030** (0.902971) | 0.6180 | 0.9332 | **1 of 28** (next 0.8112) | [`v2x_s9a_submission.zip`](model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip) (`3e59e5b3c76b440bd11aeba0304cc75e`) | same |
+| 1 LUMPI (16684) | S9 `s9a2` | 1028541 | 2026-11-02 19:11 | **0.5357** (0.535667) | 0.1890 | 0.9342 | **1 of 24** (next 0.5132) | [`lumpi_s9a2_submission.zip`](model-lumpi-track/archive/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip) (`45e4eda799949770cece154a990eb979`) | [s9 clean twin, Section 14.9](docs/decisions/2026-11-02-s9-clean-twin-plan.md#149-leaderboard-s9a2-and-s9a-release-91) |
+| 2 V2X-Real (16685) | S9 `s9a` | 1028491 | 2026-11-02 18:24 | **0.9030** (0.902971) | 0.6180 | 0.9332 | **1 of 28** (next 0.8112) | [`v2x_s9a_submission.zip`](model-v2x-track/archive/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip) (`3e59e5b3c76b440bd11aeba0304cc75e`) | same |
 
-Server records: [`codabench_1028541.json`](model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/codabench_1028541.json), [`codabench_1028491.json`](model-v2x-track/routed-g15/submissions/2026-11-02_s9a/codabench_1028491.json).
+Server records: [`codabench_1028541.json`](model-lumpi-track/archive/routed-g12/submissions/2026-11-02_s9a2/codabench_1028541.json), [`codabench_1028491.json`](model-v2x-track/archive/routed-g15/submissions/2026-11-02_s9a/codabench_1028491.json).
 - **LUMPI against S8.3 (1022492): +0.00998.** Person 0.188 -> 0.262 (+0.0745) from two members trained on the label-free corpus `g1-v6`. Realism 0.9323 -> 0.9342 from the `g1-v6` frames (EMD 1.302 -> 1.272). Every other class is within 0.0008.
 - **V2X against S8 (1022246): +0.00082.** Pedestrian 0.443 -> 0.446, from a re-fusion of existing members; everything else is identical.
 - Both projections had the right sign. LUMPI +0.0049 detection plus about +0.002 realism was projected, +0.0100 scored. V2X +0.0007 was projected, +0.0008 scored.
@@ -335,8 +341,8 @@ Server records: [`codabench_1028541.json`](model-lumpi-track/routed-g12/submissi
 - the S9 member folders (VoxelNeXt, Voxel R-CNN and PV-RCNN++ on `g1-v6` and `g1-v6d2`), the draw bags `bag-*-g1v6x`, and `routed-g12` (LUMPI) and `routed-g15` (V2X).
 ```bash
 python common/tools/release_weights.py fetch --tag 9.1 --version lumpi:s9a2                # or v2x:s9a
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g12/test/reproduce_s9a2.sh
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g15/test/reproduce_s9a.sh
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g12/test/reproduce_s9a2.sh
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g15/test/reproduce_s9a.sh
 ```
 Dry run on 2026-11-02 (`$BDC_DATA/logs/s9/r91`), each script on its own GPU, but **next to the S9 training jobs** (no GPU is idle until training ends on Nov 5). Both test-frame scripts come back **EQUIVALENT** (GPU nondeterminism), not IDENTICAL:
 - **LUMPI `reproduce_s9a2.sh`:** 38,471 against 38,466 boxes. 38,427 boxes are matched, with centres within 0.010 m at the 99th percentile (median 1.5e-8 m) and scores within 0.0003. All 83 unmatched boxes score below 0.3.
@@ -359,11 +365,11 @@ Dry run on 2026-11-02 (`$BDC_DATA/logs/s9/r91`), each script on its own GPU, but
 
 | Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S8.3 | 1022492 | 2026-10-30 23:09 | **0.5257** (0.525688) | 0.1782 | 0.9323 | **1 of 22** | [`lumpi_s8d_submission.zip`](model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip) (`d5bd41769788c902b6e49095236aafd6`) | [s8 last day, Section 10](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
-| 1 LUMPI (16684) | S8.2 | 1022399 | 2026-10-30 21:37 | **0.5254** (0.525439) | 0.1779 | 0.9323 | **1 of 22** | [`lumpi_s8c_submission.zip`](model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip) (`ead9da5ec4eb683e526efe4b72483dfc`) | [s8 last day, Section 9](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
-| 2 V2X-Real (16685) | S8 V2X U2 (as 8.0) | 1022246 | 2026-10-30 19:52 | **0.9022** (0.902153) | 0.6170 | 0.9332 | **1 of 25** | [`v2x_s8v_submission.zip`](model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip) (`b9c82e3de0c37babf146549eeedabbf6`) | same |
+| 1 LUMPI (16684) | S8.3 | 1022492 | 2026-10-30 23:09 | **0.5257** (0.525688) | 0.1782 | 0.9323 | **1 of 22** | [`lumpi_s8d_submission.zip`](model-lumpi-track/archive/routed-g11d/submissions/2026-10-30_s8d/lumpi_s8d_submission.zip) (`d5bd41769788c902b6e49095236aafd6`) | [s8 last day, Section 10](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
+| 1 LUMPI (16684) | S8.2 | 1022399 | 2026-10-30 21:37 | **0.5254** (0.525439) | 0.1779 | 0.9323 | **1 of 22** | [`lumpi_s8c_submission.zip`](model-lumpi-track/archive/routed-g11c/submissions/2026-10-30_s8c/lumpi_s8c_submission.zip) (`ead9da5ec4eb683e526efe4b72483dfc`) | [s8 last day, Section 9](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
+| 2 V2X-Real (16685) | S8 V2X U2 (as 8.0) | 1022246 | 2026-10-30 19:52 | **0.9022** (0.902153) | 0.6170 | 0.9332 | **1 of 25** | [`v2x_s8v_submission.zip`](model-v2x-track/archive/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip) (`b9c82e3de0c37babf146549eeedabbf6`) | same |
 
-Server records: [`codabench_1022492.json`](model-lumpi-track/routed-g11d/submissions/2026-10-30_s8d/codabench_1022492.json), [`codabench_1022399.json`](model-lumpi-track/routed-g11c/submissions/2026-10-30_s8c/codabench_1022399.json).
+Server records: [`codabench_1022492.json`](model-lumpi-track/archive/routed-g11d/submissions/2026-10-30_s8d/codabench_1022492.json), [`codabench_1022399.json`](model-lumpi-track/archive/routed-g11c/submissions/2026-10-30_s8c/codabench_1022399.json).
 - **LUMPI S8.3 against S8.2 (1022399): +0.00025, as projected (+0.0002).** Person 0.1865 -> 0.1876 and Bus 0.0028 -> 0.0037, from the copies (which cannot lower AP); every other class and the realism are identical.
 - **LUMPI against S8 U2 (1022250): +0.00154.** Car 0.6482 -> 0.6608 (+0.0126); every other class and the realism are identical.
 - The local evidence was a pooled +0.0007 (A +0.0018, B -0.0010) and a projection of +0.00003. LUMPI Car's local splits did not predict the test result, here upward; in S7.6 they missed downward.
@@ -375,7 +381,7 @@ Server records: [`codabench_1022492.json`](model-lumpi-track/routed-g11d/submiss
 - `route_predictions.py` `final_copies` (copies after the sparse stage) and the `u4`/`v2x3` stages of `s8_portfolio.sh`.
 ```bash
 python common/tools/release_weights.py fetch --tag 8.1 --version lumpi:s8d                 # or lumpi:s8c, v2x:s8v
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g11d/test/reproduce_s8d.sh
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g11d/test/reproduce_s8d.sh
 ```
 Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): `reproduce_s8c.sh` rebuilds the scored zip **IDENTICAL** from these weights, with predictions at maximum difference 0.0 and the 50 realism frames byte-identical. The 12-view bag is recomputed from its six seeds (`--refresh`). `reproduce_s8v.sh` is the 8.0 dry-run (IDENTICAL). `reproduce_s8d.sh` (the same members as `s8c`, merged with the S8.3 copies) also rebuilds its scored zip **IDENTICAL**: 37,396 boxes, maximum difference 0.0, kit scorer valid in 368 s.
 
@@ -387,10 +393,10 @@ Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): `reproduce_s8c.
 
 | Track | Version | CodaBench id | Uploaded (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S8 U2 | 1022250 | 2026-10-30 19:57 | **0.5239** (0.523901) | 0.1762 | 0.9323 | **1 of 22** (next 0.5118) | [`lumpi_s8b_submission.zip`](model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/lumpi_s8b_submission.zip) (`c85189b48795db4647119189f7a5a2d3`) | [s8 last day](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
-| 2 V2X-Real (16685) | S8 V2X U2 | 1022246 | 2026-10-30 19:52 | **0.9022** (0.902153) | 0.6170 | 0.9332 | **1 of 25** (next 0.8112) | [`v2x_s8v_submission.zip`](model-v2x-track/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip) (`b9c82e3de0c37babf146549eeedabbf6`) | same |
+| 1 LUMPI (16684) | S8 U2 | 1022250 | 2026-10-30 19:57 | **0.5239** (0.523901) | 0.1762 | 0.9323 | **1 of 22** (next 0.5118) | [`lumpi_s8b_submission.zip`](model-lumpi-track/archive/routed-g11b/submissions/2026-10-30_s8b/lumpi_s8b_submission.zip) (`c85189b48795db4647119189f7a5a2d3`) | [s8 last day](docs/decisions/2026-10-29-s8-last-day-strategy.md) |
+| 2 V2X-Real (16685) | S8 V2X U2 | 1022246 | 2026-10-30 19:52 | **0.9022** (0.902153) | 0.6170 | 0.9332 | **1 of 25** (next 0.8112) | [`v2x_s8v_submission.zip`](model-v2x-track/archive/routed-g13/submissions/2026-10-30_s8v/v2x_s8v_submission.zip) (`b9c82e3de0c37babf146549eeedabbf6`) | same |
 
-Server records: [`codabench_1022250.json`](model-lumpi-track/routed-g11b/submissions/2026-10-30_s8b/codabench_1022250.json), [`codabench_1022246.json`](model-v2x-track/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json) (scores from the scoring output, ranks and times from the public API).
+Server records: [`codabench_1022250.json`](model-lumpi-track/archive/routed-g11b/submissions/2026-10-30_s8b/codabench_1022250.json), [`codabench_1022246.json`](model-v2x-track/archive/routed-g13/submissions/2026-10-30_s8v/codabench_1022246.json) (scores from the scoring output, ranks and times from the public API).
 - **LUMPI against S7.6 (1014495): +0.00106.** Person 0.1802 -> 0.1865 (+0.0063), Truck 0.0632 -> 0.0653 (+0.0021), Motorcycle +0.0003. Car, Bicycle, Bus, Van and the realism are identical.
 - **V2X against S7.6 (1014682): +0.00398.** Pedestrian 0.4288 -> 0.4428 (+0.0139); vehicle, truck and the realism are identical.
 - Both projections had the right sign: LUMPI +0.0011 projected, +0.00106 scored; V2X +0.0015 projected, +0.0040 scored. `s8a` (LUMPI U1, the completion alone) was built and not uploaded; `s8b` contains it.
@@ -398,8 +404,8 @@ Server records: [`codabench_1022250.json`](model-lumpi-track/routed-g11b/submiss
 **Release assets: everything needed to replicate the two versions.** The two submission zips and the 25 checkpoints they use (4.44 GB; LUMPI 15, V2X 10), named and mapped as in 7.0 in [`releases/8.0/weights.json`](releases/8.0/weights.json). **All 25 checkpoints are byte-identical to 7.0 assets** (same md5): S8 changes only test-time views (`flip4+yaw+z+scale`), post-processing (`test/postprocess_tta12.yaml` of the 12-view members) and the merge (floors, copies, fusions), all in git. From a fresh clone at this tag:
 ```bash
 python common/tools/release_weights.py fetch --tag 8.0 --version lumpi:s8b                 # or v2x:s8v; md5-verified, placed under train/output/
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g11b/test/reproduce_s8b.sh             # test frames: predictions and frames against the scored zip
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g13/test/reproduce_s8v.sh                # V2X entry
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g11b/test/reproduce_s8b.sh             # test frames: predictions and frames against the scored zip
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g13/test/reproduce_s8v.sh                # V2X entry
 ```
 Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): both test-frame scripts reproduce their scored zips **IDENTICAL** from these weights. Predictions match with maximum difference 0.0 and 0 frames differing, and all 50 realism frames are byte-identical. The kit scorer is valid: LUMPI `s8b` 329 s and 32,038 boxes, V2X `s8v` 131 s and 21,354 boxes. The first attempts ran next to the S8.2 GPU jobs and came back EQUIVALENT: LUMPI differed in 9 Car boxes, from one seed of the 6-seed PV-RCNN++ bag, and V2X in all 50 frames. As in 6.0 and 7.0, bit-identity needs an idle GPU. The validation scripts (`reproduce_s8b_validation.sh`, `reproduce_s8v_validation.sh`) were not dry-run for 8.0: they repeat every member's inference on realval-A and B, several GPU-hours that S8.2 used on the last day. Their checkpoints are the ones 7.0's validation dry-run checked (EQUIVALENT), and the 12-view members' validation files are in the tree.
 
@@ -427,18 +433,18 @@ Verified on 2026-10-30 on an idle GPU (`$BDC_DATA/logs/s8/r80`): both test-frame
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S7.6 | 1014495 | 2026-10-28 00:32 | **0.5228** (0.522846) | 0.1749 | 0.9323 | **1 of 22** | [`lumpi_s7s_submission.zip`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (`19122be039da416d98ccdf852d67532b`) | [s7 final revisions](docs/decisions/2026-10-26-s7-final-revisions.md) |
-| 2 V2X-Real (16685) | S7.6 | 1014682 | 2026-10-28, between 00:53 and 02:41 (not public: a tie does not replace the listed row) | **0.8982** (0.898172) | 0.6124 | 0.9332 | 1 (tie with 1001919) | [`v2x_s7s_submission.zip`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (`73518975aed78ed70f78437bf62c715b`) | same |
-| 2 V2X-Real (16685) | S7 step 1 | 1001919 | 2026-10-19 02:52 | **0.8982** (0.898172) | 0.6124 | 0.9332 | **1 of 24** (the listed row) | [`v2x_s7_submission.zip`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (`c1483d590242d4fe6b4eefff96c1619c`) | [s7 visibility rule](docs/decisions/2026-10-18-s7-visibility-rule.md) |
+| 1 LUMPI (16684) | S7.6 | 1014495 | 2026-10-28 00:32 | **0.5228** (0.522846) | 0.1749 | 0.9323 | **1 of 22** | [`lumpi_s7s_submission.zip`](model-lumpi-track/archive/routed-g10/submissions/2026-10-27_s7s/lumpi_s7s_submission.zip) (`19122be039da416d98ccdf852d67532b`) | [s7 final revisions](docs/decisions/2026-10-26-s7-final-revisions.md) |
+| 2 V2X-Real (16685) | S7.6 | 1014682 | 2026-10-28, between 00:53 and 02:41 (not public: a tie does not replace the listed row) | **0.8982** (0.898172) | 0.6124 | 0.9332 | 1 (tie with 1001919) | [`v2x_s7s_submission.zip`](model-v2x-track/archive/routed-g12/submissions/2026-10-27_s7s/v2x_s7s_submission.zip) (`73518975aed78ed70f78437bf62c715b`) | same |
+| 2 V2X-Real (16685) | S7 step 1 | 1001919 | 2026-10-19 02:52 | **0.8982** (0.898172) | 0.6124 | 0.9332 | **1 of 24** (the listed row) | [`v2x_s7_submission.zip`](model-v2x-track/archive/routed-g9/submissions/2026-10-18_s7/v2x_s7_submission.zip) (`c1483d590242d4fe6b4eefff96c1619c`) | [s7 visibility rule](docs/decisions/2026-10-18-s7-visibility-rule.md) |
 
-Server records: [`codabench_1014495.json`](model-lumpi-track/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json), [`codabench_1014682.json`](model-v2x-track/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json), [`codabench_1001919.json`](model-v2x-track/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json). LUMPI against S6 (995869): Truck 0.058 -> 0.063, Car 0.652 -> 0.648, every other class and the realism identical (+0.00009). V2X: 1014682 equals 1001919 in every metric; 1001919 against S6 variant b (995877): pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737, truck and realism identical (+0.0051).
+Server records: [`codabench_1014495.json`](model-lumpi-track/archive/routed-g10/submissions/2026-10-27_s7s/codabench_1014495.json), [`codabench_1014682.json`](model-v2x-track/archive/routed-g12/submissions/2026-10-27_s7s/codabench_1014682.json), [`codabench_1001919.json`](model-v2x-track/archive/routed-g9/submissions/2026-10-18_s7/codabench_1001919.json). LUMPI against S6 (995869): Truck 0.058 -> 0.063, Car 0.652 -> 0.648, every other class and the realism identical (+0.00009). V2X: 1014682 equals 1001919 in every metric; 1001919 against S6 variant b (995877): pedestrian 0.413 -> 0.429, vehicle 0.735 -> 0.737, truck and realism identical (+0.0051).
 
 **Release assets: everything needed to replicate the three versions.** The three submission zips and the 25 checkpoints they use (4.46 GB; LUMPI 15, V2X 10, every file exactly as used), named `<track>.<model folder>.epoch40.pth` and mapped to their repository paths and md5 in [`releases/7.0/weights.json`](releases/7.0/weights.json). Twenty checkpoints are byte-identical to 6.0 assets; new are the five LUMPI PV-RCNN++ checkpoints of the extended bag (`pvrcnnpp-ros-g1v4-s2`, `-s3`, `-s4`, `pvrcnnpp-ros-g1v4d2`, `-d3`). From a fresh clone at this tag (root README Section 6.11):
 ```bash
 python common/tools/release_weights.py fetch --tag 7.0 --version lumpi:s7s                 # or v2x:s7s, v2x:s7; md5-verified, placed under train/output/
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s.sh              # test frames: predictions and frames against the scored zip
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g10/test/reproduce_s7s_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-g12/test/reproduce_s7s.sh                # V2X entry; routed-g9/test/reproduce_s7.sh for 1001919
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g10/test/reproduce_s7s.sh              # test frames: predictions and frames against the scored zip
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g10/test/reproduce_s7s_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/archive/routed-g12/test/reproduce_s7s.sh                # V2X entry; routed-g9/test/reproduce_s7.sh for 1001919
 ```
 Verified on 2026-10-27 on idle GPUs, one job per GPU (`$BDC_DATA/logs/r70`): the three test-frame scripts reproduce their scored zips **IDENTICAL** from these weights (predictions, maximum difference 0.0; all 50 frames byte-identical; kit scorer valid: LUMPI `s7s` 284 s and 23,270 boxes, V2X `s7s` 157 s, V2X `s7` 160 s). The two validation scripts reproduce realval-A/B to four decimals: LUMPI `s7s` A 0.3881, B 0.2250, late-A 0.3583, every class within 6.2e-4 AP, 28 of 34 member files bit-identical; V2X `s7s` A 0.7340, B 0.7206, every class within 1.9e-4, 15 of 20 bit-identical (**EQUIVALENT**; the others were recorded on GPUs shared with training, as in 6.0). `v2x:s7` uses the same ten checkpoints and members as `v2x:s7s`.
 
@@ -463,16 +469,16 @@ Verified on 2026-10-27 on idle GPUs, one job per GPU (`$BDC_DATA/logs/r70`): the
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S6 | 995869 | 2026-10-17 14:17 | **0.5228** | 0.1748 | 0.9323 | **1 of 21** | [`lumpi_s6_submission.zip`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (`02c731ecbd162a84d6eae5537856bc4a`) | [s6 variance-controlled](docs/decisions/2026-10-16-s6-variance-controlled.md) |
-| 2 V2X-Real (16685) | S6 variant b | 995877 | 2026-10-17 14:23 | **0.8931** | 0.6065 | 0.9332 | **1 of 23** | [`v2x_s6b_submission.zip`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (`00a80bb32c5019b6d9913555efebc6b6`) | same |
+| 1 LUMPI (16684) | S6 | 995869 | 2026-10-17 14:17 | **0.5228** | 0.1748 | 0.9323 | **1 of 21** | [`lumpi_s6_submission.zip`](model-lumpi-track/archive/routed-g8/submissions/2026-10-16_s6/lumpi_s6_submission.zip) (`02c731ecbd162a84d6eae5537856bc4a`) | [s6 variance-controlled](docs/decisions/2026-10-16-s6-variance-controlled.md) |
+| 2 V2X-Real (16685) | S6 variant b | 995877 | 2026-10-17 14:23 | **0.8931** | 0.6065 | 0.9332 | **1 of 23** | [`v2x_s6b_submission.zip`](model-v2x-track/archive/routed-g8b/submissions/2026-10-16_s6b/v2x_s6b_submission.zip) (`00a80bb32c5019b6d9913555efebc6b6`) | same |
 
-Server records: [`codabench_995869.json`](model-lumpi-track/routed-g8/submissions/2026-10-16_s6/codabench_995869.json), [`codabench_995877.json`](model-v2x-track/routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json). LUMPI against R5: Van 0.117 -> 0.141, every other class and the realism identical. V2X against R5: vehicle 0.721 -> 0.735, truck 0.657 -> 0.671, pedestrian and realism identical.
+Server records: [`codabench_995869.json`](model-lumpi-track/archive/routed-g8/submissions/2026-10-16_s6/codabench_995869.json), [`codabench_995877.json`](model-v2x-track/archive/routed-g8b/submissions/2026-10-16_s6b/codabench_995877.json). LUMPI against R5: Van 0.117 -> 0.141, every other class and the realism identical. V2X against R5: vehicle 0.721 -> 0.735, truck 0.657 -> 0.671, pedestrian and realism identical.
 
 **Release assets: everything needed to replicate the two entries.** The two submission zips and the 21 checkpoints they use (3.5 GB; LUMPI 11, V2X 10, every file exactly as used, md5 as in the decision record), named `<track>.<model folder>.epoch40.pth` and mapped to their repository paths in [`releases/6.0/weights.json`](releases/6.0/weights.json). From a fresh clone at this tag (root README Section 6.11):
 ```bash
 python common/tools/release_weights.py fetch --tag 6.0 --version lumpi:s6      # or v2x:s6b; md5-verified, placed under train/output/
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6.sh    # test frames: predictions and frames against the scored zip
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-g8/test/reproduce_s6_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g8/test/reproduce_s6.sh    # test frames: predictions and frames against the scored zip
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/archive/routed-g8/test/reproduce_s6_validation.sh   # realval-A/B against the recorded scorecard (needs the real data)
 ```
 Verified on 2026-10-17 on idle GPUs (`$BDC_DATA/logs/s6close`): the test-frame scripts reproduce both scored zips **IDENTICAL** (predictions, maximum difference 0.0; all 50 frames byte-identical, from the corpus and from the committed zip); the validation scripts reproduce realval-A/B to four decimals on both tracks (every class within 4e-4 AP: EQUIVALENT; 41 of 48 member files bit-identical, the others recorded on GPUs shared with training).
 
@@ -496,10 +502,10 @@ Verified on 2026-10-17 on idle GPUs (`$BDC_DATA/logs/s6close`): the test-frame s
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | R5 | 990245 | 2026-10-15 13:50 | **0.5198** | 0.1714 | 0.9323 | **1 of 21** | [`lumpi_r5_submission.zip`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (`ae3612bfa0607f3f0773702acd985fd0`) | [r5 realism-led](docs/decisions/2026-10-14-r5-realism-led.md) |
-| 2 V2X-Real (16685) | R5 | 990255 | 2026-10-15 13:53 | **0.8852** | 0.5972 | **0.9332** | **1 of 20** | [`v2x_r5_submission.zip`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (`0d339f79a21059a8c97211d4d7c15533`) | same |
+| 1 LUMPI (16684) | R5 | 990245 | 2026-10-15 13:50 | **0.5198** | 0.1714 | 0.9323 | **1 of 21** | [`lumpi_r5_submission.zip`](model-lumpi-track/archive/routed-g7/submissions/2026-10-14_r5/lumpi_r5_submission.zip) (`ae3612bfa0607f3f0773702acd985fd0`) | [r5 realism-led](docs/decisions/2026-10-14-r5-realism-led.md) |
+| 2 V2X-Real (16685) | R5 | 990255 | 2026-10-15 13:53 | **0.8852** | 0.5972 | **0.9332** | **1 of 20** | [`v2x_r5_submission.zip`](model-v2x-track/archive/routed-g7/submissions/2026-10-14_r5/v2x_r5_submission.zip) (`0d339f79a21059a8c97211d4d7c15533`) | same |
 
-Server records: [`codabench_990245.json`](model-lumpi-track/routed-g7/submissions/2026-10-14_r5/codabench_990245.json), [`codabench_990255.json`](model-v2x-track/routed-g7/submissions/2026-10-14_r5/codabench_990255.json). LUMPI against R3: Person 0.157 -> 0.180, every other class and the realism identical (uploaded below the upload gate by the entrant's call). V2X against R3: pedestrian +0.011 (walker tail copies), vehicle +0.002, realism +0.0065 (EMD 1.345 -> 1.182, FPD 0.733 -> 1.468).
+Server records: [`codabench_990245.json`](model-lumpi-track/archive/routed-g7/submissions/2026-10-14_r5/codabench_990245.json), [`codabench_990255.json`](model-v2x-track/archive/routed-g7/submissions/2026-10-14_r5/codabench_990255.json). LUMPI against R3: Person 0.157 -> 0.180, every other class and the realism identical (uploaded below the upload gate by the entrant's call). V2X against R3: pedestrian +0.011 (walker tail copies), vehicle +0.002, realism +0.0065 (EMD 1.345 -> 1.182, FPD 0.733 -> 1.468).
 
 **Fallback for the first final-phase submission:** the R3 zips of release 5.1, re-verified on 2026-10-14 (re-merged from the saved member predictions with the committed `routed-g6/model.yaml` and repackaged: `predictions.json` and all 50 frames byte-identical on both tracks; only the declaration date differs).
 
@@ -518,10 +524,10 @@ Server records: [`codabench_990245.json`](model-lumpi-track/routed-g7/submission
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | R3 | 986489 | 2026-10-14 05:38 | **0.5169** | 0.1680 | **0.9323** | **1 of 21** | [`lumpi_r3_submission.zip`](model-lumpi-track/routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (`8dbce7a9356ae490c5b948218588f86b`) | [r3 g2-lite](docs/decisions/2026-10-12-r3-g2-lite.md) |
-| 2 V2X-Real (16685) | R3 | 986496 | 2026-10-14 05:44 | **0.8789** | 0.5929 | 0.9268 | **1 of 19** | [`v2x_r3_submission.zip`](model-v2x-track/routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (`510eb8f9a775539c87ce323f9b13bc1b`) | same |
+| 1 LUMPI (16684) | R3 | 986489 | 2026-10-14 05:38 | **0.5169** | 0.1680 | **0.9323** | **1 of 21** | [`lumpi_r3_submission.zip`](model-lumpi-track/archive/routed-g6/submissions/2026-10-12_r3/lumpi_r3_submission.zip) (`8dbce7a9356ae490c5b948218588f86b`) | [r3 g2-lite](docs/decisions/2026-10-12-r3-g2-lite.md) |
+| 2 V2X-Real (16685) | R3 | 986496 | 2026-10-14 05:44 | **0.8789** | 0.5929 | 0.9268 | **1 of 19** | [`v2x_r3_submission.zip`](model-v2x-track/archive/routed-g6/submissions/2026-10-12_r3/v2x_r3_submission.zip) (`510eb8f9a775539c87ce323f9b13bc1b`) | same |
 
-Server records: [`codabench_986489.json`](model-lumpi-track/routed-g6/submissions/2026-10-12_r3/codabench_986489.json), [`codabench_986496.json`](model-v2x-track/routed-g6/submissions/2026-10-12_r3/codabench_986496.json). LUMPI against S4: realism 0.891 -> 0.932, Truck +0.025, Bus +0.003, Bicycle -0.056 (mAP -0.004; diagnosed in [`docs/02-STRATEGY.md` 8.7.2](docs/02-STRATEGY.md#872-r3-results-2026-10-11-to-2026-10-13)). V2X against S5: pedestrian +0.012, realism +0.0065.
+Server records: [`codabench_986489.json`](model-lumpi-track/archive/routed-g6/submissions/2026-10-12_r3/codabench_986489.json), [`codabench_986496.json`](model-v2x-track/archive/routed-g6/submissions/2026-10-12_r3/codabench_986496.json). LUMPI against S4: realism 0.891 -> 0.932, Truck +0.025, Bus +0.003, Bicycle -0.056 (mAP -0.004; diagnosed in [`docs/02-STRATEGY.md` 8.7.2](docs/02-STRATEGY.md#872-r3-results-2026-10-11-to-2026-10-13)). V2X against S5: pedestrian +0.012, realism +0.0065.
 
 **What 5.1 contains**
 - Strategy R3, *Engine G2-lite* ([`docs/02-STRATEGY.md` Sections 8.7.1 and 8.7.2](docs/02-STRATEGY.md#871-r3-engine-g2-lite-review-and-plan-2026-10-11); [decision record](docs/decisions/2026-10-12-r3-g2-lite.md)): `common/bdc26/render/g2.py` (mesh primitives, hull exemplar bank, two-wheelers with riders, static clutter, ray-consistent Open3D insertion with the candidate-sensor occlusion rule, per-class range-ramped ray dropout, shrink-to-fit real sizes, `G2Pass`), the `post_inserter` hook and the reference sampling rate in `common/bdc26/prep.py` and `common/bdc26/density.py`, `--g2` in both `prepare_g1.py`; corpora `g1-v4` on both tracks.
@@ -537,10 +543,10 @@ Server records: [`codabench_986489.json`](model-lumpi-track/routed-g6/submission
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 V2X-Real (16685) | S5 | 978945 | 2026-10-11 20:20 | **0.8730** | 0.5890 | 0.9203 | **1 of 19** | [`v2x_s5_submission.zip`](model-v2x-track/routed-g5/submissions/2026-10-11_s5/v2x_s5_submission.zip) (`e5b258652c9aa0f783f3cdfbd614d687`) | [s5 object scaling](docs/decisions/2026-10-11-s5-object-scaling.md) |
-| 1 LUMPI (16684) | S5 | 978931 | 2026-10-11 20:12 | 0.5039 | 0.1720 | 0.8912 | not listed (0.00007 below the S4 entry, which stays rank 1 of 18) | [`lumpi_s5_submission.zip`](model-lumpi-track/routed-g5/submissions/2026-10-11_s5/lumpi_s5_submission.zip) (`9f2c925c3976679b5b2038bfde5f7566`) | same |
+| 2 V2X-Real (16685) | S5 | 978945 | 2026-10-11 20:20 | **0.8730** | 0.5890 | 0.9203 | **1 of 19** | [`v2x_s5_submission.zip`](model-v2x-track/archive/routed-g5/submissions/2026-10-11_s5/v2x_s5_submission.zip) (`e5b258652c9aa0f783f3cdfbd614d687`) | [s5 object scaling](docs/decisions/2026-10-11-s5-object-scaling.md) |
+| 1 LUMPI (16684) | S5 | 978931 | 2026-10-11 20:12 | 0.5039 | 0.1720 | 0.8912 | not listed (0.00007 below the S4 entry, which stays rank 1 of 18) | [`lumpi_s5_submission.zip`](model-lumpi-track/archive/routed-g5/submissions/2026-10-11_s5/lumpi_s5_submission.zip) (`9f2c925c3976679b5b2038bfde5f7566`) | same |
 
-Server records: [`codabench_978945.json`](model-v2x-track/routed-g5/submissions/2026-10-11_s5/codabench_978945.json), [`codabench_978931.json`](model-lumpi-track/routed-g5/submissions/2026-10-11_s5/codabench_978931.json). V2X against S4: pedestrian +0.046, truck +0.029, vehicle +0.011. LUMPI against S4: Truck +0.038, Bicycle -0.030, Car -0.010 (confirmation failed; diagnosed in [`docs/02-STRATEGY.md` 8.5.1](docs/02-STRATEGY.md#851-results-2026-10-11)).
+Server records: [`codabench_978945.json`](model-v2x-track/archive/routed-g5/submissions/2026-10-11_s5/codabench_978945.json), [`codabench_978931.json`](model-lumpi-track/archive/routed-g5/submissions/2026-10-11_s5/codabench_978931.json). V2X against S4: pedestrian +0.046, truck +0.029, vehicle +0.011. LUMPI against S4: Truck +0.038, Bicycle -0.030, Car -0.010 (confirmation failed; diagnosed in [`docs/02-STRATEGY.md` 8.5.1](docs/02-STRATEGY.md#851-results-2026-10-11)).
 
 **What 5.0 contains**
 - Strategy S5, *Geometry-Invariant Inputs* ([`docs/02-STRATEGY.md` Sections 8.5 and 8.5.1](docs/02-STRATEGY.md#851-results-2026-10-11); [decision record](docs/decisions/2026-10-11-s5-object-scaling.md)): the review (voxel occupancy: GBlobs as published degenerates at our density; real vs synthetic label sizes: bicycles and trucks are the gap); `common/bdc26/detect/gblobs_vfe.py` (`GBlobsVFE` ported with its BSD-3 notice, `GBlobsCellVFE`) and `common/bdc26/detect/augment.py` (class-wise object scaling `bdc_object_scaling`); runs `voxelrcnn-gblobs-g1v3`, `voxelrcnn-ros-g1v3`, `pvrcnnpp-ros-g1v3`, `pointpillars-ros-g1v3` on both tracks (plain and TTA); models `routed-g5`.
@@ -553,10 +559,10 @@ Server records: [`codabench_978945.json`](model-v2x-track/routed-g5/submissions/
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 V2X-Real (16685) | S4 | 975938 | 2026-10-11 00:16 | **0.8485** | 0.5605 | 0.9203 | **1 of 19** | [`v2x_s4_submission.zip`](model-v2x-track/routed-g4/submissions/2026-10-10_s4/v2x_s4_submission.zip) (`29c8f7a9887d1443cd7f23289ecfc8b1`) | [s4 two-stage](docs/decisions/2026-10-10-s4-two-stage.md) |
-| 1 LUMPI (16684) | S4 | 975871 | 2026-10-10 23:50 | **0.5040** | 0.1721 | 0.8912 | **1 of 18** | [`lumpi_s4_submission.zip`](model-lumpi-track/routed-g4/submissions/2026-10-10_s4/lumpi_s4_submission.zip) (`ce3dc93c3f7defd7e0ca74bd0efc702a`) | same |
+| 2 V2X-Real (16685) | S4 | 975938 | 2026-10-11 00:16 | **0.8485** | 0.5605 | 0.9203 | **1 of 19** | [`v2x_s4_submission.zip`](model-v2x-track/archive/routed-g4/submissions/2026-10-10_s4/v2x_s4_submission.zip) (`29c8f7a9887d1443cd7f23289ecfc8b1`) | [s4 two-stage](docs/decisions/2026-10-10-s4-two-stage.md) |
+| 1 LUMPI (16684) | S4 | 975871 | 2026-10-10 23:50 | **0.5040** | 0.1721 | 0.8912 | **1 of 18** | [`lumpi_s4_submission.zip`](model-lumpi-track/archive/routed-g4/submissions/2026-10-10_s4/lumpi_s4_submission.zip) (`ce3dc93c3f7defd7e0ca74bd0efc702a`) | same |
 
-Per-class AP, realism terms and the scoring logs: [`codabench_975938.json`](model-v2x-track/routed-g4/submissions/2026-10-10_s4/codabench_975938.json), [`codabench_975871.json`](model-lumpi-track/routed-g4/submissions/2026-10-10_s4/codabench_975871.json). Against the S3 entries: V2X 0.8381 -> 0.8485 (vehicle +0.027, truck +0.010, pedestrian identical); LUMPI 0.5015 (S3 log; 974348 was never listed) -> 0.5040 (Bicycle 0.224 -> 0.244, every other class identical). The LUMPI package was below its upload gate (estimate +0.003) and uploaded by the entrant's call. Field on 2026-10-11: LUMPI second 0.4784, V2X runner-up 0.6616.
+Per-class AP, realism terms and the scoring logs: [`codabench_975938.json`](model-v2x-track/archive/routed-g4/submissions/2026-10-10_s4/codabench_975938.json), [`codabench_975871.json`](model-lumpi-track/archive/routed-g4/submissions/2026-10-10_s4/codabench_975871.json). Against the S3 entries: V2X 0.8381 -> 0.8485 (vehicle +0.027, truck +0.010, pedestrian identical); LUMPI 0.5015 (S3 log; 974348 was never listed) -> 0.5040 (Bicycle 0.224 -> 0.244, every other class identical). The LUMPI package was below its upload gate (estimate +0.003) and uploaded by the entrant's call. Field on 2026-10-11: LUMPI second 0.4784, V2X runner-up 0.6616.
 
 **What 4.0 contains**
 - Strategy S4, *Two-Stage Refinement* ([`docs/02-STRATEGY.md` Sections 8.4 and 8.4.1](docs/02-STRATEGY.md#841-results-2026-10-10); [decision record](docs/decisions/2026-10-10-s4-two-stage.md)): the review of the S3 losses (AP-loss decomposition and near-miss analysis, `bdc26.diagnostics.ap_loss_decomposition`, now in every scorecard) and the revised plan; members `voxelrcnn-g1v3` and `pvrcnnpp-g1v3` on both tracks (stage 1 = the S2 CenterPoint; plain and TTA variants); a per-class two-stage score blend (`common/bdc26/detect/pcdet_patches.py`, `pcdet_predict.py --score-blend`); `route_predictions.py fuse --max-members 3` with incumbent-aware selection; models `routed-g4`.
@@ -569,22 +575,22 @@ Per-class AP, realism terms and the scoring logs: [`codabench_975938.json`](mode
 
 | Track | Version | CodaBench id | Scored | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 V2X-Real (16685) | S3 | 974400 | 2026-10-10 11:18 UTC (06:18 CDT) | **0.8381** | 0.5483 | 0.9203 | **1 of 19** | [`v2x_s3_submission.zip`](model-v2x-track/routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip) (`5e46f9450feb7846455c4b8428483641`) | [s3 fused portfolio](docs/decisions/2026-10-09-s3-fused-portfolio.md) |
-| 1 LUMPI (16684) | S3 | 974348 | 2026-10-10 05:48 CDT; scorer log DONE, CodaBench status Running afterwards | **0.5015** (log) | 0.1692 | 0.8912 | not listed yet (would lead: 0.4784); listed LUMPI entry 965614 (S1, rank 2) | [`lumpi_s3_submission.zip`](model-lumpi-track/routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip) (`9133dd7d9d8b377ec9228b79b75065a0`) | same |
+| 2 V2X-Real (16685) | S3 | 974400 | 2026-10-10 11:18 UTC (06:18 CDT) | **0.8381** | 0.5483 | 0.9203 | **1 of 19** | [`v2x_s3_submission.zip`](model-v2x-track/archive/routed-g3/submissions/2026-10-09_s3/v2x_s3_submission.zip) (`5e46f9450feb7846455c4b8428483641`) | [s3 fused portfolio](docs/decisions/2026-10-09-s3-fused-portfolio.md) |
+| 1 LUMPI (16684) | S3 | 974348 | 2026-10-10 05:48 CDT; scorer log DONE, CodaBench status Running afterwards | **0.5015** (log) | 0.1692 | 0.8912 | not listed yet (would lead: 0.4784); listed LUMPI entry 965614 (S1, rank 2) | [`lumpi_s3_submission.zip`](model-lumpi-track/archive/routed-g3/submissions/2026-10-09_s3/lumpi_s3_submission.zip) (`9133dd7d9d8b377ec9228b79b75065a0`) | same |
 
-Per-class AP, realism terms and the scoring logs: [`codabench_974400.json`](model-v2x-track/routed-g3/submissions/2026-10-09_s3/codabench_974400.json), [`codabench_974348.json`](model-lumpi-track/routed-g3/submissions/2026-10-09_s3/codabench_974348.json). Against the previous entries: V2X 0.7855 -> 0.8381 (vehicle +0.076, pedestrian +0.064, truck +0.044); LUMPI 0.4728 -> 0.5015 (Person +0.040, Car +0.019, Bicycle 0.053 -> 0.224). Realism is identical (same 50 frames): every change is detection. Field on 2026-10-10: LUMPI leader 0.4784, V2X runner-up 0.6616.
+Per-class AP, realism terms and the scoring logs: [`codabench_974400.json`](model-v2x-track/archive/routed-g3/submissions/2026-10-09_s3/codabench_974400.json), [`codabench_974348.json`](model-lumpi-track/archive/routed-g3/submissions/2026-10-09_s3/codabench_974348.json). Against the previous entries: V2X 0.7855 -> 0.8381 (vehicle +0.076, pedestrian +0.064, truck +0.044); LUMPI 0.4728 -> 0.5015 (Person +0.040, Car +0.019, Bicycle 0.053 -> 0.224). Realism is identical (same 50 frames): every change is detection. Field on 2026-10-10: LUMPI leader 0.4784, V2X runner-up 0.6616.
 
 **What 3.0 contains**
 - Strategy S3, *Fused Portfolio with TTA* ([`docs/02-STRATEGY.md` Section 8.3.1](docs/02-STRATEGY.md#831-results-2026-10-09); [decision record](docs/decisions/2026-10-09-s3-fused-portfolio.md)), built on the S2 members without new training: 8-view test-time augmentation (`common/bdc26/detect/tta.py`: flips, yaw +/-5 deg, z +/-0.25 m) and rotated weighted box fusion (`common/bdc26/detect/fusion.py`); `pcdet_predict.py --tta`; `tune_and_eval.sh --tta` in every member folder (each TTA variant tunes its own `test/postprocess_tta.yaml`); `route_predictions.py` with TTA members, `fuse` (per-class pairs of two checkpoints, class gate, A-only selection-bias check) and `budget` (per-class score floors costing at most 0.002 AP, exact from truncated match flags); models `routed-g3` on both tracks.
 - Real validation: V2X realval-A / B 0.585 / 0.537 -> 0.661 / 0.664 (BEV-3D gap on B 0.129 -> 0.062); LUMPI 0.272 / 0.170 -> 0.301 / 0.184 (late-A 0.271 -> 0.298). Upload gate passed on both tracks; kit scorer 74 s (10,671 boxes) and 181 s (17,193 boxes).
 - Transfer finding: leaderboard levels follow realval-B (0.83-0.92 x B), but the S3 gains were 0.80 (V2X) and 0.81 (LUMPI) x the realval-A gain against 0.48 and 1.89 x the B gain; the scorecard protocol adds a leaderboard projection (previous leaderboard mAP + 0.8 x the A gain), the gates stay on B.
 - Scorecard: static false-positive share at a fixed score and ranked above the median true-positive score (fusion cut the ranked static walker boxes 6.2 -> 1.8 per frame on V2X, 9.7 -> 4.1 on LUMPI); registry rows of TTA runs carry strategy S3.
-- Submission files: the S3 upload copies above, and the checked S2 candidate [`lumpi_s2_submission.zip`](model-lumpi-track/routed-g2/submissions/2026-10-09_s2/lumpi_s2_submission.zip) (md5 `3d972c963a5949fcdd87d85c5a8e30bc`, never uploaded) for traceability. Upload copies are tracked from this release on.
+- Submission files: the S3 upload copies above, and the checked S2 candidate [`lumpi_s2_submission.zip`](model-lumpi-track/archive/routed-g2/submissions/2026-10-09_s2/lumpi_s2_submission.zip) (md5 `3d972c963a5949fcdd87d85c5a8e30bc`, never uploaded) for traceability. Upload copies are tracked from this release on.
 - Tests: 52 (`python -m pytest -q common/tests`).
 
 ## 2.0 (pre-release, 2026-10-09)
 
-**Leaderboard entries:** unchanged from 1.0 (LUMPI 965614, S1, combined 0.4728, rank 2 of 18; V2X 972563, S1+C1, combined 0.7855, rank 1 of 19). Their files are the 1.0 files above. No S2 version passed the upload gate, so 2.0 adds no entry file; the checked LUMPI S2 candidate `model-lumpi-track/routed-g2/submissions/2026-10-09_s2/lumpi_s2_submission.zip` was kept local in 2.0 and is committed in 3.0 for traceability (checked, never uploaded).
+**Leaderboard entries:** unchanged from 1.0 (LUMPI 965614, S1, combined 0.4728, rank 2 of 18; V2X 972563, S1+C1, combined 0.7855, rank 1 of 19). Their files are the 1.0 files above. No S2 version passed the upload gate, so 2.0 adds no entry file; the checked LUMPI S2 candidate `model-lumpi-track/archive/routed-g2/submissions/2026-10-09_s2/lumpi_s2_submission.zip` was kept local in 2.0 and is committed in 3.0 for traceability (checked, never uploaded).
 
 **What 2.0 contains**
 - Strategy S2, *Center-Routed Small Objects* ([`docs/02-STRATEGY.md` Section 8.2.1](docs/02-STRATEGY.md#821-results-2026-10-09); [decision record](docs/decisions/2026-10-09-s2-center-routed.md)): CenterPoint members at stride 8 and 4 on both tracks (`centerpoint-g1v3`, `centerpoint-s4-g1v3`), routed models `routed-g2`. Gates: LUMPI Bicycle moves to CenterPoint (realval-B 0.102 -> 0.128) but the combined estimate gains +0.003, below the +0.005 upload gate; V2X keeps S1+C1.
@@ -600,14 +606,14 @@ Per-class AP, realism terms and the scoring logs: [`codabench_974400.json`](mode
 
 | Track | Version | CodaBench id | Scored (UTC) | Combined | 3D mAP@0.5 | Realism R | Rank | Submission file (md5) | Decision record |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 LUMPI (16684) | S1 | 965614 | 2026-10-06 21:37 | 0.4728 | 0.1357 | 0.8912 | 2 of 18 (1 until Oct 7) | [`submission_lumpi.zip`](model-lumpi-track/routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (`ea2c76393d6f8868762d6bac1ac03fa8`) | [s1 first submission](docs/decisions/2026-10-06-s1-first-submission.md) |
-| 2 V2X-Real (16685) | S1+C1 | 972563 | 2026-10-09 15:17 | **0.7855** | 0.4869 | 0.9203 | **1 of 19** | [`submission_v2x.zip`](model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (`7fbb973e2c1715dea66d7850b8bde11f`) | [s1 close-out](docs/decisions/2026-10-09-s1-closeout-z-calibration.md) |
+| 1 LUMPI (16684) | S1 | 965614 | 2026-10-06 21:37 | 0.4728 | 0.1357 | 0.8912 | 2 of 18 (1 until Oct 7) | [`submission_lumpi.zip`](model-lumpi-track/archive/routed-g1/submissions/2026-10-02_first/submission_lumpi.zip) (`ea2c76393d6f8868762d6bac1ac03fa8`) | [s1 first submission](docs/decisions/2026-10-06-s1-first-submission.md) |
+| 2 V2X-Real (16685) | S1+C1 | 972563 | 2026-10-09 15:17 | **0.7855** | 0.4869 | 0.9203 | **1 of 19** | [`submission_v2x.zip`](model-v2x-track/archive/routed-g1z/submissions/2026-10-09_zcal/submission_v2x.zip) (`7fbb973e2c1715dea66d7850b8bde11f`) | [s1 close-out](docs/decisions/2026-10-09-s1-closeout-z-calibration.md) |
 
-Per-class AP, realism terms and the scoring logs: [`codabench_965614.json`](model-lumpi-track/routed-g1/submissions/2026-10-02_first/codabench_965614.json), [`codabench_972563.json`](model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json). The LUMPI file was uploaded as `submission_lumpi_karmarv.zip` (same bytes; also a release-0.1 asset). Field on 2026-10-09: LUMPI leader 0.4784 (mAP 0.1185, realism R 0.942); V2X runner-up 0.6616.
+Per-class AP, realism terms and the scoring logs: [`codabench_965614.json`](model-lumpi-track/archive/routed-g1/submissions/2026-10-02_first/codabench_965614.json), [`codabench_972563.json`](model-v2x-track/archive/routed-g1z/submissions/2026-10-09_zcal/codabench_972563.json). The LUMPI file was uploaded as `submission_lumpi_karmarv.zip` (same bytes; also a release-0.1 asset). Field on 2026-10-09: LUMPI leader 0.4784 (mAP 0.1185, realism R 0.942); V2X runner-up 0.6616.
 
 **What 1.0 contains**
 - Strategy S1, *Calibrated Twin, Routed Pillars* ([`docs/02-STRATEGY.md` Section 8.1](docs/02-STRATEGY.md#81-s1-calibrated-twin-routed-pillars)): engine G1 synthetic data, PointPillars members, per-class post-processing and routing; models `model-<track>/routed-g1`.
-- S1 close-out: joint routing with the class gate, `scorecard.py` with a paired frame bootstrap, the `strategy` registry column, evaluation subsets and error breakdowns, and the range-dependent z calibration C1, which gives the V2X version S1+C1 (`model-v2x-track/routed-g1z`, +0.019 combined on the leaderboard).
+- S1 close-out: joint routing with the class gate, `scorecard.py` with a paired frame bootstrap, the `strategy` registry column, evaluation subsets and error breakdowns, and the range-dependent z calibration C1, which gives the V2X version S1+C1 (`model-v2x-track/archive/routed-g1z`, +0.019 combined on the leaderboard).
 - Documentation: the strategy routes S2-S6 with steps and gates, the decisions folder (submission register, evaluation protocol and gates, progression tracker, calendar, dated records), named references R1-R42.
 - Tests: 44 (`python -m pytest -q common/tests`).
 

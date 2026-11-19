@@ -1,6 +1,6 @@
 # 2026-10-26 rules: deep compliance audit before the final phase (entries S7 V2X and S6 LUMPI; every method S1-S7)
 
-**Version.** Entries V2X 1001919 (S7 step 1, `model-v2x-track/routed-g9`) and LUMPI 995869 (S6, `model-lumpi-track/routed-g8`); every method and real-data use of S1-S7.
+**Version.** Entries V2X 1001919 (S7 step 1, `model-v2x-track/archive/routed-g9`) and LUMPI 995869 (S6, `model-lumpi-track/archive/routed-g8`); every method and real-data use of S1-S7.
 
 **Sources re-read on 2026-10-26.**
 - CodaBench 16684 and 16685: Terms, Rules, Overview, Evaluation, Data, Submission, and the phases through the public API.

@@ -3,7 +3,7 @@
   "tag": "s10-5-l12e",
   "scored_zip": "model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip",
   "zip_md5": "5117445dbdf2d17d6f84ae090203423a",
-  "codabench": null,
+  "codabench": "1053789",
   "remerge_check": {
     "frames_equal_keys": true,
     "boxes": [

@@ -5,14 +5,14 @@
   "versions": [
     {
       "version": "lumpi:s9a2",
-      "model": "model-lumpi-track/routed-g12",
+      "model": "model-lumpi-track/archive/routed-g12",
       "strategy": "S9",
-      "submission_zip": "model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip",
+      "submission_zip": "model-lumpi-track/archive/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip",
       "zip_md5": "45e4eda799949770cece154a990eb979",
       "codabench_id": "1028541",
       "leaderboard_combined": 0.535667,
-      "reproduce_test": "model-lumpi-track/routed-g12/test/reproduce_s9a2.sh",
-      "reproduce_validation": "model-lumpi-track/routed-g12/test/reproduce_s9a2_validation.sh",
+      "reproduce_test": "model-lumpi-track/archive/routed-g12/test/reproduce_s9a2.sh",
+      "reproduce_validation": "model-lumpi-track/archive/routed-g12/test/reproduce_s9a2_validation.sh",
       "checkpoints": [
         "lumpi.pointpillars-g1.epoch40.pth",
         "lumpi.pointpillars-g1v3.epoch40.pth",
@@ -34,14 +34,14 @@
     },
     {
       "version": "v2x:s9a",
-      "model": "model-v2x-track/routed-g15",
+      "model": "model-v2x-track/archive/routed-g15",
       "strategy": "S9",
-      "submission_zip": "model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip",
+      "submission_zip": "model-v2x-track/archive/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip",
       "zip_md5": "3e59e5b3c76b440bd11aeba0304cc75e",
       "codabench_id": "1028491",
       "leaderboard_combined": 0.902971,
-      "reproduce_test": "model-v2x-track/routed-g15/test/reproduce_s9a.sh",
-      "reproduce_validation": "model-v2x-track/routed-g15/test/reproduce_s9a_validation.sh",
+      "reproduce_test": "model-v2x-track/archive/routed-g15/test/reproduce_s9a.sh",
+      "reproduce_validation": "model-v2x-track/archive/routed-g15/test/reproduce_s9a_validation.sh",
       "checkpoints": [
         "v2x.pointpillars-g1v5.epoch40.pth",
         "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
@@ -61,7 +61,7 @@
     {
       "name": "lumpi.pointpillars-g1.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-g1/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "16e68b8b9142688967e4b3d006ac9d54",
       "bytes": 59012833,
       "used_by": [
@@ -71,7 +71,7 @@
     {
       "name": "lumpi.pointpillars-g1v3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "e403acdc3ae30a84de3989da34619440",
       "bytes": 59012833,
       "used_by": [
@@ -81,7 +81,7 @@
     {
       "name": "lumpi.pointpillars-g1v4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "46e9f504fd05e90f72272387a102eeb0",
       "bytes": 59324259,
       "used_by": [
@@ -91,7 +91,7 @@
     {
       "name": "lumpi.pointpillars-ros-g1v3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "590e9f16fe22d1f429d4827392c1f0ba",
       "bytes": 59010233,
       "used_by": [
@@ -101,7 +101,7 @@
     {
       "name": "lumpi.pointpillars-ros-g1v4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pointpillars-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "97be701cb39c8b56c663acee56cc7bf7",
       "bytes": 59324377,
       "used_by": [
@@ -111,7 +111,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "66c1f05a2e602113dd011d96a22ec334",
       "bytes": 200583607,
       "used_by": [
@@ -121,7 +121,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "07b8df1f669ba02d513a37418c5ae0f7",
       "bytes": 200582553,
       "used_by": [
@@ -131,7 +131,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v4-s3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v4-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "990dee15be6b53131fd20831dddf3d24",
       "bytes": 200583347,
       "used_by": [
@@ -141,7 +141,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v4-s4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4-s4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v4-s4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "c1f8401d4f6cff38906165bd86f4f067",
       "bytes": 200583597,
       "used_by": [
@@ -151,7 +151,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "3fffacf2d0baab79eb5cd12676ea591f",
       "bytes": 200583329,
       "used_by": [
@@ -161,7 +161,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v4d2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v4d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "695362e328dbecea9ac802796b6d59c0",
       "bytes": 200583361,
       "used_by": [
@@ -171,7 +171,7 @@
     {
       "name": "lumpi.pvrcnnpp-ros-g1v4d3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/pvrcnnpp-ros-g1v4d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/pvrcnnpp-ros-g1v4d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "0cb2e5d4039ec05b490e6f80ee219233",
       "bytes": 200583345,
       "used_by": [
@@ -181,7 +181,7 @@
     {
       "name": "lumpi.voxelnext-ros-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelnext-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelnext-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "181f67acfcc56d83fa1acc196393b9fc",
       "bytes": 92696086,
       "used_by": [
@@ -191,7 +191,7 @@
     {
       "name": "lumpi.voxelrcnn-ros-g1v3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "5415c1ceb113d8ca31fcac3ed2ba4a57",
       "bytes": 231954827,
       "used_by": [
@@ -201,7 +201,7 @@
     {
       "name": "lumpi.voxelrcnn-ros-g1v4.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-ros-g1v4/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "5c061261f002f5e04eaec1d4704b937f",
       "bytes": 231954967,
       "used_by": [
@@ -211,7 +211,7 @@
     {
       "name": "lumpi.voxelrcnn-ros-g1v6.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-lumpi-track/voxelrcnn-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-lumpi-track/archive/voxelrcnn-ros-g1v6/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "71eeb17664da198f4b23ecdf167f86db",
       "bytes": 231954977,
       "used_by": [
@@ -221,7 +221,7 @@
     {
       "name": "v2x.pointpillars-g1v5.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pointpillars-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pointpillars-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "62070b22bce0641b803187bda4b113e9",
       "bytes": 58418223,
       "used_by": [
@@ -231,7 +231,7 @@
     {
       "name": "v2x.pvrcnnpp-ros-g1v4-s2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pvrcnnpp-ros-g1v4-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "30b8d6036c6f2c4b8d9de562d0f2e6a5",
       "bytes": 198248942,
       "used_by": [
@@ -241,7 +241,7 @@
     {
       "name": "v2x.pvrcnnpp-ros-g1v5-s2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pvrcnnpp-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pvrcnnpp-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "f36f0300036e489bde87e30fd17e694d",
       "bytes": 198248868,
       "used_by": [
@@ -251,7 +251,7 @@
     {
       "name": "v2x.pvrcnnpp-ros-g1v5-s3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pvrcnnpp-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pvrcnnpp-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "106fcb7d15e72ef1efcb10bfc90b543c",
       "bytes": 198248724,
       "used_by": [
@@ -261,7 +261,7 @@
     {
       "name": "v2x.pvrcnnpp-ros-g1v5.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pvrcnnpp-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pvrcnnpp-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "4bceaa59aeb5c62520b334a0c20525d5",
       "bytes": 198248952,
       "used_by": [
@@ -271,7 +271,7 @@
     {
       "name": "v2x.pvrcnnpp-ros-g1v5d2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pvrcnnpp-ros-g1v5d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pvrcnnpp-ros-g1v5d2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "0b79f7c65fa3abd157d6f688b54b9d66",
       "bytes": 198248638,
       "used_by": [
@@ -281,7 +281,7 @@
     {
       "name": "v2x.pvrcnnpp-ros-g1v5d3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/pvrcnnpp-ros-g1v5d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/pvrcnnpp-ros-g1v5d3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "c4ba5929c1b6072411442645538fcc0c",
       "bytes": 198248724,
       "used_by": [
@@ -291,7 +291,7 @@
     {
       "name": "v2x.voxelrcnn-ros-g1v3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/voxelrcnn-ros-g1v3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "5677c039b8cc33a058b045f732c687de",
       "bytes": 229620302,
       "used_by": [
@@ -301,7 +301,7 @@
     {
       "name": "v2x.voxelrcnn-ros-g1v5-s2.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/voxelrcnn-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/voxelrcnn-ros-g1v5-s2/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "be6acbf7d91fea91235ff2d89fc8dbae",
       "bytes": 229620302,
       "used_by": [
@@ -311,7 +311,7 @@
     {
       "name": "v2x.voxelrcnn-ros-g1v5-s3.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/voxelrcnn-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/voxelrcnn-ros-g1v5-s3/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "3a4f716b778dc88d4b030e8c2f3ac756",
       "bytes": 229620292,
       "used_by": [
@@ -321,7 +321,7 @@
     {
       "name": "v2x.voxelrcnn-ros-g1v5.epoch40.pth",
       "kind": "checkpoint",
-      "path": "model-v2x-track/voxelrcnn-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "path": "model-v2x-track/archive/voxelrcnn-ros-g1v5/train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
       "md5": "a90a13b7e29706bb06b8a435bf0b3eac",
       "bytes": 229620004,
       "used_by": [
@@ -331,7 +331,7 @@
     {
       "name": "lumpi_s9a2_submission.zip",
       "kind": "submission",
-      "path": "model-lumpi-track/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip",
+      "path": "model-lumpi-track/archive/routed-g12/submissions/2026-11-02_s9a2/lumpi_s9a2_submission.zip",
       "md5": "45e4eda799949770cece154a990eb979",
       "bytes": 26102061,
       "used_by": [
@@ -341,7 +341,7 @@
     {
       "name": "v2x_s9a_submission.zip",
       "kind": "submission",
-      "path": "model-v2x-track/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip",
+      "path": "model-v2x-track/archive/routed-g15/submissions/2026-11-02_s9a/v2x_s9a_submission.zip",
       "md5": "3e59e5b3c76b440bd11aeba0304cc75e",
       "bytes": 22128040,
       "used_by": [

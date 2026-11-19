@@ -270,7 +270,7 @@ All on legal real validation with the S1 `routed-g1` predictions; files in `mode
 | **C1 candidate** | range-dependent z calibration after routing (`common/bdc26/detect/zcalib.py`, `route_predictions.py calibrate`), selected on A, class gate on B. V2X: vehicle and pedestrian kept, truck dropped; LUMPI: dropped for every class. Details: [`decisions/2026-10-09-s1-closeout-z-calibration.md`](decisions/2026-10-09-s1-closeout-z-calibration.md) |
 
 **Close-out decision.**
-- **Track 2 (V2X): submitted as S1+C1, 972563, combined 0.7855 (confirmed; rank 1).** `model-v2x-track/routed-g1z` (S1 + C1) passes the upload gate: realval-B mAP 0.520 -> 0.537 (bootstrap 90% interval of the gain +0.014 to +0.021), combined estimate (B) 0.814 -> 0.828 (+0.014), identical realism frames, official check valid in 86 s. Zip: `model-v2x-track/routed-g1z/submissions/2026-10-09_zcal/submission.zip`.
+- **Track 2 (V2X): submitted as S1+C1, 972563, combined 0.7855 (confirmed; rank 1).** `model-v2x-track/archive/routed-g1z` (S1 + C1) passes the upload gate: realval-B mAP 0.520 -> 0.537 (bootstrap 90% interval of the gain +0.014 to +0.021), combined estimate (B) 0.814 -> 0.828 (+0.014), identical realism frames, official check valid in 86 s. Zip: `model-v2x-track/archive/routed-g1z/submissions/2026-10-09_zcal/submission.zip`.
 - **Track 1 (LUMPI): no new submission.** No close-out change passes the gate; S1 stays.
 - **Inputs to S2 and later:** use late-A in the LUMPI gate (D3); V2X far-range pedestrians and LUMPI dense Persons on B are the S2 targets (D4); the V2X BEV-3D gap left after C1 (0.129 on B) is the S2-S4 height target; LUMPI Truck needs long trucks in the generator (D5), which no detector change can supply.
 
@@ -765,7 +765,7 @@ Hypothesis (a) held for the members: every bag is at or above its best seed on b
 5. **Box tightness at IoU 0.7 on the V2X test window is not represented locally**: 3D mAP@0.7 fell 0.187 -> 0.165 while it rose on B (0.170 -> 0.221). Not scored, but worth a note in the report.
 
 **Close-out.**
-- **LUMPI variant b (the pooled rule on LUMPI):** only Car qualified in `fuse` (pooled +0.0055, P 1.00); on the final predictions it gains on A (+0.0074) and on B (+0.0074) separately but loses on the pooled frames (-0.0022, P 0.24): the third LUMPI Car fuse-level gain that does not survive (S5, R5, S6). **Not adopted**; LUMPI stays at S6. (`common/pipeline/s6b_lumpi.sh`, `model-lumpi-track/routed-g8b`.)
+- **LUMPI variant b (the pooled rule on LUMPI):** only Car qualified in `fuse` (pooled +0.0055, P 1.00); on the final predictions it gains on A (+0.0074) and on B (+0.0074) separately but loses on the pooled frames (-0.0022, P 0.24): the third LUMPI Car fuse-level gain that does not survive (S5, R5, S6). **Not adopted**; LUMPI stays at S6. (`common/pipeline/s6b_lumpi.sh`, `model-lumpi-track/archive/routed-g8b`.)
 - **Reproduction from the weights** (`$BDC_DATA/logs/s6close`, one job per GPU): both entries' test-frame scripts give IDENTICAL predictions (maximum difference 0.0) and identical frames, from the corpus and, as in a fresh clone, from the scored zip; the validation scripts recompute realval-A/B and late-A with split mAP identical to four decimals and every class within 4e-4 AP (EQUIVALENT: 41 of 48 member files bit-identical; 7 TTA files of two-stage members, recorded on GPUs shared with training, differ in the last digits).
 - **Release 6.0** carries the 21 checkpoints and both zips as assets (`releases/6.0/weights.json`; `common/tools/release_weights.py fetch --tag 6.0`).
 

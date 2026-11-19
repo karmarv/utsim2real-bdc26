@@ -658,7 +658,7 @@ Run directory: `$BDC_DATA/logs/s10` (`STATUS.md`, `events.txt`; event times are 
   - Losses: Bus -0.073, Car -0.005.
   - Person +0.001 and Van -0.0004.
   - Rule 6 projection: -0.0002 combined, so about level with 0.5428.
-- **Zip:** `model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip`, md5 `1de9f12c1f18d045e5b0c05e08a2f793`.
+- **Zip:** `model-lumpi-track/archive/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip`, md5 `1de9f12c1f18d045e5b0c05e08a2f793`.
 
 **V2X `routed-c0`** (5 member models, all clean; the `g1-v6` frames, which S9 rule 4 passed).
 - **Every class is fused:**
@@ -679,7 +679,7 @@ Run directory: `$BDC_DATA/logs/s10` (`STATUS.md`, `events.txt`; event times are 
   - mAP -0.0205 (P(gain) 0.00).
   - Pedestrian -0.060, vehicle -0.002, truck +0.000.
   - Rule 6 projection: -0.0090 from mAP, +0.0024 from R (0.4 x 0.0060), so about **0.897** against 0.9038.
-- **Zip:** `model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip`, md5 `c70e8a341b7647d8ae7712a09ba1baf6`.
+- **Zip:** `model-v2x-track/archive/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip`, md5 `c70e8a341b7647d8ae7712a09ba1baf6`.
 
 **What `C0` says about H1.**
 - **LUMPI:** the clean system is level with the kept zip. The `g1-v6` Person and rare-class members make up for the label-placed walkers; Bus is the one large loss.

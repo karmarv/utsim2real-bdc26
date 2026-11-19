@@ -365,7 +365,7 @@ Run directory: `$BDC_DATA/logs/s10` (`STATUS.md`, `events.txt`; event times are 
   - Losses: Bus -0.073, Car -0.005.
   - Person +0.001 and Van -0.0004.
   - Rule 6 projection: -0.0002 combined, so about level with 0.5428.
-- **Zip:** `model-lumpi-track/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip`, md5 `1de9f12c1f18d045e5b0c05e08a2f793`.
+- **Zip:** `model-lumpi-track/archive/routed-c0/submissions/2026-11-07_c0/lumpi_s10_submission.zip`, md5 `1de9f12c1f18d045e5b0c05e08a2f793`.
 
 **V2X `routed-c0`** (5 member models, all clean; the `g1-v6` frames, which S9 rule 4 passed).
 - **Every class is fused:**
@@ -386,7 +386,7 @@ Run directory: `$BDC_DATA/logs/s10` (`STATUS.md`, `events.txt`; event times are 
   - mAP -0.0205 (P(gain) 0.00).
   - Pedestrian -0.060, vehicle -0.002, truck +0.000.
   - Rule 6 projection: -0.0090 from mAP, +0.0024 from R (0.4 x 0.0060), so about **0.897** against 0.9038.
-- **Zip:** `model-v2x-track/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip`, md5 `c70e8a341b7647d8ae7712a09ba1baf6`.
+- **Zip:** `model-v2x-track/archive/routed-c0/submissions/2026-11-07_c0/v2x_s10_submission.zip`, md5 `c70e8a341b7647d8ae7712a09ba1baf6`.
 
 **What `C0` says about H1.**
 - **LUMPI:** the clean system is level with the kept zip. The `g1-v6` Person and rare-class members make up for the label-placed walkers; Bus is the one large loss.
@@ -1298,7 +1298,7 @@ After the calibration, stored block returns are 0.73x the real mass on LUMPI (3,
   - The 12-view averaged bags do not beat `C0`'s vehicle fusion (the 12-view 2-draw bag with DSVT). The search from scratch does not reach it, as in the dry run.
   - The new pedestrian route with V5 (+0.0024) gains no more than V5 alone on `C0`'s route (`c1av5`: +0.0027).
   - Truck's +0.0033 (about +0.0009 combined) is the one real candidate, and R3 blocks it, as pre-registered.
-- **V2X upload 3 = `c1av5`, the pre-registered fallback** (`model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip`, md5 `2f3d80cbfed8c0f4064a8ba77aa5ecb5`).
+- **V2X upload 3 = `c1av5`, the pre-registered fallback** (`model-v2x-track/archive/routed-c1a/submissions/2026-11-09_c1av5/v2x_s10_submission.zip`, md5 `2f3d80cbfed8c0f4064a8ba77aa5ecb5`).
   - Kit check valid; realism frames equal `C0`'s; rule 1 clean; local A 0.7290 and B 0.7062 (`C0` 0.7281 and 0.7056); rule 14 GO: pooled +0.0009, grouped P 1.00 over 57 scenarios.
   - **History:** all three V2X GO cases in the back-test scored positive on the server (+0.0008 to +0.0040). Expect about +0.0008 combined, which may fall inside the board's noise (about ±0.0015).
 
@@ -1323,7 +1323,7 @@ After the calibration, stored block returns are 0.73x the real mass on LUMPI (3,
 
 - **Projection:** +0.0008 combined (local pooled +0.0009 mAP). **Transfer: 0.5x**, inside the 0.2-0.6x band measured for post-processing stages (15.13.2). Positive, as all three V2X GO cases of the rule 14 back-test, but at the low end (they scored +0.0008 to +0.0040), and inside the board noise (about ±0.0015).
 - **Per-class server numbers** are recorded only (audit rule d). The V5 stage acts on pedestrian alone, so a pedestrian-only change is what the stage predicts, not a selection.
-- Records: `model-v2x-track/routed-c1a/submissions/2026-11-09_c1av5/codabench_1046758.json` and the registry row. **V2X has 2 uploads left.** The best clean V2X entry is now 0.888864.
+- Records: `model-v2x-track/archive/routed-c1a/submissions/2026-11-09_c1av5/codabench_1046758.json` and the registry row. **V2X has 2 uploads left.** The best clean V2X entry is now 0.888864.
 
 **LUMPI `routed-c1`** (resumed from fuse; 12 member models, rule 1 clean):
 - **Fused sets:** Car `bvrrosnswa6x5_tta12` + `bvrrosf6x4_tta12` @0.7; Bicycle `pprosswa6d2_tta` + `dsrosfswa6_tta` @0.5; Motorcycle `vnrosn6_tta12` + `vnrosf6d2_tta` @0.7.
@@ -1334,7 +1334,7 @@ After the calibration, stored block returns are 0.73x the real mass on LUMPI (3,
   - Car (pooled -0.0010), Bicycle (-0.0077), Bus (+0.0012, P 0.65) and Truck (-0.0070) reverted;
   - Motorcycle and Van are unchanged.
 - **Rule 14: GO.** Pooled mAP +0.0014 (A +0.0007, B +0.0017), grouped P 1.00 over 28 groups, 90% CI [+0.0005, +0.0017]. Combined before transfer: +0.0012. At the 0.5-0.6x V2X transfer: about **+0.0006 to +0.0007**.
-- **Packaged** (22:04 UTC): `model-lumpi-track/routed-c1/submissions/2026-11-10_c1/lumpi_s10_submission.zip`, md5 `4e5f82fccbd5bec9a30d991ff4d402c7`. Kit valid (24,481 boxes); realism frames are `C0`'s `g1-v6` frames. The scorecard projection is +0.0005 combined. The zip is held for the entrant's choice on L1 (Section 15.15.5).
+- **Packaged** (22:04 UTC): `model-lumpi-track/archive/routed-c1/submissions/2026-11-10_c1/lumpi_s10_submission.zip`, md5 `4e5f82fccbd5bec9a30d991ff4d402c7`. Kit valid (24,481 boxes); realism frames are `C0`'s `g1-v6` frames. The scorecard projection is +0.0005 combined. The zip is held for the entrant's choice on L1 (Section 15.15.5).
 
 **Rule 4, GBlobs probe on `rosn`** (the wave 5 probe rule, 15.13.9):
 - `voxelrcnn-rosn-gblobs-g1v6` against `voxelrcnn-rosn-g1v6`: **PASS 7 of 14**, Person +0.0198 (8-view +0.0121), Bicycle +0.0701 (+0.0568), Bus, Van 8-view.
@@ -1470,7 +1470,7 @@ Mean dR +0.0019 (range +0.0016 to +0.0021). The box guard costs nothing.
 - `routed-c1/model.yaml` now names `realism_frames: pcdet/g1-v6pq`, and `clean_check.py` passes (12 members, frames CLEAN).
 - The `C1` zip without the fix (`2026-11-10_c1`) is kept and is not uploaded.
 - **Package:**
-  - The file to upload is `model-lumpi-track/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip`, md5 `6c2da31f4146a174caba4923709f87c4`.
+  - The file to upload is `model-lumpi-track/archive/routed-c1/submissions/2026-11-10_c1pq/lumpi_s10_submission.zip`, md5 `6c2da31f4146a174caba4923709f87c4`.
   - The official kit check passes: valid, 24,481 boxes, 271.5 s (limit 400 s).
   - Kit realism against proxy 4: R 0.942147 against `C1`'s 0.940414 (CD 1.443 against 1.485, EMD 1.147 against 1.180).
   - Proxy 5: R 0.94103.
@@ -1558,7 +1558,7 @@ LUMPI's last two uploads:
 
 | Upload | System | Expected | Status |
 |---|---|---|---|
-| 4 | **`c0pq`**: `C0`'s detections (byte-identical to 1042287's) with the `g1-v6pq` frames (byte-identical to 1047204's) | **0.541329** = 0.6 x 0.278533 + 0.4 x 0.935524: both terms are already measured on the server, and each term depends only on its own part of the zip | packaged: `model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip`, md5 `aa167c395f3d8c4549b063d9e269a863`; kit valid (24,088 boxes, 244 s, kit R 0.942147 as `c1pq`); `test/reproduce_c0pq.sh` re-merges identical; the entrant uploads |
+| 4 | **`c0pq`**: `C0`'s detections (byte-identical to 1042287's) with the `g1-v6pq` frames (byte-identical to 1047204's) | **0.541329** = 0.6 x 0.278533 + 0.4 x 0.935524: both terms are already measured on the server, and each term depends only on its own part of the zip | packaged: `model-lumpi-track/archive/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip`, md5 `aa167c395f3d8c4549b063d9e269a863`; kit valid (24,088 boxes, 244 s, kit R 0.942147 as `c1pq`); `test/reproduce_c0pq.sh` re-merges identical; the entrant uploads |
 | 5 | `C2` under rule 14b and **rule 15** | 0.541-0.544 (15.15.5) | after the Nov 13 18:00 UTC training stop |
 
 **Rule fit.**
@@ -1576,14 +1576,14 @@ LUMPI's last two uploads:
   - (Under R3's +0.01 bar, the final `C1` predictions now fail on B by 0.00002, since the copy fit after the gate moved B; C1's gate itself saw +0.0121.)
 
 **The `C2` settings, fixed now:**
-- LUMPI: `S10_INCUMBENT=model-lumpi-track/routed-c0 S10_ROUTE_BAR=0 S10_GO_P=0.8 S10_LATE_GATE=Person`, frames `pcdet/g1-v6pq`.
-- V2X: `S10_INCUMBENT=model-v2x-track/routed-c1a S10_ROUTE_BAR=0 S10_GO_P=0.8`, frames `g1-v6`.
+- LUMPI: `S10_INCUMBENT=model-lumpi-track/archive/routed-c0 S10_ROUTE_BAR=0 S10_GO_P=0.8 S10_LATE_GATE=Person`, frames `pcdet/g1-v6pq`.
+- V2X: `S10_INCUMBENT=model-v2x-track/archive/routed-c1a S10_ROUTE_BAR=0 S10_GO_P=0.8`, frames `g1-v6`.
 - The GBlobs bags carry `voxelrcnn-rosf-gblobs-g1v6pq` in place of draw 1 (15.15.7).
 
 #### 15.15.10 LUMPI upload 4 scored as expected; the 10.0 / 10.1 releases (2026-11-11, 04:35-05:10 UTC)
 
 **Score.** **1047231 = `c0pq`: 0.541329**, exactly the expected value (+0.000529 against 1042287). It is the best clean LUMPI entry. LUMPI has **1 upload left** (close 2026-11-16 04:59 UTC); V2X has 2 (close 2026-11-15 04:59 UTC).
-- **Which file was uploaded.** The entrant's message named the `c1pq` path. The scores identify the `c0pq` zip (`model-lumpi-track/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip`, md5 `aa167c395f3d...`):
+- **Which file was uploaded.** The entrant's message named the `c1pq` path. The scores identify the `c0pq` zip (`model-lumpi-track/archive/routed-c0/submissions/2026-11-10_c0pq/lumpi_s10_submission.zip`, md5 `aa167c395f3d...`):
   - mAP 0.194973 and every per-class AP equal `C0`'s (the `c1pq` zip scored 0.192926 as 1047204);
   - every realism term equals 1047204's (the `g1-v6pq` frames; `C0`'s zip scored R 0.9342).
   - Only the `c0pq` zip pairs the two. It is recorded there (`codabench_1047231.json` with a `file_identification` note; manifest; registry).
@@ -1806,7 +1806,7 @@ Rule 4 against draw 1 (check log `w1_batch2.log`; `BDC_ALLOW_R1=1`):
   - vehicle reverted (-0.016);
   - pedestrian reverted (pooled -0.0003, P 0.47; `c1av5` already has V5).
 - **Rule 14 at grouped P 0.8:** GO. Pooled mAP +0.0011 (A +0.0012, B +0.0015), grouped P 0.97 over 57 scenarios; none of the 57 leave-one-scenario-out deltas is negative (worst +0.0007).
-- **Package.** `model-v2x-track/routed-c2r/submissions/2026-11-10_c2r/v2x_s10_submission.zip`, md5 `9f836506b943141b4cdce78648e143c7`, `g1-v6` frames with nulls 0.31. Kit check valid (41,252 boxes, 253 s).
+- **Package.** `model-v2x-track/archive/routed-c2r/submissions/2026-11-10_c2r/v2x_s10_submission.zip`, md5 `9f836506b943141b4cdce78648e143c7`, `g1-v6` frames with nulls 0.31. Kit check valid (41,252 boxes, 253 s).
 - **Projection against `c1av5`: +0.0007.** V2X GO changes have transferred at a median of 0.60x (0.24-1.86x), so expect about +0.0004 (0.0002-0.0013).
 - **This is the V2X upload 4 candidate under the slot rule** (projection > 0, rule 1, grouped P >= 0.8). It is decided against `c2r1` below by the same rule.
 - **`c2r1` (with the R1 member and the two R1 bags, `BDC_ALLOW_R1=1`; 07:25-09:20 UTC): every class reverted to `routed-c1a`.**
@@ -1848,7 +1848,7 @@ Rule 4 against draw 1 (check log `w1_batch2.log`; `BDC_ALLOW_R1=1`):
   - otherwise `c2r` as packaged.
   - Upload by Nov 15 18:00 UTC, which leaves margin before the 2026-11-16 04:59 UTC close.
 - **`c2r` package (09:00 UTC).**
-  - `model-lumpi-track/routed-c2r/submissions/2026-11-11_c2r/lumpi_s10_submission.zip`, md5 `9fe2ec6102f06a0fd2160e9016b6cf13`.
+  - `model-lumpi-track/archive/routed-c2r/submissions/2026-11-11_c2r/lumpi_s10_submission.zip`, md5 `9fe2ec6102f06a0fd2160e9016b6cf13`.
   - The Person copy threshold was re-fitted (t 0.7472, 24,654 kit boxes), and the zip re-packaged.
   - Kit check valid (24,654 boxes, 244 s).
   - The frames are byte-identical to 1047231's, so the realism term is known exactly (R 0.935524). The expected score is 0.541329 + the detection gain (+0.0011 projected), about 0.5424.
@@ -2182,7 +2182,7 @@ Drop question (d) if the V2X board already shows 1042294 when you send it.
 - **No, or no answer** by Nov 13 12:00 UTC (V2X) or Nov 14 12:00 UTC (LUMPI): V2X ships `g1-v6`. LUMPI ships `g1-v6pq` (the frames of 1047231).
 - **Correction to the 15.16 fallback (2026-11-11, before any of these frames is scored).** The 8 m N1 variant is inside the approved granularity, but it too changes only the 50 frames. It has the same docs/01 Section 9 issue ("no metric-only warping"), so it ships only if the organizers' answer covers it. The optional last sentence below asks for exactly that.
 - **Optional last sentence** (replaces "If only one is acceptable, please say which."): "If only one is acceptable, or item 1 only on the 8 x 8 x 2.5 m cells of our disclosed prior, please say which."
-- **The held packages** (the rehearsal detections, frames swapped) are reproduction packages, git-ignored and with no registry row: `model-lumpi-track/routed-c2r/test/output/c2r_n1_pending/submission.zip` and `model-v2x-track/routed-c2r/test/output/c2r_aw_pending/submission.zip`. None is uploaded before a yes. On a yes, the chosen system is packaged for upload in the usual way (registry row, tracked copy).
+- **The held packages** (the rehearsal detections, frames swapped) are reproduction packages, git-ignored and with no registry row: `model-lumpi-track/archive/routed-c2r/test/output/c2r_n1_pending/submission.zip` and `model-v2x-track/archive/routed-c2r/test/output/c2r_aw_pending/submission.zip`. None is uploaded before a yes. On a yes, the chosen system is packaged for upload in the usual way (registry row, tracked copy).
 - **Kit checks (2026-11-11):** both valid. LUMPI `c2r_n1_pending`: 24,654 boxes, 225 s, md5 `2008e3ad0c877f3e55c7b8dfac17756e`. V2X `c2r_aw_pending`: 41,252 boxes, 242 s, md5 `dbe29e0f09fd2515341c42080649f717`. The detections are byte-identical to the rehearsal zips, and the frames to the calibrated sets. The kit run scores realism against our legal proxy 4 (not the kit's reference), which was already one of the judge sets: LUMPI R 0.9421 to 0.9484 (EMD 1.147 to 1.011), V2X R 0.9415 to 0.9527 (EMD 1.114 to 0.938). This is a consistency check, not new evidence.
 
 ### B.4 The answer (2026-11-12, 08:33 CST = 14:33 UTC; the entrant's copy, not in git)

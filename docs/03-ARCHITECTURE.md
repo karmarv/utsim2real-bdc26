@@ -1,6 +1,6 @@
 # 03. System architecture
 
-> The target system for both tracks, as a set of modules with explicit data contracts. `04-IMPLEMENTATION-GUIDE.md` turns each module into step-by-step work packages with acceptance tests. Track-specific parameters live in the track guides: [`data-lumpi-track/README.md`](../data-lumpi-track/README.md), [`data-v2x-track/README.md`](../data-v2x-track/README.md), [`model-lumpi-track/README.md`](../model-lumpi-track/README.md), [`model-v2x-track/README.md`](../model-v2x-track/README.md).
+> The target system for both tracks, as a set of modules with explicit data contracts. `04-IMPLEMENTATION-GUIDE.md` turns each module into step-by-step work packages with acceptance tests. Track-specific parameters live in the track guides: [`data-lumpi-track/README.md`](../data-lumpi-track/README.md), [`data-v2x-track/README.md`](../data-v2x-track/README.md), [`model-lumpi-track/README.md`](../model-lumpi-track/DEVELOPMENT.md), [`model-v2x-track/README.md`](../model-v2x-track/DEVELOPMENT.md).
 
 ---
 

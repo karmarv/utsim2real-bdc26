@@ -87,6 +87,24 @@ def test_match_compare_accepts_gpu_jitter_and_rejects_a_moved_box():
     assert not match_compare(a, b)["equivalent"]
 
 
+def test_match_compare_names_a_fusion_merge_split():
+    """One fused Truck box in one run against two unfused ones in the other (an IoU across the fusion threshold): not
+    equivalent under the strict rule, and listed as a merge/split; a lone extra box is not."""
+    from reproduce_submission import differ_label
+    a = {"007209": [{"box": [23.53, 35.33, -0.53, 11.41, 2.87, 3.22, -2.33], "score": 0.45, "class": "Truck"}]}
+    b = {"007209": [{"box": [23.98, 35.82, -0.54, 11.77, 3.0, 3.2, -2.33], "score": 0.24, "class": "Truck"},
+                    {"box": [22.58, 34.34, -0.54, 10.16, 2.73, 3.23, -2.32], "score": 0.21, "class": "Truck"}]}
+    b["007209"][0]["box"][0] += 0.6                    # beyond the 0.5 m match gate, inside the fused box's footprint
+    m = match_compare(a, b)
+    assert not m["equivalent"] and m["unmatched_above_0.3"][0]["merge_split_with"]
+    assert m["unmatched_above_hi_all_merge_split"]
+    assert "merge/split" in differ_label({"gpu_nondeterminism_check": m})
+    lone = {"007209": a["007209"] + [{"box": [-20.0, 5.0, -0.5, 9.0, 2.8, 3.2, 0.0], "score": 0.6, "class": "Truck"}]}
+    m2 = match_compare(lone, a)
+    assert not m2["equivalent"] and not m2["unmatched_above_hi_all_merge_split"]
+    assert differ_label({"gpu_nondeterminism_check": m2}) == "DIFFERENT"
+
+
 def _routed(path: Path, route_car: str, members: dict, fusion=None):
     path.mkdir(parents=True)
     card = {"name": path.name, "members": members, "route": {"Car": route_car, "Van": route_car},

@@ -228,6 +228,11 @@ model-*/*/train/output/
 model-*/*/validation/output/
 model-*/*/test/output/
 model-*/*/submissions/*/submission.zip
+# archived model folders (model-<track>/archive/<model>/, 2026-11-19): the same large artifacts one level deeper
+model-*/archive/*/train/output/
+model-*/archive/*/validation/output/
+model-*/archive/*/test/output/
+model-*/archive/*/submissions/*/submission.zip
 # upload copies (<track>_<strategy>_submission.zip) are tracked since 3.0 (rule below lifted on 2026-10-10; RELEASES.md)
 #model-*/*/submissions/*/*_submission.zip
 *.pth

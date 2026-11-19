@@ -1,7 +1,8 @@
 """Minimal GitHub REST client for release assets (standard library only; the GitHub CLI is not required).
 
-Token: $GITHUB_TOKEN or $GH_TOKEN, else typed at a hidden prompt (never echoed, never written anywhere). The repository
-is private, so downloads need a token with read access too; publishing needs contents write access.
+Token: $GITHUB_TOKEN or $GH_TOKEN, else typed at a hidden prompt (never echoed, never written anywhere). Reading a public
+repository's releases and downloading their assets needs no token (anonymous requests; a token is asked for only if the
+anonymous lookup fails, as for a private repository); publishing needs a token with contents write access.
 """
 import getpass
 import json
@@ -28,26 +29,35 @@ def repo_slug(repo_dir: Path) -> str:
                                         check=True).stdout)
 
 
-def token() -> str:
+def token(required: bool = True) -> str | None:
+    """The token from the environment or one already typed; else typed at a hidden prompt when required, None if not."""
     global _TOKEN
     if _TOKEN is None:
-        _TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or getpass.getpass("GitHub token (not echoed): ").strip()
-        if not _TOKEN:
-            raise SystemExit("no GitHub token")
+        env = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+        if env:
+            _TOKEN = env
+        elif not required:
+            return None
+        else:
+            _TOKEN = getpass.getpass("GitHub token (not echoed): ").strip()
+            if not _TOKEN:
+                raise SystemExit("no GitHub token")
     return _TOKEN
 
 
-def _headers(extra: dict | None = None) -> dict:
-    h = {"Authorization": f"Bearer {token()}", "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28",
-         "User-Agent": "utsim2real-bdc26-release"}
+def _headers(extra: dict | None = None, required: bool = True) -> dict:
+    h = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "utsim2real-bdc26-release"}
+    t = token(required)
+    if t:
+        h["Authorization"] = f"Bearer {t}"
     h.update(extra or {})
     return h
 
 
-def api(method: str, url: str, body: dict | None = None):
+def api(method: str, url: str, body: dict | None = None, required: bool = True):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(url if url.startswith("http") else API + url, data=data, method=method,
-                                 headers=_headers({"Content-Type": "application/json"} if data else None))
+                                 headers=_headers({"Content-Type": "application/json"} if data else None, required))
     try:
         with urllib.request.urlopen(req, timeout=120) as r:
             raw = r.read()
@@ -58,8 +68,8 @@ def api(method: str, url: str, body: dict | None = None):
         raise SystemExit(f"GitHub API {method} {url}: {e.code} {e.read().decode(errors='replace')[:400]}")
 
 
-def release(slug: str, tag: str):
-    return api("GET", f"/repos/{slug}/releases/tags/{urllib.parse.quote(tag)}")
+def release(slug: str, tag: str, required: bool = True):
+    return api("GET", f"/repos/{slug}/releases/tags/{urllib.parse.quote(tag)}", required=required)
 
 
 def create_or_update_release(slug: str, tag: str, name: str, body: str, prerelease: bool = True) -> dict:
@@ -110,7 +120,7 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def download_asset(asset: dict, dest: Path) -> None:
     """Asset download: the API answers with a redirect to a signed URL, fetched without the token."""
-    req = urllib.request.Request(asset["url"], headers=_headers({"Accept": "application/octet-stream"}))
+    req = urllib.request.Request(asset["url"], headers=_headers({"Accept": "application/octet-stream"}, required=False))
     opener = urllib.request.build_opener(_NoRedirect)
     try:
         r = opener.open(req, timeout=120)
