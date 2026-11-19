@@ -1,0 +1,47 @@
+{
+  "vs": "routed-s10-5-l12e",
+  "classes": {
+    "Person": {
+      "dA": -0.017055988932847543,
+      "dB": -0.002665454097069586,
+      "pooled_delta": -0.02340884159464407,
+      "p_gain": 0.0,
+      "train_split_delta": -0.017055988932847543,
+      "kept": false
+    },
+    "Car": {
+      "dA": -0.00151006512011842,
+      "dB": -0.00540619844063317,
+      "pooled_delta": -0.0024251246393957038,
+      "p_gain": 0.0,
+      "train_split_delta": -0.00151006512011842,
+      "kept": false
+    },
+    "Bicycle": {
+      "kept": false,
+      "note": "frozen (S6 rule 4)"
+    },
+    "Motorcycle": {
+      "kept": false,
+      "note": "frozen (S6 rule 4)"
+    },
+    "Bus": {
+      "kept": false,
+      "note": "frozen (S6 rule 4)"
+    },
+    "Truck": {
+      "dA": 0.0,
+      "dB": 0.0,
+      "pooled_delta": 0.0,
+      "p_gain": 0.0,
+      "train_split_delta": 0.0,
+      "kept": false
+    },
+    "Van": {
+      "dA": 6.546014102576381e-06,
+      "late_A_delta": -0.000288012363457546,
+      "p_gain": 0.145,
+      "kept": false
+    }
+  }
+}
