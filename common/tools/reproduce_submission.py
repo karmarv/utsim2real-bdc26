@@ -6,7 +6,8 @@
     python common/tools/reproduce_submission.py model-lumpi-track/routed-g7 --tag r5 --markdown      # block for the record
     python common/tools/reproduce_submission.py model-lumpi-track/routed-g7 --tag r5 --compare <predictions.json>
     python common/tools/reproduce_submission.py model-lumpi-track/routed-g7 --tag r5 --save-members      # member_predictions_r5.zip
-    python common/tools/reproduce_submission.py model-lumpi-track/routed-g7 --tag r5 --saved <member zip>  # exact re-merge, no GPU
+    python common/tools/reproduce_submission.py model-lumpi-track/routed-g7 --tag r5 --saved               # exact re-merge, no GPU
+                                                                       (or --saved <member zip>)
 
 `--save-members` stores the saved per-member test predictions in the submission folder (in git), so the exact re-merge
 check runs from a fresh clone with `--saved`: no checkpoint, no GPU, only the ingested starting kit (frame points).
@@ -252,7 +253,9 @@ def main():
     ap.add_argument("--save-members", action="store_true",
                     help="write the saved member predictions (test/output/predictions_<member>.json) to member_predictions_<tag>.zip "
                          "in the submission folder")
-    ap.add_argument("--saved", default=None, help="a member_predictions_<tag>.zip: re-merge it with model.yaml and compare exactly")
+    ap.add_argument("--saved", nargs="?", const="auto", default=None,
+                    help="re-merge the saved member predictions with model.yaml and compare exactly; without a path, the "
+                         "member_predictions_<tag>.zip in the submission folder")
     ap.add_argument("--out", default=None, help="with --saved: also write the re-merged predictions.json here")
     a = ap.parse_args()
     model_dir, card, track = model_info(a.model_dir)
@@ -275,6 +278,8 @@ def main():
         print(f"wrote {dst.relative_to(REPO)} ({len(keys)} members; re-merge identical to the scored zip)")
         return
     if a.saved:
+        if a.saved == "auto":
+            a.saved = zpath.parent / f"member_predictions_{a.tag}.zip"
         keys = used_members(card)
         with zipfile.ZipFile(a.saved) as z:
             names = set(z.namelist())

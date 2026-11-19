@@ -95,12 +95,12 @@ repository under `$BDC_DATA` (default `../bdc26-data`).
 
 Each scored zip is committed with its system: `model-<track>/<system>/submissions/<date>_<tag>/` holds the zip exactly as
 uploaded (md5 in `manifest.json`), the server's scoring record `codabench_<id>.json`, and the saved test predictions of
-every member (`member_predictions_<tag>.zip`). Two levels of reproduction:
+every member (`member_predictions_<tag>.zip`). Two checks reproduce each entry:
 
-| Level | What it shows | Needs | Time |
+| Check | What it shows | Needs | Time |
 |---|---|---|---|
-| **A. Exact re-merge** (Sections 4.5, 4.6) | the committed system card (`model.yaml`: routes, fusion, test-time stages) turns the members' saved test predictions into the scored `predictions.json`, **identical** to the last digit | the environment (Section 4.2) and the starting kits; no checkpoint, no GPU at run time | under 1 minute per track |
-| **B. Full re-inference** (Sections 4.5, 4.6) | the released checkpoints, run from scratch on the 50 kit test frames, give the same predictions up to GPU floating-point nondeterminism; the repackaged zip passes the official starting-kit scorer and its 50 synthetic frames are byte-identical to the scored ones | one GPU and the checkpoints (Section 4.4) | 12 to 17 minutes per track on one RTX A6000 |
+| **Check 1: exact re-merge** (Sections 4.5, 4.6) | the committed system card (`model.yaml`: routes, fusion, test-time stages) turns the members' saved test predictions into the scored `predictions.json`, **identical** to the last digit | the environment (Section 4.2) and the starting kits; no checkpoint, no GPU at run time | under 1 minute per track |
+| **Check 2: full re-inference** (Sections 4.5, 4.6) | the released checkpoints, run from scratch on the 50 kit test frames, give the same predictions up to GPU floating-point nondeterminism; the repackaged zip passes the official starting-kit scorer and its 50 synthetic frames are byte-identical to the scored ones | one GPU and the checkpoints (Section 4.4) | 12 to 17 minutes per track on one RTX A6000 |
 
 **Quick start** (Sections 4.1-4.4 explain the setup; Sections 4.5 (V2X-Real) and 4.6 (LUMPI) give each track's commands and expected output):
 
@@ -116,11 +116,11 @@ mkdir -p common/kit
 python data-v2x-track/ingest_kit.py common/kit/v2x_real_starting_kit.zip
 python data-lumpi-track/ingest_kit.py common/kit/lumpi_starting_kit.zip
 
-# 3. Level A: exact re-merge, CPU only. Prints IDENTICAL for each track.
-python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 --saved model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip
-python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e --saved model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip
+# 3. Check 1: exact re-merge, CPU only. Prints IDENTICAL for each track.
+python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 --saved
+python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e --saved
 
-# 4. Level B: checkpoints (Section 4.4), then full re-inference on one GPU.
+# 4. Check 2: checkpoints (Section 4.4), then full re-inference on one GPU.
 python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
 python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
@@ -132,7 +132,7 @@ CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-s10-5-l12e/test/reproduce_s
 | Item | Requirement | Tested with |
 |---|---|---|
 | OS | Linux x86_64 | Ubuntu 20.04, kernel 5.4 |
-| GPU (Level B only) | one NVIDIA GPU with compute capability 7.0 to 9.0 (the pinned torch 2.1.2+cu121 predates Blackwell); 32 GB or more is the safe choice: up to 29 GB was in use during our LUMPI run (12-view test-time augmentation; PyTorch's cache included), and smaller cards are untested | RTX A6000 48 GB |
+| GPU (Check 2 only) | one NVIDIA GPU with compute capability 7.0 to 9.0 (the pinned torch 2.1.2+cu121 predates Blackwell); 32 GB or more is the safe choice: up to 29 GB was in use during our LUMPI run (12-view test-time augmentation; PyTorch's cache included), and smaller cards are untested | RTX A6000 48 GB |
 | Driver and CUDA | NVIDIA driver >= 530 (CUDA 12.1 wheels); a CUDA 12.x toolkit with `nvcc` to build OpenPCDet's ops (`CUDA_HOME`) | driver 570, CUDA 12.8 |
 | Python | 3.10 with `venv` | 3.10.13 |
 | Build tools | git, curl, a C++17 compiler (gcc 9 or newer) | gcc 9.4 |
@@ -204,15 +204,29 @@ python common/tools/release_weights.py verify --tag 10.5 --version lumpi:s10-5-l
 
 Entry **1051825**: combined 0.894399 (3D mAP 0.604516, realism 0.940605). System
 [`model-v2x-track/routed-s10-4-v4`](model-v2x-track/routed-s10-4-v4) ([track README](model-v2x-track/README.md)); checkpoints in release
-[10.4](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.4) (7 files, 1.5 GB). Set up first: Sections 4.1-4.3.
+[10.4](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.4) (7 files, 1.5 GB).
 
-**Level A: exact re-merge** (CPU, about 25 s):
+**Quick start** (setup details: Sections 4.1-4.4):
 
 ```bash
-python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 \
-    --saved model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip
+git clone https://github.com/karmarv/utsim2real-bdc26.git && cd utsim2real-bdc26
+# on a GPU other than an RTX A6000, first: export CUDA_HOME=<CUDA 12.x> TORCH_CUDA_ARCH_LIST=<compute capability>
+python3.10 -m venv .venv_ut && bash common/env/setup_venv_ut.sh
+source common/env/activate.sh
+mkdir -p common/kit      # put v2x_real_starting_kit.zip here (CodaBench 16685, Files tab)
+python data-v2x-track/ingest_kit.py common/kit/v2x_real_starting_kit.zip
+
+# Check 1, exact re-merge (CPU, about 25 s): expected IDENTICAL, exit code 0
+python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 --saved
+
+# Check 2, full re-inference (one GPU, about 12 minutes): expected EQUIVALENT, exit code 0
+python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
 ```
 
+**Check 1: exact re-merge.** Merges the members' saved test predictions
+([`member_predictions_s10-4-v4.zip`](model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip), committed next to the scored zip) with the
+committed [`model.yaml`](model-v2x-track/routed-s10-4-v4/model.yaml) and compares the result box by box with the scored `predictions.json`.
 Expected: exit code 0 and
 
 ```
@@ -221,14 +235,9 @@ re-merge of 6 saved members with model-v2x-track/routed-s10-4-v4/model.yaml: IDE
 
 (41,252 boxes, maximum difference 0.0.)
 
-**Level B: full re-inference** (one GPU, about 12 minutes plus the kit check):
-
-```bash
-python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
-```
-
-Expected: exit code 0, ending with
+**Check 2: full re-inference.** Downloads the 7 checkpoints of release 10.4 (md5-verified), reruns them on the 50
+test frames of the starting kit, repackages the submission, validates it with the starting-kit scorer and compares it
+with the scored zip (Section 4.7). Expected: exit code 0, ending with
 
 ```
 reproduction: EQUIVALENT (GPU nondeterminism: run it on an idle GPU for an exact match) (scored zip model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip; frames identical)
@@ -247,15 +256,29 @@ reproduction: EQUIVALENT (GPU nondeterminism: run it on an idle GPU for an exact
 
 Entry **1053789**: combined 0.542997 (3D mAP 0.197537, realism 0.934200). System
 [`model-lumpi-track/routed-s10-5-l12e`](model-lumpi-track/routed-s10-5-l12e) ([track README](model-lumpi-track/README.md)); checkpoints in release
-[10.5](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.5) (14 files, 2.3 GB). Set up first: Sections 4.1-4.3.
+[10.5](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.5) (14 files, 2.3 GB).
 
-**Level A: exact re-merge** (CPU, about 10 s):
+**Quick start** (setup details: Sections 4.1-4.4):
 
 ```bash
-python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e \
-    --saved model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip
+git clone https://github.com/karmarv/utsim2real-bdc26.git && cd utsim2real-bdc26
+# on a GPU other than an RTX A6000, first: export CUDA_HOME=<CUDA 12.x> TORCH_CUDA_ARCH_LIST=<compute capability>
+python3.10 -m venv .venv_ut && bash common/env/setup_venv_ut.sh
+source common/env/activate.sh
+mkdir -p common/kit      # put lumpi_starting_kit.zip here (CodaBench 16684, Files tab)
+python data-lumpi-track/ingest_kit.py common/kit/lumpi_starting_kit.zip
+
+# Check 1, exact re-merge (CPU, about 10 s): expected IDENTICAL, exit code 0
+python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e --saved
+
+# Check 2, full re-inference (one GPU, about 17 minutes): expected one fusion merge/split (below), exit code 1
+python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
+CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh
 ```
 
+**Check 1: exact re-merge.** Merges the members' saved test predictions
+([`member_predictions_s10-5-l12e.zip`](model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip), committed next to the scored zip) with
+the committed [`model.yaml`](model-lumpi-track/routed-s10-5-l12e/model.yaml) and compares the result box by box with the scored `predictions.json`.
 Expected: exit code 0 and
 
 ```
@@ -264,14 +287,9 @@ re-merge of 14 saved members with model-lumpi-track/routed-s10-5-l12e/model.yaml
 
 (38,047 boxes, maximum difference 0.0.)
 
-**Level B: full re-inference** (one GPU, about 17 minutes plus the kit check):
-
-```bash
-python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
-CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh
-```
-
-Expected: exit code 1, ending with
+**Check 2: full re-inference.** Downloads the 14 checkpoints of release 10.5 (md5-verified), reruns them on the 50
+test frames of the starting kit, repackages the submission, validates it with the starting-kit scorer and compares it
+with the scored zip (Section 4.7). Expected: exit code 1, ending with
 
 ```
 reproduction: DIFFERENT under the strict rule only by 1 box fusion merge/split decision(s) (listed above under unmatched_above_0.3 / merge_split_with); every other box matched within the tolerance. The exact check is the re-merge of the saved member predictions (--saved) (scored zip model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip; frames identical)
@@ -292,17 +310,17 @@ starts inside the two-seed PV-RCNN++ bag that is one of the two Truck members: i
 equally (0.428 and 0.427) with boxes overlapping at 3D IoU 0.68, so floating-point differences change how weighted box
 fusion clusters them, and the bag's box for this truck lies 0.7 m from its position in the scored run. The Truck class
 fusion (IoU 0.7) then merges it with the other member's box instead of keeping both. Our two runs on Nov 19 (the
-working checkout and a fresh copy) both give the merged box. Every other box agrees within the tolerance, and Level A
+working checkout and a fresh copy) both give the merged box. Every other box agrees within the tolerance, and Check 1
 shows that the scored predictions follow exactly from the saved member predictions and the committed card.
 
 ### 4.7 How the reproduction works
 
-**Level A** ([`reproduce_submission.py`](common/tools/reproduce_submission.py) `--saved`) merges the saved member
+**Check 1** ([`reproduce_submission.py`](common/tools/reproduce_submission.py) `--saved`) merges the saved member
 predictions with the committed `model.yaml` ([`route_predictions.py`](common/tools/route_predictions.py) `merge_card`)
 and compares the result box by box with the `predictions.json` inside the scored zip; it exits with 0 when they are
 identical. We ran it on a fresh clone and with no GPU visible.
 
-**Level B** (`test/reproduce_<tag>.sh` in each system folder) runs six steps:
+**Check 2** (`test/reproduce_<tag>.sh` in each system folder) runs six steps:
 
 1. **Inference** of every member on the 50 kit test frames with its checkpoint, its test-time views and its tuned
    post-processing file (`test/postprocess*.yaml`); seed bags fuse their members' predictions
@@ -324,7 +342,7 @@ Outputs go to `model-<track>/<system>/test/output/` (git-ignored).
 **The comparison.** Boxes are matched per frame and class (Hungarian assignment on centres, within 0.5 m). A run is
 EQUIVALENT when no box scored above 0.3 is left unmatched and 99% of the matched boxes agree within 0.1 m and 0.01 in
 score. Sparse-convolution and point-operator kernels on the GPU are not bit-deterministic (two of our runs on idle GPUs
-differ by 0.04 mm at the 99th percentile), so IDENTICAL is not expected from re-inference; Level A is the exact check.
+differ by 0.04 mm at the 99th percentile), so IDENTICAL is not expected from re-inference; Check 1 is the exact check.
 Each track's results above are from our working checkout; a fresh copy of the repository with only the starting kits
 under `$BDC_DATA` and the checkpoints verified against the release manifests gave the same verdicts.
 
@@ -341,7 +359,7 @@ is committed next to its zip (`codabench_<id>.json`).
   built for another GPU architecture or CUDA toolkit. Set `CUDA_HOME` and `TORCH_CUDA_ARCH_LIST` (Section 4.2), remove
   `$BDC_DATA/third_party/OpenPCDet`, and rerun the setup.
 - `forbidden_frames.txt missing` or `starting kit not ingested`: run Section 4.3 in an activated shell.
-- `CUDA out of memory` in Level B: use a GPU that no other job shares, or a larger one (Section 4.1).
+- `CUDA out of memory` in Check 2: use a GPU that no other job shares, or a larger one (Section 4.1).
 
 ### 4.9 Optional: validation and retraining
 

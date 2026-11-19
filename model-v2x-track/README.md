@@ -60,15 +60,14 @@ Truck's validation scores overstate its test AP (124 test boxes); see the V2X-Re
 
 ## 4. Reproduce
 
-Exact check (no GPU, no checkpoint; the starting kit ingested): the saved member predictions merged with the committed
-card give the scored `predictions.json` identically.
+Check 1, exact re-merge (no GPU, no checkpoint; the starting kit ingested): the saved member predictions merged with
+the committed card give the scored `predictions.json` identically.
 
 ```bash
-python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 \
-    --saved model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip
+python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 --saved
 ```
 
-Full re-inference from the released checkpoints (one GPU):
+Check 2, full re-inference from the released checkpoints (one GPU):
 
 ```bash
 python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4

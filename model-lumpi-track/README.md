@@ -70,15 +70,14 @@ The gap between validation and test is discussed in the LUMPI report in
 
 ## 4. Reproduce
 
-Exact check (no GPU, no checkpoint; the starting kit ingested): the saved member predictions merged with the committed
-card give the scored `predictions.json` identically.
+Check 1, exact re-merge (no GPU, no checkpoint; the starting kit ingested): the saved member predictions merged with
+the committed card give the scored `predictions.json` identically.
 
 ```bash
-python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e \
-    --saved model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip
+python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e --saved
 ```
 
-Full re-inference from the released checkpoints (one GPU):
+Check 2, full re-inference from the released checkpoints (one GPU):
 
 ```bash
 python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
