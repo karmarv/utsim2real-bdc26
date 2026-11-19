@@ -56,7 +56,10 @@ All seven checkpoints are trained on synthetic data only (the `g1-v6` corpus fam
 | realval-B (local) | 0.8810 | 0.4013 | 0.8528 | 0.7117 | | |
 
 Truck's validation scores overstate its test AP (124 test boxes); see the V2X-Real report in
-[`docs/paper-bigdata2026/final-report/`](../docs/paper-bigdata2026/final-report).
+[`docs/paper-bigdata2026/final-report/`](../docs/paper-bigdata2026/final-report). The realval rows were recomputed from
+the release 10.4 checkpoints on Nov 19, 2026 (EQUIVALENT, largest per-class difference 0.00015); the comparison with
+the leaderboard, including local realism and combined score, is in
+[root README Section 4.5](../README.md#45-v2x-real-track-reproduce-entry-1051825).
 
 ## 4. Reproduce
 

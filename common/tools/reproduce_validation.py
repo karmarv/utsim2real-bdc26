@@ -38,21 +38,27 @@ def plan(model_dir: Path, card: dict) -> tuple[list[dict], dict]:
     from route_predictions import used_members
     jobs, how = {}, {}
 
-    def job(model: str, ckpt: str, tta, pp: str) -> str:
-        jid = f"{model}{'_tta' if tta else ''}"
-        if jid in jobs and (jobs[jid]["ckpt"], jobs[jid]["postprocess"]) != (ckpt, pp):
+    def job(model: str, ckpt: str, tta, variant: str, pp: str) -> str:
+        spec = {"model": model, "ckpt": ckpt, "tta": tta, "postprocess": pp}
+        for j in jobs.values():                      # one job per (model, checkpoint, views, post-processing)
+            if all(j[k] == v for k, v in spec.items()):
+                return j["id"]
+        jid = f"{model}_{variant}" if tta else model     # <model>_tta (4 views), <model>_tta12 (12 views), <model>
+        if jid in jobs:
             jid += f"__{len(jobs)}"
-        jobs.setdefault(jid, {"id": jid, "model": model, "ckpt": ckpt, "tta": tta, "postprocess": pp})
+        jobs[jid] = {"id": jid, **spec, "variant": variant}
         return jid
 
     for key in sorted(used_members(card)):
         m = card["members"][key]
         tta = m.get("tta")
+        variant = (m.get("tta_tag") or "tta") if tta else "plain"            # as reproduce_submission.members_inventory
         mc = yaml.safe_load((model_dir.parent / m["model"] / "model.yaml").read_text())
-        if mc.get("type") == "bag":
-            how[key] = {"bag": [job(s, CK, tta, TTA_PP if tta else "test/postprocess.yaml") for s in mc["members"]], "iou": mc["iou"]}
+        if mc.get("type") == "bag":                  # each seed with the bag's views and its own tuned file for them
+            pp = f"test/postprocess_{variant}.yaml" if tta else "test/postprocess.yaml"
+            how[key] = {"bag": [job(s, CK, tta, variant, pp) for s in mc["members"]], "iou": mc["iou"]}
         else:
-            how[key] = {"job": job(m["model"], m["ckpt"], tta, m.get("postprocess", TTA_PP) if tta else "test/postprocess.yaml")}
+            how[key] = {"job": job(m["model"], m["ckpt"], tta, variant, m.get("postprocess", TTA_PP) if tta else "test/postprocess.yaml")}
     return list(jobs.values()), how
 
 
@@ -117,7 +123,8 @@ def score(model_dir: Path, card: dict, track, tag: str) -> dict:
     files = {}                                       # each reproduced member file against its recorded one, when present
     for j in jobs:
         for split in ("val", "valB"):
-            orig = model_dir.parent / j["model"] / "validation" / "output" / f"{D}_{split}_{member_tag({'ckpt': j['ckpt'], 'tta': j['tta']})}.json"
+            mt = member_tag({"ckpt": j["ckpt"], "tta": j["tta"], "tta_tag": j.get("variant", "tta")})
+            orig = model_dir.parent / j["model"] / "validation" / "output" / f"{D}_{split}_{mt}.json"
             if orig.exists():
                 files[f"{j['id']}_{split}"] = compare(json.loads((d / f"{j['id']}_{split}.json").read_text()), json.loads(orig.read_text()))["identical_within_tol"]
     out = {"model": card["name"], "tag": tag, "predictions": str(d.relative_to(REPO)), "jobs": jobs,

@@ -1,0 +1,154 @@
+{
+  "model": "routed-s10-4-v4",
+  "tag": "s10-4-v4",
+  "predictions": "model-v2x-track/routed-s10-4-v4/validation/output/repro_s10-4-v4",
+  "jobs": [
+    {
+      "id": "voxelrcnn-ros-g1v6_tta",
+      "model": "voxelrcnn-ros-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v6d2_tta",
+      "model": "voxelrcnn-ros-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v6d3_tta",
+      "model": "voxelrcnn-ros-g1v6d3",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v6d4_tta",
+      "model": "voxelrcnn-ros-g1v6d4",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v6d5_tta",
+      "model": "voxelrcnn-ros-g1v6d5",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v6_tta12",
+      "model": "voxelrcnn-ros-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "voxelrcnn-ros-g1v6d2_tta12",
+      "model": "voxelrcnn-ros-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "dsvt-ros-g1v6_tta",
+      "model": "dsvt-ros-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-rosf-g1v6_tta12",
+      "model": "voxelrcnn-rosf-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    }
+  ],
+  "A_mAP": 0.7311569228036424,
+  "B_mAP": 0.7116806135318102,
+  "lateA_mAP": null,
+  "recorded": {
+    "A_mAP": 0.7311966479058934,
+    "B_mAP": 0.711677949642915,
+    "lateA_mAP": null
+  },
+  "per_class": [
+    {
+      "class": "vehicle",
+      "split": "A",
+      "reproduced": 0.8730990897212436,
+      "recorded": 0.8732459199841973,
+      "diff": -0.00014683026295370105
+    },
+    {
+      "class": "vehicle",
+      "split": "B",
+      "reproduced": 0.8809975055241928,
+      "recorded": 0.8809904453645455,
+      "diff": 7.060159647243047e-06
+    },
+    {
+      "class": "pedestrian",
+      "split": "A",
+      "reproduced": 0.4090608234290297,
+      "recorded": 0.40905640404101096,
+      "diff": 4.4193880187615164e-06
+    },
+    {
+      "class": "pedestrian",
+      "split": "B",
+      "reproduced": 0.40129094684030875,
+      "recorded": 0.40129094684030875,
+      "diff": 0.0
+    },
+    {
+      "class": "truck",
+      "split": "A",
+      "reproduced": 0.911310855260654,
+      "recorded": 0.9112876196924719,
+      "diff": 2.3235568182178312e-05
+    },
+    {
+      "class": "truck",
+      "split": "B",
+      "reproduced": 0.852753388230929,
+      "recorded": 0.8527524567238907,
+      "diff": 9.315070383930646e-07
+    }
+  ],
+  "max_abs_diff": 0.00014683026295370105,
+  "member_files_identical_to_recorded": {
+    "voxelrcnn-ros-g1v6_tta_val": true,
+    "voxelrcnn-ros-g1v6_tta_valB": true,
+    "voxelrcnn-ros-g1v6d2_tta_val": true,
+    "voxelrcnn-ros-g1v6d2_tta_valB": true,
+    "voxelrcnn-ros-g1v6d3_tta_val": false,
+    "voxelrcnn-ros-g1v6d3_tta_valB": true,
+    "voxelrcnn-ros-g1v6d4_tta_val": false,
+    "voxelrcnn-ros-g1v6d4_tta_valB": false,
+    "voxelrcnn-ros-g1v6d5_tta_val": false,
+    "voxelrcnn-ros-g1v6d5_tta_valB": true,
+    "voxelrcnn-ros-g1v6_tta12_val": true,
+    "voxelrcnn-ros-g1v6_tta12_valB": true,
+    "voxelrcnn-ros-g1v6d2_tta12_val": true,
+    "voxelrcnn-ros-g1v6d2_tta12_valB": true,
+    "dsvt-ros-g1v6_tta_val": false,
+    "dsvt-ros-g1v6_tta_valB": false,
+    "voxelrcnn-rosf-g1v6_tta12_val": false,
+    "voxelrcnn-rosf-g1v6_tta12_valB": true
+  },
+  "max_split_mAP_diff": 3.972510225103143e-05,
+  "verdict": "EQUIVALENT"
+}

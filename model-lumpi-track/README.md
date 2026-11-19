@@ -66,7 +66,10 @@ All 14 checkpoints are trained on synthetic data only (the UT-LUMPI-based `g1-v6
 | realval-B (local) | 0.2502 | 0.8034 | 0.2868 | 0.0497 | 0.0645 | 0.2422 | 0.0012 | 0.2426 | | |
 
 The gap between validation and test is discussed in the LUMPI report in
-[`docs/paper-bigdata2026/final-report/`](../docs/paper-bigdata2026/final-report).
+[`docs/paper-bigdata2026/final-report/`](../docs/paper-bigdata2026/final-report). The realval rows were recomputed from
+the release 10.5 checkpoints on Nov 19, 2026 (EQUIVALENT, largest per-class difference 0.0003); the comparison with
+the leaderboard, including late-A, local realism and combined score, is in
+[root README Section 4.6](../README.md#46-lumpi-track-reproduce-entry-1053789).
 
 ## 4. Reproduce
 

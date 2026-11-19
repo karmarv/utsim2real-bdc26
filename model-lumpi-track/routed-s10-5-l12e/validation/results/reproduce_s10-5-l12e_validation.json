@@ -1,0 +1,329 @@
+{
+  "model": "routed-s10-5-l12e",
+  "tag": "s10-5-l12e",
+  "predictions": "model-lumpi-track/routed-s10-5-l12e/validation/output/repro_s10-5-l12e",
+  "jobs": [
+    {
+      "id": "pvrcnnpp-ros-g1v6_tta",
+      "model": "pvrcnnpp-ros-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v6d2_tta",
+      "model": "pvrcnnpp-ros-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-rosf-g1v6_tta12",
+      "model": "voxelrcnn-rosf-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "voxelrcnn-rosf-g1v6d2_tta12",
+      "model": "voxelrcnn-rosf-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "voxelrcnn-rosn-g1v6_tta",
+      "model": "voxelrcnn-rosn-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelrcnn-rosn-g1v6d2_tta",
+      "model": "voxelrcnn-rosn-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "dsvt-rosf-g1v6_tta12",
+      "model": "dsvt-rosf-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "pointpillars-ros-g1v6_tta",
+      "model": "pointpillars-ros-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "pointpillars-ros-g1v6d2_tta",
+      "model": "pointpillars-ros-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "pointpillars-rosf-g1v6_tta",
+      "model": "pointpillars-rosf-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v6j_tta",
+      "model": "pvrcnnpp-ros-g1v6j",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "pvrcnnpp-ros-g1v6j_tta12",
+      "model": "pvrcnnpp-ros-g1v6j",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "voxelnext-rosf-g1v6d2_tta",
+      "model": "voxelnext-rosf-g1v6d2",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z",
+      "postprocess": "test/postprocess_tta.yaml",
+      "variant": "tta"
+    },
+    {
+      "id": "voxelnext-rosn-g1v6_tta12",
+      "model": "voxelnext-rosn-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "voxelrcnn-rosf-g1v6j_tta12",
+      "model": "voxelrcnn-rosf-g1v6j",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    },
+    {
+      "id": "voxelrcnn-rosn-g1v6_tta12",
+      "model": "voxelrcnn-rosn-g1v6",
+      "ckpt": "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth",
+      "tta": "flip4+yaw+z+scale",
+      "postprocess": "test/postprocess_tta12.yaml",
+      "variant": "tta12"
+    }
+  ],
+  "A_mAP": 0.41722110439584226,
+  "B_mAP": 0.2425553004659067,
+  "lateA_mAP": 0.35622433350572635,
+  "recorded": {
+    "A_mAP": 0.4172309247715647,
+    "B_mAP": 0.24255664816769731,
+    "lateA_mAP": 0.35626731159734304
+  },
+  "per_class": [
+    {
+      "class": "Person",
+      "split": "A",
+      "reproduced": 0.6099965830776254,
+      "recorded": 0.6100796897723978,
+      "diff": -8.310669477240573e-05
+    },
+    {
+      "class": "Person",
+      "split": "B",
+      "reproduced": 0.2501567071932384,
+      "recorded": 0.25017780721784233,
+      "diff": -2.1100024603926126e-05
+    },
+    {
+      "class": "Person",
+      "split": "lateA",
+      "reproduced": 0.46558300922660295,
+      "recorded": 0.4659218776793825,
+      "diff": -0.00033886845277952826
+    },
+    {
+      "class": "Car",
+      "split": "A",
+      "reproduced": 0.9085635096669107,
+      "recorded": 0.9085580000265179,
+      "diff": 5.50964039280899e-06
+    },
+    {
+      "class": "Car",
+      "split": "B",
+      "reproduced": 0.8033623962656827,
+      "recorded": 0.8033624103886737,
+      "diff": -1.4122990998899354e-08
+    },
+    {
+      "class": "Car",
+      "split": "lateA",
+      "reproduced": 0.8797357727914752,
+      "recorded": 0.879693873512357,
+      "diff": 4.189927911824043e-05
+    },
+    {
+      "class": "Bicycle",
+      "split": "A",
+      "reproduced": 0.6544830944608775,
+      "recorded": 0.6544924468706974,
+      "diff": -9.35240981991825e-06
+    },
+    {
+      "class": "Bicycle",
+      "split": "B",
+      "reproduced": 0.2868751698132415,
+      "recorded": 0.2868499963629966,
+      "diff": 2.5173450244941886e-05
+    },
+    {
+      "class": "Bicycle",
+      "split": "lateA",
+      "reproduced": 0.510159106654228,
+      "recorded": 0.5101601841109059,
+      "diff": -1.0774566778781747e-06
+    },
+    {
+      "class": "Motorcycle",
+      "split": "A",
+      "reproduced": 0.24004788066990593,
+      "recorded": 0.24004788066990593,
+      "diff": 0.0
+    },
+    {
+      "class": "Motorcycle",
+      "split": "B",
+      "reproduced": 0.04966088476030054,
+      "recorded": 0.04966088476030054,
+      "diff": 0.0
+    },
+    {
+      "class": "Motorcycle",
+      "split": "lateA",
+      "reproduced": 0.0006142506142506143,
+      "recorded": 0.0006142506142506143,
+      "diff": 0.0
+    },
+    {
+      "class": "Bus",
+      "split": "A",
+      "reproduced": 0.01075357360414494,
+      "recorded": 0.01075357360414494,
+      "diff": 0.0
+    },
+    {
+      "class": "Bus",
+      "split": "B",
+      "reproduced": 0.0644743027105503,
+      "recorded": 0.06447510876573417,
+      "diff": -8.0605518387733e-07
+    },
+    {
+      "class": "Bus",
+      "split": "lateA",
+      "reproduced": 0.0007485029940119761,
+      "recorded": 0.0007485029940119761,
+      "diff": 0.0
+    },
+    {
+      "class": "Truck",
+      "split": "A",
+      "reproduced": 0.38809108415530547,
+      "recorded": 0.38809109119767415,
+      "diff": -7.042368688203737e-09
+    },
+    {
+      "class": "Truck",
+      "split": "B",
+      "reproduced": 0.24219059111116809,
+      "recorded": 0.24220336434879158,
+      "diff": -1.2773237623497913e-05
+    },
+    {
+      "class": "Truck",
+      "split": "lateA",
+      "reproduced": 0.5548407424924722,
+      "recorded": 0.5548407424924722,
+      "diff": 0.0
+    },
+    {
+      "class": "Van",
+      "split": "A",
+      "reproduced": 0.10861200513612564,
+      "recorded": 0.10859379125961503,
+      "diff": 1.8213876510603244e-05
+    },
+    {
+      "class": "Van",
+      "split": "B",
+      "reproduced": 0.001167051407165258,
+      "recorded": 0.0011669653295423583,
+      "diff": 8.607762289969748e-08
+    },
+    {
+      "class": "Van",
+      "split": "lateA",
+      "reproduced": 0.08188894976704375,
+      "recorded": 0.08189174977802124,
+      "diff": -2.8000109774939386e-06
+    }
+  ],
+  "max_abs_diff": 0.00033886845277952826,
+  "member_files_identical_to_recorded": {
+    "pvrcnnpp-ros-g1v6_tta_val": true,
+    "pvrcnnpp-ros-g1v6_tta_valB": true,
+    "pvrcnnpp-ros-g1v6d2_tta_val": true,
+    "pvrcnnpp-ros-g1v6d2_tta_valB": false,
+    "voxelrcnn-rosf-g1v6_tta12_val": false,
+    "voxelrcnn-rosf-g1v6_tta12_valB": false,
+    "voxelrcnn-rosf-g1v6d2_tta12_val": true,
+    "voxelrcnn-rosf-g1v6d2_tta12_valB": false,
+    "voxelrcnn-rosn-g1v6_tta_val": false,
+    "voxelrcnn-rosn-g1v6_tta_valB": false,
+    "voxelrcnn-rosn-g1v6d2_tta_val": true,
+    "voxelrcnn-rosn-g1v6d2_tta_valB": true,
+    "dsvt-rosf-g1v6_tta12_val": false,
+    "dsvt-rosf-g1v6_tta12_valB": false,
+    "pointpillars-ros-g1v6_tta_val": true,
+    "pointpillars-ros-g1v6_tta_valB": true,
+    "pointpillars-ros-g1v6d2_tta_val": true,
+    "pointpillars-ros-g1v6d2_tta_valB": true,
+    "pointpillars-rosf-g1v6_tta_val": true,
+    "pointpillars-rosf-g1v6_tta_valB": true,
+    "pvrcnnpp-ros-g1v6j_tta_val": true,
+    "pvrcnnpp-ros-g1v6j_tta_valB": true,
+    "pvrcnnpp-ros-g1v6j_tta12_val": true,
+    "pvrcnnpp-ros-g1v6j_tta12_valB": true,
+    "voxelnext-rosf-g1v6d2_tta_val": false,
+    "voxelnext-rosf-g1v6d2_tta_valB": false,
+    "voxelnext-rosn-g1v6_tta12_val": false,
+    "voxelnext-rosn-g1v6_tta12_valB": false,
+    "voxelrcnn-rosf-g1v6j_tta12_val": true,
+    "voxelrcnn-rosf-g1v6j_tta12_valB": true,
+    "voxelrcnn-rosn-g1v6_tta12_val": false,
+    "voxelrcnn-rosn-g1v6_tta12_valB": false
+  },
+  "max_split_mAP_diff": 4.297809161668553e-05,
+  "verdict": "EQUIVALENT"
+}

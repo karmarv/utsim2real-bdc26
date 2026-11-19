@@ -252,6 +252,31 @@ reproduction: EQUIVALENT (GPU nondeterminism: run it on an idle GPU for an exact
 | Starting-kit scorer | `"valid": true` (kit dummy reference, 19 s) |
 | Repackaged zip | `model-v2x-track/routed-s10-4-v4/test/output/repro-s10-4-v4/submission.zip` |
 
+**Scores: leaderboard and local evaluation.** The leaderboard row is the organizers' scoring of entry 1051825 on the
+50 test frames. The local rows apply the same official metric (3D AP@0.5, R40) to legal real validation frames that
+were never used for training ([`data-v2x-track/README.md`](data-v2x-track/README.md)): as recorded when the system was
+selected ([`scorecard.json`](model-v2x-track/routed-s10-4-v4/validation/results/scorecard.json)) and as recomputed on
+Nov 19 from the release 10.4 checkpoints by
+[`test/reproduce_s10-4-v4_validation.sh`](model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4_validation.sh)
+([result](model-v2x-track/routed-s10-4-v4/validation/results/reproduce_s10-4-v4_validation.json): EQUIVALENT, largest
+per-class difference 0.00015).
+
+| Evaluation | Frames | vehicle | pedestrian | truck | 3D mAP | Realism R | Combined |
+|---|---|---|---|---|---|---|---|
+| **Leaderboard 1051825** (organizers' server) | 50 test | 0.7432 | 0.4109 | 0.6595 | 0.6045 | 0.9406 | **0.8944** |
+| Local realval-A, recorded at selection (Nov 13) | 688 real | 0.8732 | 0.4091 | 0.9113 | 0.7312 | 0.9415 | 0.9766 |
+| Local realval-A, reproduced (Nov 19) | 688 real | 0.8731 | 0.4091 | 0.9113 | 0.7312 | 0.9415 | 0.9766 |
+| Local realval-B, recorded at selection (Nov 13) | 298 real | 0.8810 | 0.4013 | 0.8528 | 0.7117 | 0.9415 | 0.9766 |
+| Local realval-B, reproduced (Nov 19) | 298 real | 0.8810 | 0.4013 | 0.8528 | 0.7117 | 0.9415 | 0.9766 |
+
+- **Local realism R:** the official starting-kit scorer on the 50 submitted frames against 50 held-out legal real
+  frames (`realism-proxy-4`): 0.941485 at selection and again on Nov 19. The server's hidden reference gave 0.940605.
+- **Local combined:** the challenge formula with the local mAP and R. Both validation splits pass the mAP cap of 0.7,
+  so their combined score saturates. On the test frames pedestrian AP agrees with validation within 0.01, vehicle is
+  0.13-0.14 lower, and truck (0.66 on 124 test boxes) is 0.19-0.25 lower.
+- Recomputing the local rows needs the prepared real validation data (licensed, not redistributed; Section 4.9) and
+  about 3 GPU-hours (18 inference runs, independent of each other; we spread them over 8 GPUs).
+
 ### 4.6 LUMPI track: reproduce entry 1053789
 
 Entry **1053789**: combined 0.542997 (3D mAP 0.197537, realism 0.934200). System
@@ -313,6 +338,36 @@ fusion (IoU 0.7) then merges it with the other member's box instead of keeping b
 working checkout and a fresh copy) both give the merged box. Every other box agrees within the tolerance, and Check 1
 shows that the scored predictions follow exactly from the saved member predictions and the committed card.
 
+**Scores: leaderboard and local evaluation.** The leaderboard row is the organizers' scoring of entry 1053789 on the
+50 test frames. The local rows apply the same official metric (3D AP@0.5, R40) to legal real validation frames that
+were never used for training ([`data-lumpi-track/README.md`](data-lumpi-track/README.md)): as recorded when the system
+was selected ([`scorecard.json`](model-lumpi-track/routed-s10-5-l12e/validation/results/scorecard.json)) and as
+recomputed on Nov 19 from the release 10.5 checkpoints by
+[`test/reproduce_s10-5-l12e_validation.sh`](model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e_validation.sh)
+([result](model-lumpi-track/routed-s10-5-l12e/validation/results/reproduce_s10-5-l12e_validation.json): EQUIVALENT,
+largest per-class difference 0.0003).
+
+| Evaluation | Frames | Person | Car | Bicycle | Motorcycle | Bus | Truck | Van | 3D mAP | Realism R | Combined |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Leaderboard 1053789** (organizers' server) | 50 test | 0.3159 | 0.6833 | 0.1427 | 0.0179 | 0.0004 | 0.0700 | 0.1525 | 0.1975 | 0.9342 | **0.5430** |
+| Local realval-A, recorded at selection (Nov 15) | 1,280 real | 0.6101 | 0.9086 | 0.6545 | 0.2400 | 0.0108 | 0.3881 | 0.1086 | 0.4172 | 0.9404 | 0.7338 |
+| Local realval-A, reproduced (Nov 19) | 1,280 real | 0.6100 | 0.9086 | 0.6545 | 0.2400 | 0.0108 | 0.3881 | 0.1086 | 0.4172 | 0.9404 | 0.7338 |
+| Local late-A, recorded at selection (Nov 15) | 320 real | 0.4659 | 0.8797 | 0.5102 | 0.0006 | 0.0007 | 0.5548 | 0.0819 | 0.3563 | 0.9404 | 0.6815 |
+| Local late-A, reproduced (Nov 19) | 320 real | 0.4656 | 0.8797 | 0.5102 | 0.0006 | 0.0007 | 0.5548 | 0.0819 | 0.3562 | 0.9404 | 0.6815 |
+| Local realval-B, recorded at selection (Nov 15) | 867 real | 0.2502 | 0.8034 | 0.2868 | 0.0497 | 0.0645 | 0.2422 | 0.0012 | 0.2426 | 0.9404 | 0.5841 |
+| Local realval-B, reproduced (Nov 19) | 867 real | 0.2502 | 0.8034 | 0.2869 | 0.0497 | 0.0645 | 0.2422 | 0.0012 | 0.2426 | 0.9404 | 0.5841 |
+
+- **Frames:** realval-A is 1,280 frames of Measurement4, the recording the test frames come from; late-A is its 320
+  frames nearest the test window (frames 4800-6399); realval-B is 867 frames of Measurements 5-6 (another session,
+  partly automatic labels, and its Van labels are not vans, so its Van AP is not comparable).
+- **Local realism R:** the official starting-kit scorer on the 50 submitted frames against 50 held-out legal real
+  frames (`realism-proxy-4`): 0.940414 at selection and again on Nov 19. The server's hidden reference gave 0.934200.
+- **Local combined:** the challenge formula with the local mAP and R. The test mAP (0.198) is below every local split
+  (0.243-0.417): Car, Bicycle and Truck are 0.12-0.17 below even realval-B, Person lies between realval-B and late-A,
+  and Van is the one class above its validation AP. The LUMPI report ([Section 6](#6-papers)) discusses the gap.
+- Recomputing the local rows needs the prepared real validation data (licensed, not redistributed; Section 4.9) and
+  about 10 GPU-hours (34 inference runs, independent of each other; we spread them over 8 GPUs).
+
 ### 4.7 How the reproduction works
 
 **Check 1** ([`reproduce_submission.py`](common/tools/reproduce_submission.py) `--saved`) merges the saved member
@@ -364,8 +419,9 @@ is committed next to its zip (`codabench_<id>.json`).
 ### 4.9 Optional: validation and retraining
 
 - **Validation reproduction** (real validation data needed): each system folder also has
-  `test/reproduce_<tag>_validation.sh`, which re-merges the members' realval predictions and recomputes the local scores
-  behind every selection. Preparing the real validation sets needs the LUMPI and V2X-Real licences
+  `test/reproduce_<tag>_validation.sh`, which reruns every member on realval-A and realval-B from its checkpoint, merges
+  the predictions with the committed `model.yaml` and recomputes the local scores behind the selection. Our results for
+  the two final systems are in the score tables of Sections 4.5 and 4.6. Preparing the real validation sets needs the LUMPI and V2X-Real licences
   ([`data-lumpi-track/README.md`](data-lumpi-track/README.md), [`data-v2x-track/README.md`](data-v2x-track/README.md)).
 - **Retraining** from scratch: each member folder has `train/train.sh` (OpenPCDet config in `train/pcdet_model.yaml`,
   the corpus and seed in `model.yaml`); the corpora are generated with `data-<track>/prepare_g1.py` from the organizers'

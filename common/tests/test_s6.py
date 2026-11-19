@@ -196,6 +196,27 @@ def test_validation_plan_expands_bags_into_seed_jobs(tmp_path):
     assert all(j["postprocess"] == "test/postprocess_tta.yaml" for j in jobs if j["tta"])
 
 
+def test_validation_plan_keeps_12_view_bag_seeds_apart_from_4_view(tmp_path):
+    from reproduce_validation import plan
+    for m, card in (("seed-a", {"name": "seed-a"}), ("seed-b", {"name": "seed-b"}),
+                    ("bag-x", {"name": "bag-x", "type": "bag", "members": ["seed-a", "seed-b"], "iou": {"default": 0.5}})):
+        (tmp_path / m).mkdir()
+        (tmp_path / m / "model.yaml").write_text(yaml.safe_dump(card))
+    ck, bck = "train/output/pcdet_model/run1/ckpt/checkpoint_epoch_40.pth", "train/output/pcdet_model/bag/ckpt/checkpoint_epoch_40.pth"
+    v12 = {"tta": "flip4+yaw+z+scale", "tta_tag": "tta12", "postprocess": "test/postprocess_tta12.yaml"}
+    card = {"route": {"Car": "b4", "Van": "b12", "Bus": "a12"},
+            "members": {"b4": {"model": "bag-x", "ckpt": bck, "tta": "flip4+yaw+z", "postprocess": "test/postprocess_tta.yaml"},
+                        "b12": {"model": "bag-x", "ckpt": bck, **v12},
+                        "a12": {"model": "seed-a", "ckpt": ck, **v12}}}
+    jobs, how = plan(tmp_path / "routed", card)
+    by = {j["id"]: j for j in jobs}
+    assert sorted(by) == ["seed-a_tta", "seed-a_tta12", "seed-b_tta", "seed-b_tta12"]
+    assert how["b4"]["bag"] == ["seed-a_tta", "seed-b_tta"] and how["b12"]["bag"] == ["seed-a_tta12", "seed-b_tta12"]
+    assert how["a12"] == {"job": "seed-a_tta12"}                    # the 12-view member shares its seed's bag job
+    assert by["seed-b_tta12"]["tta"] == "flip4+yaw+z+scale" and by["seed-b_tta12"]["postprocess"] == "test/postprocess_tta12.yaml"
+    assert by["seed-b_tta"]["tta"] == "flip4+yaw+z" and by["seed-b_tta"]["postprocess"] == "test/postprocess_tta.yaml"
+
+
 @pytest.mark.skipif(not (REPO / "releases").exists(), reason="no release manifests")
 @pytest.mark.parametrize("manifest", sorted(REPO.glob("releases/*/weights.json")), ids=lambda p: p.parent.name)
 def test_release_manifest_is_consistent(manifest):
