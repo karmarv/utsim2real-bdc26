@@ -247,3 +247,6 @@ model-*/archive/*/submissions/*/submission.zip
 .venv_ut/
 .venv*/
 common/kit/*.zip
+
+# macOS folder metadata
+.DS_Store
