@@ -85,5 +85,6 @@ python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l1
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh
 ```
 
-Prerequisites, starting-kit ingest and the expected output of both: [root README Section 4](../README.md#4-reproduce-the-final-submissions).
+Setup (prerequisites, environment, starting kits, checkpoints): [root README Sections 4.1-4.4](../README.md#4-reproduce-the-final-submissions).
+Expected output of both commands: [root README Section 4.6](../README.md#46-lumpi-track-reproduce-entry-1053789).
 With the real validation data prepared, `test/reproduce_s10-5-l12e_validation.sh` recomputes the local scores above.

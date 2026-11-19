@@ -99,10 +99,10 @@ every member (`member_predictions_<tag>.zip`). Two levels of reproduction:
 
 | Level | What it shows | Needs | Time |
 |---|---|---|---|
-| **A. Exact re-merge** (Section 4.5) | the committed system card (`model.yaml`: routes, fusion, test-time stages) turns the members' saved test predictions into the scored `predictions.json`, **identical** to the last digit | the environment (Section 4.2) and the starting kits; no checkpoint, no GPU at run time | under 1 minute per track |
-| **B. Full re-inference** (Section 4.6) | the released checkpoints, run from scratch on the 50 kit test frames, give the same predictions up to GPU floating-point nondeterminism; the repackaged zip passes the official starting-kit scorer and its 50 synthetic frames are byte-identical to the scored ones | one GPU and the checkpoints (Section 4.4) | 12 to 17 minutes per track on one RTX A6000 |
+| **A. Exact re-merge** (Sections 4.5, 4.6) | the committed system card (`model.yaml`: routes, fusion, test-time stages) turns the members' saved test predictions into the scored `predictions.json`, **identical** to the last digit | the environment (Section 4.2) and the starting kits; no checkpoint, no GPU at run time | under 1 minute per track |
+| **B. Full re-inference** (Sections 4.5, 4.6) | the released checkpoints, run from scratch on the 50 kit test frames, give the same predictions up to GPU floating-point nondeterminism; the repackaged zip passes the official starting-kit scorer and its 50 synthetic frames are byte-identical to the scored ones | one GPU and the checkpoints (Section 4.4) | 12 to 17 minutes per track on one RTX A6000 |
 
-**Quick start** (each step is explained in Sections 4.1-4.6):
+**Quick start** (Sections 4.1-4.4 explain the setup; Sections 4.5 (V2X-Real) and 4.6 (LUMPI) give each track's commands and expected output):
 
 ```bash
 # 1. Environment (Section 4.2). On a machine other than ours, first export CUDA_HOME and TORCH_CUDA_ARCH_LIST.
@@ -116,11 +116,11 @@ mkdir -p common/kit
 python data-v2x-track/ingest_kit.py common/kit/v2x_real_starting_kit.zip
 python data-lumpi-track/ingest_kit.py common/kit/lumpi_starting_kit.zip
 
-# 3. Level A: exact re-merge, CPU only (Section 4.5). Prints IDENTICAL for each track.
+# 3. Level A: exact re-merge, CPU only. Prints IDENTICAL for each track.
 python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 --saved model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip
 python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e --saved model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip
 
-# 4. Level B: checkpoints (Section 4.4), then full re-inference on one GPU (Section 4.6).
+# 4. Level B: checkpoints (Section 4.4), then full re-inference on one GPU.
 python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
 python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
@@ -200,43 +200,116 @@ python common/tools/release_weights.py verify --tag 10.4 --version v2x:s10-4-v4 
 python common/tools/release_weights.py verify --tag 10.5 --version lumpi:s10-5-l12e
 ```
 
-### 4.5 Level A: exact re-merge (no GPU)
+### 4.5 V2X-Real track: reproduce entry 1051825
+
+Entry **1051825**: combined 0.894399 (3D mAP 0.604516, realism 0.940605). System
+[`model-v2x-track/routed-s10-4-v4`](model-v2x-track/routed-s10-4-v4) ([track README](model-v2x-track/README.md)); checkpoints in release
+[10.4](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.4) (7 files, 1.5 GB). Set up first: Sections 4.1-4.3.
+
+**Level A: exact re-merge** (CPU, about 25 s):
 
 ```bash
 python common/tools/reproduce_submission.py model-v2x-track/routed-s10-4-v4 --tag s10-4-v4 \
     --saved model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/member_predictions_s10-4-v4.zip
+```
+
+Expected: exit code 0 and
+
+```
+re-merge of 6 saved members with model-v2x-track/routed-s10-4-v4/model.yaml: IDENTICAL to the scored model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip
+```
+
+(41,252 boxes, maximum difference 0.0.)
+
+**Level B: full re-inference** (one GPU, about 12 minutes plus the kit check):
+
+```bash
+python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
+CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
+```
+
+Expected: exit code 0, ending with
+
+```
+reproduction: EQUIVALENT (GPU nondeterminism: run it on an idle GPU for an exact match) (scored zip model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip; frames identical)
+```
+
+| Check | Our result (Nov 19, 2026) |
+|---|---|
+| Inference | 11 runs: 7 checkpoints, two seed bags, 4 or 12 test-time views |
+| Boxes against the scored zip | 41,248 re-inferred, 41,252 scored; 41,239 matched; the 22 unmatched all score below 0.3 |
+| Matched boxes, 99th percentile | centre 3.3 mm, score 0.00008 |
+| 50 synthetic frames | byte-identical (`"synthetic_frames_identical": true`) |
+| Starting-kit scorer | `"valid": true` (kit dummy reference, 19 s) |
+| Repackaged zip | `model-v2x-track/routed-s10-4-v4/test/output/repro-s10-4-v4/submission.zip` |
+
+### 4.6 LUMPI track: reproduce entry 1053789
+
+Entry **1053789**: combined 0.542997 (3D mAP 0.197537, realism 0.934200). System
+[`model-lumpi-track/routed-s10-5-l12e`](model-lumpi-track/routed-s10-5-l12e) ([track README](model-lumpi-track/README.md)); checkpoints in release
+[10.5](https://github.com/karmarv/utsim2real-bdc26/releases/tag/10.5) (14 files, 2.3 GB). Set up first: Sections 4.1-4.3.
+
+**Level A: exact re-merge** (CPU, about 10 s):
+
+```bash
 python common/tools/reproduce_submission.py model-lumpi-track/routed-s10-5-l12e --tag s10-5-l12e \
     --saved model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/member_predictions_s10-5-l12e.zip
 ```
 
-Each command merges the saved member predictions with the committed `model.yaml`
-([`route_predictions.py`](common/tools/route_predictions.py) `merge_card`) and compares the result box by box with the
-`predictions.json` inside the scored zip; it exits with 0 when they are identical. Expected (our runs on a fresh clone
-and with no GPU visible, Nov 19, 2026; 24 s and 10 s):
+Expected: exit code 0 and
 
 ```
-re-merge of 6 saved members with model-v2x-track/routed-s10-4-v4/model.yaml: IDENTICAL to the scored model-v2x-track/routed-s10-4-v4/submissions/2026-11-13_s10-4-v4/v2x_s10-4-v4_submission.zip
 re-merge of 14 saved members with model-lumpi-track/routed-s10-5-l12e/model.yaml: IDENTICAL to the scored model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip
 ```
 
-(41,252 and 38,047 boxes, maximum difference 0.0.)
+(38,047 boxes, maximum difference 0.0.)
 
-### 4.6 Level B: full re-inference from the checkpoints
+**Level B: full re-inference** (one GPU, about 17 minutes plus the kit check):
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
+python common/tools/release_weights.py fetch --tag 10.5 --version lumpi:s10-5-l12e
 CUDA_VISIBLE_DEVICES=0 bash model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh
 ```
 
-What each script does (V2X: [`reproduce_s10-4-v4.sh`](model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh);
-LUMPI: [`reproduce_s10-5-l12e.sh`](model-lumpi-track/routed-s10-5-l12e/test/reproduce_s10-5-l12e.sh)):
+Expected: exit code 1, ending with
+
+```
+reproduction: DIFFERENT under the strict rule only by 1 box fusion merge/split decision(s) (listed above under unmatched_above_0.3 / merge_split_with); every other box matched within the tolerance. The exact check is the re-merge of the saved member predictions (--saved) (scored zip model-lumpi-track/routed-s10-5-l12e/submissions/2026-11-15_s10-5-l12e/lumpi_s10-5-l12e_submission.zip; frames identical)
+```
+
+| Check | Our result (Nov 19, 2026) |
+|---|---|
+| Inference | 17 runs: 14 checkpoints, three seed bags, 4 or 12 test-time views |
+| Boxes against the scored zip | 38,033 re-inferred, 38,047 scored; 37,980 matched; of the 120 unmatched, one scores above 0.3 (below), two are the Truck pair it replaces, and the other 117 score below 0.15 |
+| Matched boxes, 99th percentile | centre 2.3 cm, score 0.0005 |
+| 50 synthetic frames | byte-identical (`"synthetic_frames_identical": true`) |
+| Starting-kit scorer | `"valid": true` (kit dummy reference, 22 s) |
+| Repackaged zip | `model-lumpi-track/routed-s10-5-l12e/test/output/repro-s10-5-l12e/submission.zip` |
+
+**The one LUMPI difference** (printed under `unmatched_above_0.3`): in kit frame 007209 the scored zip has two
+overlapping Truck boxes (scores 0.24 and 0.21), while the re-inference has one fused Truck box (0.45) in their place. It
+starts inside the two-seed PV-RCNN++ bag that is one of the two Truck members: its two seeds score this truck almost
+equally (0.428 and 0.427) with boxes overlapping at 3D IoU 0.68, so floating-point differences change how weighted box
+fusion clusters them, and the bag's box for this truck lies 0.7 m from its position in the scored run. The Truck class
+fusion (IoU 0.7) then merges it with the other member's box instead of keeping both. Our two runs on Nov 19 (the
+working checkout and a fresh copy) both give the merged box. Every other box agrees within the tolerance, and Level A
+shows that the scored predictions follow exactly from the saved member predictions and the committed card.
+
+### 4.7 How the reproduction works
+
+**Level A** ([`reproduce_submission.py`](common/tools/reproduce_submission.py) `--saved`) merges the saved member
+predictions with the committed `model.yaml` ([`route_predictions.py`](common/tools/route_predictions.py) `merge_card`)
+and compares the result box by box with the `predictions.json` inside the scored zip; it exits with 0 when they are
+identical. We ran it on a fresh clone and with no GPU visible.
+
+**Level B** (`test/reproduce_<tag>.sh` in each system folder) runs six steps:
 
 1. **Inference** of every member on the 50 kit test frames with its checkpoint, its test-time views and its tuned
    post-processing file (`test/postprocess*.yaml`); seed bags fuse their members' predictions
    ([`pcdet_predict.py`](common/tools/pcdet_predict.py), [`bag_predictions.py`](common/tools/bag_predictions.py)).
 2. **Merge** with the committed system card ([`route_predictions.py`](common/tools/route_predictions.py) `merge`).
-3. **Compare** the merged predictions with the scored zip's
-   ([`reproduce_submission.py`](common/tools/reproduce_submission.py) `--compare`; informative, the script continues).
+3. **Compare** the merged predictions with the scored zip's (`reproduce_submission.py --compare`; informative, the
+   script continues).
 4. **Repackage** with the same 50 synthetic frames, taken from the scored zip when the synthetic corpus is not present,
    and the declaration ([`package_submission.py`](common/tools/package_submission.py)).
 5. **Check** the new zip with the official starting-kit scorer
@@ -246,46 +319,20 @@ LUMPI: [`reproduce_s10-5-l12e.sh`](model-lumpi-track/routed-s10-5-l12e/test/repr
 6. **Compare** the new zip with the scored one, predictions and the 50 frames (`reproduce_submission.py --compare-zip`);
    this prints the verdict and sets the exit code.
 
-Outputs go to `model-<track>/<system>/test/output/` (git-ignored); the repackaged zip is
-`test/output/repro-<tag>/submission.zip`. The V2X script ends with `reproduction: EQUIVALENT ...` and exit code 0. The
-LUMPI script ends with `reproduction: DIFFERENT under the strict rule only by 1 box fusion merge/split decision(s) ...`
-and exit code 1, for the one box explained below.
+Outputs go to `model-<track>/<system>/test/output/` (git-ignored).
 
 **The comparison.** Boxes are matched per frame and class (Hungarian assignment on centres, within 0.5 m). A run is
 EQUIVALENT when no box scored above 0.3 is left unmatched and 99% of the matched boxes agree within 0.1 m and 0.01 in
 score. Sparse-convolution and point-operator kernels on the GPU are not bit-deterministic (two of our runs on idle GPUs
 differ by 0.04 mm at the 99th percentile), so IDENTICAL is not expected from re-inference; Level A is the exact check.
-
-**Expected results** (two runs per track on Nov 19, 2026: in our working checkout, and in a fresh copy of the repository
-with only the starting kits under `$BDC_DATA` and the checkpoints verified against the release manifests; the numbers
-are the working-checkout run, and the fresh copy gave the same verdicts):
-
-| | V2X-Real (`s10-4-v4`, 1051825) | LUMPI (`s10-5-l12e`, 1053789) |
-|---|---|---|
-| Inference runs | 11 (7 checkpoints; bags and views) | 17 (14 checkpoints; bags and views) |
-| Wall time, one RTX A6000 | about 12 minutes, plus the kit check | about 17 minutes, plus the kit check |
-| Boxes (re-inference / scored) | 41,248 / 41,252 | 38,033 / 38,047 |
-| Matched boxes | 41,239; the 22 unmatched all score below 0.3 | 37,980; of the 120 unmatched, one scores above 0.3, two are the Truck pair below, the other 117 score below 0.15 |
-| Matched-box agreement, 99th percentile | centre 3.3 mm, score 0.00008 | centre 2.3 cm, score 0.0005 |
-| Verdict | **EQUIVALENT** | **DIFFERENT under the strict rule only by 1 box fusion merge/split** (below) |
-| 50 synthetic frames | byte-identical to the scored zip | byte-identical to the scored zip |
-| Starting-kit scorer | valid (kit dummy reference: 19 s) | valid (kit dummy reference: 22 s) |
-| Level A re-merge | IDENTICAL | IDENTICAL |
-
-**The one LUMPI difference** (listed by the script under `unmatched_above_0.3`): in kit frame 007209 the scored zip has
-two overlapping Truck boxes (scores 0.24 and 0.21), while the re-inference has one fused Truck box (0.45) in their
-place. It starts inside the two-seed PV-RCNN++ bag that is one of the two Truck members: its two seeds score this truck
-almost equally (0.428 and 0.427) with boxes overlapping at 3D IoU 0.68, so floating-point differences change how
-weighted box fusion clusters them, and the bag's box for this truck lies 0.7 m from its position in the scored run. The
-Truck class fusion (IoU 0.7) then merges it with the other member's box instead of keeping both. Both runs on Nov 19
-give the merged box. Every other box agrees within the tolerance, and Level A shows that the scored predictions follow
-exactly from the saved member predictions and the committed card.
+Each track's results above are from our working checkout; a fresh copy of the repository with only the starting kits
+under `$BDC_DATA` and the checkpoints verified against the release manifests gave the same verdicts.
 
 The official leaderboard numbers (Section 1) come from the organizers' server, which scores against held-out ground
 truth and a held-out realism reference that the starting kit does not carry; the server's scoring record of each entry
 is committed next to its zip (`codabench_<id>.json`).
 
-### 4.7 Troubleshooting
+### 4.8 Troubleshooting
 
 - `source common/env/activate.sh` activates a conda environment instead of `.venv_ut`: the setup did not finish (it
   marks the environment ready only after its checks pass). Rerun `bash common/env/setup_venv_ut.sh` and read its first
@@ -296,7 +343,7 @@ is committed next to its zip (`codabench_<id>.json`).
 - `forbidden_frames.txt missing` or `starting kit not ingested`: run Section 4.3 in an activated shell.
 - `CUDA out of memory` in Level B: use a GPU that no other job shares, or a larger one (Section 4.1).
 
-### 4.8 Optional: validation and retraining
+### 4.9 Optional: validation and retraining
 
 - **Validation reproduction** (real validation data needed): each system folder also has
   `test/reproduce_<tag>_validation.sh`, which re-merges the members' realval predictions and recomputes the local scores
@@ -326,7 +373,7 @@ The challenge reports (Section 6) give the full real-data-use statement the orga
   choice of the 50 frames against legal proxy sets).
 - **Test frames:** inference only (V2X also counts points inside the predicted boxes for the visibility and overhead
   stages); every copy stage duplicates the detector's own boxes. The starting kit's realism reference is used only by
-  the local format check of Section 4.6, never for fitting or selection.
+  the local format check of Section 4.7, never for fitting or selection.
 - **Submitted frames:** the 50 synthetic frames of each entry come from the detectors' own training corpus, as the
   organizers asked (Nov 12, 2026). The organizers confirmed that the real-data uses listed above are allowed
   (Nov 10, 2026).

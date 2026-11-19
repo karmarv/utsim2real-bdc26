@@ -75,5 +75,6 @@ python common/tools/release_weights.py fetch --tag 10.4 --version v2x:s10-4-v4
 CUDA_VISIBLE_DEVICES=0 bash model-v2x-track/routed-s10-4-v4/test/reproduce_s10-4-v4.sh
 ```
 
-Prerequisites, starting-kit ingest and the expected output of both: [root README Section 4](../README.md#4-reproduce-the-final-submissions).
+Setup (prerequisites, environment, starting kits, checkpoints): [root README Sections 4.1-4.4](../README.md#4-reproduce-the-final-submissions).
+Expected output of both commands: [root README Section 4.5](../README.md#45-v2x-real-track-reproduce-entry-1051825).
 With the real validation data prepared, `test/reproduce_s10-4-v4_validation.sh` recomputes the local scores above.
